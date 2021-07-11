@@ -452,7 +452,6 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 static void x87_reset(dynarec_arm_t* dyn, int ninst)
 {
 #if STEP > 1
-    dyn->x87count = 0;
     for (int i=0; i<8; ++i)
         dyn->x87cache[i] = -1;
     dyn->x87stack = 0;
@@ -496,7 +495,6 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     if(dyn->mmxcount)
         mmx_purgecache(dyn, ninst, s1);
-    ++dyn->x87count;
     dyn->x87stack+=1;
     // move all regs in cache, and find a free one
     int ret = -1;
@@ -517,7 +515,6 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
 #if STEP > 1
     if(dyn->mmxcount)
         mmx_purgecache(dyn, ninst, s1);
-    ++dyn->x87count;
     dyn->x87stack+=1;
     // move all regs in cache
     for(int i=0; i<8; ++i)
@@ -542,14 +539,12 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
                 dyn->x87reg[i] = -1;
             }
         }
-    --dyn->x87count;
 #endif
 }
 
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
 #if STEP > 1
-    dyn->x87count = 0;
     int ret = 0;
     for (int i=0; i<8 && !ret; ++i)
         if(dyn->x87cache[i] != -1)
@@ -610,12 +605,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     if(ret!=0) {
         // --- set values
         // prepare offset to fpu => s1
-        if(offsetof(x86emu_t, mmx87)<256) {
-            ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-        } else {
-            MOVW(s1, offsetof(x86emu_t, mmx87));
-            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-        }
+        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
         // Get top
         // loop all cache entries
         for (int i=0; i<8; ++i)
@@ -644,12 +634,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     if(!ret)    // nothing to do
         return;
     // prepare offset to fpu => s1
-    if(offsetof(x86emu_t, mmx87)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-    } else {
-        MOVW(s1, offsetof(x86emu_t, mmx87));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-    }
+    ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // loop all cache entries
@@ -682,13 +667,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
-    ++dyn->x87count;
-    if(offsetof(x86emu_t, mmx87)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-    } else {
-        MOVW(s1, offsetof(x86emu_t, mmx87));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-    }
+    ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
     if(a) {
@@ -731,12 +710,7 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    if(offsetof(x86emu_t, mmx87)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-    } else {
-        MOVW(s1, offsetof(x86emu_t, mmx87));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-    }
+    ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
@@ -762,12 +736,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     // prepare offset to fpu => s1
-    if(offsetof(x86emu_t, mmx87)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-    } else {
-        MOVW(s1, offsetof(x86emu_t, mmx87));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-    }
+    ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     // Get top
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     // Update
@@ -782,7 +751,6 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     fpu_free_reg_double(dyn, dyn->x87reg[ret]);
     dyn->x87cache[ret] = -1;
     dyn->x87reg[ret] = -1;
-    --dyn->x87count;
 #endif
 }
 
@@ -795,13 +763,8 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
             // refresh the value
-        MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
-            if(offsetof(x86emu_t, mmx87)<256) {
-                ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-            } else {
-                MOVW(s1, offsetof(x86emu_t, mmx87));
-                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-            }
+            MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
+            ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
             LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
             int a = st - dyn->x87stack;
             if(a<0) {
@@ -826,13 +789,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn);
-    ++dyn->x87count;
-    if(offsetof(x86emu_t, mmx87)<256) {
-        ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx87));
-    } else {
-        MOVW(s1, offsetof(x86emu_t, mmx87));
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-    }
+    ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     int a = st - dyn->x87stack;
     if(a<0) {
@@ -892,23 +849,26 @@ static void mmx_reset(dynarec_arm_t* dyn, int ninst)
         dyn->mmxcache[i] = -1;
 #endif
 }
+static int isx87Empty(dynarec_arm_t* dyn, int ninst)
+{
+#if STEP > 1
+    for (int i=0; i<8; ++i)
+        if(dyn->x87cache[i] != -1)
+            return 0;
+#endif
+    return 1;
+}
 // get neon register for a MMX reg, create the entry if needed
 int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
 #if STEP > 1
-    if(dyn->x87count)
+    if(!dyn->x87stack && isx87Empty(dyn, ninst))
         x87_purgecache(dyn, ninst, s1, s2, s3);
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     ++dyn->mmxcount;
     int ret = dyn->mmxcache[a] = fpu_get_reg_double(dyn);
-    int offs = offsetof(x86emu_t, mmx87[a]);
-    if(!(offs&3) && (offs>>2)<256) {
-        ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
-    } else {
-        MOV32(s1, offs);
-        ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-    }
+    ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx[a]));
     VLD1_32(ret, s1);
     return ret;
 #else
@@ -919,7 +879,7 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
 #if STEP > 1
-    if(dyn->x87count)
+    if(!dyn->x87stack && isx87Empty(dyn, ninst))
         x87_purgecache(dyn, ninst, s1, s2, s3);
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
@@ -942,13 +902,7 @@ void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
                 MESSAGE(LOG_DUMP, "\tPurge MMX Cache ------\n");
-                int offs = offsetof(x86emu_t, mmx87[i]);
-                if(!(offs&3) && (offs>>2)<256) {
-                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
-                } else {
-                    MOV32(s1, offs);
-                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-                }
+                ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx[i]));
                 old = i+1;  //+1 because VST1 with write back
             } else {
                 if(old!=i) {
@@ -973,13 +927,7 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
-                int offs = offsetof(x86emu_t, mmx87[i]);
-                if(!(offs&3) && (offs>>2)<256) {
-                    ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
-                } else {
-                    MOV32(s1, offs);
-                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
-                }
+                ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx[i]));
                 old = i+1;
             } else {
                 if(old!=i) {

@@ -115,12 +115,12 @@ typedef struct {
 	#else
 	longdouble_t 	ld;
 	#endif
-	uint64_t		ref;
+	uint64_t		uref;
 } fpu_ld_t;
 
 typedef struct {
-	int64_t			ref;
-	int64_t			ll;
+	int64_t			sref;
+	int64_t			sq;
 } fpu_ll_t;
 
 typedef union {

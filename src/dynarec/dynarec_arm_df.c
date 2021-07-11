@@ -247,7 +247,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         // Save xFlags to use it as scratch...
                         STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
-                        // set STll(0).ll=i64 and ref=ST(0).q later (emu->fpu_ll[(emu->top].ref == emu->mmx87[emu->top])
+                        // set STll(0).ll=i64 and ref=ST(0).q later (emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top])
                         //  get TOP
                         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, top));
                         int a = 0 - dyn->x87stack;
@@ -313,7 +313,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         v2 = fpu_get_scratch_double(dyn);
                         v0 = fpu_get_scratch_double(dyn);
                         s0 = fpu_get_scratch_single(dyn);
-                        // check STll(0).ref==ST(0).q so emu->fpu_ll[(emu->top].ref == emu->mmx87[emu->top]
+                        // check STll(0).ref==ST(0).q so emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top]
                         //  get TOP
                         LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
                         int a = 0 - dyn->x87stack;

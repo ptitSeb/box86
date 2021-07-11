@@ -11,7 +11,7 @@
 
 void reset_fpu(x86emu_t* emu)
 {
-    memset(emu->mmx87, 0, sizeof(emu->mmx87));
+    memset(emu->x87, 0, sizeof(emu->x87));
     memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
     emu->cw = 0x37F;
     emu->sw.x16 = 0x0000;
@@ -167,7 +167,7 @@ void D2LD(void* d, void* ld)
 	int32_t sign80 = (s.ud[1]&0x80000000)?1:0;
 	int32_t exp80 =  s.ud[1]&0x7ff00000;
 	int32_t exp80final = (exp80>>20);
-	int64_t mant80 = s.q&0x000fffffffffffffLL;
+	int64_t mant80 = s.sq&0x000fffffffffffffLL;
 	int64_t mant80final = (mant80 << 11);
     if(exp80final==0x7ff) {
         // NaN and Infinite
@@ -183,7 +183,7 @@ void D2LD(void* d, void* ld)
         }
     }
 	val.b = ((int16_t)(sign80)<<15)| (int16_t)(exp80final);
-	val.f.q = mant80final;
+	val.f.sq = mant80final;
     memcpy(ld, &val, 10);
     /*memcpy(ld, &f.ll, 8);
     memcpy((char*)ld + 8, &val.b, 2);*/
@@ -269,7 +269,11 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
 {
     xsave_t *p = (xsave_t*)ed;
     // should save flags & all
-    emu->sw.f.F87_TOP = emu->top&7;
+    int top = emu->top&7;
+    int stack = 8-top;
+    if(top==0)  // check if stack is full or empty, based on tag[0]
+        stack = (emu->p_regs[0].tag)?8:0;
+    emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw;
     p->StatusWord = emu->sw.x16;
     uint8_t tags = 0;
@@ -285,7 +289,7 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
     p->MxCsr_Mask = 0;
     // copy MMX regs...
     for(int i=0; i<8; ++i)
-        memcpy(&p->FloatRegisters[i].q[0], &emu->mmx87[0], sizeof(emu->mmx87[0]));
+        memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
     memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
 }
@@ -300,8 +304,12 @@ void fpu_fxrstor(x86emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
     // copy back MMX regs...
+    int top = emu->top&7;
+    int stack = 8-top;
+    if(top==0)  // check if stack is full or empty, based on tag[0]
+        stack = (emu->p_regs[0].tag)?8:0;
     for(int i=0; i<8; ++i)
-        memcpy(&emu->mmx87[i], &p->FloatRegisters[i].q[0], sizeof(emu->mmx87[0]));
+        memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
     memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
 }

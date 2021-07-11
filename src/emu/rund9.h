@@ -8,9 +8,9 @@
         case 0xC5:
         case 0xC6:
         case 0xC7:  /* FLD STx */
-            ll = ST(nextop&7).q;
+            ll = ST(nextop&7).sq;
             fpu_do_push(emu);
-            ST0.q = ll;
+            ST0.sq = ll;
             break;
         case 0xC8:
         case 0xC9:
@@ -20,9 +20,9 @@
         case 0xCD:
         case 0xCE:
         case 0xCF:  /* FXCH STx */
-            ll = ST(nextop&7).q;
-            ST(nextop&7).q = ST0.q;
-            ST0.q = ll;
+            ll = ST(nextop&7).sq;
+            ST(nextop&7).sq = ST0.sq;
+            ST0.sq = ll;
             break;
 
         case 0xD0:  /* FNOP */

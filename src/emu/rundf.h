@@ -125,8 +125,8 @@
             tmp64s = *(int64_t*)ED;
             fpu_do_push(emu);
             ST0.d = tmp64s;
-            STll(0).ll = tmp64s;
-            STll(0).ref = ST0.q;
+            STll(0).sq = tmp64s;
+            STll(0).sref = ST0.sq;
             break;
         case 6: /* FBSTP tbytes, ST0 */
             GET_ED;
@@ -137,8 +137,8 @@
             GET_ED;
             if((uintptr_t)ED & 0x7) {
                 // un-aligned!
-                if(STll(0).ref==ST(0).q)
-                    memcpy(ED, &STll(0).ll, sizeof(int64_t));
+                if(STll(0).sref==ST(0).sq)
+                    memcpy(ED, &STll(0).sq, sizeof(int64_t));
                 else {
                     int64_t i64;
                     if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
@@ -148,8 +148,8 @@
                     memcpy(ED, &i64, sizeof(int64_t));
                 }
             } else {
-                if(STll(0).ref==ST(0).q)
-                    *(int64_t*)ED = STll(0).ll;
+                if(STll(0).sref==ST(0).sq)
+                    *(int64_t*)ED = STll(0).sq;
                 else {
                     if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(int64_t)0x7fffffffffffffffLL) || !isfinite(ST0.d))
                         *(int64_t*)ED = 0x8000000000000000LL;

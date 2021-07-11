@@ -18,9 +18,9 @@ void Run66D9(x86emu_t *emu);
 void Run66DD(x86emu_t *emu);
 void RunDF(x86emu_t *emu);
 
-#define ST0 emu->mmx87[emu->top]
-#define ST1 emu->mmx87[(emu->top+1)&7]
-#define ST(a) emu->mmx87[(emu->top+(a))&7]
+#define ST0 emu->x87[emu->top]
+#define ST1 emu->x87[(emu->top+1)&7]
+#define ST(a) emu->x87[(emu->top+(a))&7]
 
 #define STld(a)  emu->fpu_ld[(emu->top+(a))&7]
 #define STll(a)  emu->fpu_ll[(emu->top+(a))&7]

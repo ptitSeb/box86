@@ -28,10 +28,10 @@ typedef struct x86emu_s {
 	reg32_t     regs[8];
 	x86flags_t  eflags;
     reg32_t     ip;
-    uintptr_t   old_ip;
     // fpu / mmx
-	mmx87_regs_t mmx87[8];
-	uint16_t    cw,cw_mask_all;
+	mmx87_regs_t x87[8];
+	mmx87_regs_t mmx[8];
+	uint16_t    cw;
 	x87flags_t  sw;
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
@@ -42,6 +42,7 @@ typedef struct x86emu_s {
     // sse
     sse_regs_t  xmm[8];
     uint32_t    mxcsr;
+    uintptr_t   old_ip;
     // defered flags
     defered_flags_t df;
     uint32_t    op1;

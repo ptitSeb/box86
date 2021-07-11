@@ -809,20 +809,10 @@
             GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* FXSAVE m512byte */
-                    // should save flags & all
-                    // copy MMX regs...
-                    for(int i=0; i<8; ++i)
-                        memcpy(((void*)(ED))+32+i*16, &emu->mmx87[0], sizeof(emu->mmx87[0]));
-                    // copy SSE regs
-                    memcpy(((void*)(ED))+160, &emu->xmm[0], sizeof(emu->xmm));
+                    fpu_fxsave(emu, ED);
                     break;
                 case 1:                 /* FXRSTOR m512byte */
-                    // should restore flags & all
-                    // copy back MMX regs...
-                    for(int i=0; i<8; ++i)
-                        memcpy(&emu->mmx87[i], ((void*)(ED))+32+i*16, sizeof(emu->mmx87[0]));
-                    // copy SSE regs
-                    memcpy(&emu->xmm[0], ((void*)(ED))+160/4, sizeof(emu->xmm));
+                    fpu_fxrstor(emu, ED);
                     break;
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr = ED->dword[0];

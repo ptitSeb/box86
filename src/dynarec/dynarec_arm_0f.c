@@ -865,9 +865,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x6E:
             INST_NAME("MOVD Gm, Ed");
             nextop = F8;
-            GETED;
             gd = (nextop&0x38)>>3;
             v0 = mmx_get_reg_empty(dyn, ninst, x2, x3, x14, gd);
+            GETED;
             VEOR(v0, v0, v0);
             VMOVtoDx_32(v0, 0, ed);
             break;
