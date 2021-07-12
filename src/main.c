@@ -1057,17 +1057,19 @@ int main(int argc, const char **argv, const char **env) {
         printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x64?"using box64":"natively");
         fclose(f);
         free_contextargv();
-        FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         if(x64) {
             // duplicate the array to change 1st arg as box64
             const char** newargv = (const char**)calloc(argc+1, sizeof(char*));
             newargv[0] = my_context->box64path;
+            FreeBox86Context(&my_context);
             for(int i=1; i<argc; ++i)
                 newargv[i] = argv[i];
             return execvp(newargv[0], (char * const*)newargv);
-        } else
+        } else {
+            FreeBox86Context(&my_context);
             return execvp(argv[1], (char * const*)(argv+1));
+        }
         printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
     }
     AddElfHeader(my_context, elf_header);
