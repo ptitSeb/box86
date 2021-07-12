@@ -912,6 +912,17 @@ int main(int argc, const char **argv, const char **env) {
         my_context->box86path = strdup(argv[0]);
     else
         my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
+    // check if box64 is present
+    {
+        my_context->box64path = strdup(my_context->box86path);
+        char* p = strrchr(my_context->box64path, '8');  // get the 8 of box86
+        p[0] = '6'; p[1] = '4'; // change 86 to 64
+        if(!FileExist(my_context->box64path, IS_FILE)) {
+            free(my_context->box64path);
+            my_context->box64path = NULL;
+        }
+    }
+
     // prepare all other env. var
     my_context->envc = CountEnv(environ?environ:env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
@@ -1042,12 +1053,22 @@ int main(int argc, const char **argv, const char **env) {
     }
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch natively instead\n", my_context->argv[0]);
+        int x64 = my_context->box64path?FileIsX64ELF(my_context->argv[0]):0;
+        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x64?"using box64":"natively");
         fclose(f);
         free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
-        return execvp(argv[1], (char * const*)(argv+1));
+        if(x64) {
+            // duplicate the array to change 1st arg as box64
+            const char** newargv = (const char**)calloc(argc+1, sizeof(char*));
+            newargv[0] = my_context->box64path;
+            for(int i=1; i<argc; ++i)
+                newargv[i] = argv[i];
+            return execvp(newargv[0], (char * const*)newargv);
+        } else
+            return execvp(argv[1], (char * const*)(argv+1));
+        printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
     }
     AddElfHeader(my_context, elf_header);
 

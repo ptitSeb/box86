@@ -2001,8 +2001,9 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
+    int x64 = my_context->box64path?FileIsX64ELF(path):0;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    if (x86 || self) {
+    if (x86 || x64 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -2010,7 +2011,7 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
         int n=skip_first;
         while(argv[n]) ++n;
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
-        newargv[0] = emu->context->box86path;
+        newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
@@ -2025,8 +2026,9 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
 {
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
+    int x64 = my_context->box64path?FileIsX64ELF(path):0;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    if (x86 || self) {
+    if (x86 || x64 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
@@ -2034,7 +2036,7 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
         int n=skip_first;
         while(argv[n]) ++n;
         const char** newargv = (const char**)calloc(n+2, sizeof(char*));
-        newargv[0] = emu->context->box86path;
+        newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
@@ -2053,6 +2055,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
+    int x64 = my_context->box64path?FileIsX64ELF(path):0;
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
     free(fullpath);
     if (x86 || self) {
@@ -2060,7 +2063,7 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         int i=0;
         while(argv[i]) ++i;
         char** newargv = (char**)calloc(i+2, sizeof(char*));
-        newargv[0] = emu->context->box86path;
+        newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
@@ -2082,6 +2085,7 @@ EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path,
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
+    int x64 = my_context->box64path?FileIsX64ELF(path):0;
     printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
     free(fullpath);
     if ((x86 || self)) {
@@ -2089,7 +2093,7 @@ EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path,
         int i=0;
         while(argv[i]) ++i;
         char** newargv = (char**)calloc(i+2, sizeof(char*));
-        newargv[0] = emu->context->box86path;
+        newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
