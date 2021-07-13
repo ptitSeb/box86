@@ -331,9 +331,11 @@ void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet
 	et->fnc = (uintptr_t)f;
 	et->arg = arg;
 	#ifdef DYNAREC
-	// pre-creation of the JIT code for the entry point of the thread
-	dynablock_t *current = NULL;
-	DBGetBlock(emu, (uintptr_t)f, 1, &current);
+	if(box86_dynarec) {
+		// pre-creation of the JIT code for the entry point of the thread
+		dynablock_t *current = NULL;
+		DBGetBlock(emu, (uintptr_t)f, 1, &current);
+	}
 	#endif
 	*pet =  et;
 	return pthread_routine;
