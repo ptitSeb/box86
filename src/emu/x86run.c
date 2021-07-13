@@ -685,7 +685,10 @@ _trace:
         _0x8C:                      /* MOV Ed, Seg */
             nextop = F8;
             GET_ED;
-            ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
+            if((nextop&0xC0)==0xC0)
+                ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
+            else
+                ED->word[0] = emu->segs[((nextop&0x38)>>3)];
             NEXT;
         _0x8D:                      /* LEA Gd,M */
             nextop = F8;
@@ -976,7 +979,7 @@ _trace:
 
         _0xCF:                      /* IRET */
             ip = Pop(emu);
-            emu->segs[_CS] = Pop(emu);
+            emu->segs[_CS] = Pop(emu)&0xffff;
             emu->segs_serial[_CS] = 0;
             emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
@@ -1584,11 +1587,11 @@ _trace:
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
                     } else {
-                        Push16(emu, R_CS);
+                        Push(emu, R_CS);
                         Push(emu, ip);
                         ip = ED->dword[0];
                         R_CS = (ED+1)->word[0];
-                        STEP
+                        goto fini;  // in case there is a change of CS
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
