@@ -25,7 +25,7 @@ sudo make install
 sudo systemctl restart systemd-binfmt
 ```
  
-  _For Pi4. Change to RPI2 or RPI3 for other models.  Change to RPI4ARM64 for compiling on arm64. (armhf multiarch or chroot required alongside armhf gcc. Install it with 'sudo apt install gcc-arm-linux-gnueabihf'.)_
+  _For Pi4. Change to RPI2 or RPI3 for other models.  Change `-DRPI4=1` to `-DRPI4ARM64=1` for compiling on arm64. (armhf multiarch or chroot required alongside armhf gcc. Install it with 'sudo apt install gcc-arm-linux-gnueabihf'.)_
 
 #### for ODROID
 
