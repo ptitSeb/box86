@@ -423,10 +423,11 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
     if(!size)
         return 0;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        #ifndef USE_MMAP
         pthread_mutex_lock(&mutex_mmap);
+        #ifndef USE_MMAP
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
+            pthread_mutex_unlock(&mutex_mmap);
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
@@ -434,6 +435,7 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         #else
         void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
         if(p==(void*)-1) {
+            pthread_mutex_unlock(&mutex_mmap);
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
