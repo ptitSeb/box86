@@ -2207,20 +2207,20 @@ GO(gtk_progress_bar_set_pulse_step, vFpd)
 GO(gtk_progress_bar_set_text, vFpp)
 GO(gtk_progress_bar_style_get_type, iFv)
 GO(gtk_progress_bar_update, vFpd)
-//GO(gtk_progress_configure, 
-//GO(gtk_progress_get_current_percentage, 
-//GO(gtk_progress_get_current_text, 
-//GO(gtk_progress_get_percentage_from_value, 
-//GO(gtk_progress_get_text_from_value, 
+GO(gtk_progress_configure, vFpddd)
+GO(gtk_progress_get_current_percentage, dFp)
+GO(gtk_progress_get_current_text, pFp)
+GO(gtk_progress_get_percentage_from_value, dFpd)
+GO(gtk_progress_get_text_from_value, pFpd)
 GO(gtk_progress_get_type, iFv)
-//GO(gtk_progress_get_value, 
-//GO(gtk_progress_set_activity_mode, 
-//GO(gtk_progress_set_adjustment, 
-//GO(gtk_progress_set_format_string, 
-//GO(gtk_progress_set_percentage, 
-//GO(gtk_progress_set_show_text, 
-//GO(gtk_progress_set_text_alignment, 
-//GO(gtk_progress_set_value, 
+GO(gtk_progress_get_value, dFp)
+GO(gtk_progress_set_activity_mode, vFpi)
+GO(gtk_progress_set_adjustment, vFpp)
+GO(gtk_progress_set_format_string, vFpp)
+GO(gtk_progress_set_percentage, vFpd)
+GO(gtk_progress_set_show_text, vFpi)
+GO(gtk_progress_set_text_alignment, vFpff)
+GO(gtk_progress_set_value, vFpd)
 GO(gtk_propagate_event, vFpp)
 //GOM(gtk_quit_add, iFEuBp)
 GO(gtk_quit_add_destroy, vFup)
