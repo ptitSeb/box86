@@ -29,6 +29,7 @@ typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void (*vFpuipuV_t)(void*, uint32_t, int32_t, void*, uint32_t, void*);
 typedef int32_t (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef uint32_t (*uFiipppp_t)(int32_t, int32_t, void*, void*, void*, void*);
 typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
 typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int32_t);
 typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
@@ -71,6 +72,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_clipboard_set_with_data, iFppuppp_t) \
 	GO(gtk_clipboard_set_with_owner, iFppuppp_t) \
 	GO(gtk_init_with_args, iFpppppp_t) \
+	GO(gtk_input_add_full, uFiipppp_t) \
 	GO(gtk_menu_popup, vFpppppuu_t) \
 	GO(gtk_toolbar_insert_stock, pFppppppi_t) \
 	GO(gtk_toolbar_append_item, pFppppppp_t) \

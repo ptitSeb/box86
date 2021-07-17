@@ -1482,6 +1482,7 @@
 #() iFpppppup
 #() iFppppppi
 #() iFppppppp
+#() uFEiipppp
 #() uFEpiippp
 #() uFuippppp
 #() uFppiuppp
@@ -2216,6 +2217,7 @@ wrappedgtkx112/SuvFpuipuV3gtk_binding_entry_add_signal
 wrappedgtkx112/SuiFppuppp3gtk_clipboard_set_with_data
 wrappedgtkx112/SuiFppuppp3gtk_clipboard_set_with_owner
 wrappedgtkx112/SuiFpppppp3gtk_init_with_args
+wrappedgtkx112/SuuFiipppp3gtk_input_add_full
 wrappedgtkx112/SuvFpppppuu3gtk_menu_popup
 wrappedgtkx112/SupFppppppi3gtk_toolbar_insert_stock
 wrappedgtkx112/SupFppppppp3gtk_toolbar_append_item

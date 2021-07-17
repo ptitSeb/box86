@@ -47,6 +47,7 @@ typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
 typedef void          (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void          (*vFpuipp_t)(void*, uint32_t, int, void*, void*);
 typedef void          (*vFppupp_t)(void*, void*, uint32_t, void*, void*);
+typedef uint32_t      (*uFiipppp_t)(int, int, void*, void*, void*, void*);
 typedef unsigned long (*LFpppppi_t)(void*, void*, void*, void*, void*, int);
 typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void          (*vFpuipuV_t)(void*, uint32_t, int, void*, uint32_t, ...);
@@ -121,6 +122,7 @@ typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, 
     GO(gtk_tree_model_foreach, vFppp_t)         \
     GO(gtk_clipboard_request_text, vFppp_t)     \
     GO(gtk_clipboard_request_contents, vFpppp_t)\
+    GO(gtk_input_add_full, uFiipppp_t)          \
 
 
 
@@ -573,6 +575,52 @@ static void* findGtkTreeIterCompareFuncFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkTreeIterCompareFunc callback\n");
+    return NULL;
+}
+
+// GdkInputFunction
+#define GO(A)   \
+static uintptr_t my_GdkInputFunction_fct_##A = 0;                                  \
+static void my_GdkInputFunction_##A(void* data, int source, int cond)              \
+{                                                                                   \
+    RunFunction(my_context, my_GdkInputFunction_fct_##A, 3, data, source, cond);   \
+}
+SUPER()
+#undef GO
+static void* findGdkInputFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GdkInputFunction_fct_##A == (uintptr_t)fct) return my_GdkInputFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GdkInputFunction_fct_##A == 0) {my_GdkInputFunction_fct_##A = (uintptr_t)fct; return my_GdkInputFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GdkInputFunction callback\n");
+    return NULL;
+}
+
+// GtkCallbackMarshal
+#define GO(A)   \
+static uintptr_t my_GtkCallbackMarshal_fct_##A = 0;                                 \
+static void my_GtkCallbackMarshal_##A(void* obj, void* data, uint32_t n, void* args)\
+{                                                                                   \
+    RunFunction(my_context, my_GtkCallbackMarshal_fct_##A, 4, obj, data, n, args);  \
+}
+SUPER()
+#undef GO
+static void* findGtkCallbackMarshalFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkCallbackMarshal_fct_##A == (uintptr_t)fct) return my_GtkCallbackMarshal_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkCallbackMarshal_fct_##A == 0) {my_GtkCallbackMarshal_fct_##A = (uintptr_t)fct; return my_GtkCallbackMarshal_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkCallbackMarshal callback\n");
     return NULL;
 }
 
@@ -1064,6 +1112,14 @@ EXPORT void my_gtk_clipboard_request_text(x86emu_t* emu, void* clipboard, void* 
     gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
 
     my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
+}
+
+EXPORT uint32_t my_gtk_input_add_full(x86emu_t* emu, int source, int condition, void* func, void* marshal, void* data, void* destroy)
+{
+    library_t * lib = GetLibInternal(libname);
+    gtkx112_my_t *my = (gtkx112_my_t*)lib->priv.w.p2;
+
+    return my->gtk_input_add_full(source, condition, findGdkInputFunctionFct(func), findGtkCallbackMarshalFct(marshal), data, findGDestroyNotifyFct(destroy));
 }
 
 #define PRE_INIT    \

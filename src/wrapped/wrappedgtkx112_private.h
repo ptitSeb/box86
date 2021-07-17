@@ -1428,7 +1428,7 @@ GOM(gtk_init, vFEpp)
 //GO(gtk_init_add, 
 GOM(gtk_init_check, iFEpp)
 GOM(gtk_init_with_args, iFEpppppp)
-//GOM(gtk_input_add_full, uFEiBBppB)
+GOM(gtk_input_add_full, uFEiipppp)
 GO(gtk_input_dialog_get_type, iFv)
 GO(gtk_input_dialog_new, pFv)
 GO(gtk_input_remove, vFu)
