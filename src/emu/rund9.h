@@ -153,6 +153,7 @@
         case 0xFB:  /* FSINCOS */
             fpu_do_push(emu);
             sincos(ST1.d, &ST1.d, &ST0.d);
+            emu->sw.f.F87_C2 = 0;
             break;
         case 0xFC:  /* FRNDINT */
             ST0.d = fpu_round(emu, ST0.d);
@@ -164,9 +165,11 @@
             break;
         case 0xFE:  /* FSIN */
             ST0.d = sin(ST0.d);
+            emu->sw.f.F87_C2 = 0;
             break;
         case 0xFF:  /* FCOS */
             ST0.d = cos(ST0.d);
+            emu->sw.f.F87_C2 = 0;
             break;
 
 

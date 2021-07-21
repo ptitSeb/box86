@@ -50,6 +50,7 @@ void arm_fyl2x(x86emu_t* emu)
 void arm_ftan(x86emu_t* emu)
 {
     ST0.d = tan(ST0.d);
+    emu->sw.f.F87_C2 = 0;
 }
 void arm_fpatan(x86emu_t* emu)
 {
@@ -78,6 +79,7 @@ void arm_fyl2xp1(x86emu_t* emu)
 void arm_fsincos(x86emu_t* emu)
 {
     sincos(ST1.d, &ST1.d, &ST0.d);
+    emu->sw.f.F87_C2 = 0;
 }
 void arm_frndint(x86emu_t* emu)
 {
@@ -91,10 +93,12 @@ void arm_fscale(x86emu_t* emu)
 void arm_fsin(x86emu_t* emu)
 {
     ST0.d = sin(ST0.d);
+    emu->sw.f.F87_C2 = 0;
 }
 void arm_fcos(x86emu_t* emu)
 {
     ST0.d = cos(ST0.d);
+    emu->sw.f.F87_C2 = 0;
 }
 
 void arm_fbld(x86emu_t* emu, uint8_t* ed)

@@ -213,6 +213,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to tan
             CALL_1D(tan, 0);
             VMOV_64(v1, 0);
+            //emu->sw.f.F87_C2 = 0;
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            BFC(x1, 10, 1); //C2 = 0
+            STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             #endif
             v2 = x87_do_push(dyn, ninst, x3);
             #if 0
@@ -310,6 +314,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VSWP(v1, 0);
             CALL_1D(cos, 0);
             VMOV_64(v2, 0);
+            //emu->sw.f.F87_C2 = 0;
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            BFC(x1, 10, 1); //C2 = 0
+            STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             #endif
             break;
         case 0xFD:
@@ -341,6 +349,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to sin
             CALL_1D(sin, 0);
             VMOV_64(v1, 0);
+            //emu->sw.f.F87_C2 = 0;
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            BFC(x1, 10, 1); //C2 = 0
+            STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             #endif
             break;
         case 0xFF:
@@ -353,6 +365,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to cos
             CALL_1D(cos, 0);
             VMOV_64(v1, 0);
+            //emu->sw.f.F87_C2 = 0;
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            BFC(x1, 10, 1); //C2 = 0
+            STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             #endif
             break;
 
