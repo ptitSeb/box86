@@ -1,39 +1,39 @@
-# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
-# Contributor: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box86-x86-git
-_pkgname=box86-git
-pkgver=r2798.0edc0374
+# Maintainer: Jai-JAP <parjailu@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
+pkgname=box86-pyra-git
+pkgver=3494.bedacef
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
-arch=('i386')
+arch=('armv7h')
 url="https://github.com/ptitSeb/box86"
 license=('MIT')
+optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-x86-git}")
-conflicts=("${pkgname%-x86-git}")
+provides=("${pkgname%-git}" "${pkgname%-pyra-git}-git" "${pkgname%-pyra-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-pyra-git}-git" "${pkgname%-pyra-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-x86-git}"
+	cd "$srcdir/${pkgname%-pyra-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-x86-git}"
+	cd "${srcdir}/${pkgname%-pyra-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
-		cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+		cmake .. -DPYRA=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 	fi
 }
 
 build() {
-	cd "$srcdir/${pkgname%-x86-git}/build"
+	cd "$srcdir/${pkgname%-pyra-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-x86-git}/build"
+	cd "$srcdir/${pkgname%-pyra-git}/build"
 	make DESTDIR="${pkgdir}/" install
 	# /usr/local/bin isn't in PATH by the default,
 	# we should move it to /usr/bin

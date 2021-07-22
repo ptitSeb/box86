@@ -1,7 +1,7 @@
-# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
-# Contributor: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box86-odroid-git
-pkgver=r2798.0edc0374
+# Maintainer: Jai-JAP <parjailu@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
+pkgname=box86-arm-git
+pkgver=3494.bedacef
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
@@ -9,31 +9,31 @@ url="https://github.com/ptitSeb/box86"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}" "${_pkgname%-odroid-git}-git" "${_pkgname%-odroid-git}")
-conflicts=("${pkgname%-git}" "${_pkgname%-odroid-git}-git" "${_pkgname%-odroid-git}")
+provides=("${pkgname%-git}" "${pkgname%-arm-git}-git" "${pkgname%-arm-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-arm-git}-git" "${pkgname%-arm-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-odroid-git}"
+	cd "$srcdir/${pkgname%-arm-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-odroid-git}"
+	cd "${srcdir}/${pkgname%-arm-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
-		cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+		cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
 	fi
 }
 
 build() {
-	cd "$srcdir/${pkgname%-odroid-git}/build"
+	cd "$srcdir/${pkgname%-arm-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-odroid-git}/build"
+	cd "$srcdir/${pkgname%-arm-git}/build"
 	make DESTDIR="${pkgdir}/" install
 	# /usr/local/bin isn't in PATH by the default,
 	# we should move it to /usr/bin

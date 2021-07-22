@@ -1,8 +1,7 @@
-# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
-# Contributor: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box86-pyra-git
-_pkgname=box86-git
-pkgver=r2798.0edc0374
+# Maintainer: Jai-JAP <parjailu@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
+pkgname=box86-gameshell-git
+pkgver=3494.bedacef
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
@@ -10,31 +9,31 @@ url="https://github.com/ptitSeb/box86"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}" "${pkgname%-pyra-git}-git" "${pkgname%-pyra-git}")
-conflicts=("${pkgname%-git}" "${pkgname%-pyra-git}-git" "${pkgname%-pyra-git}")
+provides=("${pkgname%-git}" "${pkgname%-gameshell-git}-git" "${pkgname%-gameshell-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-gameshell-git}-git" "${pkgname%-gameshell-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-pyra-git}"
+	cd "$srcdir/${pkgname%-gameshell-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
-	cd "${srcdir}/${pkgname%-pyra-git}"
+	cd "${srcdir}/${pkgname%-gameshell-git}"
 	if [[ ! -d ./build ]]; then
 		mkdir build && cd build
-		cmake .. -DPYRA=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+		cmake .. -DGAMESHELL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 	fi
 }
 
 build() {
-	cd "$srcdir/${pkgname%-pyra-git}/build"
+	cd "$srcdir/${pkgname%-gameshell-git}/build"
 	make -j$(nproc)
 }
 
 package() {
-	cd "$srcdir/${pkgname%-pyra-git}/build"
+	cd "$srcdir/${pkgname%-gameshell-git}/build"
 	make DESTDIR="${pkgdir}/" install
 	# /usr/local/bin isn't in PATH by the default,
 	# we should move it to /usr/bin
