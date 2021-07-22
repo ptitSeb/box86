@@ -1,8 +1,7 @@
-# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
-# Contributor: Sebastien Chevalier <ptitseb@box86.org>
+# Maintainer: Jai-JAP <parjailu@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-pandora-git
-_pkgname=box86-git
-pkgver=r2798.0edc0374
+pkgver=3494.bedacef
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')

@@ -1,7 +1,7 @@
-# Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
-# Contributor: Sebastien Chevalier <ptitseb@box86.org>
+# Maintainer: Jai-JAP <parjailu@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-odroid-git
-pkgver=r2798.0edc0374
+pkgver=3494.bedacef
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
@@ -9,8 +9,8 @@ url="https://github.com/ptitSeb/box86"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}" "${_pkgname%-odroid-git}-git" "${_pkgname%-odroid-git}")
-conflicts=("${pkgname%-git}" "${_pkgname%-odroid-git}-git" "${_pkgname%-odroid-git}")
+provides=("${pkgname%-git}" "${pkgname%-odroid-git}-git" "${pkgname%-odroid-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-odroid-git}-git" "${pkgname%-odroid-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
