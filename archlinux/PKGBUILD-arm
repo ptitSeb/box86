@@ -1,5 +1,5 @@
 # Maintainer: SpacingBat3 <git@spacingbat3.anonaddy.com>
-# Contributor: Sebastien Chevalier <sebastien.chev@gmail.com>
+# Contributor: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-arm-git
 pkgver=r2798.0edc0374
 pkgrel=1
