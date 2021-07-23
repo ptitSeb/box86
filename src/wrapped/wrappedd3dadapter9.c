@@ -168,7 +168,8 @@ typedef struct d3d_my_s {
             make_vtable_##vtbl(emu, &my->vtables.my_##vtbl, **a); \
             my->vtables.my_##vtbl##_init = 1; \
         } \
-        **a = &my->vtables.my_##vtbl; \
+        (*a)[0] = &my->vtables.my_##vtbl; \
+        (*a)[1] = &my->vtables.my_##vtbl; \
         return 0; \
     }
 
@@ -388,6 +389,7 @@ int my_create_adapter(x86emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
     }
 
     adapter[0] = &my->vtables.adapter;
+    adapter[1] = &my->vtables.adapter;
     *x_adapter = adapter;
 
     return 0 /* D3D_OK */;
