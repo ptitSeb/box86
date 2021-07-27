@@ -48,6 +48,15 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_add32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x23:
+            INST_NAME("AND Gd, GS:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETEDO(14);
+            emit_and32(dyn, ninst, gd, ed, x3, x14);
+            break;
+
         case 0x2B:
             INST_NAME("SUB Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
