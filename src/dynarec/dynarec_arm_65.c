@@ -72,6 +72,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 default:
                     DEFAULT;
             }
+            break;
 
         case 0x21:
             INST_NAME("AND Ed, Gd");
