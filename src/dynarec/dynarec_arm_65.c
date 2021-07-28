@@ -48,13 +48,38 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_add32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x0F:  // more opcodes
+            opcode = F8;
+            switch(opcode) {
+                
+                case 0xAF:
+                    INST_NAME("IMUL Gd, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    grab_tlsdata(dyn, addr, ninst, x14);
+                    nextop = F8;
+                    GETGD;
+                    GETEDO(x14);
+                    UFLAG_IF {
+                        SMULL(x3, gd, gd, ed);
+                        UFLAG_OP1(x3);
+                        UFLAG_RES(gd);
+                        UFLAG_DF(x3, d_imul32);
+                    } else {
+                        MUL(gd, gd, ed);
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+
         case 0x21:
             INST_NAME("AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
-            GETEDO2(14);
+            GETEDO2(x14);
             emit_and32(dyn, ninst, ed, gd, x3, x14);
             WBACK;
             break;
@@ -65,7 +90,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
             GETGD;
-            GETEDO(14);
+            GETEDO(x14);
             emit_and32(dyn, ninst, gd, ed, x3, x14);
             break;
 

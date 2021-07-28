@@ -1421,6 +1421,12 @@ void RunGS0F(x86emu_t *emu, uintptr_t tlsdata)
     uint8_t nextop;
     reg32_t *oped;
     switch(opcode) {
+        case 0xAF:                      /* IMUL Gd,Ed */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            GD.dword[0] = imul32(emu, GD.dword[0], ED->dword[0]);
+            break;
+
         case 0xB6:                              /* MOVZX Gd,GS:Eb */
             nextop = F8;
             GET_EB_OFFS(tlsdata);
