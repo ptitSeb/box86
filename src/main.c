@@ -584,6 +584,10 @@ void LoadEnvVars(box86context_t *context)
         AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
     //TODO: add relative path to box86 location
 #endif
+    if(FileExist("/lib/box86", 0))
+        AddPath("/lib/box86", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib/box86", 0))
+        AddPath("/usr/lib/box86", &context->box86_ld_lib, 1);
     if(FileExist("/lib/i386-linux-gnu", 0))
         AddPath("/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
     if(FileExist("/usr/lib/i386-linux-gnu", 0))
