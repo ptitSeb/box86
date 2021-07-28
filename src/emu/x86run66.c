@@ -854,6 +854,12 @@ void RunGS(x86emu_t *emu)
             GD.dword[0] = adc32(emu, GD.dword[0], ED->dword[0]);
             break;
 
+        case 0x21:              /* AND Ed,Gd */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            ED->dword[0] = and32(emu, ED->dword[0], GD.dword[0]);
+            break;
+
         case 0x23:              /* AND Gd,Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
