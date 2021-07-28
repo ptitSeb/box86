@@ -28,7 +28,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t i32, j32;
     uint32_t u32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2;
+    uint8_t wback, wb1, wb2, wb;
     uint8_t u8;
     int fixedaddress;
 
@@ -391,6 +391,172 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = F32S;
                 MOV32(x3, i32);
                 STR_REG_LSL_IMM5(x3, ed, x14, 0);
+            }
+            break;
+
+        case 0xD1:
+            nextop = F8;
+            grab_tlsdata(dyn, addr, ninst, x14);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETEDO2(x14);
+                    emit_rol32c(dyn, ninst, ed, 1, x3, x14);
+                    WBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    GETEDO2(x14);
+                    emit_ror32c(dyn, ninst, ed, 1, x3, x14);
+                    WBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, 1");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOVW(x2, 1);
+                    GETEDO2(x14);
+                    wb = ed;
+                    if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
+                    CALL_(rcl32, ed, (1<<x14));
+                    SBACK(wb);
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, 1");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOVW(x2, 1);
+                    wb = ed;
+                    if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
+                    CALL_(rcr32, ed, (1<<x14));
+                    SBACK(wb);
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEDO2(x14);
+                    emit_shl32c(dyn, ninst, ed, 1, x3, x14);
+                    WBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEDO2(x14);
+                    emit_shr32c(dyn, ninst, ed, 1, x3, x14);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEDO2(x14);
+                    emit_sar32c(dyn, ninst, ed, 1, x3, x14);
+                    WBACK;
+                    break;
+            }
+            break;
+        case 0xD3:
+            nextop = F8;
+            grab_tlsdata(dyn, addr, ninst, x14);
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, CL");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    AND_IMM8(x3, xECX, 0x1f);
+                    TSTS_REG_LSL_IMM5(x3, x3, 0);
+                    B_MARK2(cEQ);
+                    RSB_IMM8(x3, x3, 0x20);
+                    GETEDO2(x14);
+                    MOV_REG_ROR_REG(ed, ed, x3);
+                    WBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPS_IMM8(x3, 31);
+                        B_MARK(cNE);
+                            MOV_REG_LSR_IMM5(x1, ed, 31);
+                            ADD_REG_LSL_IMM5(x1, x1, ed, 0);
+                            BFI(xFlags, x1, F_OF, 1);
+                        MARK;
+                        BFI(xFlags, ed, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
+                    MARK2;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, CL");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    AND_IMM8(x3, xECX, 0x1f);
+                    TSTS_REG_LSL_IMM5(x3, x3, 0);
+                    B_MARK2(cEQ);
+                    GETEDO2(x14);
+                    MOV_REG_ROR_REG(ed, ed, x3);
+                    WBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPS_IMM8(x3, 1);
+                        B_MARK(cNE);
+                            MOV_REG_LSR_IMM5(x2, ed, 30); // x2 = d>>30
+                            XOR_REG_LSR_IMM8(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
+                            BFI(xFlags, x2, F_OF, 1);
+                        MARK;
+                        MOV_REG_LSR_IMM5(x2, ed, 31);
+                        BFI(xFlags, x2, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
+                    MARK2;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    AND_IMM8(x2, xECX, 0x1f);
+                    wb = ed;
+                    if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
+                    CALL_(rcl32, ed, (1<<x14));
+                    SBACK(wb);
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    AND_IMM8(x2, xECX, 0x1f);
+                    wb = ed;
+                    if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
+                    CALL_(rcr32, ed, (1<<x14));
+                    SBACK(wb);
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    AND_IMM8(x3, xECX, 0x1f);
+                    GETEDO2(x14);
+                    emit_shl32(dyn, ninst, ed, x3, x3, x14);
+                    WBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    AND_IMM8(x3, xECX, 0x1f);
+                    GETEDO2(x14);
+                    emit_shr32(dyn, ninst, ed, x3, x3, x14);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, CL");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    AND_IMM8(x3, xECX, 0x1f);
+                    GETEDO2(x14);
+                    UFLAG_OP12(ed, x3);
+                    MOV_REG_ASR_REG(ed, ed, x3);
+                    WBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar32);
+                    break;
             }
             break;
 

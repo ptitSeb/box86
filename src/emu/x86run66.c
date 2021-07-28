@@ -1024,6 +1024,23 @@ void RunGS(x86emu_t *emu)
             ED->dword[0] = F32;
             break;
 
+        case 0xD1:                      /* GRP2 Ed,1 */
+        case 0xD3:                      /* GRP2 Ed,CL */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            tmp8u = (opcode==0xD1)?1:R_CL;
+            switch((nextop>>3)&7) {
+                case 0: ED->dword[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                case 1: ED->dword[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                case 2: ED->dword[0] = rcl32(emu, ED->dword[0], tmp8u); break;
+                case 3: ED->dword[0] = rcr32(emu, ED->dword[0], tmp8u); break;
+                case 4: 
+                case 6: ED->dword[0] = shl32(emu, ED->dword[0], tmp8u); break;
+                case 5: ED->dword[0] = shr32(emu, ED->dword[0], tmp8u); break;
+                case 7: ED->dword[0] = sar32(emu, ED->dword[0], tmp8u); break;
+            }
+            break;
+
         case 0xE9:
         case 0xEB:
             --ip;       // ignore FS: to execute regular opcode
