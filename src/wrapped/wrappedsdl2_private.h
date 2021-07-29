@@ -145,6 +145,8 @@ GO(SDL_GameControllerGetStringForAxis, pFp)
 GO(SDL_GameControllerGetStringForButton, pFu)
 GO(SDL_GameControllerGetType, iFp)
 GO(SDL_GameControllerGetVendor, WFp)
+GO(SDL_GameControllerHasLED, iFp)
+GO(SDL_GameControllerHasSensor, iFpi)
 GO(SDL_GameControllerMapping, pFp)
 GO(SDL_GameControllerMappingForDeviceIndex, pFi)
 GOM(SDL_GameControllerMappingForGUID, pFEV)     //%{pFJ}
