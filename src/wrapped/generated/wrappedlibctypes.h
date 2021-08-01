@@ -15,6 +15,7 @@ typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpV_t)(void*, void*);
 typedef int32_t (*iFSp_t)(void*, void*);
 typedef void (*vFpup_t)(void*, uint32_t, void*);
+typedef int32_t (*iFipL_t)(int32_t, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 
@@ -25,6 +26,7 @@ typedef void (*vFpppp_t)(void*, void*, void*, void*);
 	GO(execlp, iFpV_t) \
 	GO(_IO_file_stat, iFSp_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
+	GO(modify_ldt, iFipL_t) \
 	GO(__vfwprintf_chk, iFppp_t) \
 	GO(__libc_init, vFpppp_t)
 

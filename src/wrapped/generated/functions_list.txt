@@ -663,6 +663,7 @@
 #() cFpiii
 #() iFEiip
 #() iFEiiN
+#() iFEipL
 #() iFEipp
 #() iFEupp
 #() iFELup
@@ -2345,6 +2346,7 @@ wrappedlibc/SuiFpV3execle
 wrappedlibc/SuiFpV3execlp
 wrappedlibc/SuiFSp3_IO_file_stat
 wrappedlibc/SuvFpup3_ITM_addUserCommitAction
+wrappedlibc/SuiFipL3modify_ldt
 wrappedlibc/SuiFppp3__vfwprintf_chk
 wrappedlibc/SuvFpppp3__libc_init
 wrappedlibdl/SuiFp3dlclose

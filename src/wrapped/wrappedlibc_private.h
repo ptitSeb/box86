@@ -2201,6 +2201,8 @@ GOM(__deregister_frame_info, pFp) //%%
 
 GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
 
+GOM(modify_ldt, iFEipL) // there is suposedly no glibc wrapper for this one
+
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GOM(stat, iFpp)
