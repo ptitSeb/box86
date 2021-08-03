@@ -341,7 +341,19 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VUZPQ_16(q0, v1);
                     VSUBQ_16(q0, q0, v1);
                     break;
-
+                case 0x06:
+                    INST_NAME("PHSUBD Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0);
+                    if ((nextop & 0xDA) == 0xDA) {
+                        v1 = fpu_get_scratch_quad(dyn);
+                        VMOVQ(v1, q1);
+                    } else
+                        v1 = q1;
+                    VUZPQ_32(q0, v1);
+                    VSUBQ_32(q0, q0, v1);
+                    break;
                 case 0x08:
                     INST_NAME("PSIGNB Gx, Ex");
                     nextop = F8;
