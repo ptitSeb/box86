@@ -24,10 +24,20 @@ make
 sudo make install
 sudo systemctl restart systemd-binfmt
 ```
+  Note that you can use `make -j2` or more to speed up 1st build, but beware of the memory requirement if you go to high.
  
+#### for Raspberry Pi on 64bits OS
+
   _For Pi4. Change to RPI2 or RPI3 for other models.  Change `-DRPI4=1` to `-DRPI4ARM64=1` for compiling on arm64. (armhf multiarch or chroot required alongside armhf gcc. Install it with 'sudo apt install gcc-arm-linux-gnueabihf'.)_
 
-  Note that you can use `make -j2` or more to speed up 1st build, but beware of the memory requirement if you go to high.
+```
+git clone https://github.com/ptitSeb/box86
+cd box86
+mkdir build; cd build; cmake .. -DRPI4ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+make -j2
+sudo make install
+sudo systemctl restart systemd-binfmt
+```
 
 #### for ODROID
 
