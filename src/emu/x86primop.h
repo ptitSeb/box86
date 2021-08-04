@@ -97,6 +97,7 @@ Implements the DEC instruction and side effects.
 ****************************************************************************/
 static inline uint8_t dec8(x86emu_t *emu, uint8_t d)
 {
+    CHECK_FLAGS(emu);
     emu->res = d - 1;
 	emu->op1 = d;
 	emu->df = d_dec8;
@@ -109,6 +110,7 @@ Implements the DEC instruction and side effects.
 ****************************************************************************/
 static inline uint16_t dec16(x86emu_t *emu, uint16_t d)
 {
+    CHECK_FLAGS(emu);
     emu->res = d - 1;
 	emu->op1 = d;
 	emu->df = d_dec16;
@@ -122,6 +124,7 @@ Implements the DEC instruction and side effects.
 ****************************************************************************/
 static inline uint32_t dec32(x86emu_t *emu, uint32_t d)
 {
+    CHECK_FLAGS(emu);
     emu->res = d - 1;
 	emu->op1 = d;
 	emu->df = d_dec32;
@@ -135,6 +138,7 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 static inline uint8_t inc8(x86emu_t *emu, uint8_t d)
 {
+    CHECK_FLAGS(emu);
 	emu->res = d + 1;
 	emu->op1 = d;
 	emu->df = d_inc8;
@@ -147,6 +151,7 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 static inline uint16_t inc16(x86emu_t *emu, uint16_t d)
 {
+    CHECK_FLAGS(emu);
 	emu->res = d + 1;
 	emu->op1 = d;
 	emu->df = d_inc16;
@@ -159,6 +164,7 @@ Implements the INC instruction and side effects.
 ****************************************************************************/
 static inline uint32_t inc32(x86emu_t *emu, uint32_t d)
 {
+    CHECK_FLAGS(emu);
 	if(emu->df == d_shr32) {
 		// workaround for some wine trickery
 		uint32_t cnt = emu->op2;
