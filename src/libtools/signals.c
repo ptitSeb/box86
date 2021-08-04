@@ -234,7 +234,7 @@ static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
-uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
+uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
         printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s\n", fnc?"SIG_DFL":"SIG_IGN");
@@ -264,8 +264,44 @@ uint32_t RunFunctionHandler(int* exit, uintptr_t fnc, int nargs, ...)
     }
     va_end (va);
 
+    int oldquitonlongjmp = emu->quitonlongjmp;
+    emu->quitonlongjmp = 2;
+
     EmuCall(emu, fnc);  // avoid DynaCall for now
     R_ESP+=(nargs*4);
+
+    emu->quitonlongjmp = oldquitonlongjmp;
+
+    if(emu->longjmp) {
+        // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler
+        emu->longjmp = 0;
+        if(sigcontext) {
+            #define GO(R) sigcontext->uc_mcontext.gregs[REG_E##R] = emu->regs[_##R].dword[0]
+            GO(AX);
+            GO(CX);
+            GO(DX);
+            GO(DI);
+            GO(SI);
+            GO(BP);
+            GO(SP);
+            GO(BX);
+            #undef GO
+            sigcontext->uc_mcontext.gregs[REG_EIP] = emu->ip.dword[0];
+            // flags
+            sigcontext->uc_mcontext.gregs[REG_EFL] = emu->eflags.x32;
+            // segments
+            #define GO(S) sigcontext->uc_mcontext.gregs[REG_##S] = emu->segs[_##S]; emu->segs_serial[_##S] = 0
+            GO(GS);
+            GO(FS);
+            GO(ES);
+            GO(DS);
+            GO(CS);
+            GO(SS);
+            #undef GO
+        } else {
+            printf_log(LOG_NONE, "Warning, longjmp in signal but no sigcontext to change\n");
+        }
+    }
 
     if(exit)
         *exit = emu->exit;
@@ -331,42 +367,6 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
 }
 
 
-void my_sighandler(int32_t sig)
-{
-    int Locks = unlockMutex();
-    printf_log(LOG_DEBUG, "Sighanlder for signal #%d called (jump to %p)\n", sig, (void*)my_context->signals[sig]);
-    // save values
-    x86emu_t *emu = thread_get_emu();
-    uintptr_t restorer = my_context->restorer[sig];
-    uintptr_t old_regs[8] = {0};
-    uintptr_t old_ip = emu->ip.dword[0];
-    uint32_t old_flags = emu->eflags.x32;
-    for (int i=0; i<8; ++i)
-        old_regs[i] = emu->regs[i].dword[0];
-    
-    i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
-    if(new_ss) {
-        // no alternate stack, so signal ESP needs to match thread ESP!
-        R_ESP = (uintptr_t)(new_ss->ss_sp+new_ss->ss_size-32);
-    }
-
-    int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 1, sig);
-    // restore regs
-    emu->ip.dword[0] = old_ip;
-    emu->eflags.x32 = old_flags;
-    for (int i=0; i<8; ++i)
-        emu->regs[i].dword[0] = old_regs[i];
-    if(exits) {
-        relockMutex(Locks);
-        exit(ret);
-    }
-    // what about the restored regs?
-    if(restorer)
-        RunFunctionHandler(&exits, restorer, 0);
-    relockMutex(Locks);
-}
-
 #ifdef DYNAREC
 uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
 {
@@ -431,7 +431,7 @@ int isSpecialCases(uintptr_t x86pc, int n)
 }
 #endif
 
-void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
 
@@ -581,7 +581,11 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
     R_EBP = sigcontext->uc_mcontext.gregs[REG_EBP];
 
     int exits = 0;
-    int ret = RunFunctionHandler(&exits, my_context->signals[sig], 3, sig, info, sigcontext);
+    int ret;
+    if(simple)
+        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
+    else
+        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
     // restore old value from emu
     #define GO(R) R_##R = old_##R
     GO(EAX);
@@ -652,7 +656,7 @@ void my_sigactionhandler_oldcode(int32_t sig, siginfo_t* info, void * ucntx, int
         exit(ret);
     }
     if(restorer)
-        RunFunctionHandler(&exits, restorer, 0);
+        RunFunctionHandler(&exits, NULL, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
     relockMutex(Locks);
@@ -854,10 +858,7 @@ exit(-1);
     }
     #endif
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
-        if(my_context->is_sigaction[sig])
-            my_sigactionhandler_oldcode(sig, info, ucntx, &old_code, db);
-        else
-            my_sighandler(sig);
+        my_sigactionhandler_oldcode(sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db);
         return;
     }
     // no handler (or double identical segfault)
@@ -876,7 +877,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* db = NULL;
     #endif
 
-    my_sigactionhandler_oldcode(sig, info, ucntx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, info, ucntx, NULL, db);
 }
 
 void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
@@ -889,7 +890,7 @@ void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
     info.si_code = code;
     info.si_addr = addr;
     printf_log(LOG_INFO, "Emit Signal %d at IP=%p / addr=%p, code=%d\n", sig, (void*)R_EIP, addr, code);
-    my_sigactionhandler_oldcode(sig, &info, &ctx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, db);
 }
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
@@ -904,14 +905,18 @@ EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
     my_context->signals[signum] = (uintptr_t)handler;
     my_context->is_sigaction[signum] = 0;
     my_context->restorer[signum] = 0;
-    if(handler!=NULL && handler!=(sighandler_t)1) {
-        handler = my_sighandler;
-    }
-
+    my_context->onstack[signum] = 0;
     if(signum==SIGSEGV || signum==SIGBUS || signum==SIGILL)
         return 0;
-
-    return signal(signum, handler);
+    if(handler!=NULL && handler!=(sighandler_t)1) {
+        struct sigaction newact = {0};
+        struct sigaction oldact = {0};
+        newact.sa_flags = 0x04;
+        newact.sa_sigaction = my_sigactionhandler;
+        sigaction(signum, &newact, &oldact);
+        return oldact.sa_handler;
+    } else 
+        return signal(signum, handler);
 }
 EXPORT sighandler_t my___sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
 EXPORT sighandler_t my_sysv_signal(x86emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));    // not completly exact
@@ -942,7 +947,8 @@ int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x
             my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
             my_context->is_sigaction[signum] = 0;
             if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                newact.sa_handler = my_sighandler;
+                newact.sa_flags|=0x04;
+                newact.sa_sigaction = my_sigactionhandler;
             } else
                 newact.sa_handler = act->_u._sa_handler;
         }
@@ -995,7 +1001,8 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                 my_context->is_sigaction[signum] = 0;
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    newact.k_sa_handler = my_sighandler;
+                    newact.sa_flags|=0x4;
+                    newact.k_sa_handler = (void*)my_sigactionhandler;
                 } else {
                     newact.k_sa_handler = act->_u._sa_handler;
                 }
@@ -1037,7 +1044,8 @@ int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_r
                 if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
                     my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
                     my_context->is_sigaction[signum] = 0;
-                    newact.sa_handler = my_sighandler;
+                    newact.sa_sigaction = my_sigactionhandler;
+                    newact.sa_flags|=0x4;
                 } else {
                     newact.sa_handler = act->_u._sa_handler;
                 }
