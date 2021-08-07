@@ -237,7 +237,7 @@ static void sigstack_key_alloc() {
 uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
-        printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s\n", fnc?"SIG_DFL":"SIG_IGN");
+        printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s with %d args \n", fnc?"SIG_DFL":"SIG_IGN", nargs);
         return 0;
     }
     uintptr_t old_start = trace_start, old_end = trace_end;
@@ -437,7 +437,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 
     // need to create some x86_ucontext????
     pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
-    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
+    printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s), simple=%d\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]), simple);
 
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
@@ -551,9 +551,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
-            if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
+            /*if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
-            else
+            else*/
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14; // PAGE_FAULT
         } else {
             sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
@@ -568,7 +568,6 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
-
     // save old value from emu
     #define GO(R) uint32_t old_##R = R_##R
     GO(EAX);
@@ -665,7 +664,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
-    int log_minimum = (my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO;
+    int log_minimum = LOG_INFO;//(my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     uintptr_t x86pc = (uintptr_t)-1;
@@ -830,7 +829,7 @@ exit(-1);
         }
 #ifdef DYNAREC
         uint32_t hash = 0;
-        if(db)
+        if(db && ((addr<db->x86_addr || addr>(db->x86_addr+db->x86_size)) || (prot&PROT_READ)))
             hash = X31_hash_code(db->x86_addr, db->x86_size);
         printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
             GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, 
