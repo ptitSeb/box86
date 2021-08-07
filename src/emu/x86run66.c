@@ -1030,6 +1030,22 @@ void RunGS(x86emu_t *emu)
             ED->dword[0] = F32;
             break;
 
+        case 0xD0:                      /* GRP2 Eb,1 */
+        case 0xD2:                      /* GRP2 Eb,CL */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            tmp8u = (opcode==0xD0)?1:R_CL;
+            switch((nextop>>3)&7) {
+                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
+                case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
+                case 4: 
+                case 6: EB->byte[0] = shl8(emu, EB->byte[0], tmp8u); break;
+                case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
+                case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
+            }
+            break;
         case 0xD1:                      /* GRP2 Ed,1 */
         case 0xD3:                      /* GRP2 Ed,CL */
             nextop = F8;
