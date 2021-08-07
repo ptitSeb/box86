@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <errno.h>
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -378,7 +379,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current);
     if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
+        uint32_t hash = (getProtection((uintptr_t)father->x86_addr)&PROT_READ)?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {
             dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size, (void*)addr);
             // no more current if it gets invalidated too
@@ -407,7 +408,7 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL);
     if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
         dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = X31_hash_code(father->x86_addr, father->x86_size);
+        uint32_t hash = (getProtection((uintptr_t)father->x86_addr)&PROT_READ)?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {
             dynarec_log(LOG_DEBUG, "Invalidating alt block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size, (void*)addr);
             // Free father, it's now invalid!
