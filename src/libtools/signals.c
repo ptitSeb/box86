@@ -268,8 +268,8 @@ uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fn
     emu->quitonlongjmp = 2;
 
     EmuCall(emu, fnc);  // avoid DynaCall for now
-    R_ESP+=(nargs*4);
 
+    uint32_t ret = R_EAX;
     emu->quitonlongjmp = oldquitonlongjmp;
 
     if(emu->longjmp) {
@@ -302,11 +302,10 @@ uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fn
             printf_log(LOG_NONE, "Warning, longjmp in signal but no sigcontext to change\n");
         }
     }
+    R_ESP+=(nargs*4);
 
     if(exit)
         *exit = emu->exit;
-
-    uint32_t ret = R_EAX;
 
     trace_start = old_start; trace_end = old_end;
 
