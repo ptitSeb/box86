@@ -431,12 +431,11 @@ int isSpecialCases(uintptr_t x86pc, int n)
 }
 #endif
 
-void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+// my_sigactionhandler_oldcode will relock mutex if needed
+void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
-    int Locks = unlockMutex();
-
     // need to create some x86_ucontext????
-    pthread_mutex_unlock(&my_context->mutex_trace);   // just in case
+
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s), simple=%d\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]), simple);
 
     uintptr_t restorer = my_context->restorer[sig];
@@ -623,7 +622,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
                 new_ss->ss_flags = 0;
-            relockMutex(Locks);
+            //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled
             siglongjmp(ejb->jmpbuf, 1);
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
@@ -651,7 +650,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     #undef GO
     printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits) {
-        relockMutex(Locks);
+        //relockMutex(Locks);   // the thread will exit, so no relock there
         exit(ret);
     }
     if(restorer)
@@ -717,7 +716,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 } else {
                     dynarec_log(LOG_INFO, "Dynablock %p(%p) unprotected, getting out (arm pc=%p, x86_pc=%p, special=%d)!\n", db, db->x86_addr, pc, (void*)ejb->emu->ip.dword[0], special);
                 }
-                relockMutex(Locks);
+                //relockMutex(Locks);   // do not relock because of he siglongjmp
                 siglongjmp(ejb->jmpbuf, 2);
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x86_addr);
@@ -741,10 +740,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 // probably a glitch due to intensive multitask...
                 dynarec_log(/*LOG_DEBUG*/LOG_INFO, "SIGSEGV with Access error on %p for %p , db=%p, retrying\n", pc, addr, db);
-                relockMutex(Locks);
                 glitch_pc = pc;
                 glitch_addr = addr;
                 glitch_prot = prot;
+                relockMutex(Locks);
                 return; // try again
             }
             glitch_pc = NULL;
@@ -757,11 +756,11 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             static int glitch_prot = 0;
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 dynarec_log(LOG_INFO, "Is that a multi process glitch too?\n");
-                relockMutex(Locks);
                 glitch_pc = pc;
                 glitch_addr = addr;
                 glitch_prot = prot;
                 forceProtection((uintptr_t)addr, 1, prot); // force the protection
+                relockMutex(Locks);
                 return; // try again
             }
             glitch_pc = NULL;
@@ -847,17 +846,17 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
     }
-    relockMutex(Locks);
     #if 1
     if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_DYNAREC)==7 || (prot&~PROT_DYNAREC)==5))) {
         /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
         (probably some timing issue) */
         //box86_log=2;
+        relockMutex(Locks);
         return;//why?
     }
     #endif
     if(my_context->signals[sig] && my_context->signals[sig]!=1) {
-        my_sigactionhandler_oldcode(sig, my_context->is_sigaction[sig]?0:1, info, ucntx, &old_code, db);
+        my_sigactionhandler_oldcode(sig, my_context->is_sigaction[sig]?0:1, Locks, info, ucntx, &old_code, db);
         return;
     }
     // no handler (or double identical segfault)
@@ -868,6 +867,7 @@ exit(-1);
 
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
+    int Locks = unlockMutex();
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
     void * pc = (void*)p->uc_mcontext.arm_pc;
@@ -876,11 +876,12 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* db = NULL;
     #endif
 
-    my_sigactionhandler_oldcode(sig, 0, info, ucntx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, Locks, info, ucntx, NULL, db);
 }
 
 void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
 {
+    int Locks = unlockMutex();
     ucontext_t ctx = {0};
     void* db = NULL;
     siginfo_t info = {0};
@@ -889,7 +890,7 @@ void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
     info.si_code = code;
     info.si_addr = addr;
     printf_log(LOG_INFO, "Emit Signal %d at IP=%p / addr=%p, code=%d\n", sig, (void*)R_EIP, addr, code);
-    my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, db);
+    my_sigactionhandler_oldcode(sig, 0, Locks, &info, &ctx, NULL, db);
 }
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
