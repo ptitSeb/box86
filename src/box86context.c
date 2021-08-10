@@ -105,7 +105,6 @@ int unlockMutex()
 
 void relockMutex(int locks)
 {
-    relockCustommemMutex(locks);
     #define GO(A, B)                    \
         if(locks&(1<<B))                \
             pthread_mutex_lock(&A);     \
@@ -122,6 +121,7 @@ void relockMutex(int locks)
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
     #undef GO
+    relockCustommemMutex(locks);
 }
 
 static void init_mutexes(box86context_t* context)
