@@ -2034,6 +2034,7 @@ void iFEiiip(x86emu_t *emu, uintptr_t fnc);
 void iFEipii(x86emu_t *emu, uintptr_t fnc);
 void iFEpppi(x86emu_t *emu, uintptr_t fnc);
 void iFEppiiiip(x86emu_t *emu, uintptr_t fnc);
+void iFEppplpppp(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if defined(POWERPCLE)

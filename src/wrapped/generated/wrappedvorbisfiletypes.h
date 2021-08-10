@@ -25,6 +25,7 @@ typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpppi_t)(void*, void*, void*, int32_t);
 typedef int32_t (*iFppiiiip_t)(void*, void*, int32_t, int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFpppipppp_t)(void*, void*, void*, int32_t, void*, void*, void*, void*);
+typedef int32_t (*iFppplpppp_t)(void*, void*, void*, intptr_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(ov_bitrate_instant, iFp_t) \
@@ -61,6 +62,6 @@ typedef int32_t (*iFpppipppp_t)(void*, void*, void*, int32_t, void*, void*, void
 	GO(ov_test, iFpppi_t) \
 	GO(ov_read, iFppiiiip_t) \
 	GO(ov_open_callbacks, iFpppipppp_t) \
-	GO(ov_open_callbacks, iFpppipppp_t)
+	GO(ov_open_callbacks, iFppplpppp_t)
 
 #endif // __wrappedvorbisfileTYPES_H_

@@ -1997,6 +1997,7 @@
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEpppi
 #!defined(NOALIGN) iFEppiiiip
+#!defined(NOALIGN) iFEppplpppp
 #defined(POWERPCLE) iFEiiiN
 #!defined(POWERPCLE) iFiiiN
 #defined(HAVE_LD80BITS) DFD
@@ -2967,7 +2968,7 @@ wrappedvorbisfile/SuiFpppi3ov_open
 wrappedvorbisfile/SuiFpppi3ov_test
 wrappedvorbisfile/SuiFppiiiip3ov_read
 wrappedvorbisfile/SuiFpppipppp3ov_open_callbacks
-wrappedvorbisfile/SuiFpppipppp3ov_open_callbacks
+wrappedvorbisfile/SuiFppplpppp3ov_open_callbacks
 wrappedvulkan/SuvFpp3vkDestroyDevice
 wrappedvulkan/SuvFpp3vkDestroyInstance
 wrappedvulkan/SuvFpp3vkGetPhysicalDeviceMemoryProperties

@@ -48,7 +48,7 @@ GOM(ov_halfrate,iFEpi)
 GOM(ov_halfrate_p,iFEp)
 GOM(ov_info,pFEpi)
 GOM(ov_open,iFEpppi)
-GOM(ov_open_callbacks,iFEpppipppp)  // ov_callbaks are not "by ref", so all 4 values are just on the stack
+GOM(ov_open_callbacks,iFEppplpppp)  // ov_callbaks are not "by ref", so all 4 values are just on the stack
 GOM(ov_pcm_seek,iFEpI)
 GOM(ov_pcm_seek_lap,iFEpI)
 GOM(ov_pcm_seek_page,iFEpI)

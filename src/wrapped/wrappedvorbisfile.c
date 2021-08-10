@@ -36,7 +36,7 @@ typedef int32_t (*iFpI_t)(void*, int64_t);
 typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpppi_t)(void*, void*, void*, int32_t);
 typedef int32_t (*iFpppi_t)(void*, void*, void*, int32_t);
-typedef int32_t (*iFpppiC_t)(void*, void*, void*, int32_t, ov_callbacks);
+typedef int32_t (*iFppplC_t)(void*, void*, void*, long, ov_callbacks);
 typedef int32_t (*iFppiiiip_t)(void*, void*, int32_t, int32_t, int32_t, int32_t, void*);
 typedef int64_t (*IFp_t)(void*);
 typedef int64_t (*IFpi_t)(void*, int32_t);
@@ -55,7 +55,7 @@ typedef struct vorbisfile_my_s {
     iFp_t           ov_halfrate_p;
     pFpi_t          ov_info;
     iFpppi_t        ov_open;
-    iFpppiC_t       ov_open_callbacks;
+    iFppplC_t       ov_open_callbacks;
     iFpI_t          ov_pcm_seek;
     iFpI_t          ov_pcm_seek_lap;
     iFpI_t          ov_pcm_seek_page;
@@ -95,7 +95,7 @@ void* getVorbisfileMy(library_t* lib)
     GO(ov_halfrate_p, iFp_t)
     GO(ov_info, pFpi_t)
     GO(ov_open, iFpppi_t)
-    GO(ov_open_callbacks, iFpppiC_t)
+    GO(ov_open_callbacks, iFppplC_t)
     GO(ov_pcm_seek, iFpI_t)
     GO(ov_pcm_seek_lap, iFpI_t)
     GO(ov_pcm_seek_page, iFpI_t)
@@ -127,7 +127,7 @@ void freeVorbisfileMy(void* lib)
     //vorbisfile_my_t *my = (vorbisfile_my_t *)lib;
 }
 
-int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read, void* seek, void* close, void* tell);
+int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read, void* seek, void* close, void* tell);
 
 #ifndef NOALIGN
 
@@ -513,7 +513,7 @@ static void* findtellFct(void* fct)
 
 #undef SUPER
 
-EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, int32_t ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
+EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
 {
     vorbisfile_my_t* my = (vorbisfile_my_t*)emu->context->vorbisfile->priv.w.p2;
     ov_callbacks cbs = {0};
