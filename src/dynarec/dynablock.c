@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <sys/mman.h>
+#include <setjmp.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -291,6 +292,14 @@ dynablock_t *AddNewDynablock(dynablocklist_t* dynablocks, uintptr_t addr, int* c
     return block;
 }
 
+//TODO: move this to dynrec_arm.c and track allocated structure to avoid memory leak
+static __thread struct __jmp_buf_tag dynarec_jmpbuf;
+
+void cancelFillBlock()
+{
+    longjmp(&dynarec_jmpbuf, 1);
+}
+
 /* 
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
@@ -324,13 +333,13 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     if(!created)
         return block;   // existing block...
 
-    #if 0
-    if(box86_dynarec_dump)
-        pthread_mutex_lock(&my_context->mutex_dyndump);
-    #endif
     // fill the block
     block->x86_addr = (void*)addr;
     pthread_mutex_lock(&my_context->mutex_dyndump);
+    if(sigsetjmp(&dynarec_jmpbuf, 1)) {
+        printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
+        return NULL;
+    }
     void* ret = FillBlock(block, filladdr);
     pthread_mutex_unlock(&my_context->mutex_dyndump);
     if(!ret) {
@@ -343,10 +352,6 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         free(block);
         block = NULL;
     }
-    #if 0
-    if(box86_dynarec_dump)
-        pthread_mutex_unlock(&my_context->mutex_dyndump);
-    #endif
     // check size
     if(block && block->x86_size) {
         int blocksz = block->x86_size;
