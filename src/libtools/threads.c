@@ -873,18 +873,18 @@ EXPORT int my_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespec 
 {
 	return pthread_mutex_timedlock(getAlignedMutex(m), t);
 }
-EXPORT int my___pthread_mutex_trylock(pthread_mutex_t *m, const struct timespec * t) __attribute__((alias("my_pthread_mutex_timedlock")));
 
 EXPORT int my_pthread_mutex_trylock(pthread_mutex_t *m)
 {
 	return pthread_mutex_trylock(getAlignedMutex(m));
 }
-EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_trylock")));
+EXPORT int my___pthread_mutex_trylock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_trylock")));
 
 EXPORT int my_pthread_mutex_unlock(pthread_mutex_t *m)
 {
 	return pthread_mutex_unlock(getAlignedMutex(m));
 }
+EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_unlock")));
 
 #endif
 
