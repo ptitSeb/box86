@@ -652,7 +652,7 @@ GO(gnutls_record_send, lFppL)
 //GO(gnutls_server_name_get, 
 GO(gnutls_server_name_set, iFpppL)
 //GO(_gnutls_server_name_set_raw, 
-//GO(gnutls_session_channel_binding, 
+GO(gnutls_session_channel_binding, iFppp)
 //GO(gnutls_session_enable_compatibility_mode, 
 //GO(gnutls_session_etm_status, 
 //GO(gnutls_session_ext_master_secret_status, 
