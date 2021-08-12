@@ -36,6 +36,7 @@ typedef void        (*vFpp_t)       (void*, void*);
     GO(gnutls_global_set_log_function, vFp_t)       \
     GO(gnutls_transport_set_pull_function, vFpp_t)  \
     GO(gnutls_transport_set_push_function, vFpp_t)  \
+    GO(gnutls_transport_set_pull_timeout_function, vFpp_t)  \
 
 typedef struct gnutls_my_s {
     // functions
@@ -115,6 +116,30 @@ static void* find_pullpush_Fct(void* fct)
     return NULL;
 }
 
+
+// pulltimeout
+#define GO(A)   \
+static uintptr_t my_pulltimeout_fct_##A = 0;                                \
+static int my_pulltimeout_##A(void* p, uint32_t t)                          \
+{                                                                           \
+    return (int)RunFunction(my_context, my_pulltimeout_fct_##A, 2, p, t);   \
+}
+SUPER()
+#undef GO
+static void* find_pulltimeout_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_pulltimeout_fct_##A == (uintptr_t)fct) return my_pulltimeout_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_pulltimeout_fct_##A == 0) {my_pulltimeout_fct_##A = (uintptr_t)fct; return my_pulltimeout_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libgnutls.so.30 pulltimeout callback\n");
+    return NULL;
+}
 #undef SUPER
 
 
@@ -136,6 +161,13 @@ EXPORT void my_gnutls_transport_set_push_function(x86emu_t* emu, void* session, 
     gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
 
     my->gnutls_transport_set_push_function(session, find_pullpush_Fct(f));
+}
+
+EXPORT void my_gnutls_transport_set_pull_timeout_function(x86emu_t* emu, void* session, void* f)
+{
+    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
+
+    my->gnutls_transport_set_pull_timeout_function(session, find_pulltimeout_Fct(f));
 }
 
 #define CUSTOM_INIT \

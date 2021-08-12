@@ -177,7 +177,7 @@ GO(gnutls_deinit, vFp)
 //GO(gnutls_dtls_get_timeout, 
 //GO(gnutls_dtls_prestate_set, 
 //GO(gnutls_dtls_set_data_mtu, 
-//GO(gnutls_dtls_set_mtu, 
+GO(gnutls_dtls_set_mtu, vFpu)
 //GO(gnutls_dtls_set_timeouts, 
 //GO(gnutls_ecc_curve_get, 
 //GO(gnutls_ecc_curve_get_id, 
@@ -754,7 +754,7 @@ GO(gnutls_transport_set_errno, vFpi)
 GO(gnutls_transport_set_ptr, vFpp)
 //GO(gnutls_transport_set_ptr2, 
 GOM(gnutls_transport_set_pull_function, vFEpp)
-//GO(gnutls_transport_set_pull_timeout_function, 
+GOM(gnutls_transport_set_pull_timeout_function, vFEpp)
 GOM(gnutls_transport_set_push_function, vFEpp)
 //GO(gnutls_transport_set_vec_push_function, 
 //GO(_gnutls_ucs2_to_utf8, 
