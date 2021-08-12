@@ -800,17 +800,21 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int vis = h->SymTab[i].st_other&0x3;
         uint32_t sz = h->SymTab[i].st_size;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
-            if(sz && strstr(symname, "@@")) {
-                char symnameversionned[strlen(symname)+1];
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED) /*&& (h->SymTab[i].st_shndx!=0)*/) {
+            if(/*sz &&*/ strstr(symname, "@@")) {
+                /*char symnameversionned[strlen(symname)+1];
                 strcpy(symnameversionned, symname);
                 // extact symname@@vername
                 char* p = strchr(symnameversionned, '@');
                 *p=0;
-                p+=2;
-                symname = AddDictionnary(my_context->versym, symnameversionned);
-                const char* vername = AddDictionnary(my_context->versym, p);
-                if((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, 2, p))
+                p+=2;*/
+                //symname = AddDictionnary(my_context->versym, symnameversionned);
+                const char* vername;
+                symname = AddDefault(my_context->versym, symname, &vername);
+                //const char* vername = AddDictionnary(my_context->versym, p);
+                if(!sz || !h->SymTab[i].st_shndx)
+                    continue;
+                if((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, 2, vername))
                     continue;
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
                 printf_dump(LOG_NEVER, "Adding Default Versionned Symbol(bind=%s) \"%s@%s\" with offset=%p sz=%d\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, vername, (void*)offs, sz);
@@ -823,7 +827,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                         AddSymbol(mapsymbols, symname, offs, sz, 2, vername);
                     }
             } else {
-                int to_add = 1;
+                int to_add = (!h->SymTab[i].st_shndx)?0:1;
                 if(libcef) {
                     if(strstr(symname, "_Zn")==symname || strstr(symname, "_Zd")==symname)
                         to_add = 0;

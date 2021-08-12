@@ -481,6 +481,25 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         }
         return 1;
     }
+    if(version==0) {    //check if a default version has been defined
+        const char* default_ver = ExistDefault(my_context->versym, name);
+        if(default_ver) {
+            if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, 2, default_ver)) {
+                if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
+                    uintptr_t start2, end2;
+                    char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
+                    strcpy(buff, name);
+                    strcat(buff, "_END");
+                    if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, 2, default_ver)) {
+                        if(end2>*end && start2==end2)
+                            *end = end2;
+                    }
+                    free(buff);
+                }
+                return 1;
+            }
+        }
+    }
     // some special case symbol, defined inside box86 itself
     if(!strcmp(name, "gdk_display")) {
         *start = (uintptr_t)my_GetGTKDisplay();
