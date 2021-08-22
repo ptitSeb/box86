@@ -70,7 +70,7 @@ Also note that, even if there is a Box64, this one is only be able to run x86_64
 
 ----
 
-A note about Unity game emulation
+Notes about Unity game emulation
 ----
 
 Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with the new "protected memory" mechanism implemented it should be running with correct performance now.
@@ -101,6 +101,11 @@ Wine is now partly supported. Wine integrated program all runs, and some windows
 Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split.
 
 ----
+
+Notes about Vulkan
+----
+
+Box86 already wrap vulikan. If you're system have a 32bits vulkan driver, box86 will use it when needed. Note that vulkan  wrapping has not been tested much, due to the limited vulkan support on the hardware I currently own. Profile 1.0 and 1.1, whith some extension, should be OK. 1.2 is not really wrapped. I know some demo works on Pi4 (Sascha Willems demos build for x86 works the same as if build on armhf directly). Note that the Vulkan driver driver of the Pi4 ODES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardxware support) and a few other things that makes dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
 
 Final words
 ----
