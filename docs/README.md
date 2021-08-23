@@ -97,7 +97,7 @@ Steam for Windows installs fine but doesn't work yet.
 Notes about Wine
 ----
 
-Wine is now partly supported. Wine integrated program all runs, and some windows programs and games now runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and as high profile as possible (and gl4es with ES2 backend have issue with Wine for now). Also, vulkan is not wrapped on box86, so vk3d is not usable yet, even if supported by the hardware.
+Wine is now supported. Wine integrated program all runs, and many windows programs and games also runs fine. Don't forget most Windows games use Direct3D, this may require a complete OpenGL driver and a as high profile as possible (and gl4es with ES2 backend have issue with Wine for now).
 Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those models use a default OS that have a kernel with a 2/2 Split (meaning 2G of space for user program, and 2G of space for the Kernel). This is not compatible with Wine programs that needs to access memory > 2Gb address. So you'll need to reconfigure your kernel for a 3G/1G split.
 
 ----
