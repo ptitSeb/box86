@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//%S X my_xcb_cookie_t
+//%S x my_xcb_cookie_t u
 
 //GO(xcb_dri3_buffer_from_pixmap, 
 //GO(xcb_dri3_buffer_from_pixmap_reply, 
@@ -39,14 +39,14 @@
 //GO(xcb_dri3_get_supported_modifiers_window_modifiers_end, 
 //GO(xcb_dri3_get_supported_modifiers_window_modifiers_length, 
 DATA(xcb_dri3_id, 8)
-GOS(xcb_dri3_open, pFEppuu) //%X
+GOS(xcb_dri3_open, xFEpuu)
 GO(xcb_dri3_open_reply, pFpup)
 GO(xcb_dri3_open_reply_fds, pFpp)
 //GO(xcb_dri3_open_unchecked, 
 //GO(xcb_dri3_pixmap_from_buffer, 
-GOS(xcb_dri3_pixmap_from_buffer_checked, pFEppuuuWWWCCi) //%X
+GOS(xcb_dri3_pixmap_from_buffer_checked, xFEpuuuWWWCCi)
 //GO(xcb_dri3_pixmap_from_buffers, 
 //GO(xcb_dri3_pixmap_from_buffers_checked, 
-GOS(xcb_dri3_query_version, pFEppuu) //%X
+GOS(xcb_dri3_query_version, xFEpuu)
 GO(xcb_dri3_query_version_reply, pFpup)
 //GO(xcb_dri3_query_version_unchecked, 

@@ -63,7 +63,7 @@ typedef union {
 
 typedef struct
 {
-    int32_t bindType;   // enum
+    uint32_t bindType;   // enum
     union
     {
         int button;
@@ -555,19 +555,14 @@ EXPORT void my2_SDL_LogSetOutputFunction(x86emu_t* emu, void* f, void* arg)
     my->SDL_LogSetOutputFunction(find_LogOutput_Fct(f), arg);
 }
 
-EXPORT int my2_SDL_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V)
-{
+EXPORT int my2_SDL_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, *(uint32_t**)b, emu->scratch);
+    myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
+    return vsnprintf(buff, s, fmt, VARARGS);
     #else
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, *(uint32_t**)b);
-    return r;
+    return vsnprintf(buff, s, fmt, b);
     #endif
 }
 
@@ -579,15 +574,14 @@ EXPORT void* my2_SDL_CreateThread(x86emu_t* emu, void* f, void* n, void* p)
     return my->SDL_CreateThread(my_prepare_thread(emu, f, p, 0, &et), n, et);
 }
 
-EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    void* f = vsnprintf;
-    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
+    return vsnprintf(buff, s, fmt, VARARGS);
     #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
+    return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
 }
 
@@ -844,12 +838,6 @@ EXPORT void* my2_SDL_GameControllerGetBindForButton(x86emu_t* emu, void* p, void
     return p;
 }
 
-EXPORT void* my2_SDL_GameControllerMappingForGUID(x86emu_t* emu, void* p)
-{
-    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    return my->SDL_GameControllerMappingForGUID(*(SDL_JoystickGUID*)p);
-}
-
 EXPORT void my2_SDL_AddEventWatch(x86emu_t* emu, void* p, void* userdata)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
@@ -938,21 +926,21 @@ EXPORT int32_t my2_SDL_IsJoystickXboxOne(x86emu_t* emu, uint16_t vendor, uint16_
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickXInput(x86emu_t* emu, void *p)
+EXPORT int32_t my2_SDL_IsJoystickXInput(x86emu_t* emu, SDL_JoystickGUID p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
     if(my->SDL_IsJoystickXInput)
-        return my->SDL_IsJoystickXInput(*(SDL_JoystickGUID*)p);
+        return my->SDL_IsJoystickXInput(p);
     // fallback
     return 0;
 }
-EXPORT int32_t my2_SDL_IsJoystickHIDAPI(x86emu_t* emu, void *p)
+EXPORT int32_t my2_SDL_IsJoystickHIDAPI(x86emu_t* emu, SDL_JoystickGUID p)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
 
     if(my->SDL_IsJoystickHIDAPI)
-        return my->SDL_IsJoystickHIDAPI(*(SDL_JoystickGUID*)p);
+        return my->SDL_IsJoystickHIDAPI(p);
     // fallback
     return 0;
 }
