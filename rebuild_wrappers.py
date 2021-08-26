@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-## TODO: Up ver num
-
 import os
 import sys
 
@@ -1105,6 +1103,16 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		#define ADDED_FUNCTIONS() 
 		#endif
 		
+		""",
+		"fndefs.h": """
+		#ifndef __{filename}DEFS_H_
+		#define __{filename}DEFS_H_
+		
+		""",
+		"fnundefs.h": """
+		#ifndef __{filename}UNDEFS_H_
+		#define __{filename}UNDEFS_H_
+		
 		"""
 	}
 	files_guard = {
@@ -1115,6 +1123,14 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		""",
 		"fntypes.h": """
 		#endif // __{filename}TYPES_H_
+		""",
+		"fndefs.h": """
+		
+		#endif // __{filename}DEFS_H_
+		""",
+		"fnundefs.h": """
+		
+		#endif // __{filename}UNDEFS_H_
 		"""
 	}
 	banner = "/********************************************************" + ('*'*len(ver)) + "***\n" \
@@ -1321,6 +1337,18 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 					file.write(" \\\n\tGO({0}, {1}_t)".format(fun.name, _bare.orig))
 			file.write("\n\n")
 			file.write(files_guard["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+		
+		with open(os.path.join(root, "src", "wrapped", "generated", fn + "defs.h"), 'w') as file:
+			file.write(files_header["fndefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+			for defined in filespecs[fn].structsuses:
+				file.write("#define {defined} {define}\n".format(defined=defined.orig, define=defined.redirected.orig))
+			file.write(files_guard["fndefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+		
+		with open(os.path.join(root, "src", "wrapped", "generated", fn + "undefs.h"), 'w') as file:
+			file.write(files_header["fnundefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
+			for defined in filespecs[fn].structsuses:
+				file.write("#undef {defined}\n".format(defined=defined.orig))
+			file.write(files_guard["fnundefs.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 
 def main(root: str, files: Iterable[str], ver: str):
 	"""
@@ -1364,6 +1392,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "1.2.0.09") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.0.0.10") != 0:
 		exit(2)
 	exit(0)
