@@ -24,15 +24,7 @@ const char* libncurseswName = "libncursesw.so.5";
 
 static library_t* my_lib = NULL;
 
-typedef void*       (*pFv_t)();
-typedef int         (*iFppp_t)(void*, void*, void*);
-typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
-
-#define SUPER()             \
-    GO(initscr, pFv_t)      \
-    GO(mvwprintw, iFpiip_t) \
-    GO(vwprintw, iFppp_t)   \
-    GO(stdscr, void*)
+#include "generated/wrappedlibncurseswtypes.h"
 
 typedef struct libncursesw_my_s {
     // functions
@@ -56,7 +48,7 @@ void freeNCurseswMy(void* lib)
     //libncursesw_my_t *my = (libncursesw_my_t *)lib;
 }
 
-EXPORT int myw_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
+EXPORT int myw_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void* b)
 {
     libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
 
@@ -64,11 +56,9 @@ EXPORT int myw_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* f
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, VARARGS);
+    vasprintf(&buf, fmt, VARARGS);
     #else
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, b);
+    vasprintf(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     int ret = my->mvwprintw(win, y, x, buf);
@@ -88,6 +78,38 @@ EXPORT int myw_printw(x86emu_t* emu, void* fmt, void* b)
     return my->vwprintw(my->stdscr, fmt, b);
     #endif
 }
+
+EXPORT int myw_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
+{
+    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    vasprintf(&buf, fmt, VARARGS);
+    #else
+    vasprintf(&buf, fmt, b);
+    #endif
+    // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
+    int ret = my->mvprintw(x, y, buf);
+    free(buf);
+    return ret;
+}
+
+EXPORT int myw_vw_printw(x86emu_t *emu, void* win, void* fmt, void* b) {
+    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
+
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    return my->vw_printw(win, fmt, VARARGS);
+    #else
+    // other platform don't need that
+    return my->vw_printw(win, fmt, b);
+    #endif
+}
+EXPORT int myw_vwprintw(x86emu_t *emu, void* win, void* fmt, void* b) __attribute__((alias("myw_vw_printw")));
 
 EXPORT void* myw_initscr()
 {

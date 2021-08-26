@@ -2,7 +2,6 @@
 #error Meh....
 #endif
 
-GO(iconv_canonicalize, pFp)
 GO(libiconv, uFppppp)
 GO(libiconv_close, iFp)
 GO(libiconv_open, pFpp)

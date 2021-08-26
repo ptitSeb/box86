@@ -147,53 +147,39 @@ static void wrapper_stream_z(x86emu_t* emu, void* str)
     stream->zfree = find_free_Fct(stream->zfree);
 }
 
-EXPORT int32_t my_inflateInit_(x86emu_t* emu, void* str, void* version, int32_t size)
+EXPORT int my_inflateInit_(x86emu_t* emu, void* str, void* version, int size)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->inflateInit_(str, version, size);
 }
 
-EXPORT int32_t my_inflateInit(x86emu_t* emu, void* str)
-{
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
-    wrapper_stream_z(emu, str);
-    return my->inflateInit(str);
-}
-
-EXPORT int32_t my_inflateInit2_(x86emu_t* emu, void* str, int windowBits, void* version, int stream_size)
+EXPORT int my_inflateInit2_(x86emu_t* emu, void* str, int windowBits, void* version, int stream_size)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->inflateInit2_(str, windowBits, version, stream_size);
 }
 
-EXPORT int32_t my_inflateEnd(x86emu_t* emu, void* str)
+EXPORT int my_inflateBackInit_(x86emu_t* emu, void* strm, int windowBits, void *window, void* version, int size)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
-    int32_t r = my->inflateEnd(str);
-    return r;
+    wrapper_stream_z(emu, strm);
+    return my->inflateBackInit_(strm, windowBits, window, version, size);
 }
 
-EXPORT int32_t my_deflateInit_(x86emu_t* emu, void* str, int level, void* version, int stream_size)
+EXPORT int my_deflateInit_(x86emu_t* emu, void* str, int level, void* version, int stream_size)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->deflateInit_(str, level, version, stream_size);
 }
 
-EXPORT int32_t my_deflateInit2_(x86emu_t* emu, void* str, int level, int method, int windowBits, int memLevel, int strategy, void* version, int stream_size)
+EXPORT int my_deflateInit2_(x86emu_t* emu, void* str, int level, int method, int windowBits, int memLevel, int strategy, void* version, int stream_size)
 {
     libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
     wrapper_stream_z(emu, str);
     return my->deflateInit2_(str, level, method, windowBits, memLevel, strategy, version, stream_size);
-}
-
-EXPORT int32_t my_deflateEnd(x86emu_t* emu, void* str)
-{
-    libz_my_t *my = (libz_my_t *)emu->context->zlib->priv.w.p2;
-    int32_t r = my->deflateEnd(str);
-    return r;
 }
 
 
@@ -207,4 +193,3 @@ EXPORT int32_t my_deflateEnd(x86emu_t* emu, void* str)
     ((box86context_t*)(lib->context))->zlib = NULL;
 
 #include "wrappedlib_init.h"
-
