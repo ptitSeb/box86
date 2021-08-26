@@ -142,9 +142,9 @@ typedef struct {
     A->bzalloc = find_alloc_Fct(A->bzalloc);        \
     A->bzfree = find_free_Fct(A->bzfree);
 
-#define UNWRAP_BZ(A) if(A->bzalloc || A->bzfree)    \
-    A->bzalloc = reverse_alloc_Fct(A->bzalloc);     \
-    A->bzfree = reverse_free_Fct(A->bzfree);
+#define UNWRAP_BZ(A) \
+    if(A->bzalloc) A->bzalloc = reverse_alloc_Fct(A->bzalloc); \
+    if(A->bzfree) A->bzfree = reverse_free_Fct(A->bzfree);
 
 EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocksize, int verbosity, int work)
 {
