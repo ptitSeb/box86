@@ -64,10 +64,10 @@ For each of them:
   - It memorizes the type used by the function (second macro argument)
   - It memorizes the type it is mapped to, if needed (eg, iFvp is mapped to iFp: the first argument is dropped)
   - It checks if the type given (both original and mapped to) are valid
-  - If the signature contains a 'E' but it is not a "GOM" command, it will throw an error
+  - If the signature contains a 'E' but it is not a "GOM" command, it will throw an error (and vice-versa*)
   - If the line also contains '//%', the script will parse what's attached to this comment start:
     - If it is attached to a '%', the function will be skipped when generating the 'SUPER' macro in the *types.h
-	- If it is attached to a 'noE' or attached to something that ends with ',noE', it will ignore functions that
+	- *If it is attached to a 'noE' or attached to something that ends with ',noE', it will ignore functions that
 	  don't have the emulator as an argument but are still GOM functions
 - If the line starts with a '//%S', it will memorize a structure declaration.
   The structure of it is: "//%S <letter> <structure name> <signature equivalent>"
@@ -142,7 +142,7 @@ typedef void *(*pFpX_t)(void*, TestLibStructure);
 typedef void *(*pFppu_t)(void*, void*, uint32_t);
 typedef void *(*pFpppu_t)(void*, void*, void*, uint32_t);
 
-#define SUPER() \\
+#define SUPER() ADDED_FUNCTIONS() \\
 	GO(superFunction2, pFpX) \\
 	GO(functionWithoutE, pFppu)
 
@@ -1327,6 +1327,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		file.write(files_guard["wrapper.h"].format(lbr="{", rbr="}", version=ver))
 	
 	for fn in filespecs:
+		tdtypes[FileSpec.values.index('V')] = "..."
 		with open(os.path.join(root, "src", "wrapped", "generated", fn + "types.h"), 'w') as file:
 			file.write(files_header["fntypes.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 			generate_typedefs(filespecs[fn].typedefs, file)

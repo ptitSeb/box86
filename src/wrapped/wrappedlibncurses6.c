@@ -24,6 +24,7 @@ const char* libncurses6Name = "libncurses.so.6";
 
 static library_t* my_lib = NULL;
 
+#define ADDED_FUNCTIONS() GO(stdscr, void*)
 #include "generated/wrappedlibncurses6types.h"
 
 typedef struct libncurses6_my_s {
@@ -73,9 +74,9 @@ EXPORT int my6_printw(x86emu_t* emu, void* fmt, void* b)
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    return my->vwprintw(my->stdscr, fmt, VARARGS);
+    return my->vw_printw(my->stdscr, fmt, VARARGS);
     #else
-    return my->vwprintw(my->stdscr, fmt, b);
+    return my->vw_printw(my->stdscr, fmt, b);
     #endif
 }
 

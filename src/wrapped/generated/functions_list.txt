@@ -1327,7 +1327,6 @@
 #() iFpipppp
 #() iFpCpipu
 #() iFpuiiii
-#() iFpuuuuu
 #() iFpupipi
 #() iFpupuui
 #() iFpUUUip
@@ -1755,7 +1754,6 @@
 #() iFpipLpiiip
 #() iFpuiuuipip
 #() iFpuuuuuuuu
-#() iFpuupupppp
 #() iFpupuupWWu
 #() iFppiiiiiii
 #() iFppiuiippu
@@ -1818,6 +1816,7 @@
 #() vFppdddddddd
 #() vFpppppppppp
 #() iFEpiiiiippp
+#() iFEpuipupppp
 #() iFEpuuiiuipp
 #() iFEpuuuuiipp
 #() iFEppppppipp
@@ -2008,7 +2007,6 @@
 #() iFEvpp -> iFEpp
 #() iFEvpV -> iFEpV
 #() UFsvvs -> UFss
-#() iFEvppp -> iFEppp
 #() iFEpvpp -> iFEppp
 #() iFEpvpV -> iFEppV
 #() iFEpvvpV -> iFEppV
@@ -2575,6 +2573,7 @@ wrappedlibc:
   - _ITM_addUserCommitAction
 - vFppu:
 - vFppp:
+- iFvpp:
 - iFvpV:
 - iFiip:
 - iFiiN:
@@ -2598,7 +2597,6 @@ wrappedlibc:
 - vFpLLp:
 - vFpppp:
   - __libc_init
-- iFvppp:
 - iFiiip:
 - iFiiiN:
 - iFiiII:

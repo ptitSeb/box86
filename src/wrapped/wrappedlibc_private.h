@@ -1930,14 +1930,14 @@ GOW(vfwscanf, iFppp)
 // vhangup
 // vlimit
 // vmsplice
-GOM(vprintf, iFEppp)             //%%
-GOM(__vprintf_chk, iFEvppp)      //%%
+GOM(vprintf, iFEpp)               //%%
+GOM(__vprintf_chk, iFEvpp)        //%%
 // vscanf   // Weak
 GOWM(vsnprintf, iFEpLppp)         //%%
 GOWM(__vsnprintf, iFEpuppp)       //%%
-GOM(__vsnprintf_chk, iFEpuvvppp) //%%
+GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
 GOWM(vsprintf, iFEppp)            //%%
-GOM(__vsprintf_chk, iFEpiLpp)    //%% 
+GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 #ifdef POWERPCLE
 GOM(vsscanf, iFEppp) //%%
 #else

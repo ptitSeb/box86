@@ -170,7 +170,7 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
             kh_value(lib->mapname, k) = MAPNAME(mapname)[i].w;                      \
         }                                                                           \
         if (strchr(MAPNAME(mapname)[i].name, '@'))                                  \
-            AddDictionnary(box64->versym, MAPNAME(mapname)[i].name);                \
+            AddDictionnary(box86->versym, MAPNAME(mapname)[i].name);                \
 	}
 	DOIT(symbolmap)
 	DOIT(mysymbolmap)
@@ -216,7 +216,7 @@ void FUNC(_fini)(library_t* lib)
     return NativeLib_FinishFini(lib);
 }
 
-int WrappedLib_defget(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
+int NativeLib_defget(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
 int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
 #ifdef CUSTOM_FAIL
@@ -232,11 +232,11 @@ int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, 
     *sz = size;
     return 1;
 #else
-    return WrappedLib_defget(lib, name, offs, sz, version, vername, local);
+    return NativeLib_defget(lib, name, offs, sz, version, vername, local);
 #endif
 }
 
-int WrappedLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
+int NativeLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
 int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
 #ifdef CUSTOM_FAIL
@@ -252,6 +252,6 @@ int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t
     *sz = size;
     return 1;
 #else
-    return WrappedLib_defgetnoweak(lib, name, offs, sz, version, vername, local);
+    return NativeLib_defgetnoweak(lib, name, offs, sz, version, vername, local);
 #endif
 }

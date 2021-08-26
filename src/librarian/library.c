@@ -114,7 +114,6 @@ void NativeLib_FinishFini(library_t* lib)
         free(lib->priv.w.neededlibs);
     }
     FreeBridge(&lib->priv.w.bridge);
-    return 1;
 }
 
 int NativeLib_defget(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
