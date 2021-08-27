@@ -116,10 +116,57 @@ typedef struct  FT_FaceRec_s
     void*           internal;
 } FT_FaceRec_t;
 
+typedef long  FT_Pos;
+typedef struct  FT_Vector_s
+{
+    FT_Pos  x;
+    FT_Pos  y;
+
+} FT_Vector_t;
+
+typedef struct  FT_Outline_s
+{
+    short       n_contours;      /* number of contours in glyph        */
+    short       n_points;        /* number of points in the glyph      */
+
+    FT_Vector_t*  points;          /* the outline's points               */
+    char*       tags;            /* the points flags                   */
+    short*      contours;        /* the contour end points             */
+
+    int         flags;           /* outline masks                      */
+} FT_Outline_t;
+typedef int
+(*FT_Outline_MoveToFunc)( const FT_Vector_t*  to,
+                        void*             user );
+typedef int
+(*FT_Outline_LineToFunc)( const FT_Vector_t*  to,
+                        void*             user );
+typedef int
+(*FT_Outline_ConicToFunc)( const FT_Vector_t*  control,
+                            const FT_Vector_t*  to,
+                            void*             user );
+typedef int
+(*FT_Outline_CubicToFunc)( const FT_Vector_t*  control1,
+                            const FT_Vector_t*  control2,
+                            const FT_Vector_t*  to,
+                            void*             user );
+typedef struct  FT_Outline_Funcs_s
+{
+    FT_Outline_MoveToFunc   move_to;
+    FT_Outline_LineToFunc   line_to;
+    FT_Outline_ConicToFunc  conic_to;
+    FT_Outline_CubicToFunc  cubic_to;
+
+    int                     shift;
+    FT_Pos                  delta;
+} FT_Outline_Funcs_t;
+
+typedef int (*iFppp_t)(void*, void*, void*);
 typedef int (*iFpplp_t)     (void*, void*, long, void*);
 typedef int (*iFpuuLppp_t)  (void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
 
 #define SUPER() \
+    GO(FT_Outline_Decompose, iFppp_t) \
     GO(FT_Open_Face, iFpplp_t)      \
     GO(FTC_Manager_New, iFpuuLppp_t)
 
@@ -237,6 +284,51 @@ EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, l
         args->stream->read = (void*)my_iofunc;
         args->stream->close = (void*)my_closefunc;
     }*/
+    return ret;
+}
+
+static uintptr_t my_move_to = 0;
+static int my_FT_Outline_MoveToFunc(const FT_Vector_t *to, void *user)
+{
+    return (int)RunFunction(my_context, my_move_to, 2, to, user);
+}
+
+static uintptr_t my_line_to = 0;
+static int my_FT_Outline_LineToFunc(const FT_Vector_t *to, void *user)
+{
+    return (int)RunFunction(my_context, my_line_to, 2, to, user);
+}
+
+static uintptr_t my_conic_to = 0;
+static int my_FT_Outline_ConicToFunc(const FT_Vector_t *control, const FT_Vector_t *to, void *user)
+{
+    return (int)RunFunction(my_context, my_conic_to, 3, control, to, user);
+}
+
+static uintptr_t my_cubic_to = 0;
+static int my_FT_Outline_CubicToFunc(const FT_Vector_t *control1, const FT_Vector_t *control2, const FT_Vector_t *to, void *user)
+{
+    return (int)RunFunction(my_context, my_cubic_to, 4, control1, control2, to, user);
+}
+
+EXPORT int my_FT_Outline_Decompose(x86emu_t* emu, FT_Outline_t * arg0 , const FT_Outline_Funcs_t * arg1 , void * arg2)
+{
+    static FT_Outline_Funcs_t decompose_funcs;
+    library_t* lib = GetLibInternal(freetypeName);
+    freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
+
+    my_move_to = (uintptr_t)arg1->move_to;
+    if (my_move_to) decompose_funcs.move_to = my_FT_Outline_MoveToFunc;
+    my_line_to = (uintptr_t)arg1->line_to;
+    if (my_line_to) decompose_funcs.line_to = my_FT_Outline_LineToFunc;
+    my_conic_to = (uintptr_t)arg1->conic_to;
+    if (my_conic_to) decompose_funcs.conic_to = my_FT_Outline_ConicToFunc;
+    my_cubic_to = (uintptr_t)arg1->cubic_to;
+    if (my_cubic_to) decompose_funcs.cubic_to = my_FT_Outline_CubicToFunc;
+    decompose_funcs.shift = arg1->shift;
+    decompose_funcs.delta = arg1->delta;
+
+    int ret = my->FT_Outline_Decompose(arg0, &decompose_funcs, arg2);
     return ret;
 }
 
