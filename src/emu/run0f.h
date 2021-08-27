@@ -232,6 +232,17 @@
                         GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
                     }
                     break;
+                case 0x09:  /* PSIGNW Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<4; ++i) {
+                        if (EM->sw[i] < 0) {
+                            GM.sw[i] = -GM.sw[i];
+                        } else if (EM->sw[i] == 0) {
+                            GM.sw[i] = 0;
+                        }
+                    }
+                    break;
                 case 0x0B:  /* PMULHRSW Gm, Em */
                     nextop = F8;
                     GET_EM;
@@ -260,6 +271,31 @@
                     GET_EM;
                     for (int i=0; i<2; ++i) {
                         GM.sd[i] = abs(EM->sd[i]);
+                    }
+                    break;
+
+                default:
+                    goto _default;
+            }
+            NEXT;
+
+        _0f_0x3A:
+            opcode = F8;
+            switch(opcode) {
+                case 0xF:  /* palignr */
+                    nextop = F8;
+                    GET_EM;
+                    tmp8u = F8;
+                    if (tmp8u >= 16) {
+                        GM.q = 0;
+                    } else if (tmp8u > 8) {
+                        tmp8u -= 8;
+                        GM.q >>= tmp8u*8;
+                    } else if (tmp8u == 8 || tmp8u == 0) {
+
+                    } else {
+                        GM.q <<= (8-tmp8u)*8;
+                        GM.q |= (EM->q >> tmp8u*8);
                     }
                     break;
 
