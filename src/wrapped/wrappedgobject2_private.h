@@ -65,8 +65,6 @@ DATA(g_cclosure_marshal_VOID__VARIANT, 4)
 DATA(g_cclosure_marshal_VOID__VARIANTv, 4)
 DATA(g_cclosure_marshal_VOID__VOID, 4)
 DATA(g_cclosure_marshal_VOID__VOIDv, 4)
-//GO(g_cclosure_marshal_VOID__STRING, vFppuppp) //old closure definition
-//GO(g_cclosure_marshal_VOID__VOID, vFppuppp) //old closure definition
 //GO(g_cclosure_new, 
 //GO(g_cclosure_new_object, 
 //GO(g_cclosure_new_object_swap, 
@@ -174,7 +172,7 @@ GO(g_param_spec_enum, pFpppiii)
 GO(g_param_spec_flags, pFpppiui)
 GO(g_param_spec_float, pFpppfffi)
 GO(g_param_spec_get_blurb, pFp)
-GOM(g_param_spec_get_default_value, pFp)
+GOM(g_param_spec_get_default_value, pFp) //%noE
 GO(g_param_spec_get_name, pFp)
 GO(g_param_spec_get_nick, pFp)
 GO(g_param_spec_get_qdata, pFpu)
@@ -384,11 +382,11 @@ GO(g_value_get_uint, uFG)
 GO(g_value_get_uint64, UFG)
 GO(g_value_get_ulong, LFG)
 GO(g_value_get_variant, pFG)
-GOM(g_value_init, pFpi)
+GOM(g_value_init, pFpi) //%noE
 GO(g_value_init_from_instance, vFGp)
 GO(g_value_peek_pointer, pFG)
 GOM(g_value_register_transform_func, vFEiip)
-GOM(g_value_reset, pFp)
+GOM(g_value_reset, pFp) //%noE
 GO(g_value_set_boolean, vFGi)
 GO(g_value_set_boxed, vFGp)
 GO(g_value_set_boxed_take_ownership, vFGp)

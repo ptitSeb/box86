@@ -64,9 +64,9 @@ GOW(argz_next, pFpLp)
 GOW(argz_stringify, vFpLi)
 GO(asctime, pFp)
 GOW(asctime_r, pFpp)
-GOM(asprintf, iFEppVV)        //%% Weak
-GOM(__asprintf, iFEppVV)      //%%
-GOM(__asprintf_chk, iFEpipVV) //%%
+GOWM(asprintf, iFEppV)        //%%
+GOM(__asprintf, iFEppV)      //%%
+GOM(__asprintf_chk, iFEpipV) //%%
 // __assert
 GO(__assert_fail, vFppup)
 GO(__assert_perror_fail, vFipup)
@@ -196,7 +196,7 @@ GO(__dgettext, pFpp)
 GO(difftime, dFuu)
 GO(dirfd, iFp)
 GO(dirname, pFp)
-GOS(div, pFpii) //%%
+GOS(div, pFpii) //%%,noE
 // _dl_addr
 GOM(dl_iterate_phdr, iFEpp) //%%
 // _dl_mcount_wrapper
@@ -284,8 +284,8 @@ GO(eventfd_read, iFip)
 GO(eventfd_write, iFiU)
 GO2(execl, iFEpV, my_execv)
 GO2(execle, iFEpV, my_execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
-GO2(execlp, iFEpV, execvp)
-GOM(execv, iFEpp)     //%% Weak
+GO2(execlp, iFpV, execvp)
+GOWM(execv, iFEpp)     //%%
 GOM(execve, iFEppp)   //%% and this one too...
 GOW(execvp, iFpp)
 GO(exit, vFi)
@@ -361,17 +361,20 @@ GO(fmemopen, pFpup)
 // fmtmsg
 GO(fnmatch, iFppi)
 GOM(fopen, pFEpp)           //%%
-GOM(fopen64, pFEpp)         //%% Weak
+GOWM(fopen64, pFEpp)         //%%
 GOM(fopencookie, pFEpppppp) //%% last 4p are a struct with 4 callbacks...
-GOM(fork, iFEv)             //%% Weak
+GOWM(fork, iFEv)             //%%
 GOM(__fork, iFEv)           //%%
 // __fortify_fail
 GOW(fpathconf, iFii)
 GO(__fpending, uFp)
-GOM(fprintf, iFEppVV) //%%
-GOM(__fprintf_chk, iFEpvpVV) //%%
-//GO2(fprintf, iFppV, vfprintf)
-//GO2(__fprintf_chk, iFpvpV, vfprintf)
+#ifdef NOALIGN
+GO(fprintf, iFppV)
+GO(__fprintf_chk, iFpvpV)
+#else
+GOM(fprintf, iFEppV) //%%
+GOM(__fprintf_chk, iFEpvpV) //%%
+#endif
 // __fpu_control    // type B
 GO(__fpurge, vFp)
 GOW(fputc, iFip)
@@ -409,7 +412,7 @@ GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 GO(fsetxattr, iFippui)
 GOW(fstatfs, iFip)
-GOM(fstatfs64, iFip)    //%% weak
+GOWM(fstatfs64, iFip)    //%%,noE
 GO(fstatvfs, iFip)
 GOW(fstatvfs64, iFip)   // alignment?
 GOW(fsync, iFi)
@@ -433,8 +436,8 @@ GO(futimens, iFip)
 GOW(futimes, iFip) //int futimes(int fd, const struct timeval tv[2])
 GO(futimesat, iFippp)
 // fwide
-GOM(fwprintf, iFEppVV) //%% Weak
-GOM(__fwprintf_chk, iFEpvpVV) //%%
+GOWM(fwprintf, iFEppV)   //%%
+GOM(__fwprintf_chk, iFEpvpV) //%%
 GO(__fwritable, iFp)
 GOW(fwrite, LFpLLp)
 GO(fwrite_unlocked, uFpuup)
@@ -527,9 +530,9 @@ GO(getnameinfo, iFpupupui)
 // getnetname
 GOW(get_nprocs, iFv)
 GOW(get_nprocs_conf, iFv)
-GOM(getopt, iFipp)
-GOM(getopt_long, iFipppp)
-GOM(getopt_long_only, iFipppp)
+GOM(getopt, iFipp)             //%noE
+GOM(getopt_long, iFipppp)      //%noE
+GOM(getopt_long_only, iFipppp) //%noE
 GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)
 GO(getpass, pFp)
@@ -651,9 +654,9 @@ GO(hstrerror, pFi)
 GO(htonl, uFu)
 GO(htons, uFu)
 GO(iconv, LFLpppp)
+GO(iconv_canonicalize, pFp)
 GO(iconv_close, iFL)
 GO(iconv_open, LFpp)
-GO(iconv_canonicalize, pFp)
 GO(if_freenameindex, vFp)
 GO(if_indextoname, pFup)
 GO(if_nameindex, pFv)
@@ -890,15 +893,15 @@ GO(__isnanf, iFf)
 // isnanl   // Weak
 // __isnanl
 #ifdef POWERPCLE
-GOM(__isoc99_fscanf, iFppV)  //%%
+GOM(__isoc99_fscanf, iFEppV)  //%%
 // __isoc99_fwscanf
 // __isoc99_scanf
-GOM(__isoc99_sscanf, iFppV)  //%%
+GOM(__isoc99_sscanf, iFEppV)  //%%
 // __isoc99_swscanf
-GOM(__isoc99_vfscanf, iFppp) //%%
+GOM(__isoc99_vfscanf, iFEppp) //%%
 // __isoc99_vfwscanf
 // __isoc99_vscanf
-GOM(__isoc99_vsscanf, iFppp) //%% TODO: check if ok
+GOM(__isoc99_vsscanf, iFEppp) //%% TODO: check if ok
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
@@ -1073,7 +1076,7 @@ GOW(mallinfo, pFv)
 #ifdef NOALIGN
 GO(malloc, pFL)
 #else
-GOM(malloc, pFL)            //%%
+GOM(malloc, pFL)            //%%,noE
 #endif
 // malloc_get_state // Weak
 DATAV(__malloc_hook, 4)
@@ -1101,7 +1104,7 @@ GO(mbtowc, iFppL)
 // mcheck_check_all
 // mcheck_pedantic
 // _mcleanup
-GOM(mcount, vFpp)   //%% Weak
+GOWM(mcount, vFpp)   //%%,noE
 // _mcount
 GOW(memalign, pFuu)
 DATAV(__memalign_hook, 4)
@@ -1149,7 +1152,7 @@ GOW(mount, iFpppup)
 GOM(mprotect, iFEpLi)   //%%
 // mrand48
 // mrand48_r
-GOM(mremap, pFEpLLiN)	//%% Weak, 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
+GOWM(mremap, pFEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
 GO(msgctl, iFiip)
 GOW(msgget, iFpi)
 GOW(msgrcv, lFipLli)
@@ -1160,7 +1163,7 @@ GO(munlock, iFpL)
 GO(munlockall, iFv)
 GOM(munmap, iFEpL)       //%%
 // muntrace
-GOM(nanosleep, iFpp)	 //%% weak
+GOWM(nanosleep, iFpp)	 //%%,noE
 // __nanosleep  // Weak
 // netname2host
 // netname2user
@@ -1203,22 +1206,22 @@ GOW(ntohs, uFu)
 // _null_auth   // type B
 // _obstack_allocated_p
 DATAM(obstack_alloc_failed_handler, 4)
-GOM(_obstack_begin, iFpLLpp) //%%
+GOM(_obstack_begin, iFpLLpp) //%%,noE
 // _obstack_begin_1
 DATA(obstack_exit_failure, 4)
-GOM(_obstack_free, vFpp)     //%%
-GOM(obstack_free, vFpp)      //%%
+GOM(_obstack_free, vFpp)     //%%,noE
+GOM(obstack_free, vFpp)      //%%,noE
 // _obstack_memory_used
-GOM(_obstack_newchunk, vFpi) //%%
+GOM(_obstack_newchunk, vFpi) //%%,noE
 // obstack_printf   // Weak
 // __obstack_printf_chk
-GOM(obstack_vprintf, iFEpppp)  //%% Weak
+GOWM(obstack_vprintf, iFEpppp)  //%%
 // __obstack_vprintf_chk
 // on_exit  // Weak
-GOM(open, iFEpOu)    //%% Weak
-GOM(__open, iFEpOu)  //%% Weak
+GOWM(open, iFEpOu)    //%%
+GOWM(__open, iFEpOu)  //%%
 GO(__open_2, iFpO)
-GOM(open64, iFEpOu)  //%% Weak
+GOWM(open64, iFEpOu)  //%%
 // __open64 // Weak
 GO(__open64_2, iFpO)
 GOW(openat, iFipON)
@@ -1293,8 +1296,8 @@ GOW(pread64, lFipLI)
 // __pread64_chk
 GOM(preadv64, lFEipiI)  //%% not always present
 // __pread_chk
-GOM(printf, iFEpVV) //%%
-GOM(__printf_chk, iFEvpVV) //%%
+GOM(printf, iFEpV) //%%
+GOM(__printf_chk, iFEvpV) //%%
 GO(__printf_fp, iFppp)  // does this needs aligment?
 // printf_size
 // printf_size_info
@@ -1360,7 +1363,7 @@ GO(__rawmemchr, pFpi)
 // rcmd
 // rcmd_af
 // __rcmd_errstr    // type B
-GOM(read, lFipL) //%%
+GOM(read, lFipL) //%%,noE
 GOW(__read, lFipL)
 // readahead    // Weak
 GO(__read_chk, lFipLL)
@@ -1404,7 +1407,7 @@ GO(removexattr, iFpp)
 GO(rename, iFpp)
 GO(renameat, iFipip)
 #ifdef PANDORA
-GOM(renameat2, iFipipu) //%%
+GOM(renameat2, iFipipu) //%%,noE
 #else
 GO(renameat2, iFipipu)
 #endif
@@ -1560,11 +1563,11 @@ GOW(shmctl, iFiip)
 GOW(shmdt, iFp)
 GOW(shmget, iFuui)
 GOW(shutdown, iFii)
-GOM(sigaction, iFEipp)    //%% Weak
-GOM(__sigaction, iFEipp)  //%% Weak
+GOWM(sigaction, iFEipp)    //%%
+GOWM(__sigaction, iFEipp)  //%%
 GO(sigaddset, iFpi)
 // __sigaddset
-GOM(sigaltstack, iFEpp)   //%% Weak
+GOWM(sigaltstack, iFEpp)   //%%
 // sigandset
 GOW(sigblock, iFi)
 GO(sigdelset, iFpi)
@@ -1579,7 +1582,7 @@ GO(siginterrupt, iFii)  // no need to wrap this one?
 GO(sigismember, iFpi)
 // __sigismember
 GOM(siglongjmp, vFEip) //%%
-GOM(signal, pFEip)     //%% Weak
+GOWM(signal, pFEip)     //%%
 // signalfd
 GO(__signbit, iFd)
 GO(__signbitf, iFf)
@@ -1602,15 +1605,15 @@ GOW(sigvec, iFipp)
 GOW(sigwait, iFpp)
 GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
-GOM(snprintf, iFEpLpVV) //%%
-GOM(__snprintf_chk, iFEpLiipVV) //%%
-GOM(__snprintf, iFEpLpVV) //%%
+GOM(snprintf, iFEpLpV) //%%
+GOM(__snprintf_chk, iFEpLiipV) //%%
+GOM(__snprintf, iFEpLpV) //%%
 // sockatmark
 GOW(socket, iFiii)
 GOW(socketpair, iFiiip)
 GO(splice, iFipipuu)
-GOM(sprintf, iFEppVV) //%%
-GOM(__sprintf_chk, iFEpvvpVV) //%%
+GOM(sprintf, iFEppV) //%%
+GOM(__sprintf_chk, iFEpvvpV) //%%
 // sprofil  // Weak
 GOW(srand, vFu)
 GO(srand48, vFi)
@@ -1618,7 +1621,7 @@ GO(srand48, vFi)
 GOW(srandom, vFu)
 GOW(srandom_r, iFup)
 #ifdef POWERPCLE
-GOM(sscanf, iFppV) //%%
+GOM(sscanf, iFEppV) //%%
 #else
 GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to do
 #endif
@@ -1627,7 +1630,7 @@ GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to
 GOM(__stack_chk_fail, vFEv) //%%
 GOW(statfs, iFpp)
 // __statfs
-GOM(statfs64, iFpp)     //%% Weak
+GOWM(statfs64, iFpp)     //%%,noE
 GO(statvfs, iFpp)
 GOW(statvfs64, iFpp)    // is alignment ok?
 DATA(stderr, 4)
@@ -1728,7 +1731,7 @@ GOW(strtold_l, DFppu)
 GO(strtold, KFpp)
 GO2(__strtold_internal, KFppi, __strtod_internal)
 GO2(__strtold_l, KFppip, __strtod_l)
-GO2(strtold_l, KFppu, strtod_l)
+GOW2(strtold_l, KFppu, strtod_l)
 #endif
 GO(__strtol_internal, lFppi)
 GO(strtoll, IFppi)
@@ -1811,7 +1814,7 @@ DATA(_sys_siglist, 4)
 DATA(sys_siglist, 4)
 GOW(system, iFp)          // Need to wrap to use box86 if needed?
 GOM(__sysv_signal, pFEip) //%%
-GOM(sysv_signal, pFEip)   //%% Weak
+GOWM(sysv_signal, pFEip)  //%%
 GOW(tcdrain, iFi)
 GO(tcflow, iFii)
 GO(tcflush, iFii)
@@ -1880,7 +1883,7 @@ GO(__uflow, iFp)
 GOW(umask, uFu)
 GOW(umount, iFp)
 GOW(umount2, iFpi)
-GOM(uname, iFp) //%% Weak
+GOWM(uname, iFp) //%%,noE
 GO(__underflow, iFp)
 GOW(ungetc, iFip)
 GO(ungetwc, iFip)
@@ -1911,38 +1914,38 @@ GOM(verr, vFEpV) //%%
 // verrx
 GO(versionsort, iFpp)
 GO(versionsort64, iFpp) //need to align dirent64?
-GOM(vfork, iFEv) //%% Weak
+GOWM(vfork, iFEv) //%%
 // __vfork
 GOM(vfprintf, iFEppp) //%%
 GOM(__vfprintf_chk, iFEpvpp) //%%
 #ifdef POWERPCLE
-GOM(vfscanf, iFEppp)  //%% Weak
+GOWM(vfscanf, iFEppp)  //%%
 #else
-GOW(vfscanf, iFppp)  // Weak
+GOW(vfscanf, iFppp)
 #endif
 // __vfscanf
-GOM(vfwprintf, iFEppp)    //%% Weak
+GOWM(vfwprintf, iFEppp)    //%%
 GO2(__vfwprintf_chk, iFEpvpp, my_vfwprintf)
 GOW(vfwscanf, iFppp)
 // vhangup
 // vlimit
 // vmsplice
-GOM(vprintf, iFEppp)             //%%
-GOM(__vprintf_chk, iFEvppp)      //%%
+GOM(vprintf, iFEpp)               //%%
+GOM(__vprintf_chk, iFEvpp)        //%%
 // vscanf   // Weak
-GOM(vsnprintf, iFEpLppp)         //%% Weak
-GOM(__vsnprintf, iFEpuppp)       //%% Weak
-GOM(__vsnprintf_chk, iFEpuvvppp) //%%
-GOM(vsprintf, iFEppp)            //%% Weak
-GOM(__vsprintf_chk, iFEpiLpp)    //%% 
+GOWM(vsnprintf, iFEpLppp)         //%%
+GOWM(__vsnprintf, iFEpuppp)       //%%
+GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
+GOWM(vsprintf, iFEppp)            //%%
+GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 #ifdef POWERPCLE
 GOM(vsscanf, iFEppp) //%%
 #else
 GO(vsscanf, iFppp)
 #endif
 // __vsscanf    // Weak
-GOM(vswprintf, iFEpuppp)         //%% Weak
-GOM(__vswprintf_chk, iFEpuvvppp) //%% Weak
+GOWM(vswprintf, iFEpuppp)         //%%
+GOWM(__vswprintf_chk, iFEpuvvppp) //%%
 GO(vswscanf, iFppp)
 GO(vsyslog, vFipp)
 GO(__vsyslog_chk, vFiipp)
@@ -2066,8 +2069,13 @@ GO(wmemset, pFpuL)
 GO(wordexp, iFppi)
 GO(wordfree, vFp)
 // __woverflow
-GOM(wprintf, iFEpVV) //%%
-GOM(__wprintf_chk, iFEipVV) //%%
+#ifdef NOALIGN
+GO(wprintf, iFpV)
+GO(__wprintf_chk, iFipV)
+#else
+GOM(wprintf, iFEpV) //%%
+GOM(__wprintf_chk, iFEipV) //%%
+#endif
 GOW(write, lFipL)
 GOW(__write, lFipL)
 GOW(writev, lFipi)
@@ -2156,16 +2164,16 @@ GOM(__xstat, iFEipp) //%%
 GOM(__xstat64, iFEipp) //%%
 
 // forcing a custom __gmon_start__ that does nothing
-GOM(__gmon_start__, vFv) //%%
+GOM(__gmon_start__, vFEv) //%%
 
-GOM(_Jv_RegisterClasses, vFv)   //%% dummy
+GOM(_Jv_RegisterClasses, vFv)   //%%,noE dummy
 
-GOM(__fdelt_chk, iFi) //%%
+GOM(__fdelt_chk, LFL) //%%,noE
 
 GOM(getauxval, uFEu)  //%% implemented since glibc 2.16
 
-GOM(prlimit64, lFpupp)       //%%
-GOM(reallocarray, pFpLL)     //%%
+GOM(prlimit64, lFpupp)       //%%,noE
+GOM(reallocarray, pFpLL)     //%%,noE
 GOM(__open_nocancel, iFEpOV) //%%
 GO2(__read_nocancel, lFipL, read)
 GO2(__close_nocancel, iFi, close)
@@ -2175,29 +2183,29 @@ GOM(getentropy, iFEpL)   //%% starting from glibc 2.25
 
 // not found (libitm???), but it seems OK to declare dummies:
 
-GOM(_ITM_RU1, uFp)          //%%
-GOM(_ITM_RU4, uFp)          //%%
+GOM(_ITM_RU1, uFp)          //%%,noE
+GOM(_ITM_RU4, uFp)          //%%,noE
 //GOM(_ITM_RU8, UFp)
-GOM(_ITM_memcpyRtWn, vFppu) //%% register(2)
-GOM(_ITM_memcpyRnWt, vFppu) //%% register(2)
+GOM(_ITM_memcpyRtWn, vFppu) //%%,noE register(2)
+GOM(_ITM_memcpyRnWt, vFppu) //%%,noE register(2)
 GOM(_ITM_addUserCommitAction, vFEpup)
 GOM(_ITM_registerTMCloneTable, vFEpu)  //%%
 GOM(_ITM_deregisterTMCloneTable, vFEp) //%%
 
-GOM(__umoddi3, UFUU)        //%%
-GOM(__udivdi3, UFUU)        //%%
-GOM(__divdi3, IFII)         //%%
-GOM(__poll_chk, iFpuii)     //%%
+GOM(__umoddi3, UFUU)        //%%,noE
+GOM(__udivdi3, UFUU)        //%%,noE
+GOM(__divdi3, IFII)         //%%,noE
+GOM(__poll_chk, iFpuii)     //%%,noE
 
-GOM(fallocate64, iFiiII) //%%
+GOM(fallocate64, iFiiII)    //%%,noE
 
 DATAM(__libc_stack_end, 4)
 
 DATAM(___brk_addr, 4)
 DATA(__libc_enable_secure, 4)
 
-GOM(__register_frame_info, vFpp)  //%% faked function
-GOM(__deregister_frame_info, pFp) //%%
+GOM(__register_frame_info, vFpp)  //%%,noE faked function
+GOM(__deregister_frame_info, pFp) //%%,noE
 
 GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
 
@@ -2205,12 +2213,21 @@ GOM(modify_ldt, iFEipL) // there is suposedly no glibc wrapper for this one
 
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
-GOM(stat, iFpp)
-GOM(lstat, iFpp)
-GOM(fstat, iFip)
+GOM(stat, iFpp)             //%noE
+GOM(lstat, iFpp)            //%noE
+GOM(fstat, iFip)            //%noE
 GO(__errno, pFv)
 GO(setprogname, vFp)
 GO(getprogname, pFv)
 #include "wrappedlibpthread_private.h"
 #include "wrappedlibrt_private.h"
+#else
+// Those symbols don't exist in non-Android builds
+//GOM(__libc_init,
+//GOM(stat,
+//GOM(lstat,
+//GOM(fstat,
+//GO(__errno,
+//GO(setprogname,
+//GO(getprogname,
 #endif

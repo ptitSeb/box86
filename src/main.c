@@ -617,14 +617,16 @@ void LoadEnvVars(box86context_t *context)
     AddPath("libcrypto.so.1.0.0", &context->box86_emulated_libs, 0);
 
     if(getenv("BOX86_NOSIGSEGV")) {
-        if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0)
+        if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0) {
             context->no_sigsegv = 1;
             printf_log(LOG_INFO, "BOX86: Disabling handling of SigSEGV\n");
+        }
     }
     if(getenv("BOX86_NOSIGILL")) {
-        if (strcmp(getenv("BOX86_NOSIGILL"), "1")==0)
+        if (strcmp(getenv("BOX86_NOSIGILL"), "1")==0) {
             context->no_sigill = 1;
             printf_log(LOG_INFO, "BOX86: Disabling handling of SigILL\n");
+        }
     }
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");

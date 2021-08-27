@@ -22,7 +22,7 @@
 //GO(TIFFCIELabToXYZ, 
 //GO(TIFFCleanup, 
 //GO(TIFFClientdata, 
-GOM(TIFFClientOpen, pFpppppppppp) // No emu parameter
+GOM(TIFFClientOpen, pFpppppppppp) //%noE
 GO(TIFFClose, vFp)
 //GO(TIFFComputeStrip, 
 //GO(TIFFComputeTile, 

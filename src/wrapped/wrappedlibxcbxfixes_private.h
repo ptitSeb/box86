@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//%S X my_xcb_cookie_t
+//%S x my_xcb_cookie_t u
 
 //GOS(xcb_xfixes_barrier_end, 
 //GOS(xcb_xfixes_barrier_next, 
@@ -24,7 +24,7 @@
 //GOS(xcb_xfixes_create_pointer_barrier_devices_end, 
 //GOS(xcb_xfixes_create_pointer_barrier_devices_length, 
 //GOS(xcb_xfixes_create_pointer_barrier_sizeof, 
-GOS(xcb_xfixes_create_region, pFEppuup)                     //%X
+GOS(xcb_xfixes_create_region, xFEpuup)
 //GOS(xcb_xfixes_create_region_checked, 
 //GOS(xcb_xfixes_create_region_from_bitmap, 
 //GOS(xcb_xfixes_create_region_from_bitmap_checked, 
@@ -40,7 +40,7 @@ GOS(xcb_xfixes_create_region, pFEppuup)                     //%X
 //GOS(xcb_xfixes_create_region_sizeof, 
 //GOS(xcb_xfixes_delete_pointer_barrier, 
 //GOS(xcb_xfixes_delete_pointer_barrier_checked, 
-GOS(xcb_xfixes_destroy_region, pFEppu)                      //%X
+GOS(xcb_xfixes_destroy_region, xFEpu)
 //GOS(xcb_xfixes_destroy_region_checked, 
 //GOS(xcb_xfixes_expand_region, 
 //GOS(xcb_xfixes_expand_region_checked, 
@@ -84,7 +84,7 @@ DATA(xcb_xfixes_id, 8)
 //GOS(xcb_xfixes_invert_region_checked, 
 //GOS(xcb_xfixes_query_version, 
 GO(xcb_xfixes_query_version_reply, pFpup)
-GOS(xcb_xfixes_query_version_unchecked, pFEppuu)            //%X
+GOS(xcb_xfixes_query_version_unchecked, xFEpuu)
 //GOS(xcb_xfixes_region_end, 
 //GOS(xcb_xfixes_region_extents, 
 //GOS(xcb_xfixes_region_extents_checked, 
@@ -109,8 +109,8 @@ GOS(xcb_xfixes_query_version_unchecked, pFEppuu)            //%X
 //GOS(xcb_xfixes_set_region_rectangles_iterator, 
 //GOS(xcb_xfixes_set_region_rectangles_length, 
 //GOS(xcb_xfixes_set_region_sizeof, 
-GOS(xcb_xfixes_set_window_shape_region, pFEppuuwwu)         //%X
-GOS(xcb_xfixes_set_window_shape_region_checked, pFEppuuwwu) //%X
+GOS(xcb_xfixes_set_window_shape_region, xFEpuuwwu)
+GOS(xcb_xfixes_set_window_shape_region_checked, xFEpuuwwu)
 //GOS(xcb_xfixes_show_cursor, 
 //GOS(xcb_xfixes_show_cursor_checked, 
 //GOS(xcb_xfixes_subtract_region, 

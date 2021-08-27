@@ -5,8 +5,8 @@
 GO(XF86VidModeGetViewPort, iFpipp)
 GO(XF86VidModeValidateModeLine, iFpip)
 #ifdef PANDORA
-GOM(XF86VidModeGetGamma, iFpip)
-GOM(XF86VidModeSetGamma, iFpip)
+GOM(XF86VidModeGetGamma, iFpip) //%noE
+GOM(XF86VidModeSetGamma, iFpip) //%noE
 #else
 GO(XF86VidModeGetGamma, iFpip)
 GO(XF86VidModeSetGamma, iFpip)

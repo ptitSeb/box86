@@ -27,7 +27,7 @@
 #include "wrappedlibs.h"
 // create the native lib list
 #define GO(P, N) int wrapped##N##_init(library_t* lib, box86context_t *box86); \
-                 void wrapped##N##_fini(library_t* lib);\
+                 void wrapped##N##_fini(library_t* lib); \
                  int wrapped##N##_get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local); \
                  int wrapped##N##_getnoweak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
 #include "library_list.h"
@@ -80,12 +80,56 @@ int NbDot(const char* name)
     return ret;
 }
 
+void NativeLib_CommonInit(library_t* lib)
+{
+    lib->priv.w.bridge = NewBridge();
+// Create maps
+    lib->symbolmap = kh_init(symbolmap);
+    lib->wsymbolmap = kh_init(symbolmap);
+    lib->mysymbolmap = kh_init(symbolmap);
+    lib->wmysymbolmap = kh_init(symbolmap);
+    lib->stsymbolmap = kh_init(symbolmap);
+    lib->wstsymbolmap = kh_init(symbolmap);
+    lib->symbol2map = kh_init(symbol2map);
+    lib->datamap = kh_init(datamap);
+    lib->wdatamap = kh_init(datamap);
+    lib->mydatamap = kh_init(datamap);
+}
+
 void EmuLib_Fini(library_t* lib)
 {
     kh_destroy(mapsymbols, lib->priv.n.mapsymbols);
     kh_destroy(mapsymbols, lib->priv.n.localsymbols);
 }
+void NativeLib_FinishFini(library_t* lib)
+{
+    if(lib->priv.w.lib)
+        dlclose(lib->priv.w.lib);
+    lib->priv.w.lib = NULL;
+    if(lib->priv.w.altprefix)
+        free(lib->priv.w.altprefix);
+    if(lib->priv.w.neededlibs) {
+        for(int i=0; i<lib->priv.w.needed; ++i)
+            free(lib->priv.w.neededlibs[i]);
+        free(lib->priv.w.neededlibs);
+    }
+    FreeBridge(&lib->priv.w.bridge);
+}
 
+int NativeLib_defget(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
+{
+    uintptr_t addr = 0;
+    uint32_t size = 0;
+    void* symbol = NULL;
+    if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, local)) {
+        return 0;
+    }
+    if(!addr && !size)
+        return 0;
+    *offs = addr;
+    *sz = size;
+    return 1;
+}
 int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
     // symbols...
@@ -104,6 +148,20 @@ int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, 
         return 1;
     }
     return 0;
+}
+int NativeLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
+{
+    uintptr_t addr = 0;
+    uint32_t size = 0;
+    void* symbol = NULL;
+    if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, local)) {
+        return 0;
+    }
+    if(!addr && !size)
+        return 0;
+    *offs = addr;
+    *sz = size;
+    return 1;
 }
 int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
@@ -416,18 +474,22 @@ void Free1Library(library_t **lib, x86emu_t* emu)
         kh_destroy(symbolmap, (*lib)->symbolmap);
     if((*lib)->wsymbolmap)
         kh_destroy(symbolmap, (*lib)->wsymbolmap);
+    if((*lib)->mysymbolmap)
+        kh_destroy(symbolmap, (*lib)->mysymbolmap);
+    if((*lib)->wmysymbolmap)
+        kh_destroy(symbolmap, (*lib)->wmysymbolmap);
+    if((*lib)->stsymbolmap)
+        kh_destroy(symbolmap, (*lib)->stsymbolmap);
+    if((*lib)->wstsymbolmap)
+        kh_destroy(symbolmap, (*lib)->wstsymbolmap);
+    if((*lib)->symbol2map)
+        kh_destroy(symbol2map, (*lib)->symbol2map);
     if((*lib)->datamap)
         kh_destroy(datamap, (*lib)->datamap);
     if((*lib)->wdatamap)
         kh_destroy(datamap, (*lib)->wdatamap);
     if((*lib)->mydatamap)
         kh_destroy(datamap, (*lib)->mydatamap);
-    if((*lib)->mysymbolmap)
-        kh_destroy(symbolmap, (*lib)->mysymbolmap);
-    if((*lib)->stsymbolmap)
-        kh_destroy(symbolmap, (*lib)->stsymbolmap);
-    if((*lib)->symbol2map)
-        kh_destroy(symbol2map, (*lib)->symbol2map);
     free_neededlib(&(*lib)->needed);
     free_neededlib(&(*lib)->dependedby);
 
@@ -648,6 +710,40 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         return 1;
     }
     if(!noweak) {
+        k = kh_get(symbolmap, lib->wmysymbolmap, name);
+        if (k!=kh_end(lib->wmysymbolmap)) {
+            char buff[200];
+            if(lib->altmy)
+                strcpy(buff, lib->altmy);
+            else
+                strcpy(buff, "my_");
+            strcat(buff, name);
+            symbol = dlsym(lib->priv.w.box86lib, buff);
+            if(!symbol) {
+                printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
+            } else 
+                AddOffsetSymbol(lib->context->maplib, symbol, name);
+            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wmysymbolmap, k), symbol, 0);
+            *size = sizeof(void*);
+            return 1;
+        }
+        k = kh_get(symbolmap, lib->wstsymbolmap, name);
+        if (k!=kh_end(lib->wstsymbolmap)) {
+            char buff[200];
+            if(lib->altmy)
+                strcpy(buff, lib->altmy);
+            else
+                strcpy(buff, "my_");
+            strcat(buff, name);
+            symbol = dlsym(lib->priv.w.box86lib, buff);
+            if(!symbol) {
+                printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
+            } else 
+                AddOffsetSymbol(lib->context->maplib, symbol, name);
+            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wstsymbolmap, k), symbol, 4); // all of this for this little "4"
+            *size = sizeof(void*);
+            return 1;
+        }
         k = kh_get(symbolmap, lib->wsymbolmap, name);
         if (k!=kh_end(lib->wsymbolmap)) {
             symbol = dlsym(lib->priv.w.lib, name);

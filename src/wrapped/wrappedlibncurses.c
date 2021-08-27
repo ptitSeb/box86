@@ -24,19 +24,10 @@ const char* libncursesName = "libncurses.so.5";
 
 static library_t* my_lib = NULL;
 
-// this is a simple copy of libncursesw wrapper. TODO: check if ok
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 
-typedef void*       (*pFv_t)();
-typedef int         (*iFppp_t)(void*, void*, void*);
-typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
-typedef int         (*iFiipV_t)(int, int, void*, ...);
-
-#define SUPER() \
-    GO(initscr, pFv_t)      \
-    GO(mvwprintw, iFpiip_t) \
-    GO(vwprintw, iFppp_t)   \
-    GO(stdscr, void*)       \
-    GO(mvprintw, iFiipV_t)
+#define ADDED_FUNCTIONS() GO(stdscr, void*)
+#include "generated/wrappedlibncursestypes.h"
 
 typedef struct libncurses_my_s {
     // functions
@@ -60,18 +51,18 @@ void freeNCursesMy(void* lib)
     //libncurses_my_t *my = (libncurses_my_t *)lib;
 }
 
-EXPORT int my_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
+EXPORT int my_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void* b)
 {
     libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
 
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, b);
+    vasprintf(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     int ret = my->mvwprintw(win, y, x, buf);
@@ -85,9 +76,10 @@ EXPORT int my_printw(x86emu_t* emu, void* fmt, void* b)
 
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
-    return my->vwprintw(my->stdscr, fmt, emu->scratch);
+    PREPARE_VALIST;
+    return my->vw_printw(my->stdscr, fmt, VARARGS);
     #else
-    return my->vwprintw(my->stdscr, fmt, b);
+    return my->vw_printw(my->stdscr, fmt, b);
     #endif
 }
 
@@ -98,17 +90,31 @@ EXPORT int my_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
     iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, emu->scratch);
+    f(&buf, fmt, VARARGS);
     #else
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, b);
+    vasprintf(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     int ret = my->mvprintw(x, y, buf);
     free(buf);
     return ret;
 }
+
+EXPORT int my_vw_printw(x86emu_t *emu, void* win, void* fmt, void* b) {
+    libncurses_my_t *my = (libncurses_my_t*)my_lib->priv.w.p2;
+
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    return my->vw_printw(win, fmt, VARARGS);
+    #else
+    // other platform don't need that
+    return my->vw_printw(win, fmt, b);
+    #endif
+}
+EXPORT int my_vwprintw(x86emu_t *emu, void* win, void* fmt, void* b) __attribute__((alias("my_vw_printw")));
 
 EXPORT void* my_initscr()
 {
@@ -127,7 +133,7 @@ EXPORT void* my_initscr()
 
 #define CUSTOM_FINI \
     freeNCursesMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
+    free(lib->priv.w.p2);          \
     my_lib = NULL;
 
 #include "wrappedlib_init.h"

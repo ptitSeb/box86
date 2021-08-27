@@ -80,7 +80,6 @@ GOM(pthread_cond_wait, iFEpp)
 GOM(pthread_create, iFEpppp)
 GO(pthread_detach, iFu)
 GO(pthread_equal, iFuu)
-//GOM(pthread_exit, vFEp)
 GO(pthread_exit, vFp)
 GOM(pthread_getaffinity_np, iFEpup)
 GO(pthread_getattr_np, iFup)
@@ -90,7 +89,7 @@ GO(pthread_getschedparam, iFupp)
 GO(__pthread_getspecific, pFu)
 GO(pthread_getspecific, pFu)
 GOM(pthread_getname_np, iFEppu)  //not present on Pandora
-GOM(__pthread_initialize, vFv)  // doesn't exist anymore...
+GOM(__pthread_initialize, vFv)  //%noE doesn't exist anymore...
 // __pthread_initialize_minimal
 GO(pthread_join, iFup)
 GOM(__pthread_key_create, iFEpp)
@@ -130,19 +129,19 @@ GO(__pthread_mutex_unlock, iFp)
 GO(pthread_mutex_unlock, iFp)
 #else
 // pthread_mutex_consistent_np
-GOM(__pthread_mutex_destroy, iFp)
-GOM(pthread_mutex_destroy, iFp)
+GOM(__pthread_mutex_destroy, iFp)  //%noE
+GOM(pthread_mutex_destroy, iFp)    //%noE
 // pthread_mutex_getprioceiling
-GOM(__pthread_mutex_init, iFpp)
-GOM(pthread_mutex_init, iFpp)
-GOM(__pthread_mutex_lock, iFp)
-GOM(pthread_mutex_lock, iFp)
+GOM(__pthread_mutex_init, iFpp)    //%noE
+GOM(pthread_mutex_init, iFpp)      //%noE
+GOM(__pthread_mutex_lock, iFp)     //%noE
+GOM(pthread_mutex_lock, iFp)       //%noE
 // pthread_mutex_setprioceiling
-GOM(pthread_mutex_timedlock, iFpp)
-GOM(__pthread_mutex_trylock, iFp)
-GOM(pthread_mutex_trylock, iFp)
-GOM(__pthread_mutex_unlock, iFp)
-GOM(pthread_mutex_unlock, iFp)
+GOM(pthread_mutex_timedlock, iFpp) //%noE
+GOM(__pthread_mutex_trylock, iFp)  //%noE
+GOM(pthread_mutex_trylock, iFp)    //%noE
+GOM(__pthread_mutex_unlock, iFp)   //%noE
+GOM(pthread_mutex_unlock, iFp)     //%noE
 #endif
 GOM(pthread_once, iFEpp)
 GOM(__pthread_once, iFEpp)

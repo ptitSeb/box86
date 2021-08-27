@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//%S X my_xcb_cookie_t
+//%S x my_xcb_cookie_t u
 
 GO(xcb_create_pixmap_from_bitmap_data, pFpupuuuuup)
 GO(xcb_image_annotate, vFp)
@@ -14,8 +14,8 @@ GO(xcb_image_destroy, vFp)
 GO(xcb_image_get, pFpdwwWWui)
 GO(xcb_image_get_pixel, uFpuu)
 GO(xcb_image_native, pFppi)
-GOS(xcb_image_put, pFEppuupwwC) //%X
+GOS(xcb_image_put, xFEpuupwwC)
 GO(xcb_image_put_pixel, vFpuuu)
-GO(xcb_image_shm_get, iFpupuupWWu)    //xcb_shm_segment_info_t is a struct with "u u p"
+GO(xcb_image_shm_get, iFpupuupWWu)    // xcb_shm_segment_info_t is a struct with "u u p" (TODO: add a structure?)
 GO(xcb_image_shm_put, pFpuupuupwwwwWWC)
 GO(xcb_image_subimage, pFpuuuupup)

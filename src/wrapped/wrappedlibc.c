@@ -156,6 +156,7 @@ typedef int32_t (*iFiiiV_t)(int, int, int, ...);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
+typedef int32_t (*iFpLpp_t)(void*, size_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
@@ -687,7 +688,7 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack); // align st
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
 typedef int (*iFpupp_t)(void*, uint32_t, void*, void*);
-EXPORT int my_printf(x86emu_t *emu, void* fmt, void* b, va_list V) {
+EXPORT int my_printf(x86emu_t *emu, void* fmt, void* b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -696,84 +697,81 @@ EXPORT int my_printf(x86emu_t *emu, void* fmt, void* b, va_list V) {
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
-    return vprintf((const char*)fmt, V);
+    return vprintf((const char*)fmt, b);
     #endif
 }
-EXPORT int my___printf_chk(x86emu_t *emu, void* fmt, void* b, va_list V) __attribute__((alias("my_printf")));
+EXPORT int my___printf_chk(x86emu_t *emu, void* fmt, void* b) __attribute__((alias("my_printf")));
 
-EXPORT int my_vprintf(x86emu_t *emu, void* fmt, void* b, va_list V) {
+EXPORT int my_vprintf(x86emu_t *emu, void* fmt, void* b) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vprintf;
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
-    void* f = vprintf;
-    return ((iFpp_t)f)(fmt, (uint32_t*)b);
+    return vprintf(fmt, b);
     #endif
 }
-EXPORT int my___vprintf_chk(x86emu_t *emu, void* fmt, void* b, va_list V) __attribute__((alias("my_vprintf")));
+EXPORT int my___vprintf_chk(x86emu_t *emu, void* fmt, void* b) __attribute__((alias("my_vprintf")));
 
 EXPORT int my_vfprintf(x86emu_t *emu, void* F, void* fmt, void* b) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vfprintf;
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
     // other platform don't need that
-    void* f = vfprintf;
-    return ((iFppp_t)f)(F, fmt, (uint32_t*)b);
+    return vfprintf(F, fmt, b);
     #endif
 }
 EXPORT int my___vfprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b) __attribute__((alias("my_vfprintf")));
 EXPORT int my__IO_vfprintf(x86emu_t *emu, void* F, void* fmt, void* b) __attribute__((alias("my_vfprintf")));
 
-EXPORT int my_fprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
+EXPORT int my_fprintf(x86emu_t *emu, void* F, void* fmt, void* V)  {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlign((const char*)fmt, b, emu->scratch);
+    myStackAlign((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST;
     void* f = vfprintf;
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
-    // other platform don't need that
-    return vfprintf((FILE*)F, (const char*)fmt, V);
+    return vfprintf((FILE*)F, (const char*)fmt, (va_list)V);
     #endif
 }
-EXPORT int my___fprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fprintf")));
+EXPORT int my___fprintf_chk(x86emu_t *emu, void* F, void* fmt, void* V) __attribute__((alias("my_fprintf")));
 
-EXPORT int my_wprintf(x86emu_t *emu, void* fmt, void* b, va_list V) {
+EXPORT int my_wprintf(x86emu_t *emu, void* fmt, void* V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignW((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST;
     void* f = vwprintf;
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
-    return vwprintf((const wchar_t*)fmt, V);
+    return vwprintf((const wchar_t*)fmt, (va_list)V);
     #endif
 }
-EXPORT int my___wprintf_chk(x86emu_t *emu, int flag, void* fmt, void* b, va_list V) {
+EXPORT int my___wprintf_chk(x86emu_t *emu, int flag, void* fmt, void* V) {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignW((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST;
     void* f = vwprintf;
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
-    return vwprintf((const wchar_t*)fmt, V);
+    return vwprintf((const wchar_t*)fmt, (va_list)V);
     #endif
 }
-EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
+EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* V)  {
     #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignW((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST;
     void* f = vfwprintf;
     return ((iFppp_t)f)(F, fmt, VARARGS);
@@ -782,7 +780,7 @@ EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* b, va_list V)  {
     return vfwprintf((FILE*)F, (const wchar_t*)fmt, V);
     #endif
 }
-EXPORT int my___fwprintf_chk(x86emu_t *emu, void* F, void* fmt, void* b, va_list V) __attribute__((alias("my_fwprintf")));
+EXPORT int my___fwprintf_chk(x86emu_t *emu, void* F, void* fmt, void* V) __attribute__((alias("my_fwprintf")));
 
 EXPORT int my_vfwprintf(x86emu_t *emu, void* F, void* fmt, void* b) {
     #ifndef NOALIGN
@@ -791,8 +789,7 @@ EXPORT int my_vfwprintf(x86emu_t *emu, void* F, void* fmt, void* b) {
     void* f = vfwprintf;
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
-    void* f = vfwprintf;
-    return ((iFppp_t)f)(F, fmt, b);
+    return vfwprintf(F, fmt, b);
     #endif
 }
 
@@ -813,36 +810,34 @@ EXPORT void *my_div(void *result, int numerator, int denominator) {
     return result;
 }
 
-EXPORT int my_snprintf(x86emu_t* emu, void* buff, size_t s, void * fmt, void * b, va_list V) {
+EXPORT int my_snprintf(x86emu_t* emu, void* buff, size_t s, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
+    return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
+    return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
 }
-EXPORT int my___snprintf(x86emu_t* emu, void* buff, size_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_snprintf")));
+EXPORT int my___snprintf(x86emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my_snprintf")));
 
-EXPORT int my___snprintf_chk(x86emu_t* emu, void* buff, size_t s, int f1, int f2, void * fmt, void * b, va_list V) {
+EXPORT int my___snprintf_chk(x86emu_t* emu, void* buff, size_t s, int f1, int f2, void * fmt, void * b) {
     (void)f1; (void)f2;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
+    return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
-    return vsnprintf((char*)buff, s, (char*)fmt, V);
+    return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
 }
 
 
-EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) {
+EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -850,12 +845,12 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V
     void* f = vsprintf;
     return ((iFppp_t)f)(buff, fmt, VARARGS);
     #else
-    return vsprintf((char*)buff, (char*)fmt, V);
+    return vsprintf((char*)buff, (char*)fmt, b);
     #endif
 }
-EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b, va_list V) __attribute__((alias("my_sprintf")));
+EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b) __attribute__((alias("my_sprintf")));
 
-EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list V) {
+EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -863,11 +858,10 @@ EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list
     void* f = vasprintf;
     return ((iFppp_t)f)(buff, fmt, VARARGS);
     #else
-    return vasprintf((char**)buff, (char*)fmt, V);
+    return vasprintf((char**)buff, (char*)fmt, b);
     #endif
 }
-EXPORT int my___asprintf(x86emu_t* emu, void** buff, void * fmt, void * b, va_list V) __attribute__((alias("my_asprintf")));
-
+EXPORT int my___asprintf(x86emu_t* emu, void** buff, void * fmt, void * b) __attribute__((alias("my_asprintf")));
 
 EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, uint32_t * b) {
     #ifndef NOALIGN
@@ -985,7 +979,7 @@ EXPORT int my___vasprintf_chk(x86emu_t* emu, void* strp, int flags, void* fmt, v
     #endif
 }
 
-EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* fmt, void* b, va_list V)
+EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* fmt, void* b)
 {
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -993,7 +987,7 @@ EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* f
     void* f = vasprintf;
     return ((iFppp_t)f)(result_ptr, fmt, VARARGS);
     #else
-    return vasprintf((char**)result_ptr, (char*)fmt, V);
+    return vasprintf((char**)result_ptr, (char*)fmt, b);
     #endif
 }
 
