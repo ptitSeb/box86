@@ -116,40 +116,32 @@ typedef struct  FT_FaceRec_s
     void*           internal;
 } FT_FaceRec_t;
 
-typedef long  FT_Pos;
 typedef struct  FT_Vector_s
 {
-    FT_Pos  x;
-    FT_Pos  y;
+    long  x;
+    long  y;
 
 } FT_Vector_t;
 
 typedef struct  FT_Outline_s
 {
-    short       n_contours;      /* number of contours in glyph        */
-    short       n_points;        /* number of points in the glyph      */
+    short       n_contours;
+    short       n_points;
 
-    FT_Vector_t*  points;          /* the outline's points               */
-    char*       tags;            /* the points flags                   */
-    short*      contours;        /* the contour end points             */
+    void*       points;
+    char*       tags;
+    short*      contours;
 
-    int         flags;           /* outline masks                      */
+    int         flags;
 } FT_Outline_t;
 typedef int
-(*FT_Outline_MoveToFunc)( const FT_Vector_t*  to,
-                        void*             user );
+(*FT_Outline_MoveToFunc)( const void*  to, void* user);
 typedef int
-(*FT_Outline_LineToFunc)( const FT_Vector_t*  to,
-                        void*             user );
+(*FT_Outline_LineToFunc)( const void*  to, void* user);
 typedef int
-(*FT_Outline_ConicToFunc)( const FT_Vector_t*  control,
-                            const FT_Vector_t*  to,
-                            void*             user );
+(*FT_Outline_ConicToFunc)( const void*  control, const void*  to, void* user);
 typedef int
-(*FT_Outline_CubicToFunc)( const FT_Vector_t*  control1,
-                            const FT_Vector_t*  control2,
-                            const FT_Vector_t*  to,
-                            void*             user );
+(*FT_Outline_CubicToFunc)( const void*  control1, const void*  control2, const void*  to, void* user);
 typedef struct  FT_Outline_Funcs_s
 {
     FT_Outline_MoveToFunc   move_to;
@@ -158,7 +150,7 @@ typedef struct  FT_Outline_Funcs_s
     FT_Outline_CubicToFunc  cubic_to;
 
     int                     shift;
-    FT_Pos                  delta;
+    long                    delta;
 } FT_Outline_Funcs_t;
 
 typedef int (*iFppp_t)(void*, void*, void*);
@@ -252,18 +244,151 @@ static void* find_FTC_Face_Requester_Fct(void* fct)
     return NULL;
 }
 
-
-static uintptr_t my_iofunc = 0;
-static unsigned long my_FT_Stream_IoFunc(FT_StreamRec_t* stream, unsigned long offset, unsigned char* buffer, unsigned long count )
+// FT_Stream_IoFunc
+#define GO(A)   \
+static uintptr_t my_FT_Stream_IoFunc_fct_##A = 0;                                                   \
+static unsigned long my_FT_Stream_IoFunc_##A(void* a, unsigned long b, void* c, unsigned long d)    \
+{                                                                                                   \
+    return (unsigned long)RunFunction(my_context, my_FT_Stream_IoFunc_fct_##A, 4, a, b, c, d);      \
+}
+SUPER()
+#undef GO
+static void* find_FT_Stream_IoFunc_Fct(void* fct)
 {
-    return (unsigned long)RunFunction(my_context, my_iofunc, 4, stream, offset, buffer, count);
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Stream_IoFunc_fct_##A == (uintptr_t)fct) return my_FT_Stream_IoFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Stream_IoFunc_fct_##A == 0) {my_FT_Stream_IoFunc_fct_##A = (uintptr_t)fct; return my_FT_Stream_IoFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Stream_IoFunc callback\n");
+    return NULL;
 }
 
-static uintptr_t my_closefunc = 0;
-static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
-{
-    RunFunction(my_context, my_closefunc, 1, stream);
+// FT_Stream_CloseFunc
+#define GO(A)   \
+static uintptr_t my_FT_Stream_CloseFunc_fct_##A = 0;                            \
+static int my_FT_Stream_CloseFunc_##A(void* a)                                  \
+{                                                                               \
+    return (int)RunFunction(my_context, my_FT_Stream_CloseFunc_fct_##A, 1, a);  \
 }
+SUPER()
+#undef GO
+static void* find_FT_Stream_CloseFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Stream_CloseFunc_fct_##A == (uintptr_t)fct) return my_FT_Stream_CloseFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Stream_CloseFunc_fct_##A == 0) {my_FT_Stream_CloseFunc_fct_##A = (uintptr_t)fct; return my_FT_Stream_CloseFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Stream_CloseFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_MoveToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_MoveToFunc_fct_##A = 0;                              \
+static int my_FT_Outline_MoveToFunc_##A(void* a, void* b)                           \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_FT_Outline_MoveToFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_MoveToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_MoveToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_MoveToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_MoveToFunc_fct_##A == 0) {my_FT_Outline_MoveToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_MoveToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_MoveToFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_LineToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_LineToFunc_fct_##A = 0;                              \
+static int my_FT_Outline_LineToFunc_##A(void* a, void* b)                           \
+{                                                                                   \
+    return (int)RunFunction(my_context, my_FT_Outline_LineToFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_LineToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_LineToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_LineToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_LineToFunc_fct_##A == 0) {my_FT_Outline_LineToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_LineToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_LineToFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_ConicToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_ConicToFunc_fct_##A = 0;                                 \
+static int my_FT_Outline_ConicToFunc_##A(void* a, void* b, void * c)                    \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_FT_Outline_ConicToFunc_fct_##A, 3, a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_ConicToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_ConicToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_ConicToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_ConicToFunc_fct_##A == 0) {my_FT_Outline_ConicToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_ConicToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_ConicToFunc callback\n");
+    return NULL;
+}
+
+// FT_Outline_CubicToFunc
+#define GO(A)   \
+static uintptr_t my_FT_Outline_CubicToFunc_fct_##A = 0;                                     \
+static int my_FT_Outline_CubicToFunc_##A(void* a, void* b, void * c, void* d)               \
+{                                                                                           \
+    return (int)RunFunction(my_context, my_FT_Outline_CubicToFunc_fct_##A, 4, a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_FT_Outline_CubicToFunc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_FT_Outline_CubicToFunc_fct_##A == (uintptr_t)fct) return my_FT_Outline_CubicToFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FT_Outline_CubicToFunc_fct_##A == 0) {my_FT_Outline_CubicToFunc_fct_##A = (uintptr_t)fct; return my_FT_Outline_CubicToFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libfreetype FT_Outline_CubicToFunc callback\n");
+    return NULL;
+}
+
+#undef SUPER
 
 EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)
 {
@@ -272,59 +397,23 @@ EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, l
 
     int wrapstream = (args->flags&0x02)?1:0;
     if(wrapstream) {
-        my_iofunc = (uintptr_t)args->stream->read;
-        if(my_iofunc)
-            args->stream->read = my_FT_Stream_IoFunc;
-        my_closefunc = (uintptr_t)args->stream->close;
-        if(my_closefunc)
-            args->stream->close = my_FT_Stream_CloseFunc;
+        args->stream->read = find_FT_Stream_IoFunc_Fct(args->stream->read);
+        args->stream->close = find_FT_Stream_CloseFunc_Fct(args->stream->close);
     }
     int ret = my->FT_Open_Face(library, args, face_index, aface);
-    /*if(wrapstream) {
-        args->stream->read = (void*)my_iofunc;
-        args->stream->close = (void*)my_closefunc;
-    }*/
     return ret;
 }
 
-static uintptr_t my_move_to = 0;
-static int my_FT_Outline_MoveToFunc(const FT_Vector_t *to, void *user)
+EXPORT int my_FT_Outline_Decompose(x86emu_t* emu, void * arg0 , const FT_Outline_Funcs_t * arg1 , void * arg2)
 {
-    return (int)RunFunction(my_context, my_move_to, 2, to, user);
-}
-
-static uintptr_t my_line_to = 0;
-static int my_FT_Outline_LineToFunc(const FT_Vector_t *to, void *user)
-{
-    return (int)RunFunction(my_context, my_line_to, 2, to, user);
-}
-
-static uintptr_t my_conic_to = 0;
-static int my_FT_Outline_ConicToFunc(const FT_Vector_t *control, const FT_Vector_t *to, void *user)
-{
-    return (int)RunFunction(my_context, my_conic_to, 3, control, to, user);
-}
-
-static uintptr_t my_cubic_to = 0;
-static int my_FT_Outline_CubicToFunc(const FT_Vector_t *control1, const FT_Vector_t *control2, const FT_Vector_t *to, void *user)
-{
-    return (int)RunFunction(my_context, my_cubic_to, 4, control1, control2, to, user);
-}
-
-EXPORT int my_FT_Outline_Decompose(x86emu_t* emu, FT_Outline_t * arg0 , const FT_Outline_Funcs_t * arg1 , void * arg2)
-{
-    static FT_Outline_Funcs_t decompose_funcs;
+    FT_Outline_Funcs_t decompose_funcs;
     library_t* lib = GetLibInternal(freetypeName);
     freetype_my_t* my = (freetype_my_t*)lib->priv.w.p2;
 
-    my_move_to = (uintptr_t)arg1->move_to;
-    if (my_move_to) decompose_funcs.move_to = my_FT_Outline_MoveToFunc;
-    my_line_to = (uintptr_t)arg1->line_to;
-    if (my_line_to) decompose_funcs.line_to = my_FT_Outline_LineToFunc;
-    my_conic_to = (uintptr_t)arg1->conic_to;
-    if (my_conic_to) decompose_funcs.conic_to = my_FT_Outline_ConicToFunc;
-    my_cubic_to = (uintptr_t)arg1->cubic_to;
-    if (my_cubic_to) decompose_funcs.cubic_to = my_FT_Outline_CubicToFunc;
+    decompose_funcs.move_to = find_FT_Outline_MoveToFunc_Fct(arg1->move_to);
+    decompose_funcs.line_to = find_FT_Outline_LineToFunc_Fct(arg1->line_to);
+    decompose_funcs.conic_to = find_FT_Outline_ConicToFunc_Fct(arg1->conic_to);
+    decompose_funcs.cubic_to = find_FT_Outline_CubicToFunc_Fct(arg1->cubic_to);
     decompose_funcs.shift = arg1->shift;
     decompose_funcs.delta = arg1->delta;
 
