@@ -232,6 +232,17 @@
                         GM.sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
                     }
                     break;
+                case 0x09:  /* PSIGNW Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<4; ++i) {
+                        if (EM->sw[i] < 0) {
+                            GM.sw[i] = -GM.sw[i];
+                        } else if (EM->sw[i] == 0) {
+                            GM.sw[i] = 0;
+                        }
+                    }
+                    break;
                 case 0x0B:  /* PMULHRSW Gm, Em */
                     nextop = F8;
                     GET_EM;
