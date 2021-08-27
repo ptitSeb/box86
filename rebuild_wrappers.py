@@ -177,7 +177,7 @@ class CustOrderedDict(Generic[T, U], Iterable[T]):
 			self.__keys__ = list(src.keys())
 			self.__actdict__ = src
 	
-	def sort(self, *, key: Callable[[T], Any] = lambda x: x) -> None:
+	def sort(self, key: Callable[[T], Any] = lambda x: x) -> None:
 		self.__keys__.sort(key=key)
 	
 	def __iter__(self):
@@ -261,7 +261,7 @@ class FunctionType(metaclass=FirstArgumentSingletonMeta):
 		else:
 			return super().__new__(cls)
 	
-	def __init__(self, string: str, filespec: FileSpec, /) -> None:
+	def __init__(self, string: str, filespec: FileSpec) -> None:
 		# Early fail
 		if 'VV' in string:
 			raise ValueError("'V' can only be at the end of the type (use 's' instead)")
@@ -317,7 +317,7 @@ class FunctionType(metaclass=FirstArgumentSingletonMeta):
 	def __eq__(self, o: object):
 		return isinstance(o, FunctionType) and ((self.orig == o.orig) and (o is self or not isinstance(self, StructFunctionType)))
 class StructFunctionType(FunctionType):
-	def __init__(self, string: str, filespec: FileSpec, /) -> None:
+	def __init__(self, string: str, filespec: FileSpec) -> None:
 		super().__init__(string, filespec)
 		assert(self.usestruct)
 		self.filespec = filespec
@@ -337,7 +337,7 @@ class StructFunctionType(FunctionType):
 class _BareFunctionType(FunctionType): # Fake derived
 	def __new__(cls, *largs, **kwargs):
 		return object.__new__(cls)
-	def __init__(self, string: str, filespec: FileSpec, isstruct: bool, /) -> None:
+	def __init__(self, string: str, filespec: FileSpec, isstruct: bool) -> None:
 		self.orig = string
 		self.filespec = filespec
 		self.isstruct = isstruct
