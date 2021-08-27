@@ -80,6 +80,7 @@ const char* sdl2Name = "libSDL2-2.0.so.0";
 
 typedef void    (*vFv_t)();
 typedef void    (*vFiupp_t)(int32_t, uint32_t, void*, void*);
+typedef int32_t (*iFpLpp_t)(void*, size_t, void*, void*);
 typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 
 #define ADDED_FUNCTIONS() \
@@ -560,7 +561,8 @@ EXPORT int my2_SDL_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, 
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    return vsnprintf(buff, s, fmt, VARARGS);
+    void* f = vsnprintf;
+    return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
     return vsnprintf(buff, s, fmt, b);
     #endif
@@ -579,7 +581,8 @@ EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, v
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    return vsnprintf(buff, s, fmt, VARARGS);
+    void* f = vsnprintf;
+    return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
     return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif

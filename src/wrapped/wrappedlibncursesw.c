@@ -24,6 +24,8 @@ const char* libncurseswName = "libncursesw.so.5";
 
 static library_t* my_lib = NULL;
 
+typedef int32_t (*iFppp_t)(void*, void*, void*);
+
 #define ADDED_FUNCTIONS() GO(stdscr, void*)
 #include "generated/wrappedlibncurseswtypes.h"
 
@@ -57,7 +59,8 @@ EXPORT int myw_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    vasprintf(&buf, fmt, VARARGS);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, VARARGS);
     #else
     vasprintf(&buf, fmt, b);
     #endif
@@ -88,7 +91,8 @@ EXPORT int myw_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    vasprintf(&buf, fmt, VARARGS);
+    iFppp_t f = (iFppp_t)vasprintf;
+    f(&buf, fmt, VARARGS);
     #else
     vasprintf(&buf, fmt, b);
     #endif
