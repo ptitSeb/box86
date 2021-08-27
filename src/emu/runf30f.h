@@ -182,6 +182,24 @@
         }
         break;
 
+    case 0xBD:                      /* LZCNT Ed,Gd */
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GET_ED;
+        tmp32u = ED->dword[0];
+        if(tmp32u) {
+            tmp8u = 0;
+            while(!(tmp32u&(1<<(31-tmp8u)))) ++tmp8u;
+            GD.dword[0] = tmp8u;
+            CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+            CLEAR_FLAG(F_CF);
+        } else {
+            SET_FLAG(F_CF);
+            CLEAR_FLAG(F_ZF);
+            GD.dword[0] = 32;
+        }
+        break;
+
     case 0xC2:  /* CMPSS Gx, Ex, Ib */
         nextop = F8;
         GET_EX;
