@@ -268,6 +268,31 @@
             }
             NEXT;
 
+        _0f_0x3A:
+            opcode = F8;
+            switch(opcode) {
+                case 0xF:  /* palignr */
+                    nextop = F8;
+                    GET_EM;
+                    tmp8u = F8;
+                    if (tmp8u >= 16) {
+                        GM.q = 0;
+                    } else if (tmp8u > 8) {
+                        tmp8u -= 8;
+                        GM.q >>= tmp8u*8;
+                    } else if (tmp8u == 8 || tmp8u == 0) {
+
+                    } else {
+                        GM.q <<= (8-tmp8u)*8;
+                        GM.q |= (EM->q >> tmp8u*8);
+                    }
+                    break;
+
+                default:
+                    goto _default;
+            }
+            NEXT;
+
         _0f_0x3F:
             emu->old_ip = R_EIP;
             R_EIP = ip-2;
