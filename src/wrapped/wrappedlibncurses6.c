@@ -24,17 +24,8 @@ const char* libncurses6Name = "libncurses.so.6";
 
 static library_t* my_lib = NULL;
 
-// this is a simple copy of libncursesw wrapper. TODO: check if ok
-
-typedef void*       (*pFv_t)();
-typedef int         (*iFppp_t)(void*, void*, void*);
-typedef int         (*iFpiip_t)(void*, int32_t, int32_t, void*);
-
-#define SUPER() \
-    GO(initscr, pFv_t)      \
-    GO(mvwprintw, iFpiip_t) \
-    GO(vwprintw, iFppp_t)   \
-    GO(stdscr, void*)
+#define ADDED_FUNCTIONS() GO(stdscr, void*)
+#include "generated/wrappedlibncurses6types.h"
 
 typedef struct libncurses6_my_s {
     // functions
@@ -58,7 +49,7 @@ void freeNCurses6My(void* lib)
     //libncurses6_my_t *my = (libncurses6_my_t *)lib;
 }
 
-EXPORT int my6_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* fmt, void* b)
+EXPORT int my6_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void* b)
 {
     libncurses6_my_t *my = (libncurses6_my_t*)my_lib->priv.w.p2;
 
@@ -66,11 +57,9 @@ EXPORT int my6_mvwprintw(x86emu_t* emu, void* win, int32_t y, int32_t x, void* f
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, VARARGS);
+    vasprintf(&buf, fmt, VARARGS);
     #else
-    iFppp_t f = (iFppp_t)vasprintf;
-    f(&buf, fmt, b);
+    vasprintf(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
     int ret = my->mvwprintw(win, y, x, buf);
@@ -85,11 +74,43 @@ EXPORT int my6_printw(x86emu_t* emu, void* fmt, void* b)
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
-    return my->vwprintw(my->stdscr, fmt, VARARGS);
+    return my->vw_printw(my->stdscr, fmt, VARARGS);
     #else
-    return my->vwprintw(my->stdscr, fmt, b);
+    return my->vw_printw(my->stdscr, fmt, b);
     #endif
 }
+
+EXPORT int my6_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
+{
+    libncurses6_my_t *my = (libncurses6_my_t*)my_lib->priv.w.p2;
+
+    char* buf = NULL;
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    vasprintf(&buf, fmt, VARARGS);
+    #else
+    vasprintf(&buf, fmt, b);
+    #endif
+    // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
+    int ret = my->mvprintw(x, y, buf);
+    free(buf);
+    return ret;
+}
+
+EXPORT int my6_vw_printw(x86emu_t *emu, void* win, void* fmt, void* b) {
+    libncurses6_my_t *my = (libncurses6_my_t*)my_lib->priv.w.p2;
+
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    return my->vw_printw(win, fmt, VARARGS);
+    #else
+    // other platform don't need that
+    return my->vw_printw(win, fmt, b);
+    #endif
+}
+EXPORT int my6_vwprintw(x86emu_t *emu, void* win, void* fmt, void* b) __attribute__((alias("my6_vw_printw")));
 
 EXPORT void* my6_initscr()
 {
@@ -99,18 +120,16 @@ EXPORT void* my6_initscr()
     return ret;
 }
 
-
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getNCurses6My(lib);    \
-    my_lib = lib;                           \
-    lib->altmy = strdup("my6_");            \
-    lib->priv.w.needed = 1;                 \
+    lib->priv.w.p2 = getNCurses6My(lib); \
+    my_lib = lib; \
+    lib->priv.w.needed = 1; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libtinfo.so.6");
+    lib->priv.w.neededlibs[0] = strdup("libtinfo.so.5");
 
 #define CUSTOM_FINI \
     freeNCurses6My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);           \
+    free(lib->priv.w.p2);          \
     my_lib = NULL;
 
 #include "wrappedlib_init.h"

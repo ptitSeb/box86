@@ -263,7 +263,7 @@ GO(XDeleteContext, iFpui)
 //GO(XDeleteModifiermapEntry
 GO(XDeleteProperty, iFppp)
 // _XDeq
-GO(_XDeqAsyncHandler, vFEpp)
+GOM(_XDeqAsyncHandler, vFEpp)
 GO(XDestroyIC, vFu)
 GOM(XDestroyImage, iFEp)  //need to unbridge
 //GO(XDestroyOC

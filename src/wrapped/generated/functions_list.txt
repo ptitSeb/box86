@@ -1,4 +1,3 @@
-#() vFE
 #() vFv
 #() vFi
 #() vFu
@@ -17,7 +16,6 @@
 #() cFp
 #() cFG
 #() wFp
-#() iFE
 #() iFv
 #() iFw
 #() iFi
@@ -43,7 +41,6 @@
 #() CFG
 #() WFi
 #() WFp
-#() uFE
 #() uFv
 #() uFi
 #() uFu
@@ -55,8 +52,8 @@
 #() UFv
 #() UFu
 #() UFp
-#() UFV
 #() UFG
+#() UFs
 #() fFi
 #() fFf
 #() fFp
@@ -74,9 +71,9 @@
 #() lFG
 #() LFv
 #() LFu
+#() LFL
 #() LFp
 #() LFG
-#() pFE
 #() pFv
 #() pFw
 #() pFi
@@ -91,6 +88,7 @@
 #() pFp
 #() pFV
 #() pFG
+#() vFEv
 #() vFEp
 #() vFii
 #() vFiI
@@ -143,9 +141,9 @@
 #() vFGp
 #() vFGG
 #() cFpp
+#() iFEv
 #() iFEL
 #() iFEp
-#() iFEV
 #() iFwp
 #() iFii
 #() iFiI
@@ -157,8 +155,6 @@
 #() iFuu
 #() iFup
 #() iFli
-#() iFLi
-#() iFLp
 #() iFpw
 #() iFpi
 #() iFpI
@@ -171,6 +167,7 @@
 #() iFpl
 #() iFpL
 #() iFpp
+#() iFpV
 #() iFpO
 #() iFpP
 #() iFpG
@@ -185,8 +182,10 @@
 #() CFpi
 #() CFpu
 #() CFpp
+#() uFEv
 #() uFEu
 #() uFEp
+#() uFii
 #() uFiu
 #() uFui
 #() uFuu
@@ -203,7 +202,7 @@
 #() UFUU
 #() UFUp
 #() UFpp
-#() UFVV
+#() UFss
 #() fFEp
 #() fFif
 #() fFfi
@@ -226,15 +225,13 @@
 #() lFpp
 #() LFii
 #() LFLi
-#() LFLp
 #() LFpL
 #() LFpp
+#() pFEv
 #() pFEi
 #() pFEp
-#() pFEV
 #() pFii
 #() pFiu
-#() pFiL
 #() pFip
 #() pFiV
 #() pFui
@@ -257,6 +254,7 @@
 #() pFpp
 #() pFpV
 #() pFpG
+#() pFps
 #() pFSi
 #() vFEip
 #() vFEpi
@@ -347,7 +345,6 @@
 #() iFiii
 #() iFiiI
 #() iFiiu
-#() iFiiL
 #() iFiip
 #() iFiiO
 #() iFiII
@@ -359,6 +356,7 @@
 #() iFipL
 #() iFipp
 #() iFCiW
+#() iFuwp
 #() iFuii
 #() iFuip
 #() iFuui
@@ -368,7 +366,6 @@
 #() iFuLp
 #() iFupp
 #() iFfff
-#() iFLwp
 #() iFpwp
 #() iFpii
 #() iFpiu
@@ -396,7 +393,6 @@
 #() iFpll
 #() iFplp
 #() iFpLi
-#() iFpLL
 #() iFpLp
 #() iFppi
 #() iFppI
@@ -426,8 +422,6 @@
 #() uFEpp
 #() uFipu
 #() uFuip
-#() uFuui
-#() uFuuI
 #() uFuuu
 #() uFuup
 #() uFupi
@@ -445,7 +439,6 @@
 #() uFppp
 #() UFppi
 #() UFppu
-#() fFuii
 #() fFull
 #() fFfff
 #() fFffp
@@ -461,12 +454,15 @@
 #() lFipL
 #() lFlll
 #() lFlpi
+#() lFpli
 #() lFpLp
 #() lFppi
 #() lFppL
 #() lFSpl
 #() LFiii
-#() LFpii
+#() LFLLl
+#() LFLpu
+#() LFLpL
 #() LFpip
 #() LFpLi
 #() LFpLp
@@ -527,8 +523,8 @@
 #() pFppl
 #() pFppL
 #() pFppp
-#() pFpVV
 #() pFpOM
+#() pFpss
 #() pFSpl
 #() pFSpp
 #() vFEiip
@@ -678,7 +674,6 @@
 #() iFEppL
 #() iFEppp
 #() iFEppV
-#() iFEpVV
 #() iFEpOu
 #() iFEpOV
 #() iFEPpp
@@ -688,13 +683,13 @@
 #() iFiiiu
 #() iFiiip
 #() iFiiII
-#() iFiiLi
+#() iFiiui
 #() iFiipi
 #() iFiipp
+#() iFiuwp
 #() iFiuii
 #() iFiuui
 #() iFiupp
-#() iFiLwp
 #() iFipii
 #() iFipip
 #() iFipui
@@ -711,10 +706,11 @@
 #() iFupup
 #() iFuppi
 #() iFuppp
+#() iFpwww
+#() iFpwpp
 #() iFpiii
 #() iFpiiu
 #() iFpiid
-#() iFpiiL
 #() iFpiip
 #() iFpiuu
 #() iFpiuL
@@ -728,6 +724,7 @@
 #() iFpCCC
 #() iFpCpi
 #() iFpWWu
+#() iFpuwp
 #() iFpuii
 #() iFpuiu
 #() iFpuiL
@@ -748,7 +745,6 @@
 #() iFpUpp
 #() iFplii
 #() iFplip
-#() iFpLwp
 #() iFpLpi
 #() iFpLpL
 #() iFppii
@@ -845,6 +841,7 @@
 #() pFippi
 #() pFippu
 #() pFuiii
+#() pFuuuu
 #() pFulli
 #() pFullu
 #() pFffff
@@ -912,7 +909,6 @@
 #() vFuiiii
 #() vFuiiiu
 #() vFuiiip
-#() vFuiiup
 #() vFuiifi
 #() vFuiIII
 #() vFuiuii
@@ -1004,11 +1000,12 @@
 #() iFEipuu
 #() iFEippi
 #() iFEippp
-#() iFEipVV
+#() iFEuuuu
 #() iFEpiii
 #() iFEpiup
 #() iFEpipi
 #() iFEpipp
+#() iFEpipV
 #() iFEpupV
 #() iFEpUup
 #() iFEpLpp
@@ -1019,7 +1016,6 @@
 #() iFEpplp
 #() iFEpppp
 #() iFEpppV
-#() iFEppVV
 #() iFEpPpp
 #() iFiiipu
 #() iFiiipp
@@ -1036,16 +1032,18 @@
 #() iFipppi
 #() iFipppp
 #() iFuppup
+#() iFpwwww
+#() iFpwppp
 #() iFpiiii
 #() iFpiiiu
 #() iFpiiiL
 #() iFpiiip
+#() iFpiiui
 #() iFpiiuu
-#() iFpiiLi
 #() iFpiipi
 #() iFpiipp
+#() iFpiuwp
 #() iFpiupu
-#() iFpiLwp
 #() iFpipii
 #() iFpipiL
 #() iFpipip
@@ -1074,12 +1072,12 @@
 #() iFppiup
 #() iFppipi
 #() iFppipp
+#() iFppuwp
 #() iFppuip
 #() iFppupi
 #() iFppupp
 #() iFppllp
 #() iFpplpp
-#() iFppLwp
 #() iFppLip
 #() iFppLpi
 #() iFppLpL
@@ -1090,6 +1088,7 @@
 #() iFpppui
 #() iFpppuu
 #() iFpppup
+#() iFpppLi
 #() iFppppi
 #() iFppppu
 #() iFppppL
@@ -1212,7 +1211,6 @@
 #() vFuiUUUU
 #() vFuiffff
 #() vFuidddd
-#() vFuipiup
 #() vFuuiiii
 #() vFuuiiiu
 #() vFuuiuii
@@ -1297,17 +1295,14 @@
 #() iFEpiLpp
 #() iFEpippi
 #() iFEpippp
-#() iFEpipVV
 #() iFEpuuip
 #() iFEpuppp
-#() iFEpupVV
 #() iFEpUPpp
 #() iFEpLppp
-#() iFEpLpVV
 #() iFEppppp
 #() iFiiiiii
 #() iFiiiiip
-#() iFiiiLwp
+#() iFiiiuwp
 #() iFiuiipi
 #() iFipipuu
 #() iFipuufp
@@ -1425,10 +1420,8 @@
 #() vFEpppppp
 #() vFiiiiiip
 #() vFiiiiuup
-#() vFiiupuip
 #() vFiiffffp
 #() vFiipllli
-#() vFiupuuup
 #() vFuiiiiii
 #() vFuiiiuip
 #() vFuiiiuup
@@ -1504,6 +1497,7 @@
 #() iFEpuiupV
 #() iFEpupppp
 #() iFEpUuppp
+#() iFEpLiipV
 #() iFEppiuui
 #() iFEppupIi
 #() iFEppuppp
@@ -1513,7 +1507,7 @@
 #() iFiiiiiip
 #() iFpiiiiii
 #() iFpiiiiip
-#() iFpiiiLwp
+#() iFpiiiuwp
 #() iFpiiuuiu
 #() iFpiiuuuu
 #() iFpiipppp
@@ -1611,13 +1605,10 @@
 #() vFEpppuipV
 #() vFEpppppuu
 #() vFiiiiuuip
-#() vFiupuiuup
-#() vFiupuuuup
 #() vFilipufip
 #() vFuiiiiiii
 #() vFuiiiiill
 #() vFuiiiiuup
-#() vFuiiipiup
 #() vFuiuiiiii
 #() vFuiuiiiip
 #() vFuiulplpp
@@ -1658,15 +1649,12 @@
 #() iFEpuuiipp
 #() iFEpuuuipp
 #() iFEpuuLppp
-#() iFEpLiipVV
 #() iFEppppipp
 #() iFiiiiiiip
 #() iFiiupiupi
-#() iFuiifpppp
 #() iFuipuuluf
+#() iFuuuuuuuu
 #() iFullfpppp
-#() iFLLLLLLLL
-#() iFpiiiiipi
 #() iFpCCWWpWu
 #() iFpWCuWCuu
 #() iFpuiipppp
@@ -1728,14 +1716,12 @@
 #() vFuiiilliip
 #() vFuiiillilp
 #() vFuiuiiiiip
-#() vFuiupuffup
 #() vFuuiiiiiii
 #() vFuuiuiiiii
 #() vFuuiuiiiip
 #() vFuuiuiiuup
 #() vFuuuiiiiip
 #() vFuuuuuuuuu
-#() vFuupiuiuuf
 #() vFuffffffff
 #() vFffuuuufff
 #() vFddddddddd
@@ -1767,8 +1753,8 @@
 #() iFpiuuupipu
 #() iFpipLpiiip
 #() iFpuiuuipip
+#() iFpuuuuuuuu
 #() iFpupuupWWu
-#() iFpLLLLLLLL
 #() iFppiiiiiii
 #() iFppiuiippu
 #() iFppipiiipi
@@ -1817,7 +1803,6 @@
 #() vFuuiuiiiuup
 #() vFuuuuuuuiii
 #() vFuuuuuuuuuu
-#() vFuupiiupuuf
 #() vFuffiiffiip
 #() vFuddiiddiip
 #() vFffffffffff
@@ -1985,6 +1970,7 @@
 #() pFipppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) IFpi
+#defined(NOALIGN) iFipV
 #defined(NOALIGN) iFppiiiip
 #!defined(NOALIGN) iFEi
 #!defined(NOALIGN) iFEO
@@ -1993,6 +1979,7 @@
 #!defined(NOALIGN) iFEpd
 #!defined(NOALIGN) IFEpi
 #!defined(NOALIGN) dFEpi
+#!defined(NOALIGN) iFEipV
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEpppi
@@ -2017,1053 +2004,1967 @@
 #!defined(HAVE_LD80BITS) KFppip
 #!defined(HAVE_LD80BITS) iFKipppL
 #!defined(HAVE_LD80BITS) vFppippKKC
-#() vFEv -> vFE
-#() iFEv -> iFE
-#() uFEv -> uFE
-#() pFEv -> pFE
 #() iFEvpp -> iFEpp
-#() UFVvvV -> UFVV
-#() iFEvppp -> iFEppp
-#() iFEvpVV -> iFEpVV
+#() iFEvpV -> iFEpV
+#() UFsvvs -> UFss
 #() iFEpvpp -> iFEppp
-#() iFEpvpVV -> iFEppVV
-#() iFEpvvpVV -> iFEppVV
-#() pFpVvvvvV -> pFpVV
+#() iFEpvpV -> iFEppV
+#() iFEpvvpV -> iFEppV
+#() pFpsvvvvs -> pFpss
 #() iFEpuvvppp -> iFEpuppp
-wrappedlibxcb/Sdxmy_xcb_cookie_t
-wrappedlibxcb/SdXmy_xcb_XXX_iterator_t
-wrappedlibxcbdri2/SdXmy_xcb_cookie_t
-wrappedlibxcbdri3/SdXmy_xcb_cookie_t
-wrappedlibxcbimage/SdXmy_xcb_cookie_t
-wrappedlibxcbpresent/SdXmy_xcb_cookie_t
-wrappedlibxcbrandr/SdXmy_xcb_cookie_t
-wrappedlibxcbrandr/SdTmy_xcb_iterator_t
-wrappedlibxcbshape/SdXmy_xcb_cookie_t
-wrappedlibxcbshm/SdXmy_xcb_cookie_t
-wrappedlibxcbshm/SdTmy_xcb_iterator_t
-wrappedlibxcbxfixes/SdXmy_xcb_cookie_t
-wrappedlibxcbxtest/SdXmy_xcb_cookie_t
-wrappedsdl2/SdJSDL_JoystickGUID
-wrappedsdl2/SdgSDL_GameControllerButtonBind
-wrappedbz2/SuiFp3BZ2_bzCompressEnd
-wrappedbz2/SuiFp3BZ2_bzDecompress
-wrappedbz2/SuiFp3BZ2_bzDecompressEnd
-wrappedbz2/SuiFpi3BZ2_bzCompress
-wrappedbz2/SuiFpii3BZ2_bzDecompressInit
-wrappedbz2/SuiFpiii3BZ2_bzCompressInit
-wrappedcrypto/SuvFp3CRYPTO_set_id_callback
-wrappedcrypto/SuvFp3CRYPTO_set_locking_callback
-wrappedcrypto/SupFp3sk_new
-wrappedcrypto/SuvFpp3sk_pop_free
-wrappedcrypto/SupFpppp3PEM_read_bio_DSAPrivateKey
-wrappedcrypto/SupFpppp3PEM_read_bio_DSA_PUBKEY
-wrappedcrypto/SupFpppp3PEM_read_bio_ECPrivateKey
-wrappedcrypto/SupFpppp3PEM_read_bio_EC_PUBKEY
-wrappedcrypto/SupFpppp3PEM_read_bio_RSAPrivateKey
-wrappedcrypto/SupFpppp3PEM_read_bio_RSA_PUBKEY
-wrappedcrypto/SuiFpiipp3ENGINE_ctrl
-wrappedcrypto/SuiFpplppi3ENGINE_ctrl_cmd
-wrappedcrypto/SuiFppppipp3PEM_write_bio_DSAPrivateKey
-wrappedcrypto/SuiFppppipp3PEM_write_bio_ECPrivateKey
-wrappedcrypto/SuiFppppipp3PEM_write_bio_RSAPrivateKey
-wrappedcurl/SuuFpup3curl_easy_setopt
-wrappedd3dadapter9/SupFp3D3DAdapter9GetProc
-wrappeddbus/SuvFppp3dbus_connection_remove_filter
-wrappeddbus/SuvFppp3dbus_timeout_set_data
-wrappeddbus/SuvFppp3dbus_watch_set_data
-wrappeddbus/SuvFpppp3dbus_connection_set_dispatch_status_function
-wrappeddbus/SuvFpppp3dbus_connection_set_wakeup_main_function
-wrappeddbus/SuiFpipp3dbus_connection_set_data
-wrappeddbus/SuiFpipp3dbus_message_set_data
-wrappeddbus/SuiFpipp3dbus_pending_call_set_data
-wrappeddbus/SuiFppip3dbus_message_get_args_valist
-wrappeddbus/SuiFppiV3dbus_message_get_args
-wrappeddbus/SuiFpppp3dbus_connection_add_filter
-wrappeddbus/SuiFpppp3dbus_pending_call_set_notify
-wrappeddbus/SuiFppppp3dbus_connection_try_register_object_path
-wrappeddbus/SuiFpppppp3dbus_connection_set_timeout_functions
-wrappeddbus/SuiFpppppp3dbus_connection_set_watch_functions
-wrappeddbusglib1/SuvFppp3dbus_g_type_collection_value_iterate
-wrappeddbusglib1/SuvFppp3dbus_g_type_map_value_iterate
-wrappeddbusglib1/SuvFpppp3dbus_g_proxy_disconnect_signal
-wrappeddbusglib1/SuvFppppp3dbus_g_proxy_connect_signal
-wrappeddbusglib1/SupFpppppiV3dbus_g_proxy_begin_call
-wrappeddbusglib1/SupFpppppiiV3dbus_g_proxy_begin_call_with_timeout
-wrappedexpat/SuvFpp3XML_SetCharacterDataHandler
-wrappedexpat/SuvFppp3XML_SetElementHandler
-wrappedfontconfig/SuiFppiuui3FcPatternAdd
-wrappedfontconfig/SuiFppiuui3FcPatternAddWeak
-wrappedfreetype/SuiFpplp3FT_Open_Face
-wrappedfreetype/SuiFpuuLppp3FTC_Manager_New
-wrappedgdk3/SuvFpp3gdk_init
-wrappedgdk3/SuiFpp3gdk_init_check
-wrappedgdk3/SuvFppp3gdk_event_handler_set
-wrappedgdk3/SuvFppp3gdk_window_add_filter
-wrappedgdk3/SuvFppp3gdk_window_remove_filter
-wrappedgdk3/SuiFiipp3gdk_input_add
-wrappedgdk3/SuiFiippp3gdk_input_add_full
-wrappedgdkpixbuf2/SupFpiiiiiipp3gdk_pixbuf_new_from_data
-wrappedgdkx112/SuvFpp3gdk_init
-wrappedgdkx112/SuiFpp3gdk_init_check
-wrappedgdkx112/SuvFppp3gdk_event_handler_set
-wrappedgdkx112/SuvFppp3gdk_window_add_filter
-wrappedgdkx112/SuvFppp3gdk_window_remove_filter
-wrappedgdkx112/SuiFiipp3gdk_input_add
-wrappedgdkx112/SuiFiippp3gdk_input_add_full
-wrappedgio2/SuvFppp3g_simple_async_result_set_op_res_gpointer
-wrappedgio2/SuvFippp3g_bus_get
-wrappedgio2/SuvFppip3g_simple_async_result_run_in_thread
-wrappedgio2/SuvFpppp3g_dbus_connection_close
-wrappedgio2/SuvFpppp3g_dbus_connection_flush
-wrappedgio2/SuvFpppp3g_simple_async_report_gerror_in_idle
-wrappedgio2/SuvFpppp3g_simple_async_report_take_gerror_in_idle
-wrappedgio2/SuuFpppp3g_dbus_connection_add_filter
-wrappedgio2/SuLFpppp3g_cancellable_connect
-wrappedgio2/SupFpppp3g_simple_async_result_new
-wrappedgio2/SupFpppp3g_simple_async_result_new_from_error
-wrappedgio2/SupFpppp3g_simple_async_result_new_take_error
-wrappedgio2/SuvFpippp3g_async_initable_init_async
-wrappedgio2/SuvFpipppp3g_dbus_connection_new_for_address
-wrappedgio2/SuvFiippppV3g_async_initable_new_async
-wrappedgio2/SuvFiupippp3g_async_initable_newv_async
-wrappedgio2/SuvFippippp3g_async_initable_new_valist_async
-wrappedgio2/SuvFppipppp3g_dbus_connection_new
-wrappedgio2/SuvFpppuipV3g_simple_async_report_error_in_idle
-wrappedgio2/SuuFipipppp3g_bus_watch_name
-wrappedgio2/SuuFppipppp3g_bus_own_name_on_connection
-wrappedgio2/SuuFppipppp3g_bus_watch_name_on_connection
-wrappedgio2/SuuFppppppp3g_dbus_connection_register_object
-wrappedgio2/SupFpppuipV3g_simple_async_result_new_error
-wrappedgio2/SuvFppiipppp3g_dbus_connection_send_message_with_reply
-wrappedgio2/SuvFpppiippp3g_dbus_proxy_call
-wrappedgio2/SuuFipippppp3g_bus_own_name
-wrappedgio2/SuvFiippppppp3g_dbus_proxy_new_for_bus
-wrappedgio2/SuvFpippppppp3g_dbus_proxy_new
-wrappedgio2/SuvFpppiipppp3g_dbus_proxy_call_with_unix_fd_list
-wrappedgio2/SupFiippppppp3g_dbus_object_manager_client_new_for_bus_sync
-wrappedgio2/SuuFppppppippp3g_dbus_connection_signal_subscribe
-wrappedgio2/SuvFpppppppiippp3g_dbus_connection_call
-wrappedglib2/SuvFp3g_atexit
-wrappedglib2/SupFp3g_completion_new
-wrappedglib2/SupFp3g_main_context_get_poll_func
-wrappedglib2/SupFp3g_private_new
-wrappedglib2/SupFp3g_ptr_array_new_with_free_func
-wrappedglib2/SupFp3g_set_print_handler
-wrappedglib2/SupFp3g_set_printerr_handler
-wrappedglib2/SuvFpp3g_array_set_clear_func
-wrappedglib2/SuvFpp3g_array_sort
-wrappedglib2/SuvFpp3g_completion_set_compare
-wrappedglib2/SuvFpp3g_list_free_full
-wrappedglib2/SuvFpp3g_main_context_set_poll_func
-wrappedglib2/SuvFpp3g_ptr_array_set_free_func
-wrappedglib2/SuvFpp3g_ptr_array_sort
-wrappedglib2/SuvFpp3g_source_set_funcs
-wrappedglib2/SuvFpp3g_thread_foreach
-wrappedglib2/SuvFpV3g_print
-wrappedglib2/SuvFpV3g_printerr
-wrappedglib2/SuiFpp3g_source_remove_by_funcs_user_data
-wrappedglib2/SuiFpp3g_vprintf
-wrappedglib2/SuiFpV3g_printf
-wrappedglib2/SuuFpp3g_idle_add
-wrappedglib2/SuuFpp3g_printf_string_upper_bound
-wrappedglib2/SupFup3g_ptr_array_new_full
-wrappedglib2/SupFpu3g_source_new
-wrappedglib2/SupFpp3g_hash_table_new
-wrappedglib2/SupFpp3g_list_sort
-wrappedglib2/SupFpp3g_log_set_default_handler
-wrappedglib2/SupFpp3g_markup_vprintf_escaped
-wrappedglib2/SupFpp3g_slist_sort
-wrappedglib2/SupFpp3g_strdup_vprintf
-wrappedglib2/SupFpp3g_variant_new_parsed_va
-wrappedglib2/SupFpV3g_build_filename
-wrappedglib2/SupFpV3g_markup_printf_escaped
-wrappedglib2/SupFpV3g_strdup_printf
-wrappedglib2/SupFpV3g_variant_new
-wrappedglib2/SupFpV3g_variant_new_parsed
-wrappedglib2/SuvFppp3g_array_sort_with_data
-wrappedglib2/SuvFppp3g_hash_table_foreach
-wrappedglib2/SuvFppp3g_ptr_array_foreach
-wrappedglib2/SuvFppp3g_ptr_array_sort_with_data
-wrappedglib2/SuvFppp3g_static_private_set
-wrappedglib2/SuvFppV3g_variant_get
-wrappedglib2/SuiFppp3g_vasprintf
-wrappedglib2/SuiFppp3g_vfprintf
-wrappedglib2/SuiFppp3g_vsprintf
-wrappedglib2/SuiFppV3g_fprintf
-wrappedglib2/SuiFppV3g_sprintf
-wrappedglib2/SuuFipp3g_child_watch_add
-wrappedglib2/SuuFupp3g_timeout_add
-wrappedglib2/SuuFupp3g_timeout_add_seconds
-wrappedglib2/SuuFppp3g_hash_table_foreach_remove
-wrappedglib2/SuuFppp3g_hash_table_foreach_steal
-wrappedglib2/SupFppp3g_hash_table_find
-wrappedglib2/SupFppp3g_list_find_custom
-wrappedglib2/SupFppp3g_list_sort_with_data
-wrappedglib2/SupFppp3g_queue_find_custom
-wrappedglib2/SupFppp3g_slist_find_custom
-wrappedglib2/SupFppp3g_slist_foreach
-wrappedglib2/SupFppp3g_slist_insert_sorted
-wrappedglib2/SupFppp3g_slist_sort_with_data
-wrappedglib2/SupFppp3g_variant_new_va
-wrappedglib2/SupFppV3g_build_path
-wrappedglib2/SuvFpupp3g_datalist_id_set_data_full
-wrappedglib2/SuvFpppp3g_source_set_callback
-wrappedglib2/SuiFpLpp3g_vsnprintf
-wrappedglib2/SuiFpLpV3g_snprintf
-wrappedglib2/SuuFippp3g_idle_add_full
-wrappedglib2/SuuFpipp3g_io_add_watch
-wrappedglib2/SuuFpipp3g_log_set_handler
-wrappedglib2/SupFpupp3g_datalist_id_dup_data
-wrappedglib2/SupFppip3g_thread_create
-wrappedglib2/SupFpppp3g_hash_table_new_full
-wrappedglib2/SupFpppp3g_slist_insert_sorted_with_data
-wrappedglib2/SuvFpiLpp3g_qsort_with_data
-wrappedglib2/SuvFppipV3g_set_error
-wrappedglib2/SuuFiippp3g_child_watch_add_full
-wrappedglib2/SuuFiuppp3g_timeout_add_full
-wrappedglib2/SuuFiuppp3g_timeout_add_seconds_full
-wrappedglib2/SuiFpupppp3g_datalist_id_replace_data
-wrappedglib2/SuuFpiippp3g_io_add_watch_full
-wrappedglib2/SupFppuipp3g_variant_new_from_data
-wrappedglib2/SupFppLiiip3g_thread_create_full
-wrappedglib2/SuiFpppipppp3g_spawn_async
-wrappedglib2/SuiFpppipppppp3g_spawn_sync
-wrappedglib2/SuiFpppippppppp3g_spawn_async_with_pipes
-wrappedgnutls/SuvFp3gnutls_global_set_log_function
-wrappedgnutls/SuvFpp3gnutls_transport_set_pull_function
-wrappedgnutls/SuvFpp3gnutls_transport_set_pull_timeout_function
-wrappedgnutls/SuvFpp3gnutls_transport_set_push_function
-wrappedgobject2/SupFp3g_type_class_peek_parent
-wrappedgobject2/SuiFpp3g_param_type_register_static
-wrappedgobject2/SupFpp3g_value_array_sort
-wrappedgobject2/SuvFiip3g_type_add_interface_static
-wrappedgobject2/SuvFiip3g_value_register_transform_func
-wrappedgobject2/SuiFppp3g_boxed_type_register_static
-wrappedgobject2/SupFipV3g_object_new
-wrappedgobject2/SupFppp3g_value_array_sort_with_data
-wrappedgobject2/SupFppV3g_object_connect
-wrappedgobject2/SuvFpupp3g_param_spec_set_qdata_full
-wrappedgobject2/SuvFpppp3g_object_set_data_full
-wrappedgobject2/SuiFippi3g_type_register_static
-wrappedgobject2/SuiFipppi3g_type_register_fundamental
-wrappedgobject2/SuLFupppp3g_signal_add_emission_hook
-wrappedgobject2/SuLFpppppu3g_signal_connect_data
-wrappedgobject2/SuiFipupupi3g_type_register_static_simple
-wrappedgobject2/SuuFpiupppp3g_signal_handlers_block_matched
-wrappedgobject2/SuuFpiupppp3g_signal_handlers_disconnect_matched
-wrappedgobject2/SuuFpiupppp3g_signal_handlers_unblock_matched
-wrappedgobject2/SuLFpiupppp3g_signal_handler_find
-wrappedgobject2/SuuFpiiupppiuV3g_signal_new
-wrappedgobject2/SuuFpiippppiup3g_signal_new_valist
-wrappedgobject2/SuuFpiippppiup3g_signal_newv
-wrappedgthread2/SuvFp3g_thread_init
-wrappedgthread2/SuvFp3g_thread_init_with_errorcheck_mutexes
-wrappedgtk3/SupFi3gtk_type_class
-wrappedgtk3/SuvFpp3gtk_init
-wrappedgtk3/SuiFpp3gtk_init_check
-wrappedgtk3/SuiFpp3gtk_type_unique
-wrappedgtk3/SuvFppp3gtk_builder_connect_signals_full
-wrappedgtk3/SuvFppp3gtk_container_forall
-wrappedgtk3/SuvFppp3gtk_menu_attach_to_widget
-wrappedgtk3/SuvFppV3gtk_dialog_add_buttons
-wrappedgtk3/SuvFppV3gtk_message_dialog_format_secondary_markup
-wrappedgtk3/SuvFppV3gtk_message_dialog_format_secondary_text
-wrappedgtk3/SuuFupp3gtk_timeout_add
-wrappedgtk3/SuvFpppp3gtk_object_set_data_full
-wrappedgtk3/SuvFpppp3gtk_stock_set_translate_func
-wrappedgtk3/SuvFpppp3gtk_tree_sortable_set_default_sort_func
-wrappedgtk3/SuvFpppp3gtk_tree_view_set_search_equal_func
-wrappedgtk3/SuiFpppp3gtk_text_iter_backward_find_char
-wrappedgtk3/SuiFpppp3gtk_text_iter_forward_find_char
-wrappedgtk3/SuvFpippp3gtk_tree_sortable_set_sort_func
-wrappedgtk3/SuiFppuppp3gtk_clipboard_set_with_data
-wrappedgtk3/SuiFppuppp3gtk_clipboard_set_with_owner
-wrappedgtk3/SuiFpppppp3gtk_init_with_args
-wrappedgtk3/SuvFpppppuu3gtk_menu_popup
-wrappedgtk3/SupFppppppi3gtk_toolbar_insert_stock
-wrappedgtk3/SupFppppppp3gtk_toolbar_append_item
-wrappedgtk3/SupFppppppp3gtk_toolbar_prepend_item
-wrappedgtk3/SuLFppppppii3gtk_signal_connect_full
-wrappedgtk3/SupFpppppppi3gtk_toolbar_insert_item
-wrappedgtk3/SupFpippppppp3gtk_toolbar_append_element
-wrappedgtk3/SupFpippppppp3gtk_toolbar_prepend_element
-wrappedgtk3/SupFpipppppppi3gtk_toolbar_insert_element
-wrappedgtkx112/SufFp3gtk_spin_button_get_value_as_float
-wrappedgtkx112/SupFi3gtk_type_class
-wrappedgtkx112/SuvFpp3gtk_builder_connect_signals
-wrappedgtkx112/SuvFpp3gtk_init
-wrappedgtkx112/SuiFpp3gtk_init_check
-wrappedgtkx112/SuiFpp3gtk_type_unique
-wrappedgtkx112/SupFpi3gtk_type_check_object_cast
-wrappedgtkx112/SuvFppp3gtk_builder_connect_signals_full
-wrappedgtkx112/SuvFppp3gtk_clipboard_request_text
-wrappedgtkx112/SuvFppp3gtk_container_forall
-wrappedgtkx112/SuvFppp3gtk_container_foreach
-wrappedgtkx112/SuvFppp3gtk_menu_attach_to_widget
-wrappedgtkx112/SuvFppp3gtk_tree_model_foreach
-wrappedgtkx112/SuvFppV3gtk_dialog_add_buttons
-wrappedgtkx112/SuvFppV3gtk_message_dialog_format_secondary_markup
-wrappedgtkx112/SuvFppV3gtk_message_dialog_format_secondary_text
-wrappedgtkx112/SuuFupp3gtk_timeout_add
-wrappedgtkx112/SuvFppup3gtk_action_group_add_actions
-wrappedgtkx112/SuvFpppp3gtk_clipboard_request_contents
-wrappedgtkx112/SuvFpppp3gtk_object_set_data_full
-wrappedgtkx112/SuvFpppp3gtk_stock_set_translate_func
-wrappedgtkx112/SuvFpppp3gtk_tree_sortable_set_default_sort_func
-wrappedgtkx112/SuvFpppp3gtk_tree_view_set_search_equal_func
-wrappedgtkx112/SuiFpppp3gtk_text_iter_backward_find_char
-wrappedgtkx112/SuiFpppp3gtk_text_iter_forward_find_char
-wrappedgtkx112/SuLFpppp3gtk_signal_connect
-wrappedgtkx112/SuvFpippp3gtk_tree_sortable_set_sort_func
-wrappedgtkx112/SuvFppupp3gtk_action_group_add_actions_full
-wrappedgtkx112/SuvFppppp3gtk_cell_layout_set_cell_data_func
-wrappedgtkx112/SuvFpuipuV3gtk_binding_entry_add_signal
-wrappedgtkx112/SuiFppuppp3gtk_clipboard_set_with_data
-wrappedgtkx112/SuiFppuppp3gtk_clipboard_set_with_owner
-wrappedgtkx112/SuiFpppppp3gtk_init_with_args
-wrappedgtkx112/SuuFiipppp3gtk_input_add_full
-wrappedgtkx112/SuvFpppppuu3gtk_menu_popup
-wrappedgtkx112/SupFppppppi3gtk_toolbar_insert_stock
-wrappedgtkx112/SupFppppppp3gtk_toolbar_append_item
-wrappedgtkx112/SupFppppppp3gtk_toolbar_prepend_item
-wrappedgtkx112/SuLFppppppii3gtk_signal_connect_full
-wrappedgtkx112/SupFpppppppi3gtk_toolbar_insert_item
-wrappedgtkx112/SupFpippppppp3gtk_toolbar_append_element
-wrappedgtkx112/SupFpippppppp3gtk_toolbar_prepend_element
-wrappedgtkx112/SupFpipppppppi3gtk_toolbar_insert_element
-wrappedkrb5/SuiFppppppipp3krb5_get_init_creds_password
-wrappedlcms2/SuvFp3cmsSetLogErrorHandler
-wrappedldapr/SuiFpppppupp3ldap_sasl_interactive_bind_s
-wrappedldlinux/SupFv3___tls_get_addr
-wrappedldlinux/SupFp3__tls_get_addr
-wrappedlibasound/SuiFp3snd_dlclose
-wrappedlibasound/SuiFp3snd_lib_error_set_handler
-wrappedlibasound/SupFppp3snd_dlsym
-wrappedlibasound/SuiFpipp3snd_async_add_handler
-wrappedlibasound/SuiFpppp3snd_async_add_pcm_handler
-wrappedlibasound/SupFpipL3snd_dlopen
-wrappedlibc/SuiFpp3__vwprintf_chk
-wrappedlibc/SuiFpV3execl
-wrappedlibc/SuiFpV3execle
-wrappedlibc/SuiFpV3execlp
-wrappedlibc/SuiFSp3_IO_file_stat
-wrappedlibc/SuvFpup3_ITM_addUserCommitAction
-wrappedlibc/SuiFipL3modify_ldt
-wrappedlibc/SuiFppp3__vfwprintf_chk
-wrappedlibc/SuvFpppp3__libc_init
-wrappedlibdl/SuiFp3dlclose
-wrappedlibdl/SupFv3dlerror
-wrappedlibdl/SuiFpp3dladdr
-wrappedlibdl/SupFpi3dlopen
-wrappedlibdl/SupFpp3dlsym
-wrappedlibdl/SuiFpip3dlinfo
-wrappedlibdl/SupFppi3dlmopen
-wrappedlibdl/SupFppp3dlvsym
-wrappedlibgl/SupFp3glXGetProcAddress
-wrappedlibgl/SupFp3glXGetProcAddressARB
-wrappedlibgl/SuvFpp3glDebugMessageCallback
-wrappedlibgl/SuvFpp3glDebugMessageCallbackAMD
-wrappedlibgl/SuvFpp3glDebugMessageCallbackARB
-wrappedlibgl/SuvFipp3glProgramCallbackMESA
-wrappedlibglu/SuvFpip3gluNurbsCallback
-wrappedlibglu/SuvFpip3gluQuadricCallback
-wrappedlibglu/SuvFpip3gluTessCallback
-wrappedlibjpeg/SuiFp3jpeg_finish_decompress
-wrappedlibjpeg/SuiFp3jpeg_start_decompress
-wrappedlibjpeg/SupFp3jpeg_std_error
-wrappedlibjpeg/SuiFpi3jpeg_read_header
-wrappedlibjpeg/SuvFpiL3jpeg_CreateDecompress
-wrappedlibjpeg/SuvFpip3jpeg_set_marker_processor
-wrappedlibjpeg/SuuFppu3jpeg_read_scanlines
-wrappedlibjpeg62/SuvFp3jpeg_destroy_compress
-wrappedlibjpeg62/SuvFp3jpeg_destroy_decompress
-wrappedlibjpeg62/SuvFp3jpeg_finish_compress
-wrappedlibjpeg62/SuvFp3jpeg_set_defaults
-wrappedlibjpeg62/SuiFp3jpeg_finish_decompress
-wrappedlibjpeg62/SuiFp3jpeg_start_decompress
-wrappedlibjpeg62/SupFp3jpeg_std_error
-wrappedlibjpeg62/SuvFpi3jpeg_start_compress
-wrappedlibjpeg62/SuiFpi3jpeg_read_header
-wrappedlibjpeg62/SuiFpi3jpeg_resync_to_restart
-wrappedlibjpeg62/SuvFpii3jpeg_set_quality
-wrappedlibjpeg62/SuvFpiL3jpeg_CreateCompress
-wrappedlibjpeg62/SuvFpiL3jpeg_CreateDecompress
-wrappedlibjpeg62/SuvFpip3jpeg_set_marker_processor
-wrappedlibjpeg62/SuvFppp3jpeg_mem_dest
-wrappedlibjpeg62/SuuFppu3jpeg_read_scanlines
-wrappedlibjpeg62/SuuFppu3jpeg_write_scanlines
-wrappedlibjpeg62/SuvFpipu3jpeg_write_marker
-wrappedlibncurses/SuiFpV3printw
-wrappedlibncurses/SuiFiipV3mvprintw
-wrappedlibncurses/SuiFpiipV3mvwprintw
-wrappedlibncurses6/SuiFpV3printw
-wrappedlibncurses6/SuiFpiipV3mvwprintw
-wrappedlibncursesw/SuiFpV3printw
-wrappedlibncursesw/SuiFpiipV3mvwprintw
-wrappedlibpthread/SuvFp3__pthread_register_cancel
-wrappedlibpthread/SuvFp3__pthread_unregister_cancel
-wrappedlibpthread/SuvFp3__pthread_unwind_next
-wrappedlibpthread/SuiFp3pthread_attr_destroy
-wrappedlibpthread/SuiFp3pthread_cond_broadcast@GLIBC_2.0
-wrappedlibpthread/SuiFp3pthread_cond_destroy@GLIBC_2.0
-wrappedlibpthread/SuiFp3pthread_cond_signal@GLIBC_2.0
-wrappedlibpthread/SuvFpi3_pthread_cleanup_pop
-wrappedlibpthread/SuvFpi3_pthread_cleanup_pop_restore
-wrappedlibpthread/SuiFpi3pthread_attr_setscope
-wrappedlibpthread/SuiFpi3pthread_kill
-wrappedlibpthread/SuiFpi3pthread_mutexattr_setkind_np
-wrappedlibpthread/SuiFpp3__pthread_key_create
-wrappedlibpthread/SuiFpp3__pthread_once
-wrappedlibpthread/SuiFpp3pthread_attr_setschedparam
-wrappedlibpthread/SuiFpp3pthread_cond_init@GLIBC_2.0
-wrappedlibpthread/SuiFpp3pthread_cond_wait
-wrappedlibpthread/SuiFpp3pthread_cond_wait@GLIBC_2.0
-wrappedlibpthread/SuiFpp3pthread_key_create
-wrappedlibpthread/SuiFpp3pthread_once
-wrappedlibpthread/SuiFpp3pthread_setname_np
-wrappedlibpthread/SuvFppp3_pthread_cleanup_push
-wrappedlibpthread/SuvFppp3_pthread_cleanup_push_defer
-wrappedlibpthread/SuiFLup3pthread_setaffinity_np
-wrappedlibpthread/SuiFpup3pthread_attr_setaffinity_np
-wrappedlibpthread/SuiFpup3pthread_getaffinity_np
-wrappedlibpthread/SuiFppu3pthread_getname_np
-wrappedlibpthread/SuiFppL3pthread_attr_setstack
-wrappedlibpthread/SuiFppp3__pthread_atfork
-wrappedlibpthread/SuiFppp3pthread_atfork
-wrappedlibpthread/SuiFppp3pthread_attr_getstack
-wrappedlibpthread/SuiFppp3pthread_cond_timedwait
-wrappedlibpthread/SuiFppp3pthread_cond_timedwait@GLIBC_2.0
-wrappedlibpthread/SuiFpppp3pthread_create
-wrappedlibrt/SuiFupp3timer_create
-wrappedlibsm/SuiFppp3SmcRequestSaveYourselfPhase2
-wrappedlibsm/SuiFpipp3SmcInteractRequest
-wrappedlibsm/SupFppiiLpppip3SmcOpenConnection
-wrappedlibsndfile/SuiFp3sf_close
-wrappedlibsndfile/SupFpipp3sf_open_virtual
-wrappedlibssl/SuvFpp3SSL_CTX_sess_set_new_cb
-wrappedlibssl/SuvFpp3SSL_CTX_set_default_passwd_cb
-wrappedlibssl/SuvFpp3SSL_set_psk_client_callback
-wrappedlibssl/SuvFpip3SSL_CTX_set_verify
-wrappedlibssl/SuvFpip3SSL_set_verify
-wrappedlibssl/SuvFppp3SSL_CTX_set_next_proto_select_cb
-wrappedlibssl/SulFpip3SSL_CTX_callback_ctrl
-wrappedlibssl/SulFpip3SSL_callback_ctrl
-wrappedlibssl/SuiFlpppp3SSL_get_ex_new_index
-wrappedlibtinfo/SuiFpip3tputs
-wrappedlibtinfo6/SuiFpip3tputs
-wrappedlibusb1/SuiFp3libusb_cancel_transfer
-wrappedlibusb1/SuiFp3libusb_submit_transfer
-wrappedlibusb1/SupFi3libusb_alloc_transfer
-wrappedlibusb1/SuiFpiiiiippp3libusb_hotplug_register_callback
-wrappedlibv4l2/SuiFpL3v4l2_munmap
-wrappedlibv4l2/SupFpLiiii3v4l2_mmap
-wrappedlibvorbis/SuvFp3vorbis_dsp_clear
-wrappedlibvorbis/SuiFp3vorbis_bitrate_addblock
-wrappedlibvorbis/SuiFp3vorbis_block_clear
-wrappedlibvorbis/SuiFp3vorbis_synthesis_restart
-wrappedlibvorbis/SuiFpi3vorbis_analysis_wrote
-wrappedlibvorbis/SuiFpi3vorbis_synthesis_read
-wrappedlibvorbis/SuiFpp3vorbis_analysis
-wrappedlibvorbis/SuiFpp3vorbis_analysis_blockout
-wrappedlibvorbis/SuiFpp3vorbis_analysis_init
-wrappedlibvorbis/SuiFpp3vorbis_bitrate_flushpacket
-wrappedlibvorbis/SuiFpp3vorbis_block_init
-wrappedlibvorbis/SuiFpp3vorbis_synthesis
-wrappedlibvorbis/SuiFpp3vorbis_synthesis_blockin
-wrappedlibvorbis/SuiFpp3vorbis_synthesis_init
-wrappedlibvorbis/SuiFpp3vorbis_synthesis_lapout
-wrappedlibvorbis/SuiFpp3vorbis_synthesis_pcmout
-wrappedlibvorbis/SupFpi3vorbis_analysis_buffer
-wrappedlibvorbis/SupFpi3vorbis_window
-wrappedlibvorbis/SuiFppppp3vorbis_analysis_headerout
-wrappedlibx11/SuiFp3XCloseDisplay
-wrappedlibx11/SuiFp3XDestroyImage
-wrappedlibx11/SuiFp3XInitImage
-wrappedlibx11/SupFp3XOpenDisplay
-wrappedlibx11/SupFp3XSetErrorHandler
-wrappedlibx11/SupFp3XSetIOErrorHandler
-wrappedlibx11/SuvFpp3_XDeqAsyncHandler
-wrappedlibx11/SuiFpi3XSynchronize
-wrappedlibx11/SupFpp3XLoadQueryFont
-wrappedlibx11/SupFpp3XSetAfterFunction
-wrappedlibx11/SuiFppu3XSetBackground
-wrappedlibx11/SuiFppu3XSetForeground
-wrappedlibx11/SuiFppp3XAddConnectionWatch
-wrappedlibx11/SuiFppp3XRemoveConnectionWatch
-wrappedlibx11/SupFpip3XESetCloseDisplay
-wrappedlibx11/SupFpip3XESetError
-wrappedlibx11/SupFpip3XESetEventToWire
-wrappedlibx11/SupFpip3XESetWireToEvent
-wrappedlibx11/SuiFpppp3XCheckIfEvent
-wrappedlibx11/SuiFpppp3XIfEvent
-wrappedlibx11/SuiFpppp3XPeekIfEvent
-wrappedlibx11/SupFppup3XCreateGC
-wrappedlibx11/SuiFppppp3XQueryExtension
-wrappedlibx11/SuiFpppppp3XRegisterIMInstantiateCallback
-wrappedlibx11/SuiFpppppp3XUnregisterIMInstantiateCallback
-wrappedlibx11/SupFppiiuuui3XGetImage
-wrappedlibx11/SuiFppppiiiiuu3XPutImage
-wrappedlibx11/SupFppuiipuuii3XCreateImage
-wrappedlibx11/SupFppiiuuuipii3XGetSubImage
-wrappedlibxcb/SuxFp1xcb_get_input_focus
-wrappedlibxcb/SuxFp1xcb_get_modifier_mapping
-wrappedlibxcb/SuxFp1xcb_grab_server
-wrappedlibxcb/SuxFp1xcb_ungrab_server
-wrappedlibxcb/SuXFp1xcb_depth_visuals_iterator
-wrappedlibxcb/SuXFp1xcb_screen_allowed_depths_iterator
-wrappedlibxcb/SuXFp1xcb_setup_pixmap_formats_iterator
-wrappedlibxcb/SuXFp1xcb_setup_roots_iterator
-wrappedlibxcb/SuxFpC1xcb_bell
-wrappedlibxcb/SuxFpu1xcb_close_font
-wrappedlibxcb/SuxFpu1xcb_close_font_checked
-wrappedlibxcb/SuxFpu1xcb_destroy_window
-wrappedlibxcb/SuxFpu1xcb_free_colormap
-wrappedlibxcb/SuxFpu1xcb_free_colormap_checked
-wrappedlibxcb/SuxFpu1xcb_free_gc
-wrappedlibxcb/SuxFpu1xcb_free_pixmap
-wrappedlibxcb/SuxFpu1xcb_get_atom_name
-wrappedlibxcb/SuxFpu1xcb_get_geometry
-wrappedlibxcb/SuxFpu1xcb_get_geometry_unchecked
-wrappedlibxcb/SuxFpu1xcb_get_selection_owner
-wrappedlibxcb/SuxFpu1xcb_get_selection_owner_unchecked
-wrappedlibxcb/SuxFpu1xcb_get_window_attributes
-wrappedlibxcb/SuxFpu1xcb_get_window_attributes_unchecked
-wrappedlibxcb/SuxFpu1xcb_map_subwindows
-wrappedlibxcb/SuxFpu1xcb_map_window
-wrappedlibxcb/SuxFpu1xcb_map_window_checked
-wrappedlibxcb/SuxFpu1xcb_query_pointer
-wrappedlibxcb/SuxFpu1xcb_query_tree
-wrappedlibxcb/SuxFpu1xcb_query_tree_unchecked
-wrappedlibxcb/SuxFpu1xcb_ungrab_keyboard
-wrappedlibxcb/SuxFpu1xcb_ungrab_keyboard_checked
-wrappedlibxcb/SuxFpu1xcb_ungrab_pointer
-wrappedlibxcb/SuxFpu1xcb_unmap_window
-wrappedlibxcb/SuxFpp1xcb_free_cursor
-wrappedlibxcb/SuxFpCC1xcb_get_keyboard_mapping
-wrappedlibxcb/SuxFpup1xcb_change_keyboard_control
-wrappedlibxcb/SuxFppp1xcb_delete_property
-wrappedlibxcb/SuxFpCWp1xcb_intern_atom
-wrappedlibxcb/SuxFpCWp1xcb_intern_atom_unchecked
-wrappedlibxcb/SuxFpCuW1xcb_ungrab_button
-wrappedlibxcb/SuxFpCuW1xcb_ungrab_button_checked
-wrappedlibxcb/SuxFpCuW1xcb_ungrab_key
-wrappedlibxcb/SuxFpCuW1xcb_ungrab_key_checked
-wrappedlibxcb/SuxFpCuu1xcb_set_input_focus
-wrappedlibxcb/SuxFpuWp1xcb_configure_window
-wrappedlibxcb/SuxFpuWp1xcb_open_font
-wrappedlibxcb/SuxFpuWp1xcb_open_font_checked
-wrappedlibxcb/SuxFpuuu1xcb_set_selection_owner
-wrappedlibxcb/SuxFpuup1xcb_change_gc
-wrappedlibxcb/SuxFpuup1xcb_change_gc_checked
-wrappedlibxcb/SuxFpuup1xcb_change_window_attributes
-wrappedlibxcb/SuxFpuup1xcb_change_window_attributes_checked
-wrappedlibxcb/SuxFpuup1xcb_query_text_extents
-wrappedlibxcb/SuxFpCuup1xcb_send_event
-wrappedlibxcb/SuxFpCppp1xcb_create_colormap
-wrappedlibxcb/SuxFpuWWW1xcb_alloc_color
-wrappedlibxcb/SuxFpuuWW1xcb_reparent_window
-wrappedlibxcb/SuxFpuuWW1xcb_translate_coordinates
-wrappedlibxcb/SuxFpuuWW1xcb_translate_coordinates_unchecked
-wrappedlibxcb/SuxFpuuup1xcb_create_gc
-wrappedlibxcb/SuxFpuuup1xcb_create_gc_checked
-wrappedlibxcb/SuxFpuuup1xcb_poly_arc
-wrappedlibxcb/SuxFpuuup1xcb_poly_fill_rectangle
-wrappedlibxcb/SuxFpuuup1xcb_poly_rectangle
-wrappedlibxcb/SuxFpuuup1xcb_poly_segment
-wrappedlibxcb/SuxFpCuuCC1xcb_grab_keyboard
-wrappedlibxcb/SuxFpCuuWW1xcb_create_pixmap
-wrappedlibxcb/SuxFpCuuup1xcb_poly_line
-wrappedlibxcb/SuxFpCuuup1xcb_poly_line_checked
-wrappedlibxcb/SuxFpCuuup1xcb_poly_point
-wrappedlibxcb/SuxFpuuuuu1xcb_convert_selection
-wrappedlibxcb/SuxFpCuwwWW1xcb_clear_area
-wrappedlibxcb/SuxFpCuWCCC1xcb_grab_key
-wrappedlibxcb/SuxFpCuWCCC1xcb_grab_key_checked
-wrappedlibxcb/SuxFpCuuwwp1xcb_image_text_8
-wrappedlibxcb/SuxFpCuuwwp1xcb_image_text_8_checked
-wrappedlibxcb/SuxFpCuuuuu1xcb_get_property
-wrappedlibxcb/SuxFpCuuuuu1xcb_get_property_unchecked
-wrappedlibxcb/SuxFpCuwwWWu1xcb_get_image
-wrappedlibxcb/SuxFpCuwwWWu1xcb_get_image_unchecked
-wrappedlibxcb/SuxFpCuuuCup1xcb_change_property
-wrappedlibxcb/SuxFpCuuuCup1xcb_change_property_checked
-wrappedlibxcb/SuxFpCuWCCuuu1xcb_grab_pointer
-wrappedlibxcb/SuxFpuuwwWWww1xcb_warp_pointer
-wrappedlibxcb/SuxFpCuWCCuuCW1xcb_grab_button
-wrappedlibxcb/SuxFpCuWCCuuCW1xcb_grab_button_checked
-wrappedlibxcb/SuxFpuuuwwwwWW1xcb_copy_area
-wrappedlibxcb/SuxFpCuuWWwwCCup1xcb_put_image
-wrappedlibxcb/SuxFpuuuWWWWWWWW1xcb_create_cursor
-wrappedlibxcb/SuxFpuuuWWWWWWWW1xcb_create_glyph_cursor
-wrappedlibxcb/SuxFpCuuwwWWWWuup1xcb_create_window
-wrappedlibxcb/SuxFpCuuwwWWWWuup1xcb_create_window_checked
-wrappedlibxcbdri2/SuXFpuu1xcb_dri2_authenticate
-wrappedlibxcbdri2/SuXFpuu1xcb_dri2_connect
-wrappedlibxcbdri2/SuXFpuu1xcb_dri2_query_version
-wrappedlibxcbdri3/SuXFpuu1xcb_dri3_open
-wrappedlibxcbdri3/SuXFpuu1xcb_dri3_query_version
-wrappedlibxcbdri3/SuXFpuuuWWWCCi1xcb_dri3_pixmap_from_buffer_checked
-wrappedlibxcbimage/SuXFpuupwwC1xcb_image_put
-wrappedlibxcbpresent/SuXFpuu1xcb_present_query_version
-wrappedlibxcbpresent/SuXFpuuu1xcb_present_select_input_checked
-wrappedlibxcbpresent/SuXFpuuUUU1xcb_present_notify_msc
-wrappedlibxcbpresent/SuXFpuuuuuwwuuuuUUUup1xcb_present_pixmap
-wrappedlibxcbpresent/SuXFpuuuuuwwuuuuUUUup1xcb_present_pixmap_checked
-wrappedlibxcbrandr/SuTFp1xcb_randr_get_screen_resources_current_outputs_end
-wrappedlibxcbrandr/SuXFpu1xcb_randr_get_output_primary
-wrappedlibxcbrandr/SuXFpu1xcb_randr_get_output_primary_unchecked
-wrappedlibxcbrandr/SuXFpu1xcb_randr_get_screen_resources
-wrappedlibxcbrandr/SuXFpu1xcb_randr_get_screen_resources_current
-wrappedlibxcbrandr/SuXFpu1xcb_randr_get_screen_resources_outputs
-wrappedlibxcbrandr/SuXFpu1xcb_randr_get_screen_resources_unchecked
-wrappedlibxcbrandr/SuXFpuW1xcb_randr_select_input
-wrappedlibxcbrandr/SuXFpuW1xcb_randr_select_input_checked
-wrappedlibxcbrandr/SuXFpuu1xcb_randr_query_version
-wrappedlibxcbrandr/SuXFpuu1xcb_randr_query_version_unchecked
-wrappedlibxcbrandr/SuXFppu1xcb_randr_get_crtc_info
-wrappedlibxcbrandr/SuXFppu1xcb_randr_get_crtc_info_unchecked
-wrappedlibxcbrandr/SuXFppu1xcb_randr_get_output_info
-wrappedlibxcbrandr/SuXFppu1xcb_randr_get_output_info_unchecked
-wrappedlibxcbshape/SuXFpuuuwwu1xcb_shape_mask
-wrappedlibxcbshape/SuXFpuuuwwu1xcb_shape_mask_checked
-wrappedlibxcbshm/SuXFp1xcb_shm_query_version
-wrappedlibxcbshm/SuXFp1xcb_shm_query_version_unchecked
-wrappedlibxcbshm/SuTFT0xcb_shm_seg_end
-wrappedlibxcbshm/SuXFpu1xcb_shm_detach
-wrappedlibxcbshm/SuXFpu1xcb_shm_detach_checked
-wrappedlibxcbshm/SuXFpuuC1xcb_shm_attach
-wrappedlibxcbshm/SuXFpuuC1xcb_shm_attach_checked
-wrappedlibxcbshm/SuXFpuuC1xcb_shm_attach_fd
-wrappedlibxcbshm/SuXFpuuC1xcb_shm_attach_fd_checked
-wrappedlibxcbshm/SuXFpuuC1xcb_shm_create_segment
-wrappedlibxcbshm/SuXFpuuC1xcb_shm_create_segment_unchecked
-wrappedlibxcbshm/SuXFpuuWWCuu1xcb_shm_create_pixmap
-wrappedlibxcbshm/SuXFpuuWWCuu1xcb_shm_create_pixmap_checked
-wrappedlibxcbshm/SuXFpuwwWWuCuu1xcb_shm_get_image
-wrappedlibxcbshm/SuXFpuwwWWuCuu1xcb_shm_get_image_unchecked
-wrappedlibxcbshm/SuXFpuuWWWWWWwwCCCuu1xcb_shm_put_image
-wrappedlibxcbshm/SuXFpuuWWWWWWwwCCCuu1xcb_shm_put_image_checked
-wrappedlibxcbxfixes/SuXFpu1xcb_xfixes_destroy_region
-wrappedlibxcbxfixes/SuXFpuu1xcb_xfixes_query_version_unchecked
-wrappedlibxcbxfixes/SuXFpuup1xcb_xfixes_create_region
-wrappedlibxcbxfixes/SuXFpuuwwu1xcb_xfixes_set_window_shape_region
-wrappedlibxcbxfixes/SuXFpuuwwu1xcb_xfixes_set_window_shape_region_checked
-wrappedlibxcbxtest/SuXFpCCuuwwC1xcb_test_fake_input
-wrappedlibxcbxtest/SuXFpCCuuwwC1xcb_test_fake_input_checked
-wrappedlibxext/SupFp3XSetExtensionErrorHandler
-wrappedlibxext/SuiFpppiiu3XShmGetImage
-wrappedlibxext/SupFppppip3XextAddDisplay
-wrappedlibxext/SupFppuippuu3XShmCreateImage
-wrappedlibxext/SuiFppppiiiiuui3XShmPutImage
-wrappedlibxt/SuvFpuipp3XtAddEventHandler
-wrappedlibxtst/SuiFpppp3XRecordEnableContext
-wrappedlibxtst/SuiFpppp3XRecordEnableContextAsync
-wrappedlibz/SuiFp3deflateEnd
-wrappedlibz/SuiFp3inflateEnd
-wrappedlibz/SuiFp3inflateInit
-wrappedlibz/SuiFppi3inflateInit_
-wrappedlibz/SuiFpipi3deflateInit_
-wrappedlibz/SuiFpipi3inflateInit2_
-wrappedlibz/SuiFpiiiiipi3deflateInit2_
-wrappedmpg123/SuiFpppp3mpg123_replace_reader_handle
-wrappedmpg123/SuiFpppp3mpg123_replace_reader_handle_32
-wrappedmpg123/SuiFpppp3mpg123_replace_reader_handle_64
-wrappedopenal/SuvFv3alRequestFoldbackStop
-wrappedopenal/SupFp3alGetProcAddress
-wrappedopenal/SupFpp3alcGetProcAddress
-wrappedopenal/SuvFiiipp3alRequestFoldbackStart
-wrappedpango/SuvFpp3pango_attribute_init
-wrappedpng12/SuvFppp3png_set_read_fn
-wrappedpng12/SuvFpppp3png_set_error_fn
-wrappedpng12/SuvFpppp3png_set_write_fn
-wrappedpng12/SupFpppp3png_create_read_struct
-wrappedpng12/SuvFppppp3png_set_progressive_read_fn
-wrappedpng12/SupFppppppp3png_create_read_struct_2
-wrappedpng12/SupFppppppp3png_create_write_struct_2
-wrappedpng16/SuvFpp3png_set_read_user_transform_fn
-wrappedpng16/SuvFppp3png_set_read_fn
-wrappedpng16/SuvFpppp3png_set_error_fn
-wrappedpng16/SuvFpppp3png_set_write_fn
-wrappedpng16/SupFpppp3png_create_read_struct
-wrappedpng16/SuvFppppp3png_set_progressive_read_fn
-wrappedpng16/SupFppppppp3png_create_read_struct_2
-wrappedpng16/SupFppppppp3png_create_write_struct_2
-wrappedpulse/SuvFp3pa_mainloop_free
-wrappedpulse/SuvFp3pa_threaded_mainloop_free
-wrappedpulse/SuiFp3pa_signal_init
-wrappedpulse/SupFp3pa_mainloop_get_api
-wrappedpulse/SupFp3pa_threaded_mainloop_get_api
-wrappedpulse/SuvFpp3pa_signal_set_destroy
-wrappedpulse/SupFpp3pa_context_new
-wrappedpulse/SuvFppp3pa_context_set_event_callback
-wrappedpulse/SuvFppp3pa_context_set_state_callback
-wrappedpulse/SuvFppp3pa_context_set_subscribe_callback
-wrappedpulse/SuvFppp3pa_mainloop_set_poll_func
-wrappedpulse/SuvFppp3pa_stream_set_buffer_attr_callback
-wrappedpulse/SuvFppp3pa_stream_set_event_callback
-wrappedpulse/SuvFppp3pa_stream_set_latency_update_callback
-wrappedpulse/SuvFppp3pa_stream_set_moved_callback
-wrappedpulse/SuvFppp3pa_stream_set_overflow_callback
-wrappedpulse/SuvFppp3pa_stream_set_read_callback
-wrappedpulse/SuvFppp3pa_stream_set_started_callback
-wrappedpulse/SuvFppp3pa_stream_set_state_callback
-wrappedpulse/SuvFppp3pa_stream_set_suspended_callback
-wrappedpulse/SuvFppp3pa_stream_set_underflow_callback
-wrappedpulse/SuvFppp3pa_stream_set_write_callback
-wrappedpulse/SupFipp3pa_signal_new
-wrappedpulse/SupFppp3pa_context_drain
-wrappedpulse/SupFppp3pa_context_exit_daemon
-wrappedpulse/SupFppp3pa_context_get_client_info_list
-wrappedpulse/SupFppp3pa_context_get_module_info_list
-wrappedpulse/SupFppp3pa_context_get_server_info
-wrappedpulse/SupFppp3pa_context_get_sink_info_list
-wrappedpulse/SupFppp3pa_context_get_sink_input_info_list
-wrappedpulse/SupFppp3pa_context_get_source_info_list
-wrappedpulse/SupFppp3pa_context_new_with_proplist
-wrappedpulse/SupFppp3pa_stream_drain
-wrappedpulse/SupFppp3pa_stream_flush
-wrappedpulse/SupFppp3pa_stream_prebuf
-wrappedpulse/SupFppp3pa_stream_trigger
-wrappedpulse/SupFppp3pa_stream_update_timing_info
-wrappedpulse/SuiFppip3pa_context_connect
-wrappedpulse/SuiFpppV3pa_proplist_setf
-wrappedpulse/SupFpipp3pa_stream_cork
-wrappedpulse/SupFpupp3pa_context_get_sink_info_by_index
-wrappedpulse/SupFpupp3pa_context_get_sink_input_info
-wrappedpulse/SupFpupp3pa_context_get_source_info_by_index
-wrappedpulse/SupFpupp3pa_context_subscribe
-wrappedpulse/SupFpupp3pa_context_unload_module
-wrappedpulse/SupFpupp3pa_stream_update_sample_rate
-wrappedpulse/SupFpppp3pa_context_get_sink_info_by_name
-wrappedpulse/SupFpppp3pa_context_get_source_info_by_name
-wrappedpulse/SupFpppp3pa_context_proplist_remove
-wrappedpulse/SupFpppp3pa_context_set_default_sink
-wrappedpulse/SupFpppp3pa_context_set_default_source
-wrappedpulse/SupFpppp3pa_context_set_name
-wrappedpulse/SupFpppp3pa_stream_proplist_remove
-wrappedpulse/SupFpppp3pa_stream_set_buffer_attr
-wrappedpulse/SupFpppp3pa_stream_set_name
-wrappedpulse/SupFpippp3pa_context_proplist_update
-wrappedpulse/SupFpippp3pa_stream_proplist_update
-wrappedpulse/SupFpuipp3pa_context_set_sink_input_mute
-wrappedpulse/SupFpuipp3pa_context_set_source_mute_by_index
-wrappedpulse/SupFpuupp3pa_context_move_sink_input_by_index
-wrappedpulse/SupFpuppp3pa_context_set_sink_input_volume
-wrappedpulse/SupFpuppp3pa_context_set_sink_volume_by_index
-wrappedpulse/SupFpuppp3pa_context_set_source_volume_by_index
-wrappedpulse/SupFppppp3pa_context_load_module
-wrappedpulse/SupFppppp3pa_context_set_source_volume_by_name
-wrappedpulse/SuiFppupIi3pa_stream_write
-wrappedsdl1/SuvFp3SDL_KillThread
-wrappedsdl1/SuvFp3SDL_SetEventFilter
-wrappedsdl1/SuvFp3SDL_UnloadObject
-wrappedsdl1/SuiFp3SDL_GetWMInfo
-wrappedsdl1/SuiFp3SDL_RemoveTimer
-wrappedsdl1/SuuFp3SDL_ReadBE16
-wrappedsdl1/SuuFp3SDL_ReadBE32
-wrappedsdl1/SuuFp3SDL_ReadLE16
-wrappedsdl1/SuuFp3SDL_ReadLE32
-wrappedsdl1/SuUFp3SDL_ReadBE64
-wrappedsdl1/SuUFp3SDL_ReadLE64
-wrappedsdl1/SupFv3SDL_GetEventFilter
-wrappedsdl1/SupFp3SDL_GL_GetProcAddress
-wrappedsdl1/SupFp3SDL_LoadObject
-wrappedsdl1/SuiFup3SDL_SetTimer
-wrappedsdl1/SuiFpp3SDL_OpenAudio
-wrappedsdl1/SuuFpW3SDL_WriteBE16
-wrappedsdl1/SuuFpW3SDL_WriteLE16
-wrappedsdl1/SuuFpu3SDL_WriteBE32
-wrappedsdl1/SuuFpu3SDL_WriteLE32
-wrappedsdl1/SuuFpU3SDL_WriteBE64
-wrappedsdl1/SuuFpU3SDL_WriteLE64
-wrappedsdl1/SupFpi3SDL_LoadBMP_RW
-wrappedsdl1/SupFpi3SDL_RWFromConstMem
-wrappedsdl1/SupFpi3SDL_RWFromFP
-wrappedsdl1/SupFpi3SDL_RWFromMem
-wrappedsdl1/SupFpp3SDL_CreateThread
-wrappedsdl1/SupFpp3SDL_LoadFunction
-wrappedsdl1/SupFpp3SDL_RWFromFile
-wrappedsdl1/SuiFppi3SDL_SaveBMP_RW
-wrappedsdl1/SupFupp3SDL_AddTimer
-wrappedsdl1/SupFpippp3SDL_LoadWAV_RW
-wrappedsdl1image/SupFp3IMG_LoadBMP_RW
-wrappedsdl1image/SupFp3IMG_LoadCUR_RW
-wrappedsdl1image/SupFp3IMG_LoadGIF_RW
-wrappedsdl1image/SupFp3IMG_LoadICO_RW
-wrappedsdl1image/SupFp3IMG_LoadJPG_RW
-wrappedsdl1image/SupFp3IMG_LoadLBM_RW
-wrappedsdl1image/SupFp3IMG_LoadPCX_RW
-wrappedsdl1image/SupFp3IMG_LoadPNG_RW
-wrappedsdl1image/SupFp3IMG_LoadPNM_RW
-wrappedsdl1image/SupFp3IMG_LoadTGA_RW
-wrappedsdl1image/SupFp3IMG_LoadTIF_RW
-wrappedsdl1image/SupFp3IMG_LoadWEBP_RW
-wrappedsdl1image/SupFp3IMG_LoadXCF_RW
-wrappedsdl1image/SupFp3IMG_LoadXPM_RW
-wrappedsdl1image/SupFp3IMG_LoadXV_RW
-wrappedsdl1image/SupFpi3IMG_Load_RW
-wrappedsdl1image/SupFpip3IMG_LoadTyped_RW
-wrappedsdl1mixer/SuvFp3Mix_ChannelFinished
-wrappedsdl1mixer/SuvFp3Mix_HookMusicFinished
-wrappedsdl1mixer/SupFp3Mix_LoadMUS_RW
-wrappedsdl1mixer/SuvFpp3Mix_HookMusic
-wrappedsdl1mixer/SuvFpp3Mix_SetPostMix
-wrappedsdl1mixer/SuiFip3Mix_UnregisterEffect
-wrappedsdl1mixer/SupFpi3Mix_LoadWAV_RW
-wrappedsdl1mixer/SupFpii3Mix_LoadMUSType_RW
-wrappedsdl1mixer/SuiFippp3Mix_RegisterEffect
-wrappedsdl1sound/SupFpppu3Sound_NewSample
-wrappedsdl1ttf/SupFpii3TTF_OpenFontRW
-wrappedsdl1ttf/SupFpiii3TTF_OpenFontIndexRW
-wrappedsdl2/SuvFp3SDL_UnloadObject
-wrappedsdl2/SuiFp3SDL_RWclose
-wrappedsdl2/SuiFp3SDL_RemoveTimer
-wrappedsdl2/SuiFp3SDL_SaveAllDollarTemplates
-wrappedsdl2/SuiFJ2SDL_IsJoystickHIDAPI
-wrappedsdl2/SuiFJ2SDL_IsJoystickXInput
-wrappedsdl2/SuIFp3SDL_RWtell
-wrappedsdl2/SuuFp3SDL_ReadBE16
-wrappedsdl2/SuuFp3SDL_ReadBE32
-wrappedsdl2/SuuFp3SDL_ReadLE16
-wrappedsdl2/SuuFp3SDL_ReadLE32
-wrappedsdl2/SuuFp3SDL_ReadU8
-wrappedsdl2/SuUFp3SDL_ReadBE64
-wrappedsdl2/SuUFp3SDL_ReadLE64
-wrappedsdl2/SupFv3SDL_GetBasePath
-wrappedsdl2/SupFv3SDL_Vulkan_GetVkGetInstanceProcAddr
-wrappedsdl2/SupFp3SDL_GL_GetProcAddress
-wrappedsdl2/SupFp3SDL_LoadObject
-wrappedsdl2/SupFJ2SDL_GameControllerMappingForGUID
-wrappedsdl2/SuJFi1SDL_JoystickGetDeviceGUID
-wrappedsdl2/SuJFp1SDL_JoystickGetGUID
-wrappedsdl2/SuJFp1SDL_JoystickGetGUIDFromString
-wrappedsdl2/SuvFpp3SDL_AddEventWatch
-wrappedsdl2/SuvFpp3SDL_DelEventWatch
-wrappedsdl2/SuvFpp3SDL_LogGetOutputFunction
-wrappedsdl2/SuvFpp3SDL_LogSetOutputFunction
-wrappedsdl2/SuvFpp3SDL_SetEventFilter
-wrappedsdl2/SuvFpV3SDL_Log
-wrappedsdl2/SuiFip3SDL_SaveDollarTemplate
-wrappedsdl2/SuiFWW3SDL_IsJoystickNintendoSwitchPro
-wrappedsdl2/SuiFWW3SDL_IsJoystickPS4
-wrappedsdl2/SuiFWW3SDL_IsJoystickSteamController
-wrappedsdl2/SuiFWW3SDL_IsJoystickXbox360
-wrappedsdl2/SuiFWW3SDL_IsJoystickXboxOne
-wrappedsdl2/SuiFpi3SDL_GameControllerAddMappingsFromRW
-wrappedsdl2/SuiFpp3SDL_GetEventFilter
-wrappedsdl2/SuiFpp3SDL_OpenAudio
-wrappedsdl2/SuuFpW3SDL_WriteBE16
-wrappedsdl2/SuuFpW3SDL_WriteLE16
-wrappedsdl2/SuuFpu3SDL_WriteBE32
-wrappedsdl2/SuuFpu3SDL_WriteLE32
-wrappedsdl2/SuuFpu3SDL_WriteU8
-wrappedsdl2/SuuFpU3SDL_WriteBE64
-wrappedsdl2/SuuFpU3SDL_WriteLE64
-wrappedsdl2/SupFpi3SDL_LoadBMP_RW
-wrappedsdl2/SupFpi3SDL_RWFromConstMem
-wrappedsdl2/SupFpi3SDL_RWFromFP
-wrappedsdl2/SupFpi3SDL_RWFromMem
-wrappedsdl2/SupFpp3SDL_LoadFunction
-wrappedsdl2/SupFpp3SDL_RWFromFile
-wrappedsdl2/SugFpi1SDL_GameControllerGetBindForAxis
-wrappedsdl2/SugFpi1SDL_GameControllerGetBindForButton
-wrappedsdl2/SuvFipV3SDL_LogCritical
-wrappedsdl2/SuvFipV3SDL_LogDebug
-wrappedsdl2/SuvFipV3SDL_LogError
-wrappedsdl2/SuvFipV3SDL_LogInfo
-wrappedsdl2/SuvFipV3SDL_LogVerbose
-wrappedsdl2/SuvFipV3SDL_LogWarn
-wrappedsdl2/SuiFupp3SDL_TLSSet
-wrappedsdl2/SuiFppi3SDL_SaveBMP_RW
-wrappedsdl2/SuIFpIi3SDL_RWseek
-wrappedsdl2/SupFupp3SDL_AddTimer
-wrappedsdl2/SupFppi3SDL_LoadFile_RW
-wrappedsdl2/SupFppp3SDL_CreateThread
-wrappedsdl2/SuvFpuup3SDL_qsort
-wrappedsdl2/SuvFJppp2SDL_GetJoystickGUIDInfo
-wrappedsdl2/SuuFppuu3SDL_RWread
-wrappedsdl2/SuuFppuu3SDL_RWwrite
-wrappedsdl2/SuiFpippi3SDL_OpenAudioDevice
-wrappedsdl2/SuiFpupVV3SDL_snprintf
-wrappedsdl2/SuiFpupVV3SDL_vsnprintf
-wrappedsdl2/SupFpippp3SDL_LoadWAV_RW
-wrappedsdl2image/SupFp3IMG_LoadBMP_RW
-wrappedsdl2image/SupFp3IMG_LoadCUR_RW
-wrappedsdl2image/SupFp3IMG_LoadGIF_RW
-wrappedsdl2image/SupFp3IMG_LoadICO_RW
-wrappedsdl2image/SupFp3IMG_LoadJPG_RW
-wrappedsdl2image/SupFp3IMG_LoadLBM_RW
-wrappedsdl2image/SupFp3IMG_LoadPCX_RW
-wrappedsdl2image/SupFp3IMG_LoadPNG_RW
-wrappedsdl2image/SupFp3IMG_LoadPNM_RW
-wrappedsdl2image/SupFp3IMG_LoadTGA_RW
-wrappedsdl2image/SupFp3IMG_LoadTIF_RW
-wrappedsdl2image/SupFp3IMG_LoadWEBP_RW
-wrappedsdl2image/SupFp3IMG_LoadXCF_RW
-wrappedsdl2image/SupFp3IMG_LoadXPM_RW
-wrappedsdl2image/SupFp3IMG_LoadXV_RW
-wrappedsdl2image/SupFpi3IMG_Load_RW
-wrappedsdl2image/SuiFppi3IMG_SavePNG_RW
-wrappedsdl2image/SupFpip3IMG_LoadTyped_RW
-wrappedsdl2image/SupFppi3IMG_LoadTexture_RW
-wrappedsdl2image/SupFppip3IMG_LoadTextureTyped_RW
-wrappedsdl2mixer/SuvFp3Mix_ChannelFinished
-wrappedsdl2mixer/SuvFp3Mix_HookMusicFinished
-wrappedsdl2mixer/SuvFpp3Mix_HookMusic
-wrappedsdl2mixer/SuvFpp3Mix_SetPostMix
-wrappedsdl2mixer/SuiFiw3MinorityMix_SetPosition
-wrappedsdl2mixer/SuiFip3Mix_UnregisterEffect
-wrappedsdl2mixer/SupFpi3Mix_LoadMUS_RW
-wrappedsdl2mixer/SupFpi3Mix_LoadWAV_RW
-wrappedsdl2mixer/SupFpii3Mix_LoadMUSType_RW
-wrappedsdl2mixer/SuiFippp3Mix_RegisterEffect
-wrappedsdl2ttf/SupFpii3TTF_OpenFontRW
-wrappedsdl2ttf/SupFpiii3TTF_OpenFontIndexRW
-wrappedsmpeg/SuvFpp3SMPEG_getinfo
-wrappedsmpeg/SupFipi3SMPEG_new_descr
-wrappedsmpeg/SupFppi3SMPEG_new
-wrappedsmpeg/SupFppi3SMPEG_new_rwops
-wrappedsmpeg/SuvFpppp3SMPEG_setdisplay
-wrappedsmpeg/SupFpipi3SMPEG_new_data
-wrappedsmpeg2/SuvFpp3SMPEG_getinfo
-wrappedsmpeg2/SupFipi3SMPEG_new_descr
-wrappedsmpeg2/SupFppi3SMPEG_new
-wrappedsmpeg2/SuvFpppp3SMPEG_setdisplay
-wrappedsmpeg2/SupFpipi3SMPEG_new_data
-wrappedsmpeg2/SupFppii3SMPEG_new_rwops
-wrappedtcmallocminimal/SuiFpL3munmap
-wrappedtcmallocminimal/SupFpLiiii3mmap
-wrappedtcmallocminimal/SupFpLiiiI3mmap64
-wrappedutil/SuiFpppp3forkpty
-wrappedvorbisfile/SuiFp3ov_bitrate_instant
-wrappedvorbisfile/SuiFp3ov_clear
-wrappedvorbisfile/SuiFp3ov_halfrate_p
-wrappedvorbisfile/SuiFp3ov_seekable
-wrappedvorbisfile/SuiFp3ov_streams
-wrappedvorbisfile/SuiFp3ov_test_open
-wrappedvorbisfile/SuIFp3ov_pcm_tell
-wrappedvorbisfile/SuIFp3ov_raw_tell
-wrappedvorbisfile/SudFp3ov_time_tell
-wrappedvorbisfile/SuiFpi3ov_bitrate
-wrappedvorbisfile/SuiFpi3ov_halfrate
-wrappedvorbisfile/SuiFpi3ov_raw_seek
-wrappedvorbisfile/SuiFpi3ov_raw_seek_lap
-wrappedvorbisfile/SuiFpi3ov_serialnumber
-wrappedvorbisfile/SuiFpI3ov_pcm_seek
-wrappedvorbisfile/SuiFpI3ov_pcm_seek_lap
-wrappedvorbisfile/SuiFpI3ov_pcm_seek_page
-wrappedvorbisfile/SuiFpI3ov_pcm_seek_page_lap
-wrappedvorbisfile/SuiFpd3ov_time_seek
-wrappedvorbisfile/SuiFpd3ov_time_seek_lap
-wrappedvorbisfile/SuiFpd3ov_time_seek_page
-wrappedvorbisfile/SuiFpd3ov_time_seek_page_lap
-wrappedvorbisfile/SuiFpp3ov_crosslap
-wrappedvorbisfile/SuiFpp3ov_fopen
-wrappedvorbisfile/SuIFpi3ov_pcm_total
-wrappedvorbisfile/SuIFpi3ov_raw_total
-wrappedvorbisfile/SudFpi3ov_time_total
-wrappedvorbisfile/SupFpi3ov_comment
-wrappedvorbisfile/SupFpi3ov_info
-wrappedvorbisfile/SuiFppip3ov_read_float
-wrappedvorbisfile/SuiFpppi3ov_open
-wrappedvorbisfile/SuiFpppi3ov_test
-wrappedvorbisfile/SuiFppiiiip3ov_read
-wrappedvorbisfile/SuiFpppipppp3ov_open_callbacks
-wrappedvorbisfile/SuiFppplpppp3ov_open_callbacks
-wrappedvulkan/SuvFpp3vkDestroyDevice
-wrappedvulkan/SuvFpp3vkDestroyInstance
-wrappedvulkan/SuvFpp3vkGetPhysicalDeviceMemoryProperties
-wrappedvulkan/SuvFpp3vkGetPhysicalDeviceProperties
-wrappedvulkan/SupFpp3vkGetDeviceProcAddr
-wrappedvulkan/SupFpp3vkGetInstanceProcAddr
-wrappedvulkan/SuvFpUp3vkDestroyBuffer
-wrappedvulkan/SuvFpUp3vkDestroyBufferView
-wrappedvulkan/SuvFpUp3vkDestroyCommandPool
-wrappedvulkan/SuvFpUp3vkDestroyDescriptorPool
-wrappedvulkan/SuvFpUp3vkDestroyDescriptorSetLayout
-wrappedvulkan/SuvFpUp3vkDestroyDescriptorUpdateTemplate
-wrappedvulkan/SuvFpUp3vkDestroyDescriptorUpdateTemplateKHR
-wrappedvulkan/SuvFpUp3vkDestroyEvent
-wrappedvulkan/SuvFpUp3vkDestroyFence
-wrappedvulkan/SuvFpUp3vkDestroyFramebuffer
-wrappedvulkan/SuvFpUp3vkDestroyImage
-wrappedvulkan/SuvFpUp3vkDestroyImageView
-wrappedvulkan/SuvFpUp3vkDestroyPipeline
-wrappedvulkan/SuvFpUp3vkDestroyPipelineCache
-wrappedvulkan/SuvFpUp3vkDestroyPipelineLayout
-wrappedvulkan/SuvFpUp3vkDestroyQueryPool
-wrappedvulkan/SuvFpUp3vkDestroyRenderPass
-wrappedvulkan/SuvFpUp3vkDestroySampler
-wrappedvulkan/SuvFpUp3vkDestroySamplerYcbcrConversionKHR
-wrappedvulkan/SuvFpUp3vkDestroySemaphore
-wrappedvulkan/SuvFpUp3vkDestroyShaderModule
-wrappedvulkan/SuvFpUp3vkDestroySurfaceKHR
-wrappedvulkan/SuvFpUp3vkDestroySwapchainKHR
-wrappedvulkan/SuvFppp3vkDestroyDebugUtilsMessengerEXT
-wrappedvulkan/SuiFpUp3vkFreeMemory
-wrappedvulkan/SuiFppp3vkGetPhysicalDeviceDisplayPropertiesKHR
-wrappedvulkan/SuiFPpp3vkCreateInstance
-wrappedvulkan/SuiFpUup3vkGetDisplayPlaneCapabilitiesKHR
-wrappedvulkan/SuiFpppp3vkCreateDebugUtilsMessengerEXT
-wrappedvulkan/SuiFpppp3vkCreateWaylandSurfaceKHR
-wrappedvulkan/SuiFpPpp3vkAllocateMemory
-wrappedvulkan/SuiFpPpp3vkCreateBuffer
-wrappedvulkan/SuiFpPpp3vkCreateBufferView
-wrappedvulkan/SuiFpPpp3vkCreateCommandPool
-wrappedvulkan/SuiFpPpp3vkCreateDescriptorPool
-wrappedvulkan/SuiFpPpp3vkCreateDescriptorSetLayout
-wrappedvulkan/SuiFpPpp3vkCreateDescriptorUpdateTemplate
-wrappedvulkan/SuiFpPpp3vkCreateDescriptorUpdateTemplateKHR
-wrappedvulkan/SuiFpPpp3vkCreateDevice
-wrappedvulkan/SuiFpPpp3vkCreateDisplayPlaneSurfaceKHR
-wrappedvulkan/SuiFpPpp3vkCreateEvent
-wrappedvulkan/SuiFpPpp3vkCreateFence
-wrappedvulkan/SuiFpPpp3vkCreateFramebuffer
-wrappedvulkan/SuiFpPpp3vkCreateImage
-wrappedvulkan/SuiFpPpp3vkCreateImageView
-wrappedvulkan/SuiFpPpp3vkCreatePipelineCache
-wrappedvulkan/SuiFpPpp3vkCreatePipelineLayout
-wrappedvulkan/SuiFpPpp3vkCreateQueryPool
-wrappedvulkan/SuiFpPpp3vkCreateRenderPass
-wrappedvulkan/SuiFpPpp3vkCreateSampler
-wrappedvulkan/SuiFpPpp3vkCreateSamplerYcbcrConversion
-wrappedvulkan/SuiFpPpp3vkCreateSamplerYcbcrConversionKHR
-wrappedvulkan/SuiFpPpp3vkCreateSemaphore
-wrappedvulkan/SuiFpPpp3vkCreateShaderModule
-wrappedvulkan/SuiFpPpp3vkCreateSwapchainKHR
-wrappedvulkan/SuiFpPpp3vkCreateXcbSurfaceKHR
-wrappedvulkan/SuiFpPpp3vkCreateXlibSurfaceKHR
-wrappedvulkan/SuvFpupup3vkUpdateDescriptorSets
-wrappedvulkan/SuiFpuppp3vkCreateSharedSwapchainsKHR
-wrappedvulkan/SuiFpUPpp3vkCreateDisplayModeKHR
-wrappedvulkan/SuiFpUuppp3vkCreateComputePipelines
-wrappedvulkan/SuiFpUuppp3vkCreateGraphicsPipelines
-wrappedvulkan/SuvFpiiiiipp3vkGetPhysicalDeviceSparseImageFormatProperties
-wrappedvulkan/SuvFpiiiupupup3vkCmdPipelineBarrier
-wrappedxml2/SuvFp3xmlSetExternalEntityLoader
-wrappedxml2/SuiFp3xmlParseDocument
-wrappedxml2/SupFv3xmlGetExternalEntityLoader
-wrappedxml2/SuvFpp3xmlHashFree
-wrappedxml2/SupFpp3xmlHashCopy
-wrappedxml2/SuvFppp3xmlHashScan
-wrappedxml2/SuvFppp3xmlHashScanFull
-wrappedxml2/SuvFppp3xmlSchemaSetParserStructuredErrors
-wrappedxml2/SuvFppp3xmlSchemaSetValidStructuredErrors
-wrappedxml2/SuiFppp3xmlHashRemoveEntry
-wrappedxml2/SuiFppp3xmlXPathRegisterFunc
-wrappedxml2/SupFppp3xmlNewCharEncodingHandler
-wrappedxml2/SuvFpppp3xmlSchemaSetParserErrors
-wrappedxml2/SuvFpppp3xmlSchemaSetValidErrors
-wrappedxml2/SuiFpppp3xmlHashRemoveEntry2
-wrappedxml2/SuiFpppp3xmlHashUpdateEntry
-wrappedxml2/SuiFpppp3xmlRegisterInputCallbacks
-wrappedxml2/SupFpppi3xmlParserInputBufferCreateIO
-wrappedxml2/SupFpppp3xmlOutputBufferCreateIO
-wrappedxml2/SuiFppppp3xmlHashRemoveEntry3
-wrappedxml2/SuiFppppp3xmlHashUpdateEntry2
-wrappedxml2/SupFppppi3xmlSaveToIO
-wrappedxml2/SuvFpppppp3xmlHashScan3
-wrappedxml2/SuvFpppppp3xmlHashScanFull3
-wrappedxml2/SuiFpppppp3xmlHashUpdateEntry3
-wrappedxslt/SuvFp3xsltSetLoaderFunc
-wrappedxslt/SuiFppp3xsltRegisterExtModuleFunction
+#defined(NOALIGN) iFpvpV -> iFppV
+wrappedalure:
+wrappedalut:
+wrappedappindicator:
+wrappedatk:
+wrappedatkbridge:
+wrappedbz2:
+- iFp:
+  - BZ2_bzCompressEnd
+  - BZ2_bzDecompress
+  - BZ2_bzDecompressEnd
+- iFpi:
+  - BZ2_bzCompress
+- iFpii:
+  - BZ2_bzDecompressInit
+- iFpiii:
+  - BZ2_bzCompressInit
+wrappedcairo:
+wrappedcrashhandler:
+wrappedcrypto:
+- vFv:
+  - OPENSSL_add_all_algorithms_conf
+  - OPENSSL_add_all_algorithms_noconf
+  - OpenSSL_add_all_ciphers
+  - OpenSSL_add_all_digests
+- vFp:
+  - CRYPTO_set_id_callback
+  - CRYPTO_set_locking_callback
+- pFp:
+  - sk_new
+- vFpp:
+  - sk_pop_free
+- pFpppp:
+  - PEM_read_bio_DSAPrivateKey
+  - PEM_read_bio_DSA_PUBKEY
+  - PEM_read_bio_ECPrivateKey
+  - PEM_read_bio_EC_PUBKEY
+  - PEM_read_bio_RSAPrivateKey
+  - PEM_read_bio_RSA_PUBKEY
+- iFpiipp:
+  - ENGINE_ctrl
+- iFpplppi:
+  - ENGINE_ctrl_cmd
+- iFppppipp:
+  - PEM_write_bio_DSAPrivateKey
+  - PEM_write_bio_ECPrivateKey
+  - PEM_write_bio_RSAPrivateKey
+wrappedcurl:
+- uFpup:
+  - curl_easy_setopt
+wrappedd3dadapter9:
+- pFp:
+  - D3DAdapter9GetProc
+wrappeddbus:
+- vFppp:
+  - dbus_connection_remove_filter
+  - dbus_timeout_set_data
+  - dbus_watch_set_data
+- vFpppp:
+  - dbus_connection_set_dispatch_status_function
+  - dbus_connection_set_wakeup_main_function
+- iFpipp:
+  - dbus_connection_set_data
+  - dbus_message_set_data
+  - dbus_pending_call_set_data
+- iFppip:
+  - dbus_message_get_args_valist
+- iFppiV:
+  - dbus_message_get_args
+- iFpppp:
+  - dbus_connection_add_filter
+  - dbus_pending_call_set_notify
+- iFppppp:
+  - dbus_connection_try_register_object_path
+- iFpppppp:
+  - dbus_connection_set_timeout_functions
+  - dbus_connection_set_watch_functions
+wrappeddbusglib1:
+- vFppp:
+  - dbus_g_type_collection_value_iterate
+  - dbus_g_type_map_value_iterate
+- vFpppp:
+  - dbus_g_proxy_disconnect_signal
+- vFppppp:
+  - dbus_g_proxy_connect_signal
+- pFpppppiV:
+  - dbus_g_proxy_begin_call
+- pFpppppiiV:
+  - dbus_g_proxy_begin_call_with_timeout
+wrappeddbusmenuglib:
+wrappeddbusmenugtk:
+wrappedexpat:
+- vFpp:
+  - XML_SetCharacterDataHandler
+- vFppp:
+  - XML_SetElementHandler
+wrappedfontconfig:
+- iFppiuui:
+  - FcPatternAdd
+  - FcPatternAddWeak
+wrappedfreetype:
+- iFpplp:
+  - FT_Open_Face
+- iFpuuLppp:
+  - FTC_Manager_New
+wrappedgdk3:
+- vFpp:
+  - gdk_init
+- iFpp:
+  - gdk_init_check
+- vFppp:
+  - gdk_event_handler_set
+  - gdk_window_add_filter
+  - gdk_window_remove_filter
+- iFiipp:
+  - gdk_input_add
+- iFiippp:
+  - gdk_input_add_full
+wrappedgdkpixbuf2:
+- pFpiiiiiipp:
+  - gdk_pixbuf_new_from_data
+wrappedgdkx112:
+- vFpp:
+  - gdk_init
+- iFpp:
+  - gdk_init_check
+- vFppp:
+  - gdk_event_handler_set
+  - gdk_window_add_filter
+  - gdk_window_remove_filter
+- iFiipp:
+  - gdk_input_add
+- iFiippp:
+  - gdk_input_add_full
+wrappedgio2:
+- vFppp:
+  - g_simple_async_result_set_op_res_gpointer
+- vFippp:
+  - g_bus_get
+- vFppip:
+  - g_simple_async_result_run_in_thread
+- vFpppp:
+  - g_dbus_connection_close
+  - g_dbus_connection_flush
+  - g_simple_async_report_gerror_in_idle
+  - g_simple_async_report_take_gerror_in_idle
+- uFpppp:
+  - g_dbus_connection_add_filter
+- LFpppp:
+  - g_cancellable_connect
+- pFpppp:
+  - g_simple_async_result_new
+  - g_simple_async_result_new_from_error
+  - g_simple_async_result_new_take_error
+- vFpippp:
+  - g_async_initable_init_async
+- vFpipppp:
+  - g_dbus_connection_new_for_address
+- vFiippppV:
+  - g_async_initable_new_async
+- vFiupippp:
+  - g_async_initable_newv_async
+- vFippippp:
+  - g_async_initable_new_valist_async
+- vFppipppp:
+  - g_dbus_connection_new
+- vFpppuipV:
+  - g_simple_async_report_error_in_idle
+- uFipipppp:
+  - g_bus_watch_name
+- uFppipppp:
+  - g_bus_own_name_on_connection
+  - g_bus_watch_name_on_connection
+- uFppppppp:
+  - g_dbus_connection_register_object
+- pFpppuipV:
+  - g_simple_async_result_new_error
+- vFppiipppp:
+  - g_dbus_connection_send_message_with_reply
+- vFpppiippp:
+  - g_dbus_proxy_call
+- uFipippppp:
+  - g_bus_own_name
+- vFiippppppp:
+  - g_dbus_proxy_new_for_bus
+- vFpippppppp:
+  - g_dbus_proxy_new
+- vFpppiipppp:
+  - g_dbus_proxy_call_with_unix_fd_list
+- pFiippppppp:
+  - g_dbus_object_manager_client_new_for_bus_sync
+- uFppppppippp:
+  - g_dbus_connection_signal_subscribe
+- vFpppppppiippp:
+  - g_dbus_connection_call
+wrappedglib2:
+- pFp:
+  - g_completion_new
+  - g_main_context_get_poll_func
+  - g_private_new
+  - g_ptr_array_new_with_free_func
+  - g_set_print_handler
+  - g_set_printerr_handler
+- vFpp:
+  - g_array_set_clear_func
+  - g_array_sort
+  - g_completion_set_compare
+  - g_list_free_full
+  - g_main_context_set_poll_func
+  - g_ptr_array_set_free_func
+  - g_ptr_array_sort
+  - g_source_set_funcs
+  - g_thread_foreach
+- vFpV:
+  - g_print
+  - g_printerr
+- iFpp:
+  - g_source_remove_by_funcs_user_data
+  - g_vprintf
+- uFpp:
+  - g_idle_add
+  - g_printf_string_upper_bound
+- pFup:
+  - g_ptr_array_new_full
+- pFpu:
+  - g_source_new
+- pFpp:
+  - g_hash_table_new
+  - g_list_sort
+  - g_log_set_default_handler
+  - g_markup_vprintf_escaped
+  - g_slist_sort
+  - g_strdup_vprintf
+  - g_variant_new_parsed_va
+- pFpV:
+  - g_build_filename
+  - g_markup_printf_escaped
+  - g_variant_new
+- vFppp:
+  - g_array_sort_with_data
+  - g_hash_table_foreach
+  - g_ptr_array_foreach
+  - g_ptr_array_sort_with_data
+  - g_static_private_set
+- vFppV:
+  - g_variant_get
+- iFppp:
+  - g_vasprintf
+  - g_vfprintf
+  - g_vsprintf
+- uFipp:
+  - g_child_watch_add
+- uFupp:
+  - g_timeout_add
+  - g_timeout_add_seconds
+- uFppp:
+  - g_hash_table_foreach_remove
+  - g_hash_table_foreach_steal
+- pFppp:
+  - g_hash_table_find
+  - g_list_find_custom
+  - g_list_sort_with_data
+  - g_queue_find_custom
+  - g_slist_find_custom
+  - g_slist_foreach
+  - g_slist_insert_sorted
+  - g_slist_sort_with_data
+  - g_variant_new_va
+- pFppV:
+  - g_build_path
+- vFpupp:
+  - g_datalist_id_set_data_full
+- vFpppp:
+  - g_source_set_callback
+- iFpLpp:
+  - g_vsnprintf
+- uFippp:
+  - g_idle_add_full
+- uFpipp:
+  - g_io_add_watch
+  - g_log_set_handler
+- pFpupp:
+  - g_datalist_id_dup_data
+- pFppip:
+  - g_thread_create
+- pFpppp:
+  - g_hash_table_new_full
+  - g_slist_insert_sorted_with_data
+- vFpiLpp:
+  - g_qsort_with_data
+- vFppipV:
+  - g_set_error
+- uFiippp:
+  - g_child_watch_add_full
+- uFiuppp:
+  - g_timeout_add_full
+  - g_timeout_add_seconds_full
+- iFpupppp:
+  - g_datalist_id_replace_data
+- uFpiippp:
+  - g_io_add_watch_full
+- pFppuipp:
+  - g_variant_new_from_data
+- pFppLiiip:
+  - g_thread_create_full
+- iFpppipppp:
+  - g_spawn_async
+- iFpppipppppp:
+  - g_spawn_sync
+- iFpppippppppp:
+  - g_spawn_async_with_pipes
+wrappedgmodule2:
+wrappedgnutls:
+- vFp:
+  - gnutls_global_set_log_function
+- vFpp:
+  - gnutls_transport_set_pull_function
+  - gnutls_transport_set_pull_timeout_function
+  - gnutls_transport_set_push_function
+wrappedgobject2:
+- pFp:
+  - g_param_spec_get_default_value
+  - g_type_class_peek_parent
+  - g_value_reset
+- iFpp:
+  - g_param_type_register_static
+- pFpi:
+  - g_value_init
+- pFpp:
+  - g_value_array_sort
+- vFiip:
+  - g_type_add_interface_static
+  - g_value_register_transform_func
+- iFppp:
+  - g_boxed_type_register_static
+- pFipV:
+  - g_object_new
+- pFppp:
+  - g_value_array_sort_with_data
+- pFppV:
+  - g_object_connect
+- vFpupp:
+  - g_param_spec_set_qdata_full
+- vFpppp:
+  - g_object_set_data_full
+- iFippi:
+  - g_type_register_static
+- iFipppi:
+  - g_type_register_fundamental
+- LFupppp:
+  - g_signal_add_emission_hook
+- LFpppppu:
+  - g_signal_connect_data
+- iFipupupi:
+  - g_type_register_static_simple
+- uFpiupppp:
+  - g_signal_handlers_block_matched
+  - g_signal_handlers_disconnect_matched
+  - g_signal_handlers_unblock_matched
+- LFpiupppp:
+  - g_signal_handler_find
+- uFpiiupppiuV:
+  - g_signal_new
+- uFpiippppiup:
+  - g_signal_new_valist
+  - g_signal_newv
+wrappedgssapikrb5:
+wrappedgstinterfaces010:
+wrappedgstreamer010:
+wrappedgthread2:
+- vFp:
+  - g_thread_init
+  - g_thread_init_with_errorcheck_mutexes
+wrappedgtk3:
+- pFi:
+  - gtk_type_class
+- vFpp:
+  - gtk_init
+- iFpp:
+  - gtk_init_check
+  - gtk_type_unique
+- vFppp:
+  - gtk_builder_connect_signals_full
+  - gtk_container_forall
+  - gtk_menu_attach_to_widget
+- vFppV:
+  - gtk_dialog_add_buttons
+  - gtk_message_dialog_format_secondary_markup
+  - gtk_message_dialog_format_secondary_text
+- uFupp:
+  - gtk_timeout_add
+- vFpppp:
+  - gtk_object_set_data_full
+  - gtk_stock_set_translate_func
+  - gtk_tree_sortable_set_default_sort_func
+  - gtk_tree_view_set_search_equal_func
+- iFpppp:
+  - gtk_text_iter_backward_find_char
+  - gtk_text_iter_forward_find_char
+- vFpippp:
+  - gtk_tree_sortable_set_sort_func
+- iFppuppp:
+  - gtk_clipboard_set_with_data
+  - gtk_clipboard_set_with_owner
+- iFpppppp:
+  - gtk_init_with_args
+- vFpppppuu:
+  - gtk_menu_popup
+- pFppppppi:
+  - gtk_toolbar_insert_stock
+- pFppppppp:
+  - gtk_toolbar_append_item
+  - gtk_toolbar_prepend_item
+- LFppppppii:
+  - gtk_signal_connect_full
+- pFpppppppi:
+  - gtk_toolbar_insert_item
+- pFpippppppp:
+  - gtk_toolbar_append_element
+  - gtk_toolbar_prepend_element
+- pFpipppppppi:
+  - gtk_toolbar_insert_element
+wrappedgtkx112:
+- fFp:
+  - gtk_spin_button_get_value_as_float
+- pFi:
+  - gtk_type_class
+- vFpp:
+  - gtk_builder_connect_signals
+  - gtk_init
+- iFpp:
+  - gtk_init_check
+  - gtk_type_unique
+- pFpi:
+  - gtk_type_check_object_cast
+- vFppp:
+  - gtk_builder_connect_signals_full
+  - gtk_clipboard_request_text
+  - gtk_container_forall
+  - gtk_container_foreach
+  - gtk_menu_attach_to_widget
+  - gtk_tree_model_foreach
+- vFppV:
+  - gtk_dialog_add_buttons
+  - gtk_message_dialog_format_secondary_markup
+  - gtk_message_dialog_format_secondary_text
+- uFupp:
+  - gtk_timeout_add
+- vFppup:
+  - gtk_action_group_add_actions
+- vFpppp:
+  - gtk_clipboard_request_contents
+  - gtk_object_set_data_full
+  - gtk_stock_set_translate_func
+  - gtk_tree_sortable_set_default_sort_func
+  - gtk_tree_view_set_search_equal_func
+- iFpppp:
+  - gtk_text_iter_backward_find_char
+  - gtk_text_iter_forward_find_char
+- LFpppp:
+  - gtk_signal_connect
+- vFpippp:
+  - gtk_tree_sortable_set_sort_func
+- vFppupp:
+  - gtk_action_group_add_actions_full
+- vFppppp:
+  - gtk_cell_layout_set_cell_data_func
+- vFpuipuV:
+  - gtk_binding_entry_add_signal
+- iFppuppp:
+  - gtk_clipboard_set_with_data
+  - gtk_clipboard_set_with_owner
+- iFpppppp:
+  - gtk_init_with_args
+- uFiipppp:
+  - gtk_input_add_full
+- vFpppppuu:
+  - gtk_menu_popup
+- pFppppppi:
+  - gtk_toolbar_insert_stock
+- pFppppppp:
+  - gtk_toolbar_append_item
+  - gtk_toolbar_prepend_item
+- LFppppppii:
+  - gtk_signal_connect_full
+- pFpppppppi:
+  - gtk_toolbar_insert_item
+- pFpippppppp:
+  - gtk_toolbar_append_element
+  - gtk_toolbar_prepend_element
+- pFpipppppppi:
+  - gtk_toolbar_insert_element
+wrappedgudev1:
+wrappediconv:
+wrappedkrb5:
+- iFppppppipp:
+  - krb5_get_init_creds_password
+wrappedlber:
+wrappedlcms2:
+- vFp:
+  - cmsSetLogErrorHandler
+wrappedldapr:
+- iFpppppupp:
+  - ldap_sasl_interactive_bind_s
+wrappedldlinux:
+- pFv:
+  - ___tls_get_addr
+- pFp:
+  - __tls_get_addr
+wrappedlibasound:
+- iFp:
+  - snd_dlclose
+  - snd_lib_error_set_handler
+- pFppp:
+  - snd_dlsym
+- iFpipp:
+  - snd_async_add_handler
+- iFpppp:
+  - snd_async_add_pcm_handler
+- pFpipL:
+  - snd_dlopen
+wrappedlibc:
+- vFv:
+- vFp:
+- iFv:
+- iFi:
+- iFL:
+- iFp:
+- iFO:
+- uFv:
+- uFu:
+- uFp:
+- LFL:
+- pFL:
+- pFp:
+- vFip:
+- vFpi:
+- vFpu:
+- vFpp:
+- vFpV:
+- iFip:
+  - fstat
+- iFpi:
+- iFpL:
+- iFpp:
+  - lstat
+  - stat
+- iFpV:
+- iFSp:
+  - _IO_file_stat
+- IFII:
+- UFUU:
+- pFip:
+- pFpi:
+- pFpp:
+- vFipV:
+- vFpuu:
+- vFpup:
+  - _ITM_addUserCommitAction
+- vFppu:
+- vFppp:
+- iFvpp:
+- iFvpV:
+- iFiip:
+- iFiiN:
+- iFipL:
+  - modify_ldt
+- iFipp:
+  - getopt
+- iFipV:
+- iFpuu:
+- iFpLi:
+- iFppi:
+- iFppL:
+- iFppp:
+- iFppV:
+- iFpOu:
+- iFpOV:
+- lFipL:
+- pFpii:
+- pFpip:
+- pFpLL:
+- vFpLLp:
+- vFpppp:
+  - __libc_init
+- iFiiip:
+- iFiiiN:
+- iFiiII:
+- iFipii:
+- iFipuu:
+- iFippi:
+- iFpvpp:
+- iFpvpV:
+- iFpipp:
+- iFpipV:
+- iFpuii:
+- iFpupV:
+- iFpLpV:
+- iFppii:
+- iFppiV:
+- iFpppp:
+- lFipiI:
+- lFpupp:
+- vFpLLpp:
+- iFiippi:
+- iFipipu:
+- iFipuup:
+- iFipppp:
+  - getopt_long
+  - getopt_long_only
+- iFpvvpV:
+- iFpiLpp:
+- iFpippp:
+- iFpuppp:
+- iFpLLpp:
+- iFpLppp:
+- pFpLLiN:
+- pFppLLp:
+- pFpppLp:
+- iFpuiupV:
+- iFpLiipV:
+- iFpppppp:
+- pFpLiiii:
+- pFpLiiiI:
+- pFpppppp:
+- iFpippppp:
+- iFpuvvppp:
+wrappedlibcrypt:
+wrappedlibcups:
+wrappedlibdl:
+- iFp:
+  - dlclose
+- pFv:
+  - dlerror
+- iFpp:
+  - dladdr
+- pFpi:
+  - dlopen
+- pFpp:
+  - dlsym
+- iFpip:
+  - dlinfo
+- pFppi:
+  - dlmopen
+- pFppp:
+  - dlvsym
+wrappedlibdrm:
+wrappedlibformw:
+wrappedlibgl:
+- iFi:
+  - glXSwapIntervalMESA
+- pFp:
+  - glXGetProcAddress
+  - glXGetProcAddressARB
+- vFpp:
+  - glDebugMessageCallback
+  - glDebugMessageCallbackAMD
+  - glDebugMessageCallbackARB
+- vFipp:
+  - glProgramCallbackMESA
+wrappedlibglu:
+- vFpip:
+  - gluNurbsCallback
+  - gluQuadricCallback
+  - gluTessCallback
+wrappedlibice:
+wrappedlibjpeg:
+- iFv:
+  - jpeg_simd_cpu_support
+- iFp:
+  - jpeg_finish_decompress
+  - jpeg_start_decompress
+- pFp:
+  - jpeg_std_error
+- iFpi:
+  - jpeg_read_header
+- vFpiL:
+  - jpeg_CreateDecompress
+- vFpip:
+  - jpeg_set_marker_processor
+- uFppu:
+  - jpeg_read_scanlines
+wrappedlibjpeg62:
+- vFp:
+  - jpeg_destroy_compress
+  - jpeg_destroy_decompress
+  - jpeg_finish_compress
+  - jpeg_set_defaults
+- iFv:
+  - jpeg_simd_cpu_support
+- iFp:
+  - jpeg_finish_decompress
+  - jpeg_start_decompress
+- pFp:
+  - jpeg_std_error
+- vFpi:
+  - jpeg_start_compress
+- iFpi:
+  - jpeg_read_header
+  - jpeg_resync_to_restart
+- vFpii:
+  - jpeg_set_quality
+- vFpiL:
+  - jpeg_CreateCompress
+  - jpeg_CreateDecompress
+- vFpip:
+  - jpeg_set_marker_processor
+- vFppp:
+  - jpeg_mem_dest
+- uFppu:
+  - jpeg_read_scanlines
+  - jpeg_write_scanlines
+- vFpipu:
+  - jpeg_write_marker
+wrappedlibm:
+- UFs:
+  - cacosf
+  - cacoshf
+  - casinf
+  - casinhf
+  - catanf
+  - catanhf
+  - ccosf
+  - ccoshf
+  - cexpf
+  - clogf
+  - cprojf
+  - csinf
+  - csinhf
+  - csqrtf
+  - ctanf
+  - ctanhf
+- fFf:
+  - __acosf_finite
+  - __acoshf_finite
+  - __asinf_finite
+  - __coshf_finite
+  - __exp2f_finite
+  - __expf_finite
+  - __log10f_finite
+  - __log2f_finite
+  - __logf_finite
+  - __sinhf_finite
+  - __sqrtf_finite
+- dFd:
+  - __acos_finite
+  - __acosh_finite
+  - __asin_finite
+  - __cosh_finite
+  - __exp2_finite
+  - __exp_finite
+  - __log10_finite
+  - __log2_finite
+  - __log_finite
+  - __sinh_finite
+  - __sqrt_finite
+- fFff:
+  - __atan2f_finite
+  - __hypotf_finite
+  - __powf_finite
+- dFdd:
+  - __atan2_finite
+  - __hypot_finite
+  - __pow_finite
+- pFps:
+- UFsvvs:
+  - cpowf
+- pFpsvvvvs:
+wrappedlibncurses:
+- pFv:
+  - initscr
+- iFpV:
+  - printw
+- iFppV:
+  - vw_printw
+  - vwprintw
+- iFiipV:
+  - mvprintw
+- iFpiipV:
+  - mvwprintw
+wrappedlibncurses6:
+- pFv:
+  - initscr
+- iFpV:
+  - printw
+- iFppV:
+  - vw_printw
+- iFiipV:
+  - mvprintw
+- iFpiipV:
+  - mvwprintw
+wrappedlibncursesw:
+- pFv:
+  - initscr
+- iFpV:
+  - printw
+- iFppV:
+  - vw_printw
+  - vwprintw
+- iFiipV:
+  - mvprintw
+- iFpiipV:
+  - mvwprintw
+wrappedlibnm:
+wrappedlibogg:
+wrappedlibpanel:
+wrappedlibpthread:
+- vFv:
+  - __pthread_initialize
+- vFp:
+  - __pthread_register_cancel
+  - __pthread_unregister_cancel
+  - __pthread_unwind_next
+- iFp:
+  - __pthread_mutex_destroy
+  - __pthread_mutex_lock
+  - __pthread_mutex_trylock
+  - __pthread_mutex_unlock
+  - pthread_attr_destroy
+  - pthread_mutex_destroy
+  - pthread_mutex_lock
+  - pthread_mutex_trylock
+  - pthread_mutex_unlock
+- vFpi:
+  - _pthread_cleanup_pop
+  - _pthread_cleanup_pop_restore
+- iFpi:
+  - pthread_attr_setscope
+  - pthread_kill
+  - pthread_mutexattr_setkind_np
+- iFpp:
+  - __pthread_key_create
+  - __pthread_mutex_init
+  - __pthread_once
+  - pthread_attr_setschedparam
+  - pthread_cond_wait
+  - pthread_key_create
+  - pthread_mutex_init
+  - pthread_mutex_timedlock
+  - pthread_once
+  - pthread_setname_np
+- vFppp:
+  - _pthread_cleanup_push
+  - _pthread_cleanup_push_defer
+- iFLup:
+  - pthread_setaffinity_np
+- iFpup:
+  - pthread_attr_setaffinity_np
+  - pthread_getaffinity_np
+- iFppu:
+  - pthread_getname_np
+- iFppL:
+  - pthread_attr_setstack
+- iFppp:
+  - __pthread_atfork
+  - pthread_atfork
+  - pthread_attr_getstack
+  - pthread_cond_timedwait
+- iFpppp:
+  - pthread_create
+wrappedlibresolv:
+wrappedlibrt:
+- iFupp:
+  - timer_create
+wrappedlibsm:
+- iFppp:
+  - SmcRequestSaveYourselfPhase2
+- iFpipp:
+  - SmcInteractRequest
+- pFppiiLpppip:
+  - SmcOpenConnection
+wrappedlibsndfile:
+- iFp:
+  - sf_close
+- pFpipp:
+  - sf_open_virtual
+wrappedlibssl:
+- vFpp:
+  - SSL_CTX_sess_set_new_cb
+  - SSL_CTX_set_default_passwd_cb
+  - SSL_set_psk_client_callback
+- vFpip:
+  - SSL_CTX_set_verify
+  - SSL_set_verify
+- vFppp:
+  - SSL_CTX_set_next_proto_select_cb
+- lFpip:
+  - SSL_CTX_callback_ctrl
+  - SSL_callback_ctrl
+- iFlpppp:
+  - SSL_get_ex_new_index
+wrappedlibtiff:
+- pFpppppppppp:
+  - TIFFClientOpen
+wrappedlibtinfo:
+- iFpip:
+  - tputs
+wrappedlibtinfo6:
+- iFpip:
+  - tputs
+wrappedlibusb1:
+- iFp:
+  - libusb_cancel_transfer
+  - libusb_submit_transfer
+- pFi:
+  - libusb_alloc_transfer
+- iFpiiiiippp:
+  - libusb_hotplug_register_callback
+wrappedlibuuid:
+wrappedlibv4l2:
+- iFpL:
+  - v4l2_munmap
+- pFpLiiii:
+  - v4l2_mmap
+wrappedlibvorbis:
+- vFp:
+  - vorbis_dsp_clear
+- iFp:
+  - vorbis_bitrate_addblock
+  - vorbis_block_clear
+  - vorbis_synthesis_restart
+- iFpi:
+  - vorbis_analysis_wrote
+  - vorbis_synthesis_read
+- iFpp:
+  - vorbis_analysis
+  - vorbis_analysis_blockout
+  - vorbis_analysis_init
+  - vorbis_bitrate_flushpacket
+  - vorbis_block_init
+  - vorbis_synthesis
+  - vorbis_synthesis_blockin
+  - vorbis_synthesis_init
+  - vorbis_synthesis_lapout
+  - vorbis_synthesis_pcmout
+  - vorbis_synthesis_trackonly
+- pFpi:
+  - vorbis_analysis_buffer
+  - vorbis_window
+- iFppppp:
+  - vorbis_analysis_headerout
+wrappedlibx11:
+- iFp:
+  - XCloseDisplay
+  - XDestroyImage
+  - XInitImage
+- pFp:
+  - XOpenDisplay
+  - XSetErrorHandler
+  - XSetIOErrorHandler
+- vFpp:
+  - _XDeqAsyncHandler
+- iFpi:
+  - XSynchronize
+- pFpp:
+  - XLoadQueryFont
+  - XSetAfterFunction
+- iFppu:
+  - XSetBackground
+  - XSetForeground
+- iFppp:
+  - XAddConnectionWatch
+  - XRemoveConnectionWatch
+- pFpip:
+  - XESetCloseDisplay
+  - XESetError
+  - XESetEventToWire
+  - XESetWireToEvent
+- iFpppp:
+  - XCheckIfEvent
+  - XIfEvent
+  - XPeekIfEvent
+- pFppup:
+  - XCreateGC
+- iFppppp:
+  - XQueryExtension
+- iFpppppp:
+  - XRegisterIMInstantiateCallback
+  - XUnregisterIMInstantiateCallback
+- pFppiiuuui:
+  - XGetImage
+- iFppppiiiiuu:
+  - XPutImage
+- pFppuiipuuii:
+  - XCreateImage
+- pFppiiuuuipii:
+  - XGetSubImage
+wrappedlibx11xcb:
+wrappedlibxau:
+wrappedlibxcb:
+% X my_xcb_XXX_iterator_t pii
+% x my_xcb_cookie_t u
+- xFp:
+  - xcb_get_input_focus
+  - xcb_get_modifier_mapping
+  - xcb_grab_server
+  - xcb_ungrab_server
+- XFp:
+  - xcb_depth_visuals_iterator
+  - xcb_screen_allowed_depths_iterator
+  - xcb_setup_pixmap_formats_iterator
+  - xcb_setup_roots_iterator
+- xFpC:
+  - xcb_bell
+- xFpu:
+  - xcb_close_font
+  - xcb_close_font_checked
+  - xcb_destroy_window
+  - xcb_free_colormap
+  - xcb_free_colormap_checked
+  - xcb_free_gc
+  - xcb_free_pixmap
+  - xcb_get_atom_name
+  - xcb_get_geometry
+  - xcb_get_geometry_unchecked
+  - xcb_get_selection_owner
+  - xcb_get_selection_owner_unchecked
+  - xcb_get_window_attributes
+  - xcb_get_window_attributes_unchecked
+  - xcb_map_subwindows
+  - xcb_map_window
+  - xcb_map_window_checked
+  - xcb_query_pointer
+  - xcb_query_tree
+  - xcb_query_tree_unchecked
+  - xcb_ungrab_keyboard
+  - xcb_ungrab_keyboard_checked
+  - xcb_ungrab_pointer
+  - xcb_unmap_window
+- xFpp:
+  - xcb_free_cursor
+- xFpCC:
+  - xcb_get_keyboard_mapping
+- xFpup:
+  - xcb_change_keyboard_control
+- xFppp:
+  - xcb_delete_property
+- xFpCWp:
+  - xcb_intern_atom
+  - xcb_intern_atom_unchecked
+- xFpCuW:
+  - xcb_ungrab_button
+  - xcb_ungrab_button_checked
+  - xcb_ungrab_key
+  - xcb_ungrab_key_checked
+- xFpCuu:
+  - xcb_set_input_focus
+- xFpuWp:
+  - xcb_configure_window
+  - xcb_open_font
+  - xcb_open_font_checked
+- xFpuuu:
+  - xcb_set_selection_owner
+- xFpuup:
+  - xcb_change_gc
+  - xcb_change_gc_checked
+  - xcb_change_window_attributes
+  - xcb_change_window_attributes_checked
+  - xcb_query_text_extents
+- xFpCuup:
+  - xcb_send_event
+- xFpCppp:
+  - xcb_create_colormap
+- xFpuWWW:
+  - xcb_alloc_color
+- xFpuuWW:
+  - xcb_reparent_window
+  - xcb_translate_coordinates
+  - xcb_translate_coordinates_unchecked
+- xFpuuup:
+  - xcb_create_gc
+  - xcb_create_gc_checked
+  - xcb_poly_arc
+  - xcb_poly_fill_rectangle
+  - xcb_poly_rectangle
+  - xcb_poly_segment
+- xFpCuuCC:
+  - xcb_grab_keyboard
+- xFpCuuWW:
+  - xcb_create_pixmap
+- xFpCuuup:
+  - xcb_poly_line
+  - xcb_poly_line_checked
+  - xcb_poly_point
+- xFpuuuuu:
+  - xcb_convert_selection
+- xFpCuwwWW:
+  - xcb_clear_area
+- xFpCuWCCC:
+  - xcb_grab_key
+  - xcb_grab_key_checked
+- xFpCuuwwp:
+  - xcb_image_text_8
+  - xcb_image_text_8_checked
+- xFpCuuuuu:
+  - xcb_get_property
+  - xcb_get_property_unchecked
+- xFpCuwwWWu:
+  - xcb_get_image
+  - xcb_get_image_unchecked
+- xFpCuuuCup:
+  - xcb_change_property
+  - xcb_change_property_checked
+- xFpCuWCCuuu:
+  - xcb_grab_pointer
+- xFpuuwwWWww:
+  - xcb_warp_pointer
+- xFpCuWCCuuCW:
+  - xcb_grab_button
+  - xcb_grab_button_checked
+- xFpuuuwwwwWW:
+  - xcb_copy_area
+- xFpCuuWWwwCCup:
+  - xcb_put_image
+- xFpuuuWWWWWWWW:
+  - xcb_create_cursor
+  - xcb_create_glyph_cursor
+- xFpCuuwwWWWWuup:
+  - xcb_create_window
+  - xcb_create_window_checked
+% XFEp -> pFEpp
+% xFEp -> pFEpp
+% xFEpC -> pFEppC
+% xFEpu -> pFEppu
+% xFEpp -> pFEppp
+% xFEpCC -> pFEppCC
+% xFEpup -> pFEppup
+% xFEppp -> pFEpppp
+% xFEpCWp -> pFEppCWp
+% xFEpCuW -> pFEppCuW
+% xFEpCuu -> pFEppCuu
+% xFEpuWp -> pFEppuWp
+% xFEpuuu -> pFEppuuu
+% xFEpuup -> pFEppuup
+% xFEpCuup -> pFEppCuup
+% xFEpCppp -> pFEppCppp
+% xFEpuWWW -> pFEppuWWW
+% xFEpuuWW -> pFEppuuWW
+% xFEpuuup -> pFEppuuup
+% xFEpCuuCC -> pFEppCuuCC
+% xFEpCuuWW -> pFEppCuuWW
+% xFEpCuuup -> pFEppCuuup
+% xFEpuuuuu -> pFEppuuuuu
+% xFEpCuwwWW -> pFEppCuwwWW
+% xFEpCuWCCC -> pFEppCuWCCC
+% xFEpCuuwwp -> pFEppCuuwwp
+% xFEpCuuuuu -> pFEppCuuuuu
+% xFEpCuwwWWu -> pFEppCuwwWWu
+% xFEpCuuuCup -> pFEppCuuuCup
+% xFEpCuWCCuuu -> pFEppCuWCCuuu
+% xFEpuuwwWWww -> pFEppuuwwWWww
+% xFEpCuWCCuuCW -> pFEppCuWCCuuCW
+% xFEpuuuwwwwWW -> pFEppuuuwwwwWW
+% xFEpCuuWWwwCCup -> pFEppCuuWWwwCCup
+% xFEpuuuWWWWWWWW -> pFEppuuuWWWWWWWW
+% xFEpCuuwwWWWWuup -> pFEppCuuwwWWWWuup
+wrappedlibxcbdri2:
+% x my_xcb_cookie_t u
+- xFpuu:
+  - xcb_dri2_authenticate
+  - xcb_dri2_connect
+  - xcb_dri2_query_version
+% xFEpuu -> pFEppuu
+wrappedlibxcbdri3:
+% x my_xcb_cookie_t u
+- xFpuu:
+  - xcb_dri3_open
+  - xcb_dri3_query_version
+- xFpuuuWWWCCi:
+  - xcb_dri3_pixmap_from_buffer_checked
+% xFEpuu -> pFEppuu
+% xFEpuuuWWWCCi -> pFEppuuuWWWCCi
+wrappedlibxcbimage:
+% x my_xcb_cookie_t u
+- xFpuupwwC:
+  - xcb_image_put
+% xFEpuupwwC -> pFEppuupwwC
+wrappedlibxcbkeysyms:
+wrappedlibxcbpresent:
+% x my_xcb_cookie_t u
+- xFpuu:
+  - xcb_present_query_version
+- xFpuuu:
+  - xcb_present_select_input_checked
+- xFpuuUUU:
+  - xcb_present_notify_msc
+- xFpuuuuuwwuuuuUUUup:
+  - xcb_present_pixmap
+  - xcb_present_pixmap_checked
+% xFEpuu -> pFEppuu
+% xFEpuuu -> pFEppuuu
+% xFEpuuUUU -> pFEppuuUUU
+% xFEpuuuuuwwuuuuUUUup -> pFEppuuuuuwwuuuuUUUup
+wrappedlibxcbrandr:
+% X my_xcb_iterator_t pii
+% x my_xcb_cookie_t u
+- XFp:
+  - xcb_randr_get_screen_resources_current_outputs_end
+- xFpu:
+  - xcb_randr_get_output_primary
+  - xcb_randr_get_output_primary_unchecked
+  - xcb_randr_get_screen_resources
+  - xcb_randr_get_screen_resources_current
+  - xcb_randr_get_screen_resources_outputs
+  - xcb_randr_get_screen_resources_unchecked
+- xFpuW:
+  - xcb_randr_select_input
+  - xcb_randr_select_input_checked
+- xFpuu:
+  - xcb_randr_query_version
+  - xcb_randr_query_version_unchecked
+- xFppu:
+  - xcb_randr_get_crtc_info
+  - xcb_randr_get_crtc_info_unchecked
+  - xcb_randr_get_output_info
+  - xcb_randr_get_output_info_unchecked
+% XFEp -> pFEpp
+% xFEpu -> pFEppu
+% xFEpuu -> pFEppuu
+% xFEpuW -> pFEppuW
+% xFEppu -> pFEpppu
+wrappedlibxcbshape:
+% x my_xcb_cookie_t u
+- xFpuuuwwu:
+  - xcb_shape_mask
+  - xcb_shape_mask_checked
+% xFEpuuuwwu -> pFEppuuuwwu
+wrappedlibxcbshm:
+% X my_xcb_iterator_t pii
+% x my_xcb_cookie_t u
+- xFp:
+  - xcb_shm_query_version
+  - xcb_shm_query_version_unchecked
+- XFX:
+  - xcb_shm_seg_end
+- xFpu:
+  - xcb_shm_detach
+  - xcb_shm_detach_checked
+- xFpuuC:
+  - xcb_shm_attach
+  - xcb_shm_attach_checked
+  - xcb_shm_attach_fd
+  - xcb_shm_attach_fd_checked
+  - xcb_shm_create_segment
+  - xcb_shm_create_segment_unchecked
+- xFpuuWWCuu:
+  - xcb_shm_create_pixmap
+  - xcb_shm_create_pixmap_checked
+- xFpuwwWWuCuu:
+  - xcb_shm_get_image
+  - xcb_shm_get_image_unchecked
+- xFpuuWWWWWWwwCCCuu:
+  - xcb_shm_put_image
+  - xcb_shm_put_image_checked
+% XFEX -> pFEppii
+% xFEp -> pFEpp
+% xFEpu -> pFEppu
+% xFEpuuC -> pFEppuuC
+% xFEpuuWWCuu -> pFEppuuWWCuu
+% xFEpuwwWWuCuu -> pFEppuwwWWuCuu
+% xFEpuuWWWWWWwwCCCuu -> pFEppuuWWWWWWwwCCCuu
+wrappedlibxcbxfixes:
+% x my_xcb_cookie_t u
+- xFpu:
+  - xcb_xfixes_destroy_region
+- xFpuu:
+  - xcb_xfixes_query_version_unchecked
+- xFpuup:
+  - xcb_xfixes_create_region
+- xFpuuwwu:
+  - xcb_xfixes_set_window_shape_region
+  - xcb_xfixes_set_window_shape_region_checked
+% xFEpu -> pFEppu
+% xFEpuu -> pFEppuu
+% xFEpuup -> pFEppuup
+% xFEpuuwwu -> pFEppuuwwu
+wrappedlibxcbxtest:
+% x my_xcb_cookie_t u
+- xFpCCuuwwC:
+  - xcb_test_fake_input
+  - xcb_test_fake_input_checked
+% xFEpCCuuwwC -> pFEppCCuuwwC
+wrappedlibxcomposite:
+wrappedlibxcursor:
+wrappedlibxdamage:
+wrappedlibxdmcp:
+wrappedlibxext:
+- pFp:
+  - XSetExtensionErrorHandler
+- iFpppiiu:
+  - XShmGetImage
+- pFppppip:
+  - XextAddDisplay
+- pFppuippuu:
+  - XShmCreateImage
+- iFppppiiiiuui:
+  - XShmPutImage
+wrappedlibxfixes:
+wrappedlibxft:
+wrappedlibxi:
+wrappedlibxmu:
+wrappedlibxpm:
+wrappedlibxrandr:
+wrappedlibxrender:
+wrappedlibxss:
+wrappedlibxt:
+- vFpuipp:
+  - XtAddEventHandler
+wrappedlibxtst:
+- iFpppp:
+  - XRecordEnableContext
+  - XRecordEnableContextAsync
+wrappedlibxxf86vm:
+- iFpip:
+  - XF86VidModeGetGamma
+  - XF86VidModeSetGamma
+wrappedlibz:
+- iFppi:
+  - inflateInit_
+- iFpipi:
+  - deflateInit_
+  - inflateInit2_
+- iFpippi:
+  - inflateBackInit_
+- iFpiiiiipi:
+  - deflateInit2_
+wrappedmpg123:
+- iFpppp:
+  - mpg123_replace_reader_handle
+  - mpg123_replace_reader_handle_32
+  - mpg123_replace_reader_handle_64
+wrappednsl:
+wrappedopenal:
+- vFv:
+  - alRequestFoldbackStop
+- pFp:
+  - alGetProcAddress
+- pFpp:
+  - alcGetProcAddress
+- vFiiipp:
+  - alRequestFoldbackStart
+wrappedpango:
+- vFpp:
+  - pango_attribute_init
+wrappedpangocairo:
+wrappedpangoft2:
+wrappedpng12:
+- vFppp:
+  - png_set_read_fn
+- vFpppp:
+  - png_set_error_fn
+  - png_set_write_fn
+- pFpppp:
+  - png_create_read_struct
+- vFppppp:
+  - png_set_progressive_read_fn
+- pFppppppp:
+  - png_create_read_struct_2
+  - png_create_write_struct_2
+wrappedpng16:
+- vFpp:
+  - png_set_read_user_transform_fn
+- vFppp:
+  - png_set_read_fn
+- vFpppp:
+  - png_set_error_fn
+  - png_set_write_fn
+- pFpppp:
+  - png_create_read_struct
+- vFppppp:
+  - png_set_progressive_read_fn
+- pFppppppp:
+  - png_create_read_struct_2
+  - png_create_write_struct_2
+wrappedpulse:
+- vFp:
+  - pa_mainloop_free
+  - pa_threaded_mainloop_free
+- iFp:
+  - pa_signal_init
+- pFp:
+  - pa_mainloop_get_api
+  - pa_threaded_mainloop_get_api
+- vFpp:
+  - pa_signal_set_destroy
+- pFpp:
+  - pa_context_new
+- vFppp:
+  - pa_context_set_event_callback
+  - pa_context_set_state_callback
+  - pa_context_set_subscribe_callback
+  - pa_mainloop_set_poll_func
+  - pa_stream_set_buffer_attr_callback
+  - pa_stream_set_event_callback
+  - pa_stream_set_latency_update_callback
+  - pa_stream_set_moved_callback
+  - pa_stream_set_overflow_callback
+  - pa_stream_set_read_callback
+  - pa_stream_set_started_callback
+  - pa_stream_set_state_callback
+  - pa_stream_set_suspended_callback
+  - pa_stream_set_underflow_callback
+  - pa_stream_set_write_callback
+- pFipp:
+  - pa_signal_new
+- pFppp:
+  - pa_context_drain
+  - pa_context_exit_daemon
+  - pa_context_get_client_info_list
+  - pa_context_get_module_info_list
+  - pa_context_get_server_info
+  - pa_context_get_sink_info_list
+  - pa_context_get_sink_input_info_list
+  - pa_context_get_source_info_list
+  - pa_context_new_with_proplist
+  - pa_stream_drain
+  - pa_stream_flush
+  - pa_stream_prebuf
+  - pa_stream_trigger
+  - pa_stream_update_timing_info
+- iFppip:
+  - pa_context_connect
+- iFpppV:
+  - pa_proplist_setf
+- pFpipp:
+  - pa_stream_cork
+- pFpupp:
+  - pa_context_get_sink_info_by_index
+  - pa_context_get_sink_input_info
+  - pa_context_get_source_info_by_index
+  - pa_context_subscribe
+  - pa_context_unload_module
+  - pa_stream_update_sample_rate
+- pFpppp:
+  - pa_context_get_sink_info_by_name
+  - pa_context_get_source_info_by_name
+  - pa_context_proplist_remove
+  - pa_context_set_default_sink
+  - pa_context_set_default_source
+  - pa_context_set_name
+  - pa_stream_proplist_remove
+  - pa_stream_set_buffer_attr
+  - pa_stream_set_name
+- pFpippp:
+  - pa_context_proplist_update
+  - pa_stream_proplist_update
+- pFpuipp:
+  - pa_context_set_sink_input_mute
+  - pa_context_set_source_mute_by_index
+- pFpuupp:
+  - pa_context_move_sink_input_by_index
+- pFpuppp:
+  - pa_context_set_sink_input_volume
+  - pa_context_set_sink_volume_by_index
+  - pa_context_set_source_volume_by_index
+- pFppppp:
+  - pa_context_load_module
+  - pa_context_set_source_volume_by_name
+- iFppupIi:
+  - pa_stream_write
+wrappedpulsesimple:
+wrappedsdl1:
+- vFp:
+  - SDL_KillThread
+  - SDL_SetEventFilter
+  - SDL_UnloadObject
+- iFv:
+  - SDL_Has3DNow
+  - SDL_Has3DNowExt
+  - SDL_HasAltiVec
+  - SDL_HasMMX
+  - SDL_HasMMXExt
+  - SDL_HasRDTSC
+  - SDL_HasSSE
+  - SDL_HasSSE2
+- iFp:
+  - SDL_GetWMInfo
+  - SDL_RemoveTimer
+- uFp:
+  - SDL_ReadBE16
+  - SDL_ReadBE32
+  - SDL_ReadLE16
+  - SDL_ReadLE32
+- UFp:
+  - SDL_ReadBE64
+  - SDL_ReadLE64
+- pFv:
+  - SDL_GetEventFilter
+- pFp:
+  - SDL_GL_GetProcAddress
+  - SDL_LoadObject
+- iFup:
+  - SDL_SetTimer
+- iFpp:
+  - SDL_OpenAudio
+- uFpW:
+  - SDL_WriteBE16
+  - SDL_WriteLE16
+- uFpu:
+  - SDL_WriteBE32
+  - SDL_WriteLE32
+- uFpU:
+  - SDL_WriteBE64
+  - SDL_WriteLE64
+- pFpi:
+  - SDL_LoadBMP_RW
+  - SDL_RWFromConstMem
+  - SDL_RWFromFP
+  - SDL_RWFromMem
+- pFpp:
+  - SDL_CreateThread
+  - SDL_LoadFunction
+  - SDL_RWFromFile
+- iFppi:
+  - SDL_SaveBMP_RW
+- pFupp:
+  - SDL_AddTimer
+- pFpippp:
+  - SDL_LoadWAV_RW
+wrappedsdl1image:
+- pFp:
+  - IMG_LoadBMP_RW
+  - IMG_LoadCUR_RW
+  - IMG_LoadGIF_RW
+  - IMG_LoadICO_RW
+  - IMG_LoadJPG_RW
+  - IMG_LoadLBM_RW
+  - IMG_LoadPCX_RW
+  - IMG_LoadPNG_RW
+  - IMG_LoadPNM_RW
+  - IMG_LoadTGA_RW
+  - IMG_LoadTIF_RW
+  - IMG_LoadWEBP_RW
+  - IMG_LoadXCF_RW
+  - IMG_LoadXPM_RW
+  - IMG_LoadXV_RW
+- pFpi:
+  - IMG_Load_RW
+- pFpip:
+  - IMG_LoadTyped_RW
+wrappedsdl1mixer:
+- vFp:
+  - Mix_ChannelFinished
+  - Mix_HookMusicFinished
+- pFp:
+  - Mix_LoadMUS_RW
+- vFpp:
+  - Mix_HookMusic
+  - Mix_SetPostMix
+- iFip:
+  - Mix_UnregisterEffect
+- pFpi:
+  - Mix_LoadWAV_RW
+- pFpii:
+  - Mix_LoadMUSType_RW
+- iFippp:
+  - Mix_RegisterEffect
+wrappedsdl1net:
+wrappedsdl1sound:
+- pFpppu:
+  - Sound_NewSample
+wrappedsdl1ttf:
+- pFpii:
+  - TTF_OpenFontRW
+- pFpiii:
+  - TTF_OpenFontIndexRW
+wrappedsdl2:
+% J SDL_JoystickGUID uuuu
+% g SDL_GameControllerButtonBind uii
+- vFp:
+  - SDL_UnloadObject
+- iFv:
+- iFp:
+  - SDL_RWclose
+  - SDL_RemoveTimer
+  - SDL_SaveAllDollarTemplates
+- iFJ:
+  - SDL_IsJoystickHIDAPI
+  - SDL_IsJoystickXInput
+- IFp:
+  - SDL_RWtell
+- uFp:
+  - SDL_ReadBE16
+  - SDL_ReadBE32
+  - SDL_ReadLE16
+  - SDL_ReadLE32
+  - SDL_ReadU8
+- UFp:
+  - SDL_ReadBE64
+  - SDL_ReadLE64
+- pFv:
+  - SDL_GetBasePath
+  - SDL_Vulkan_GetVkGetInstanceProcAddr
+- pFp:
+  - SDL_GL_GetProcAddress
+  - SDL_LoadObject
+- JFi:
+  - SDL_JoystickGetDeviceGUID
+- JFp:
+  - SDL_JoystickGetGUID
+  - SDL_JoystickGetGUIDFromString
+- vFpp:
+  - SDL_AddEventWatch
+  - SDL_DelEventWatch
+  - SDL_LogGetOutputFunction
+  - SDL_LogSetOutputFunction
+  - SDL_SetEventFilter
+- vFpV:
+  - SDL_Log
+- iFip:
+  - SDL_SaveDollarTemplate
+- iFWW:
+  - SDL_IsJoystickNintendoSwitchPro
+  - SDL_IsJoystickPS4
+  - SDL_IsJoystickSteamController
+  - SDL_IsJoystickXbox360
+  - SDL_IsJoystickXboxOne
+- iFpi:
+  - SDL_GameControllerAddMappingsFromRW
+- iFpp:
+  - SDL_GetEventFilter
+  - SDL_OpenAudio
+- uFpW:
+  - SDL_WriteBE16
+  - SDL_WriteLE16
+- uFpu:
+  - SDL_WriteBE32
+  - SDL_WriteLE32
+  - SDL_WriteU8
+- uFpU:
+  - SDL_WriteBE64
+  - SDL_WriteLE64
+- pFpi:
+  - SDL_LoadBMP_RW
+  - SDL_RWFromConstMem
+  - SDL_RWFromFP
+  - SDL_RWFromMem
+- pFpp:
+  - SDL_LoadFunction
+  - SDL_RWFromFile
+- gFpi:
+  - SDL_GameControllerGetBindForAxis
+  - SDL_GameControllerGetBindForButton
+- vFipV:
+  - SDL_LogCritical
+  - SDL_LogDebug
+  - SDL_LogError
+  - SDL_LogInfo
+  - SDL_LogVerbose
+  - SDL_LogWarn
+- iFupp:
+  - SDL_TLSSet
+- iFppi:
+  - SDL_SaveBMP_RW
+- IFpIi:
+  - SDL_RWseek
+- pFupp:
+  - SDL_AddTimer
+- pFppi:
+  - SDL_LoadFile_RW
+- pFppp:
+  - SDL_CreateThread
+- vFJppp:
+  - SDL_GetJoystickGUIDInfo
+- iFpupV:
+  - SDL_snprintf
+  - SDL_vsnprintf
+- uFppuu:
+  - SDL_RWread
+  - SDL_RWwrite
+- iFpippi:
+  - SDL_OpenAudioDevice
+- pFpippp:
+  - SDL_LoadWAV_RW
+% pFJ -> pFuuuu
+% iFEJ -> iFEuuuu
+% JFEi -> pFEpi
+% JFEp -> pFEpp
+% gFEpi -> pFEppi
+% vFEJppp -> vFEuuuuppp
+wrappedsdl2image:
+- pFp:
+  - IMG_LoadBMP_RW
+  - IMG_LoadCUR_RW
+  - IMG_LoadGIF_RW
+  - IMG_LoadICO_RW
+  - IMG_LoadJPG_RW
+  - IMG_LoadLBM_RW
+  - IMG_LoadPCX_RW
+  - IMG_LoadPNG_RW
+  - IMG_LoadPNM_RW
+  - IMG_LoadTGA_RW
+  - IMG_LoadTIF_RW
+  - IMG_LoadWEBP_RW
+  - IMG_LoadXCF_RW
+  - IMG_LoadXPM_RW
+  - IMG_LoadXV_RW
+- pFpi:
+  - IMG_Load_RW
+- iFppi:
+  - IMG_SavePNG_RW
+- pFpip:
+  - IMG_LoadTyped_RW
+- pFppi:
+  - IMG_LoadTexture_RW
+- pFppip:
+  - IMG_LoadTextureTyped_RW
+wrappedsdl2mixer:
+- vFp:
+  - Mix_ChannelFinished
+  - Mix_HookMusicFinished
+- vFpp:
+  - Mix_HookMusic
+  - Mix_SetPostMix
+- iFiw:
+  - MinorityMix_SetPosition
+- iFip:
+  - Mix_UnregisterEffect
+- pFpi:
+  - Mix_LoadMUS_RW
+  - Mix_LoadWAV_RW
+- pFpii:
+  - Mix_LoadMUSType_RW
+- iFippp:
+  - Mix_RegisterEffect
+wrappedsdl2net:
+wrappedsdl2ttf:
+- pFpii:
+  - TTF_OpenFontRW
+- pFpiii:
+  - TTF_OpenFontIndexRW
+wrappedsmpeg:
+- vFpp:
+  - SMPEG_getinfo
+- pFipi:
+  - SMPEG_new_descr
+- pFppi:
+  - SMPEG_new
+  - SMPEG_new_rwops
+- vFpppp:
+  - SMPEG_setdisplay
+- pFpipi:
+  - SMPEG_new_data
+wrappedsmpeg2:
+- vFpp:
+  - SMPEG_getinfo
+- pFipi:
+  - SMPEG_new_descr
+- pFppi:
+  - SMPEG_new
+- vFpppp:
+  - SMPEG_setdisplay
+- pFpipi:
+  - SMPEG_new_data
+- pFppii:
+  - SMPEG_new_rwops
+wrappedtcmallocminimal:
+- iFpL:
+  - munmap
+- pFpLiiii:
+  - mmap
+- pFpLiiiI:
+  - mmap64
+wrappedturbojpeg:
+wrappedudev0:
+wrappedudev1:
+wrappedutil:
+- iFpppp:
+  - forkpty
+wrappedvorbisfile:
+- iFp:
+  - ov_bitrate_instant
+  - ov_clear
+  - ov_halfrate_p
+  - ov_seekable
+  - ov_streams
+  - ov_test_open
+- IFp:
+  - ov_pcm_tell
+  - ov_raw_tell
+- dFp:
+  - ov_time_tell
+- iFpi:
+  - ov_bitrate
+  - ov_halfrate
+  - ov_raw_seek
+  - ov_raw_seek_lap
+  - ov_serialnumber
+- iFpI:
+  - ov_pcm_seek
+  - ov_pcm_seek_lap
+  - ov_pcm_seek_page
+  - ov_pcm_seek_page_lap
+- iFpd:
+  - ov_time_seek
+  - ov_time_seek_lap
+  - ov_time_seek_page
+  - ov_time_seek_page_lap
+- iFpp:
+  - ov_crosslap
+  - ov_fopen
+- IFpi:
+  - ov_pcm_total
+  - ov_raw_total
+- dFpi:
+  - ov_time_total
+- pFpi:
+  - ov_comment
+  - ov_info
+- iFppip:
+  - ov_read_float
+- iFpppi:
+  - ov_open
+  - ov_test
+- iFppiiiip:
+  - ov_read
+- iFpppipppp:
+  - ov_open_callbacks
+- iFppplpppp:
+  - ov_open_callbacks
+wrappedvulkan:
+- vFpp:
+  - vkDestroyDevice
+  - vkDestroyInstance
+  - vkGetPhysicalDeviceMemoryProperties
+  - vkGetPhysicalDeviceProperties
+- pFpp:
+  - vkGetDeviceProcAddr
+  - vkGetInstanceProcAddr
+- vFpUp:
+  - vkDestroyBuffer
+  - vkDestroyBufferView
+  - vkDestroyCommandPool
+  - vkDestroyDescriptorPool
+  - vkDestroyDescriptorSetLayout
+  - vkDestroyDescriptorUpdateTemplate
+  - vkDestroyDescriptorUpdateTemplateKHR
+  - vkDestroyEvent
+  - vkDestroyFence
+  - vkDestroyFramebuffer
+  - vkDestroyImage
+  - vkDestroyImageView
+  - vkDestroyPipeline
+  - vkDestroyPipelineCache
+  - vkDestroyPipelineLayout
+  - vkDestroyQueryPool
+  - vkDestroyRenderPass
+  - vkDestroySampler
+  - vkDestroySamplerYcbcrConversionKHR
+  - vkDestroySemaphore
+  - vkDestroyShaderModule
+  - vkDestroySurfaceKHR
+  - vkDestroySwapchainKHR
+- vFppp:
+  - vkDestroyDebugUtilsMessengerEXT
+- iFpUp:
+  - vkFreeMemory
+- iFppp:
+  - vkGetPhysicalDeviceDisplayPropertiesKHR
+- iFPpp:
+  - vkCreateInstance
+- iFpUup:
+  - vkGetDisplayPlaneCapabilitiesKHR
+- iFpppp:
+  - vkCreateDebugUtilsMessengerEXT
+  - vkCreateWaylandSurfaceKHR
+- iFpPpp:
+  - vkAllocateMemory
+  - vkCreateBuffer
+  - vkCreateBufferView
+  - vkCreateCommandPool
+  - vkCreateDescriptorPool
+  - vkCreateDescriptorSetLayout
+  - vkCreateDescriptorUpdateTemplate
+  - vkCreateDescriptorUpdateTemplateKHR
+  - vkCreateDevice
+  - vkCreateDisplayPlaneSurfaceKHR
+  - vkCreateEvent
+  - vkCreateFence
+  - vkCreateFramebuffer
+  - vkCreateImage
+  - vkCreateImageView
+  - vkCreatePipelineCache
+  - vkCreatePipelineLayout
+  - vkCreateQueryPool
+  - vkCreateRenderPass
+  - vkCreateSampler
+  - vkCreateSamplerYcbcrConversion
+  - vkCreateSamplerYcbcrConversionKHR
+  - vkCreateSemaphore
+  - vkCreateShaderModule
+  - vkCreateSwapchainKHR
+  - vkCreateXcbSurfaceKHR
+  - vkCreateXlibSurfaceKHR
+- vFpupup:
+  - vkUpdateDescriptorSets
+- iFpuppp:
+  - vkCreateSharedSwapchainsKHR
+- iFpUPpp:
+  - vkCreateDisplayModeKHR
+- iFpUuppp:
+  - vkCreateComputePipelines
+  - vkCreateGraphicsPipelines
+- vFpiiiiipp:
+  - vkGetPhysicalDeviceSparseImageFormatProperties
+- vFpiiiupupup:
+  - vkCmdPipelineBarrier
+wrappedwaylandclient:
+wrappedxinerama:
+wrappedxml2:
+- vFp:
+  - xmlSetExternalEntityLoader
+- iFp:
+  - xmlParseDocument
+- pFv:
+  - xmlGetExternalEntityLoader
+- vFpp:
+  - xmlHashFree
+- pFpp:
+  - xmlHashCopy
+- vFppp:
+  - xmlHashScan
+  - xmlHashScanFull
+  - xmlSchemaSetParserStructuredErrors
+  - xmlSchemaSetValidStructuredErrors
+- iFppp:
+  - xmlHashRemoveEntry
+  - xmlXPathRegisterFunc
+- pFppp:
+  - xmlNewCharEncodingHandler
+- vFpppp:
+  - xmlSchemaSetParserErrors
+  - xmlSchemaSetValidErrors
+- iFpppp:
+  - xmlHashRemoveEntry2
+  - xmlHashUpdateEntry
+  - xmlRegisterInputCallbacks
+- pFpppi:
+  - xmlParserInputBufferCreateIO
+- pFpppp:
+  - xmlOutputBufferCreateIO
+- iFppppp:
+  - xmlHashRemoveEntry3
+  - xmlHashUpdateEntry2
+- pFppppi:
+  - xmlSaveToIO
+- vFpppppp:
+  - xmlHashScan3
+  - xmlHashScanFull3
+- iFpppppp:
+  - xmlHashUpdateEntry3
+wrappedxslt:
+- vFp:
+  - xsltSetLoaderFunc
+- iFppp:
+  - xsltRegisterExtModuleFunction
