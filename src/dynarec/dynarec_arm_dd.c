@@ -142,27 +142,21 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FLD double");
                     v1 = x87_do_push(dyn, ninst, x1);
-                    #if 0
-                    // can bus error...
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
-                    VLDR_64(v1, ed, fixedaddress);
-                    #else
 		            parity = getedparity(dyn, ninst, addr, nextop, 3);
 		            if (parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);
                         VLDR_64(v1, ed, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0, 0);
                         LDR_IMM9(x2, ed, fixedaddress);
                         LDR_IMM9(x3, ed, fixedaddress + 4);
                         VMOVtoV_D(v1, x2, x3);
         		    }
-                    #endif
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistt64, -1, 0);
                     x87_do_pop(dyn, ninst, x3);
@@ -172,10 +166,10 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);
                         VSTR_64(v1, ed, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0, 0);
                         VMOVfrV_D(x2, x3, v1);
                         STR_IMM9(x2, ed, fixedaddress);
                         STR_IMM9(x3, ed, fixedaddress+4);
@@ -186,10 +180,10 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);
                         VSTR_64(v1, ed, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-4, 0, 0);
                         VMOVfrV_D(x2, x3, v1);
                         STR_IMM9(x2, ed, fixedaddress);
                         STR_IMM9(x3, ed, fixedaddress+4);
@@ -199,21 +193,21 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4: 
                     INST_NAME("FRSTOR m108byte");
                     fpu_purgecache(dyn, ninst, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_frstor, -1, 0);
                     break;
                 case 6: 
                     INST_NAME("FSAVE m108byte");
                     fpu_purgecache(dyn, ninst, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fsave, -1, 0);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
                     fpu_purgecache(dyn, ninst, x1, x2, x3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0, 0);
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, top));
                     MOVW(x2, offsetof(x86emu_t, sw));
                     ADD_REG_LSL_IMM5(x2, xEmu, x2, 0);

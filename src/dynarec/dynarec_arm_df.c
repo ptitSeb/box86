@@ -143,7 +143,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0);
                     LDRSH_IMM8(x1, wback, fixedaddress);
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, x1);
@@ -152,7 +152,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
@@ -176,7 +176,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     u8 = x87_setround(dyn, ninst, x1, x2, x14);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
@@ -198,7 +198,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FISTP Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0);
                     u8 = x87_setround(dyn, ninst, x1, x2, x14);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
@@ -221,7 +221,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FBLD ST0, tbytes");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_do_push_empty(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbld, -1, 0);
                     break;
@@ -231,7 +231,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     v2 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, 0);
                     if(parity) {
                         LDRD_IMM8(x2, wback, 0);    // x2/x3 is 64bits
                     } else {
@@ -286,7 +286,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FBSTP tbytes, ST0");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbst, -1, 0);
                     x87_do_pop(dyn, ninst, x3);
@@ -294,7 +294,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FISTP i64, ST0");
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(dyn->insts && ninst
                       && dyn->insts[ninst-1].x86.addr
                       && *(uint8_t*)dyn->insts[ninst-1].x86.addr==0xDF
@@ -309,7 +309,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         #if 0
                         v1 = x87_get_st(dyn, ninst, x2, x3, 0);
-                        //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                         v2 = fpu_get_scratch_double(dyn);
                         v0 = fpu_get_scratch_double(dyn);
                         s0 = fpu_get_scratch_single(dyn);
@@ -374,7 +374,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         #else
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         x87_forget(dyn, ninst, x2, x3, 0);
-                        //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                        //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                         if(ed!=x1) {MOV_REG(x1, ed);}
                         CALL(arm_fistp64, -1, 0);
                         #endif
