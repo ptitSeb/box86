@@ -2270,6 +2270,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0x90:
                         INST_NAME("PAUSE");
+                        YIELD(c__);
                         break;
                     case 0xC3:
                         INST_NAME("(REPZ) RET");
