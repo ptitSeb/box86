@@ -878,6 +878,12 @@ void RunGS(x86emu_t *emu)
             GD.dword[0] = sub32(emu, GD.dword[0], ED->dword[0]);
             break;
 
+        case 0x31:              /* XOR Ed,Gd */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            ED->dword[0] = xor32(emu, ED->dword[0], GD.dword[0]);
+            break;
+
         case 0x33:              /* XOR Gd,Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);

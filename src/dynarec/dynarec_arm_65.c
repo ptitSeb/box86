@@ -116,6 +116,17 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_sub32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x31:
+            INST_NAME("XOR GS:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_tlsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            GETGD;
+            GETEDO2(x14);
+            emit_xor32(dyn, ninst, gd, ed, x3, x14);
+            WBACK;
+            break;
+
         case 0x33:
             INST_NAME("XOR Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
