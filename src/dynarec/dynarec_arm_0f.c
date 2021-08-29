@@ -1438,7 +1438,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             AND_IMM8(x2, gd, 0x1f);
             MOV_REG_LSR_REG(x14, ed, x2);
             ANDS_IMM8(x14, x14, 1);
-            BFI(xFlags, x14, F_CF, 1);
+            IFX(X_PEND | X_CF) {
+                BFI(xFlags, x14, F_CF, 1);
+            }
             B_NEXT(cNE); // bit already set, jump to next instruction
             MOVW(x14, 1);
             ORR_REG_LSL_REG(ed, ed, x14, x2);
@@ -1608,7 +1610,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             AND_IMM8(x2, gd, 0x1f);
             MOV_REG_LSR_REG(x14, ed, x2);
             ANDS_IMM8(x14, x14, 1);
-            BFI(xFlags, x14, F_CF, 1);
+            IFX(X_PEND | X_CF) {
+                BFI(xFlags, x14, F_CF, 1);
+            }
             B_MARK3(cEQ); // bit already clear, jump to end of instruction
             MOVW(x14, 1);
             XOR_REG_LSL_REG(ed, ed, x14, x2);
@@ -1683,7 +1687,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     u8 = F8;
                     MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
                     ANDS_IMM8(x14, x14, 1);
-                    BFI(xFlags, x14, F_CF, 1);
+                    IFX(X_PEND | X_CF) {
+                        BFI(xFlags, x14, F_CF, 1);
+                    }
                     B_MARK3(cNE); // bit already set, jump to next instruction
                     MOVW(x14, 1);
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x1f);
@@ -1707,7 +1713,9 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     u8 = F8;
                     MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
                     ANDS_IMM8(x14, x14, 1);
-                    BFI(xFlags, x14, F_CF, 1);
+                    IFX(X_PEND | X_CF) {
+                        BFI(xFlags, x14, F_CF, 1);
+                    }
                     B_MARK3(cEQ); // bit already clear, jump to next instruction
                     //MOVW(x14, 1); // already 0x01
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x1f);
@@ -1729,10 +1737,14 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = x1;
                     }
                     u8 = F8;
-                    MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
-                    ANDS_IMM8(x14, x14, 1);
-                    BFI(xFlags, x14, F_CF, 1);
-                    MOVW_COND(cEQ, x14, 1); // may already 0x01
+                    IFX(X_PEND | X_CF) {
+                        MOV_REG_LSR_IMM5(x14, ed, u8&0x1f);
+                        ANDS_IMM8(x14, x14, 1);
+                        BFI(xFlags, x14, F_CF, 1);
+                        MOVW_COND(cEQ, x14, 1); // may already 0x01
+                    } else {
+                        MOVW(x14, 1);
+                    }
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8&0x1f);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
@@ -1761,8 +1773,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 wback = x3;
             }
             AND_IMM8(x2, gd, 0x1f);
-            MOV_REG_LSR_REG(x14, ed, x2);
-            BFI(xFlags, x14, F_CF, 1);
+            IFX(X_PEND | X_CF) {
+                MOV_REG_LSR_REG(x14, ed, x2);
+                BFI(xFlags, x14, F_CF, 1);
+            }
             MOVW(x14, 1);
             XOR_REG_LSL_REG(ed, ed, x14, x2);
             if(wback) {
@@ -1777,13 +1791,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETED;
             GETGD;
             TSTS_REG_LSL_IMM5(ed, ed, 0);
-            MOVW_COND(cEQ, x1, 1);
+            IFX(X_PEND | X_ZF) {
+                MOVW_COND(cEQ, x1, 1);
+            }
             B_MARK(cEQ);
             RBIT(x1, ed);   // reverse
             CLZ(gd, x1);    // x2 gets leading 0 == BSF
-            MOVW(x1, 0);    //ZF not set
+            IFX(X_PEND | X_ZF) {
+                MOVW(x1, 0);    //ZF not set
+            }
             MARK;
-            BFI(xFlags, x1, F_ZF, 1);
+            IFX(X_PEND | X_ZF) {
+                BFI(xFlags, x1, F_ZF, 1);
+            }
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
@@ -1793,13 +1813,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETED;
             GETGD;
             TSTS_REG_LSL_IMM5(ed, ed, 0);
-            MOVW_COND(cEQ, x1, 1);
+            IFX(X_PEND | X_ZF) {
+                MOVW_COND(cEQ, x1, 1);
+            }
             B_MARK(cEQ);
             CLZ(gd, ed);    // x2 gets leading 0
             RSB_IMM8(gd, gd, 31); // complement
-            MOVW(x1, 0);    //ZF not set
+            IFX(X_PEND | X_ZF) {
+                MOVW(x1, 0);    //ZF not set
+            }
             MARK;
-            BFI(xFlags, x1, F_ZF, 1);
+            IFX(X_PEND | X_ZF) {
+                BFI(xFlags, x1, F_ZF, 1);
+            }
             break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
