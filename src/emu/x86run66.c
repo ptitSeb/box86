@@ -1169,6 +1169,11 @@ void RunFS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
             break;
+        case 0x39:              /* CMP FS:Ed, GD */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            cmp32(emu, ED->dword[0], GD.dword[0]);
+            break;
         case 0x3B:              /* CMP GD, FS:Ed */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
