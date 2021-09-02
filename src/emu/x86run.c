@@ -903,16 +903,16 @@ _trace:
         _0xC4:                      /* LES Gd,Ed */
             nextop = F8;
             GET_ED;
-            emu->segs[_ES] = ED->word[0];
+            emu->segs[_ES] = *(__uint16_t*)(((char*)ED)+4);
             emu->segs_serial[_ES] = 0;
-            GD.dword[0] = *(uint32_t*)(((void*)ED)+2);
+            GD.dword[0] = *(uint32_t*)ED;
             NEXT;
         _0xC5:                      /* LDS Gd,Ed */
             nextop = F8;
             GET_ED;
-            emu->segs[_DS] = ED->word[0];
+            emu->segs[_DS] = *(__uint16_t*)(((char*)ED)+4);
             emu->segs_serial[_DS] = 0;
-            GD.dword[0] = *(uint32_t*)(((void*)ED)+2);
+            GD.dword[0] = *(uint32_t*)ED;
             NEXT;
         _0xC6:                      /* MOV Eb,Ib */
             nextop = F8;
