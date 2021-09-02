@@ -116,6 +116,17 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_sub32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x31:
+            INST_NAME("XOR GS:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_tlsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            GETGD;
+            GETEDO2(x14);
+            emit_xor32(dyn, ninst, gd, ed, x3, x14);
+            WBACK;
+            break;
+
         case 0x33:
             INST_NAME("XOR Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -336,7 +347,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {   // reg <= reg
                 MOV_REG(xEAX+(nextop&7), gd);
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0);
                 STR_REG_LSL_IMM5(gd, ed, x14, 0);
             }
             break;
@@ -349,7 +360,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0);
                 LDR_REG_LSL_IMM5(gd, ed, x14, 0);
             }
             break;
@@ -361,7 +372,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if((nextop&0xC0)==0xC0) {
                 POP1((xEAX+(nextop&7)));
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                 POP1(x2);
                 STR_REG_LSL_IMM5(x2, ed, x14, 0);
             }
@@ -398,7 +409,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 MOV32(ed, i32);
             } else {                    // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0);
                 i32 = F32S;
                 MOV32(x3, i32);
                 STR_REG_LSL_IMM5(x3, ed, x14, 0);
@@ -586,7 +597,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if((nextop&0xC0)==0xC0) {   // reg
                         DEFAULT;
                     } else {                    // mem <= i32
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0);
                         LDR_REG_LSL_IMM5(x3, ed, x14, 0);
                         PUSH1(x3);
                     }

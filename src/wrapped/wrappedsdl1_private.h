@@ -73,14 +73,14 @@ GO(SDL_GetTicks, uFv)
 GO(SDL_GetVideoInfo, pFv)
 GO(SDL_GetVideoSurface, pFv)
 GOM(SDL_GetWMInfo, iFEp)
-GOM(SDL_Has3DNow, iFv)
-GOM(SDL_Has3DNowExt, iFv)
-GOM(SDL_HasAltiVec, iFv)
-GOM(SDL_HasMMX, iFv)
-GOM(SDL_HasMMXExt, iFv)
-GOM(SDL_HasRDTSC, iFv)
-GOM(SDL_HasSSE, iFv)
-GOM(SDL_HasSSE2, iFv)
+GOM(SDL_Has3DNow, iFv)    //%noE
+GOM(SDL_Has3DNowExt, iFv) //%noE
+GOM(SDL_HasAltiVec, iFv)  //%noE
+GOM(SDL_HasMMX, iFv)      //%noE
+GOM(SDL_HasMMXExt, iFv)   //%noE
+GOM(SDL_HasRDTSC, iFv)    //%noE
+GOM(SDL_HasSSE, iFv)      //%noE
+GOM(SDL_HasSSE2, iFv)     //%noE
 GO(SDL_Init, iFu)
 GO(SDL_InitQuickDraw, vFp)
 GO(SDL_InitSubSystem, iFu)

@@ -137,7 +137,7 @@ GOM(vorbis_synthesis_lapout, iFEpp)
 GOM(vorbis_synthesis_pcmout, iFEpp)
 GOM(vorbis_synthesis_read, iFEpi)
 GOM(vorbis_synthesis_restart, iFEp)
-GOM(vorbis_synthesis_trackonly, iFpp)
+GOM(vorbis_synthesis_trackonly, iFEpp)
 #endif
 GO(vorbis_version_string, pFv)
 #ifdef NOALIGN

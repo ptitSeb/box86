@@ -407,7 +407,7 @@ GO(xmlGetUTF8Char, iFpp)
 //GO(__xmlGlobalInitMutexLock, 
 //GO(__xmlGlobalInitMutexUnlock, 
 GO(xmlHandleEntity, vFpp)   // obsolete, might be removed
-//GO(xmlHasFeature, 
+GO(xmlHasFeature, iFi)
 GO(xmlHasNsProp, pFppp)
 GO(xmlHasProp, pFpp)
 GO(xmlHashAddEntry, iFppp)
@@ -416,7 +416,6 @@ GO(xmlHashAddEntry3, iFppppp)
 GOM(xmlHashCopy, pFEpp)
 GO(xmlHashCreate, pFi)
 GO(xmlHashCreateDict, pFip)
-GO(xmlHasFeature, iFi)
 GOM(xmlHashFree, vFEpp)
 GO(xmlHashLookup, pFpp)
 GO(xmlHashLookup2, pFppp)
@@ -435,8 +434,6 @@ GO(xmlHashSize, iFp)
 GOM(xmlHashUpdateEntry, iFEpppp)
 GOM(xmlHashUpdateEntry2, iFEppppp)
 GOM(xmlHashUpdateEntry3, iFEpppppp)
-GO(xmlHasNsProp, pFppp)
-GO(xmlHasProp, pFpp)
 //GO(__xmlIndentTreeOutput, 
 GO(xmlInitCharEncodingHandlers, vFv)
 GO(xmlInitializeDict, iFv)

@@ -2596,10 +2596,10 @@ GO(OBJ_txt2obj, pFpi)
 //GO(OCSP_SINGLERESP_get_ext_count, 
 //GO(OCSP_SINGLERESP_new, 
 //GO(OCSP_url_svcloc_new, 
-GOM(OPENSSL_add_all_algorithms_conf, vFv) // No emu parameter
-GOM(OPENSSL_add_all_algorithms_noconf, vFv) // No emu parameter
-GOM(OpenSSL_add_all_ciphers, vFv) // No emu parameter
-GOM(OpenSSL_add_all_digests, vFv) // No emu parameter
+GOM(OPENSSL_add_all_algorithms_conf, vFv)   //%noE
+GOM(OPENSSL_add_all_algorithms_noconf, vFv) //%noE
+GOM(OpenSSL_add_all_ciphers, vFv)           //%noE
+GOM(OpenSSL_add_all_digests, vFv)           //%noE
 //GO(OPENSSL_asc2uni, 
 //GO(OPENSSL_atomic_add, 
 //GO(OPENSSL_cleanse, 

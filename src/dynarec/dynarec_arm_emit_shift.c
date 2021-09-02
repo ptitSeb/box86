@@ -477,8 +477,10 @@ void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
         }
         return;
     }
-    BFI(s1, s1, 24, 8);  // duplicate the value for rotate left
-    MOV_REG_ROR_IMM5(s1, s1, 32-(c&7));
+    if(c&7) {
+        BFI(s1, s1, 24, 8);  // duplicate the value for rotate left
+        MOV_REG_ROR_IMM5(s1, s1, 32-(c&7));
+    }
     //AND_IMM8(s1, s1, 0xff);
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
@@ -510,8 +512,10 @@ void emit_ror8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
         }
         return;
     }
-    BFI(s1, s1, 8, 8);  // duplicate the value for Rotate right
-    MOV_REG_ROR_IMM5(s1, s1, c&7);
+    if(c&7) {
+        BFI(s1, s1, 8, 8);  // duplicate the value for Rotate right
+        MOV_REG_ROR_IMM5(s1, s1, c&7);
+    }
     IFX(X_PEND) {
         AND_IMM8(s1, s1, 0xff);
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));

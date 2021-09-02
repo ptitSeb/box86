@@ -25,13 +25,6 @@ const char* cryptoName = "libcrypto.so.1.0.0";
 
 static library_t* my_lib = NULL;
 
-typedef void        (*vFv_t)        (void);
-
-#define ADDED_FUNCTIONS() \
-    GO(OPENSSL_add_all_algorithms_conf, vFv_t)      \
-    GO(OPENSSL_add_all_algorithms_noconf, vFv_t)    \
-    GO(OpenSSL_add_all_ciphers, vFv_t)              \
-    GO(OpenSSL_add_all_digests, vFv_t)
 #include "generated/wrappedcryptotypes.h"
 
 typedef struct crypto_my_s {

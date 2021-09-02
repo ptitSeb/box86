@@ -402,10 +402,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
                         LDR_IMM9(x2, ed, fixedaddress);
                         VMOVtoV(s0, x2);
                     }
@@ -418,10 +418,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VCVT_F32_F64(s0, v1);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VSTR_32(s0, ed, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
                         VMOVfrV(x2, s0);
                         STR_IMM9(x2, ed, fixedaddress);
                     }
@@ -433,10 +433,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VCVT_F32_F64(s0, v1);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VSTR_32(s0, ed, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
                         VMOVfrV(x2, s0);
                         STR_IMM9(x2, ed, fixedaddress);
                     }
@@ -446,7 +446,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FLDENV Ed");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
                     }
@@ -464,7 +464,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FNSTENV Ed");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, x1, x2, x3); // maybe only x87, not SSE?
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
                     }
@@ -473,7 +473,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("FNSTCW Ew");
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0);
                     ed = x1;
                     wb1 = 1;
                     LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));

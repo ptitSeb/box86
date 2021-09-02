@@ -68,7 +68,9 @@ typedef struct library_s {
     kh_symbolmap_t      *symbolmap;
     kh_symbolmap_t      *wsymbolmap;
     kh_symbolmap_t      *mysymbolmap;
+    kh_symbolmap_t      *wmysymbolmap;
     kh_symbolmap_t      *stsymbolmap;
+    kh_symbolmap_t      *wstsymbolmap;
     kh_symbol2map_t     *symbol2map;
     kh_datamap_t        *datamap;
     kh_datamap_t        *wdatamap;

@@ -158,7 +158,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -174,7 +174,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -190,7 +190,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -207,7 +207,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -225,7 +225,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -241,7 +241,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -257,7 +257,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -273,7 +273,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;

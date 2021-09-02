@@ -2,14 +2,14 @@
 #error meh!
 #endif
 
-//%S X my_xcb_cookie_t
+//%S x my_xcb_cookie_t u
 
 //GO(xcb_dri2_attach_format_end, 
 //GO(xcb_dri2_attach_format_next, 
-GOS(xcb_dri2_authenticate, pFEppuu) //%X
+GOS(xcb_dri2_authenticate, xFEpuu)
 GO(xcb_dri2_authenticate_reply, pFpup)
 //GO(xcb_dri2_authenticate_unchecked, 
-GOS(xcb_dri2_connect, pFEppuu) //%X
+GOS(xcb_dri2_connect, xFEpuu)
 //GO(xcb_dri2_connect_alignment_pad, 
 //GO(xcb_dri2_connect_alignment_pad_end, 
 //GO(xcb_dri2_connect_alignment_pad_length, 
@@ -52,7 +52,7 @@ GO(xcb_dri2_connect_reply, pFpup)
 //GO(xcb_dri2_get_param_reply, 
 //GO(xcb_dri2_get_param_unchecked, 
 DATA(xcb_dri2_id, 8)
-GOS(xcb_dri2_query_version, pFEppuu) //%X
+GOS(xcb_dri2_query_version, xFEpuu)
 GO(xcb_dri2_query_version_reply, pFpup)
 //GO(xcb_dri2_query_version_unchecked, 
 //GO(xcb_dri2_swap_buffers, 

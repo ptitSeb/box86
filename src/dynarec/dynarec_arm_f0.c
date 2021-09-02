@@ -49,7 +49,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_add8(dyn, ninst, x1, x2, x14, x3, 0);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREXB(x1, wback);
                 emit_add8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
@@ -67,7 +67,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_add32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_add32(dyn, ninst, x1, gd, x3, x14);
@@ -89,7 +89,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_or8(dyn, ninst, x1, x2, x14, x3);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 GETGB(x2);
                 LDREXB(x1, wback);
@@ -108,7 +108,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_or32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_or32(dyn, ninst, x1, gd, x3, x14);
@@ -131,7 +131,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_adc8(dyn, ninst, x1, x2, x14, x3, 0);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREXB(x1, wback);
                 emit_adc8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
@@ -150,7 +150,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_adc32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_adc32(dyn, ninst, x1, gd, x3, x14);
@@ -173,7 +173,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_sbb8(dyn, ninst, x1, x2, x14, x3, 0);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREXB(x1, wback);
                 emit_sbb8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
@@ -192,7 +192,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_sbb32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_sbb32(dyn, ninst, x1, gd, x3, x14);
@@ -214,7 +214,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_and8(dyn, ninst, x1, x2, x14, x3);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 GETGB(x2);
                 LDREXB(x1, wback);
@@ -233,7 +233,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_and32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_and32(dyn, ninst, x1, gd, x3, x14);
@@ -255,7 +255,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_sub8(dyn, ninst, x1, x2, x14, x3, 0);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREXB(x1, wback);
                 emit_sub8(dyn, ninst, x1, x2, x14, x3, (wback==x3)?1:0);
@@ -273,7 +273,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_sub32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_sub32(dyn, ninst, x1, gd, x3, x14);
@@ -295,7 +295,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 emit_xor8(dyn, ninst, x1, x2, x14, x3);
                 BFI(wback, ed, wb2*8, 8);
             } else {                   
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 GETGB(x2);
                 LDREXB(x1, wback);
@@ -314,7 +314,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 ed = xEAX+(nextop&7);
                 emit_xor32(dyn, ninst, ed, gd, x3, x14);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 LDREX(x1, wback);
                 emit_xor32(dyn, ninst, x1, gd, x3, x14);
@@ -340,26 +340,34 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_add32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                        TSTS_IMM8(wback, 0x3);
-                        B_MARK(cNE);
-                        MARKLOCK;
-                        LDREX(x1, wback);
-                        emit_add32c(dyn, ninst, x1, i32, x3, x14);
-                        STREX(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARKLOCK(cNE);
-                        B_NEXT(c__);
-                        MARK;   // unaligned! also, not enough 
-                        LDR_IMM9(x1, wback, 0);
-                        LDREXB(x14, wback);
-                        BFI(x1, x14, 0, 8); // re-inject
-                        emit_add32c(dyn, ninst, x1, i32, x3, x14);
-                        STREXB(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARK(cNE);
-                        STR_IMM9(x1, wback, 0);    // put the whole value
+                        if(!fixedaddress) {
+                            TSTS_IMM8(wback, 0x3);
+                            B_MARK(cNE);
+                        }
+                        if(!fixedaddress || (fixedaddress && !(fixedaddress&3))) {
+                            MARKLOCK;
+                            LDREX(x1, wback);
+                            emit_add32c(dyn, ninst, x1, i32, x3, x14);
+                            STREX(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARKLOCK(cNE);
+                        }
+                        if(!fixedaddress) {
+                            B_NEXT(c__);
+                        }
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            MARK;   // unaligned! also, not enough 
+                            LDR_IMM9(x1, wback, 0);
+                            LDREXB(x14, wback);
+                            BFI(x1, x14, 0, 8); // re-inject
+                            emit_add32c(dyn, ninst, x1, i32, x3, x14);
+                            STREXB(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARK(cNE);
+                            STR_IMM9(x1, wback, 0);    // put the whole value
+                        }
                     }
                     break;
                 case 1: //OR
@@ -370,7 +378,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_or32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MARKLOCK;
                         LDREX(x1, wback);
@@ -389,7 +397,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_adc32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MARKLOCK;
                         LDREX(x1, wback);
@@ -408,7 +416,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_sbb32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MARKLOCK;
                         LDREX(x1, wback);
@@ -426,7 +434,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_and32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MARKLOCK;
                         LDREX(x1, wback);
@@ -444,26 +452,34 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_sub32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
-                        TSTS_IMM8(wback, 0x3);
-                        B_MARK(cNE);
-                        MARKLOCK;
-                        LDREX(x1, wback);
-                        emit_sub32c(dyn, ninst, x1, i32, x3, x14);
-                        STREX(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARKLOCK(cNE);
-                        B_NEXT(c__);
-                        MARK;   // unaligned! also, not enough 
-                        LDR_IMM9(x1, wback, 0);
-                        LDREXB(x14, wback);
-                        BFI(x1, x14, 0, 8); // re-inject
-                        emit_sub32c(dyn, ninst, x1, i32, x3, x14);
-                        STREXB(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARK(cNE);
-                        STR_IMM9(x1, wback, 0);    // put the whole value
+                        if(!fixedaddress) {
+                            TSTS_IMM8(wback, 0x3);
+                            B_MARK(cNE);
+                        }
+                        if(!fixedaddress || (fixedaddress && !(fixedaddress&3))) {
+                            MARKLOCK;
+                            LDREX(x1, wback);
+                            emit_sub32c(dyn, ninst, x1, i32, x3, x14);
+                            STREX(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARKLOCK(cNE);
+                        }
+                        if(!fixedaddress) {
+                            B_NEXT(c__);
+                        }
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            MARK;   // unaligned! also, not enough 
+                            LDR_IMM9(x1, wback, 0);
+                            LDREXB(x14, wback);
+                            BFI(x1, x14, 0, 8); // re-inject
+                            emit_sub32c(dyn, ninst, x1, i32, x3, x14);
+                            STREXB(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARK(cNE);
+                            STR_IMM9(x1, wback, 0);    // put the whole value
+                        }
                     }
                     break;
                 case 6: //XOR
@@ -474,7 +490,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_xor32c(dyn, ninst, ed, i32, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0);
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         MARKLOCK;
                         LDREX(x1, wback);
@@ -544,7 +560,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = x2;
                         wb1 = 0;
                     } else {                   
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                         MARKLOCK;
                         LDREXB(x2, wback);
                         ed = x2;
@@ -583,25 +599,35 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
                         MARKLOCK;
-                        TSTS_IMM8(wback, 3);    // can be unaligned it seems
-                        LDREX_COND(cEQ, x1, wback);
-                        LDR_IMM9_COND(cNE, x1, wback, 0);
-                        LDREXB_COND(cNE, x3, wback); // dummy read, to arm the write...
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            TSTS_IMM8(wback, 3);    // can be unaligned it seems
+                            LDREX_COND(cEQ, x1, wback);
+                            LDR_IMM9_COND(cNE, x1, wback, 0);
+                            LDREXB_COND(cNE, x3, wback); // dummy read, to arm the write...
+                        } else {
+                            LDREX(x1, wback);
+                        }
                         ed = x1;
                     }
                     CMPS_REG_LSL_IMM5(xEAX, ed, 0);
                     B_MARK(cNE);
                     // EAX == Ed
                     if(wback) {
-                        TSTS_IMM8(wback, 3);
-                        STREX_COND(cEQ, x14, gd, wback);
-                        STREXB_COND(cNE, x14, gd, wback);
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            TSTS_IMM8(wback, 3);
+                            STREX_COND(cEQ, x14, gd, wback);
+                            STREXB_COND(cNE, x14, gd, wback);
+                        } else {
+                            STREX(x14, gd, wback);
+                        }
                         CMPS_IMM8(x14, 0);
                         B_MARKLOCK(cNE);
-                        TSTS_IMM8(wback, 3);    // anoying, all those test
-                        STR_IMM9_COND(cNE, gd, wback, 0);
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            TSTS_IMM8(wback, 3);    // anoying, all those test
+                            STR_IMM9_COND(cNE, gd, wback, 0);
+                        }
                         emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);
                     } else {
                         emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);
@@ -625,7 +651,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                         MOV_REG_ASR_IMM5(x1, gd, 5);    // r1 = (gd>>5);
                         ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                         wback = x3;
@@ -659,7 +685,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             if((nextop&0xC0)==0xC0) {
                                 ed = xEAX+(nextop&7);
                             } else {
-                                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095-32, 0);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095-32, 0, 0);
                                 LDR_IMM9(x1, ed, fixedaddress);
                                 ed = x1;
                             }
@@ -682,7 +708,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                                 MOVW(gd, u8&0x1f);
                                 wback = 0;
                             } else {
-                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                                 u8 = F8;
                                 ed = x1;
                                 MOVW(gd, u8&0x1f);
@@ -713,7 +739,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                                 MOVW(gd, u8&0x1f);
                                 wback = 0;
                             } else {
-                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                                 u8 = F8;
                                 ed = x1;
                                 MOVW(gd, u8&0x1f);
@@ -747,7 +773,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0);
                         MOV_REG_ASR_IMM5(x1, gd, 5);    // r1 = (gd>>5);
                         ADD_REG_LSL_IMM5(x3, wback, x1, 2); //(&ed)+=r1*4;
                         MARKLOCK;
@@ -780,7 +806,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wb1 = 0;
                         ed = x2;
                     } else { 
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0); 
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0); 
                         MARKLOCK;
                         LDREXB(x2, wback); 
                         wb1 = 1;
@@ -810,26 +836,36 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         }
                         emit_add32(dyn, ninst, ed, gd, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
-                        TSTS_IMM8(wback, 3);
-                        B_MARK(cNE);    // unaligned
-                        MARKLOCK;
-                        LDREX(x1, wback);
-                        ADD_REG_LSL_IMM5(x14, x1, gd, 0);
-                        STREX(x3, x14, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARKLOCK(cNE);
-                        B_MARK2(c__);
-                        MARK;
-                        LDR_IMM9(x1, wback, 0);
-                        LDREXB(x14, wback);
-                        BFI(x1, x14, 0, 8);
-                        ADD_REG_LSL_IMM5(x14, x1, gd, 0);
-                        STREXB(x3, x14, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARK(cNE);
-                        STR_IMM9(x14, wback, 0);
-                        MARK2;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
+                        if(!fixedaddress) {
+                            TSTS_IMM8(wback, 3);
+                            B_MARK(cNE);    // unaligned
+                        }
+                        if(!fixedaddress || (fixedaddress && !(fixedaddress&3))) {
+                            MARKLOCK;
+                            LDREX(x1, wback);
+                            ADD_REG_LSL_IMM5(x14, x1, gd, 0);
+                            STREX(x3, x14, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARKLOCK(cNE);
+                        }
+                        if(!fixedaddress) {
+                            B_MARK2(c__);
+                        }
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            MARK;
+                            LDR_IMM9(x1, wback, 0);
+                            LDREXB(x14, wback);
+                            BFI(x1, x14, 0, 8);
+                            ADD_REG_LSL_IMM5(x14, x1, gd, 0);
+                            STREXB(x3, x14, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARK(cNE);
+                            STR_IMM9(x14, wback, 0);
+                        }
+                        if(!fixedaddress) {
+                            MARK2;
+                        }
                         IFX(X_ALL|X_PEND) {
                             MOV_REG(x2, x1);
                             emit_add32(dyn, ninst, x2, gd, x3, x14);
@@ -842,25 +878,35 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("LOCK CMPXCHG8B Gq, Eq");
                     SETFLAGS(X_ZF, SF_SUBSET);
                     nextop = F8;
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, 1);
                     MARKLOCK;
-                    TSTS_IMM8(wback, 7);
-                    LDREXD_COND(cEQ, x2, wback);
-                    LDREX_COND(cNE, x2, wback);
-                    LDR_IMM9_COND(cNE, x3, wback, 4);
+                    if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
+                        TSTS_IMM8(wback, 7);
+                        LDREXD_COND(cEQ, x2, wback);
+                        LDREX_COND(cNE, x2, wback);
+                        LDR_IMM9_COND(cNE, x3, wback, 4);
+                    } else {
+                        LDREXD(x2, wback);
+                    }
                     CMPS_REG_LSL_IMM5(xEAX, x2, 0);
                     B_MARK(cNE);    // EAX != Ed[0]
                     CMPS_REG_LSL_IMM5(xEDX, x3, 0);
                     B_MARK(cNE);    // EDX != Ed[1]
                     MOV_REG(x2, xEBX);
                     MOV_REG(x3, xECX);
-                    TSTS_IMM8(wback, 7);
-                    STREXD_COND(cEQ, x14, x2, wback);
-                    STREX_COND(cNE, x14, x2, wback);
+                    if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
+                        TSTS_IMM8(wback, 7);
+                        STREXD_COND(cEQ, x14, x2, wback);
+                        STREX_COND(cNE, x14, x2, wback);
+                    } else {
+                        STREXD(x14, x2, wback);
+                    }
                     CMPS_IMM8(x14, 0);
                     B_MARKLOCK(cNE);
-                    TSTS_IMM8(wback, 7);
-                    STR_IMM9_COND(cNE, x3, wback, 4);
+                    if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
+                        TSTS_IMM8(wback, 7);
+                        STR_IMM9_COND(cNE, x3, wback, 4);
+                    }
                     MOVW(x1, 1);
                     B_MARK3(c__);
                     MARK;
@@ -888,25 +934,33 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_inc32(dyn, ninst, ed, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
-                        TSTS_IMM8(wback, 3);
-                        B_MARK(cNE);    // unaligned
-                        MARKLOCK;
-                        LDREX(x1, wback);
-                        emit_inc32(dyn, ninst, x1, x3, x14);
-                        STREX(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARKLOCK(cNE);
-                        B_NEXT(c__);
-                        MARK;
-                        LDR_IMM9(x1, wback, 0);
-                        LDREXB(x3, wback);
-                        BFI(x1, x3, 0, 8);
-                        emit_inc32(dyn, ninst, x1, x3, x14);
-                        STREXB(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARK(cNE);
-                        STR_IMM9(x1, wback, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
+                        if(!fixedaddress) {
+                            TSTS_IMM8(wback, 3);
+                            B_MARK(cNE);    // unaligned
+                        }
+                        if(!fixedaddress || (fixedaddress && !(fixedaddress&3))) {
+                            MARKLOCK;
+                            LDREX(x1, wback);
+                            emit_inc32(dyn, ninst, x1, x3, x14);
+                            STREX(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARKLOCK(cNE);
+                        }
+                        if(!fixedaddress) {
+                            B_NEXT(c__);
+                        }
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            MARK;
+                            LDR_IMM9(x1, wback, 0);
+                            LDREXB(x3, wback);
+                            BFI(x1, x3, 0, 8);
+                            emit_inc32(dyn, ninst, x1, x3, x14);
+                            STREXB(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARK(cNE);
+                            STR_IMM9(x1, wback, 0);
+                        }
                     }
                     break;
                 case 1: //DEC Ed
@@ -916,25 +970,33 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         emit_dec32(dyn, ninst, ed, x3, x14);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0);
-                        TSTS_IMM8(wback, 3);
-                        B_MARK(cNE);    // unaligned
-                        MARKLOCK;
-                        LDREX(x1, wback);
-                        emit_dec32(dyn, ninst, x1, x3, x14);
-                        STREX(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARKLOCK(cNE);
-                        B_NEXT(c__);
-                        MARK;
-                        LDR_IMM9(x1, wback, 0);
-                        LDREXB(x3, wback);
-                        BFI(x1, x3, 0, 8);
-                        emit_dec32(dyn, ninst, x1, x3, x14);
-                        STREXB(x3, x1, wback);
-                        CMPS_IMM8(x3, 0);
-                        B_MARK(cNE);
-                        STR_IMM9(x1, wback, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
+                        if(!fixedaddress) {
+                            TSTS_IMM8(wback, 3);
+                            B_MARK(cNE);    // unaligned
+                        }
+                        if(!fixedaddress || (fixedaddress && !(fixedaddress&3))) {
+                            MARKLOCK;
+                            LDREX(x1, wback);
+                            emit_dec32(dyn, ninst, x1, x3, x14);
+                            STREX(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARKLOCK(cNE);
+                        }
+                        if(!fixedaddress) {
+                            B_NEXT(c__);
+                        }
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
+                            MARK;
+                            LDR_IMM9(x1, wback, 0);
+                            LDREXB(x3, wback);
+                            BFI(x1, x3, 0, 8);
+                            emit_dec32(dyn, ninst, x1, x3, x14);
+                            STREXB(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARK(cNE);
+                            STR_IMM9(x1, wback, 0);
+                        }
                     }
                     break;
                 default:

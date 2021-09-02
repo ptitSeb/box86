@@ -2,8 +2,8 @@
 #error Meh!
 #endif
 
-//%S J SDL_JoystickGUID
-//%S g SDL_GameControllerButtonBind
+//%S J SDL_JoystickGUID uuuu
+//%S g SDL_GameControllerButtonBind uii
 
 // _fini
 // _init
@@ -132,8 +132,8 @@ GO(SDL_GameControllerFromInstanceID, pFi)
 GO(SDL_GameControllerGetAttached, iFp)
 GO(SDL_GameControllerGetAxis, iFpi)
 GO(SDL_GameControllerGetAxisFromString, uFp)
-GOS(SDL_GameControllerGetBindForAxis, pFEppi)   //%g
-GOS(SDL_GameControllerGetBindForButton, pFEppi) //%g
+GOS(SDL_GameControllerGetBindForAxis, gFEpi)
+GOS(SDL_GameControllerGetBindForButton, gFEpi)
 GO(SDL_GameControllerGetButton, uFpi)
 GO(SDL_GameControllerGetButtonFromString, uFp)
 GO(SDL_GameControllerGetJoystick, pFp)
@@ -149,7 +149,7 @@ GO(SDL_GameControllerHasLED, iFp)
 GO(SDL_GameControllerHasSensor, iFpi)
 GO(SDL_GameControllerMapping, pFp)
 GO(SDL_GameControllerMappingForDeviceIndex, pFi)
-GOM(SDL_GameControllerMappingForGUID, pFEV)     //%{pFJ}
+GO(SDL_GameControllerMappingForGUID, pFJ)
 GO(SDL_GameControllerMappingForIndex, pFi)
 GO(SDL_GameControllerName, pFp)
 GO(SDL_GameControllerNameForIndex, pFi)
@@ -195,7 +195,7 @@ GO(SDL_GetGlobalMouseState, uFpp)
 GO(SDL_GetGrabbedWindow, pFv)
 GO(SDL_GetHint, pFp)
 GO(SDL_GetHintBoolean, iFpi)
-GOM(SDL_GetJoystickGUIDInfo, vFEuuuuppp)   //%{vFJppp}
+GOM(SDL_GetJoystickGUIDInfo, vFEJppp)
 GO(SDL_GetKeyboardFocus, pFv)
 GO(SDL_GetKeyboardState, pFp)
 GO(SDL_GetKeyFromName, pFp)
@@ -319,25 +319,25 @@ GO(SDL_HapticStopAll, iFp)
 GO(SDL_HapticStopEffect, iFpi)
 GO(SDL_HapticUnpause, iFp)
 GO(SDL_HapticUpdateEffect, iFpip)
-GOM(SDL_Has3DNow, iFv)
-GOM(SDL_HasAltiVec, iFv)
-GOM(SDL_HasAVX, iFv)
-GOM(SDL_HasAVX2, iFv)
-GOM(SDL_HasAVX512F, iFv)
+GOM(SDL_Has3DNow, iFv)                //%%,noE
+GOM(SDL_HasAltiVec, iFv)              //%%,noE
+GOM(SDL_HasAVX, iFv)                  //%%,noE
+GOM(SDL_HasAVX2, iFv)                 //%%,noE
+GOM(SDL_HasAVX512F, iFv)              //%%,noE
 GO(SDL_HasClipboardText, iFv)
 GO(SDL_HasColorKey, iFv)
 GO(SDL_HasEvent, iFv)
 GO(SDL_HasEvents, iFv)
 GO(SDL_HasIntersection, iFpp)
-GOM(SDL_HasMMX, iFv)
-GOM(SDL_HasNEON, iFv)
-GOM(SDL_HasRDTSC, iFv)
+GOM(SDL_HasMMX, iFv)                  //%%,noE
+GOM(SDL_HasNEON, iFv)                 //%%,noE
+GOM(SDL_HasRDTSC, iFv)                //%%,noE
 GO(SDL_HasScreenKeyboardSupport, iFv)
-GOM(SDL_HasSSE, iFv)
-GOM(SDL_HasSSE2, iFv)
-GOM(SDL_HasSSE3, iFv)
-GOM(SDL_HasSSE41, iFv)
-GOM(SDL_HasSSE42, iFv)
+GOM(SDL_HasSSE, iFv)                  //%%,noE
+GOM(SDL_HasSSE2, iFv)                 //%%,noE
+GOM(SDL_HasSSE3, iFv)                 //%%,noE
+GOM(SDL_HasSSE41, iFv)                //%%,noE
+GOM(SDL_HasSSE42, iFv)                //%%,noE
 GO(SDL_HideWindow, vFp)
 GO(SDL_iconv, LFppppp)
 GO(SDL_iconv_close, iFp)
@@ -365,15 +365,15 @@ GO(SDL_JoystickGetAxis, iFpi)
 GO(SDL_JoystickGetAxisInitialState, iFpip)
 GO(SDL_JoystickGetBall, iFpipp)
 GO(SDL_JoystickGetButton, CFpi)
-GOS(SDL_JoystickGetDeviceGUID, pFEpi)     //%J
+GOS(SDL_JoystickGetDeviceGUID, JFEi)
 GO(SDL_JoystickGetDeviceInstanceID, iFi)
 GO(SDL_JoystickGetDevicePlayerIndex, iFi)
 GO(SDL_JoystickGetDeviceProduct, WFi)
 GO(SDL_JoystickGetDeviceProductVersion, WFi)
 GO(SDL_JoystickGetDeviceType, iFi)
 GO(SDL_JoystickGetDeviceVendor, WFi)
-GOS(SDL_JoystickGetGUID, pFEpp)           //%J
-GOS(SDL_JoystickGetGUIDFromString, pFEpp) //%J
+GOS(SDL_JoystickGetGUID, JFEp)
+GOS(SDL_JoystickGetGUIDFromString, JFEp)
 GO(SDL_JoystickGetGUIDString, vFUUpi)   //uint8_t data[16] passed as 1st argument...
 GO(SDL_JoystickGetHat, CFpi)
 GO(SDL_JoystickGetPlayerIndex, iFp)
@@ -549,7 +549,7 @@ GO(SDL_SetClipRect, iFpp)
 GO(SDL_SetColorKey, iFpiu)
 GO(SDL_SetCursor, vFp)
 GO(SDL_setenv, iFppi)
-GO(SDL_SetError, iFppppp)    // it use ..., so putarbitrary  4 args
+GO(SDL_SetError, iFppppp)    // it use ..., so put arbitrary 4 args
 GOM(SDL_SetEventFilter, vFEpp)
 GO(SDL_SetHint, iFpp)
 GO(SDL_SetHintWithPriority, iFppi)
@@ -598,7 +598,7 @@ GO(SDL_ShowSimpleMessageBox, iFuppp)
 GO(SDL_ShowWindow, vFp)
 GO(SDL_sin, dFd)
 GO(SDL_sinf, fFf)
-GOM(SDL_snprintf, iFEpupVV)
+GOM(SDL_snprintf, iFEpupV)
 GO(SDL_SoftStretch, iFpppp)
 GO(SDL_sqrt, dFd)
 GO(SDL_sqrtf, fFf)
@@ -654,7 +654,7 @@ GO(SDL_utf8strlcpy, uFppu)
 // SDL_utf8strlen
 GO(SDL_VideoInit, iFp)
 GO(SDL_VideoQuit, vFv)
-GOM(SDL_vsnprintf, iFEpupVV)
+GOM(SDL_vsnprintf, iFEpupV)
 // SDL_vsscanf
 GO(SDL_Vulkan_CreateSurface, iFppp)
 GO(SDL_Vulkan_GetDrawableSize, vFppp)
@@ -697,5 +697,5 @@ GOM(SDL_IsJoystickNintendoSwitchPro, iFEWW)
 GOM(SDL_IsJoystickSteamController, iFEWW)
 GOM(SDL_IsJoystickXbox360, iFEWW)
 GOM(SDL_IsJoystickXboxOne, iFEWW)
-GOM(SDL_IsJoystickXInput, iFEV) //%{iFJ}
-GOM(SDL_IsJoystickHIDAPI, iFEV) //%{iFJ}
+GOM(SDL_IsJoystickXInput, iFEJ)
+GOM(SDL_IsJoystickHIDAPI, iFEJ)

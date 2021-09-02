@@ -81,12 +81,13 @@ GO_cFc(catanh)
 GO_cFcc(cpow)
 
 #undef GO_cFc
+#undef GO_cFcc
 
 #define FINITE(N, T, R, P, ...)     \
 EXPORT R my___##N##_finite P        \
 {                                   \
     static int check = 0;           \
-    T f = NULL;                     \
+    static T f = NULL;              \
     if(!check) {                    \
         f = (T)dlsym(my_lib->priv.w.lib, "__" #N "_finite");  \
         ++check;                    \
@@ -94,7 +95,7 @@ EXPORT R my___##N##_finite P        \
     if(f)                           \
         return f(__VA_ARGS__);      \
     else                            \
-        return N (__VA_ARGS__);     \
+        return N(__VA_ARGS__);      \
 }
 
 #define F1F(N) FINITE(N, fFf_t, float, (float a), a)
@@ -145,4 +146,3 @@ F1D(log)
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

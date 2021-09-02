@@ -15,25 +15,10 @@ GO(FT_Bitmap_Done, iFpp)
 GO(FT_Bitmap_Embolden, iFppll)
 GO(FT_Bitmap_Init, vFp)
 GO(FT_Bitmap_New, vFp)
-//GO(FTC_CMapCache_Lookup, 
-//GO(FTC_CMapCache_New, 
 //GO(FT_CeilFix, 
-//GO(FTC_ImageCache_Lookup, 
-//GO(FTC_ImageCache_LookupScaler, 
-//GO(FTC_ImageCache_New, 
 //GO(FT_ClassicKern_Free, 
 //GO(FT_ClassicKern_Validate, 
-//GO(FTC_Manager_Done, 
-//GO(FTC_Manager_LookupFace, 
-//GO(FTC_Manager_LookupSize, 
-//GO(FTC_Manager_New, 
-//GO(FTC_Manager_RemoveFaceID, 
-//GO(FTC_Manager_Reset, 
-//GO(FTC_Node_Unref, 
 GO(FT_Cos, lFl)
-//GO(FTC_SBitCache_Lookup, 
-//GO(FTC_SBitCache_LookupScaler, 
-//GO(FTC_SBitCache_New, 
 //GO(FT_DivFix, 
 GO(FT_Done_Face, iFp)
 GO(FT_Done_FreeType, iFp)
@@ -130,7 +115,7 @@ GO(FT_OpenType_Free, vFpp)
 GO(FT_OpenType_Validate, iFpuppppp)
 GO(FT_Outline_Check, iFp)
 GO(FT_Outline_Copy, iFpp)
-GO(FT_Outline_Decompose, iFppp)
+GOM(FT_Outline_Decompose, iFEppp)
 GO(FT_Outline_Done, iFpp)
 //GO(FT_Outline_Done_Internal, 
 GO(FT_Outline_Embolden, iFpl)
