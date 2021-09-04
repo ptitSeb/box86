@@ -1406,8 +1406,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     u8&=0x0f;
                     if(u8) {
                         MOV_REG_LSR_IMM5(x14, ed, u8);
+                        ANDS_IMM8(x14, x14, 1);
+                    } else {
+                        ANDS_IMM8(x14, ed, 1);
                     }
-                    ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
                     B_MARK3(cNE); // bit already set, jump to next instruction
                     MOVW(x14, 1);
@@ -1433,8 +1435,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     u8&=0x0f;
                     if(u8) {
                         MOV_REG_LSR_IMM5(x14, ed, u8);
+                        ANDS_IMM8(x14, x14, 1);
+                    } else {
+                        ANDS_IMM8(x14, ed, 1);
                     }
-                    ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
                     B_MARK3(cEQ); // bit already clear, jump to next instruction
                     //MOVW(x14, 1); // already 0x01
@@ -1460,8 +1464,10 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     u8&=0x0f;
                     if(u8) {
                         MOV_REG_LSR_IMM5(x14, ed, u8);
+                        ANDS_IMM8(x14, x14, 1);
+                    } else {
+                        ANDS_IMM8(x14, ed, 1);
                     }
-                    ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
                     MOVW_COND(cEQ, x14, 1); // may already 0x01
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8);

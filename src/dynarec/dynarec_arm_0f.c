@@ -1688,18 +1688,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     u8&=0x1f;
                     if(u8) {
                         MOV_REG_LSR_IMM5(x14, ed, u8);
+                        ANDS_IMM8(x14, x14, 1);
+                    } else {
+                        ANDS_IMM8(x14, ed, 1);
                     }
-                    ANDS_IMM8(x14, x14, 1);
                     IFX(X_PEND | X_CF) {
                         BFI(xFlags, x14, F_CF, 1);
                     }
-                    B_MARK3(cNE); // bit already set, jump to next instruction
+                    B_NEXT(cNE); // bit already set, jump to next instruction
                     MOVW(x14, 1);
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
-                    MARK3;
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
@@ -1717,18 +1718,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     u8&=0x1f;
                     if(u8) {
                         MOV_REG_LSR_IMM5(x14, ed, u8);
+                        ANDS_IMM8(x14, x14, 1);
+                    } else {
+                        ANDS_IMM8(x14, ed, 1);
                     }
-                    ANDS_IMM8(x14, x14, 1);
                     IFX(X_PEND | X_CF) {
                         BFI(xFlags, x14, F_CF, 1);
                     }
-                    B_MARK3(cEQ); // bit already clear, jump to next instruction
+                    B_NEXT(cEQ); // bit already clear, jump to next instruction
                     //MOVW(x14, 1); // already 0x01
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8);
                     if(wback) {
                         STR_IMM9(ed, wback, fixedaddress);
                     }
-                    MARK3;
                     break;
                 case 7:
                     INST_NAME("BTC Ed, Ib");
@@ -1747,8 +1749,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     IFX(X_PEND | X_CF) {
                         if(u8) {
                             MOV_REG_LSR_IMM5(x14, ed, u8);
+                            ANDS_IMM8(x14, x14, 1);
+                        } else {
+                            ANDS_IMM8(x14, ed, 1);
                         }
-                        ANDS_IMM8(x14, x14, 1);
                         BFI(xFlags, x14, F_CF, 1);
                         MOVW_COND(cEQ, x14, 1); // may already 0x01
                     } else {
