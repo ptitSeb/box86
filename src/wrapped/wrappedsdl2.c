@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -653,6 +654,42 @@ int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *tabl
     #include "SDL_dynapi_procs.h"
     return 0;
 }
+
+EXPORT void *my2_SDL_CreateWindow(x86emu_t* emu, const char *title, int x, int y, int w, int h, uint32_t flags)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    void *win = NULL;
+
+    #ifdef GOA_CLONE
+    // For GO Advance clones, ignores the requested resolution and just uses the entire screen
+    x = y = 0;
+    w = h = -1;
+    #endif
+
+    // Set BOX86_FORCE_ES=MN or BOX86_FORCE_ES=M to force a specific OpenGL ES version.
+    // M = major version, N = minor version
+    const char *force_es = getenv("BOX86_FORCE_ES");
+    if (force_es && *force_es && (force_es[0] != '0')) {
+        #define SDL_GL_CONTEXT_PROFILE_MASK 21
+        #define SDL_GL_CONTEXT_PROFILE_ES 4
+        #define SDL_GL_CONTEXT_MAJOR_VERSION 17
+        #define SDL_GL_CONTEXT_MINOR_VERSION 18
+        #define SDL_WINDOW_OPENGL 2
+        // Is BOX86_FORCE_ES incorrectly formatted?
+        if (!isdigit(force_es[0]) || (force_es[1] != '\0' && !isdigit(force_es[1]))) {
+            printf_log(LOG_NONE, "Warning: ignoring malformed BOX86_FORCE_ES.\n");
+        } else {
+            int (*SDL_GL_SetAttribute_p)(uint32_t, int) = dlsym(emu->context->sdl2lib->priv.w.lib, "SDL_GL_SetAttribute");
+            SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+            SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_MAJOR_VERSION, force_es[0] - '0');
+            SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_MINOR_VERSION, force_es[1] ? (force_es[1] - '0') : 0);
+            flags |= SDL_WINDOW_OPENGL;
+        }
+    }
+
+    return my->SDL_CreateWindow(title, x, y, w, h, flags);
+}
+
 char EXPORT *my2_SDL_GetBasePath(x86emu_t* emu) {
     char* p = strdup(emu->context->fullpath);
     char* b = strrchr(p, '/');
