@@ -560,7 +560,7 @@ GO(getpwent, pFv)
 // getpwent_r
 GO(getpwnam, pFp)
 GO(getpwnam_r, iFpppup)
-GO(getpwuid, pFu)
+GOM(getpwuid, pFEu)
 GO(getpwuid_r, iFuppup)
 GOW(getresgid, iFppp)
 GOW(getresuid, iFppp)
