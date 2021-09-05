@@ -18,10 +18,9 @@ before_script:
     - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then sudo apt-get -y install gcc-arm-linux-gnueabihf ; fi
     - mkdir build
     - cd build
-    - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then 
-    - cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
-    - else
-    - CFLAGS="-m32" cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]
+    - then cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    - else CFLAGS="-m32" cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
     - fi
 
 script:
