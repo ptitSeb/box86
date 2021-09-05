@@ -1,24 +1,21 @@
 language: c
 arch:
   - arm64
-    addons:
-      apt:
-        packages:
-          - python3
-          - gcc-arm-linux-gnueabihf
   - amd64
-    addons:
-      apt:
-        packages:
-          - python3
 os: linux
 dist: focal
+
+addons:
+  apt:
+    packages:
+      - python3
 
 compiler:
     - gcc
 
       #Build steps
 before_script:
+    - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then sudo apt-get -y install gcc-arm-linux-gnueabihf ; fi
     - mkdir build
     - cd build
     - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then 
