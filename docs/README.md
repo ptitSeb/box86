@@ -105,9 +105,20 @@ Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those mod
 Notes about Vulkan
 ----
 
-Box86 already wrap vulikan. If you're system have a 32bits vulkan driver, box86 will use it when needed. Note that vulkan  wrapping has not been tested much, due to the limited vulkan support on the hardware I currently own. Profile 1.0 and 1.1, whith some extension, should be OK. 1.2 is not really wrapped. I know some demo works on Pi4 (Sascha Willems demos build for x86 works the same as if build on armhf directly). Note that the Vulkan driver driver of the Pi4 ODES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardxware support) and a few other things that makes dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
+Box86 already wrap vulikan. If your system has a 32bits vulkan driver, box86 will use it when needed. Note that vulkan wrapping has not been tested much, due to the limited vulkan support on the hardware I currently own. Profile 1.0 and 1.1, whith some extension, should be OK. 1.2 is not really wrapped. I know some demos work on Pi4 (Sascha Willems demos build for x86 work the same as if build on armhf directly). Note that the Vulkan driver of the Pi4 DOES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardxware support) and a few other things that make dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
 
-Final words
+----
+Final word
 ----
 
-(If you use Box86 in your project, please don't forget to mention Box86!)
+I want to thank everyone who has contributed to box86 developpement.
+There are many ways to contribute: code, financial, hardware and advertisement!
+So, in no particular order, I want to thank:
+ * For their major code contribution: rajdakin, icecream95, M-HT
+ * For their major financial contribution: FlyingFathead, stormchaser3000
+ * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [DragonBox](https://pyra-handheld.com/), [Novaspirit](https://www.youtube.com/channel/UCrjKdwxaQMSV_NDywgKXVmw), [HardKernel](https://www.hardkernel.com/), [TwisterOS team](https://twisteros.com/)
+ * For their continous advertisement of box86 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS team](https://twisteros.com/), [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg)
+
+And I also thank the many other people who participated even once in the project.
+
+(If you use Box86 in your project, please don't forget to mention it!)
