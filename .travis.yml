@@ -15,7 +15,7 @@ compiler:
 
       #Build steps
 before_script:
-    - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then sudo apt-get -y install gcc-arm-linux-gnueabihf ; else sudo apt-get -y install libc6-dev:i386 ; fi
+    - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then sudo apt-get -y install gcc-arm-linux-gnueabihf ; else sudo apt-get -y install libc6-dev:i386 gcc-multilib-i686-linux-gnu; fi
     - mkdir build
     - cd build
     - if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ; else CFLAGS="-m32" cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ; fi
