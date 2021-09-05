@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +19,8 @@
 #include "sdl2rwops.h"
 #include "myalign.h"
 #include "threads.h"
+
+#include "generated/wrappedsdl2defs.h"
 
 static void* my_glhandle = NULL;
 // DL functions from wrappedlibdl.c
@@ -586,6 +589,105 @@ EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, v
     #else
     return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
+}
+
+static int get_sdl_priv(x86emu_t* emu, const char *sym_str, void **w, void **f)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+
+    #define GO(sym, _w) \
+        else if (strcmp(#sym, sym_str) == 0) \
+        { \
+            *w = _w; \
+            *f = dlsym(emu->context->sdl2lib->priv.w.lib, #sym); \
+            return *f != NULL; \
+        }
+    #define GO2(sym, _w, sym2) \
+        else if (strcmp(#sym, sym_str) == 0) \
+        { \
+            *w = _w; \
+            *f = dlsym(emu->context->sdl2lib->priv.w.lib, #sym2); \
+            return *f != NULL; \
+        }
+    #define GOM(sym, _w) \
+        else if (strcmp(#sym, sym_str) == 0) \
+        { \
+            *w = _w; \
+            *f = dlsym(emu->context->box86lib, "my2_"#sym); \
+            return *f != NULL; \
+        }
+    #define GOS(sym, _w) GOM(sym, _w)
+    #define DATA
+    
+    if(0);
+    #include "wrappedsdl2_private.h"
+
+    #undef GO
+    #undef GOM
+    #undef GO2
+    #undef GOS
+    #undef DATA
+    return 0;
+}
+
+int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *table, uint32_t tablesize)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    int i = 0;
+    uintptr_t start, end;
+    uintptr_t tab[tablesize];
+    int r = my->SDL_DYNAPI_entry(version, tab, tablesize);
+
+    #define SDL_DYNAPI_PROC(ret, sym, args, parms, ...) \
+        if (i < tablesize) { \
+            void *w = NULL; \
+            void *f = NULL; \
+            if (get_sdl_priv(emu, #sym, &w, &f)) { \
+                table[i] = AddCheckBridge(my_context->sdl2lib->priv.w.bridge, w, f, 0); \
+            } \
+            else \
+                table[i] = (uintptr_t)NULL; \
+            printf_log(LOG_DEBUG, "SDL_DYNAPI_entry: %s => %p (%p)\n", #sym, (void*)table[i], f); \
+            i++; \
+        }
+
+    #include "SDL_dynapi_procs.h"
+    return 0;
+}
+
+EXPORT void *my2_SDL_CreateWindow(x86emu_t* emu, const char *title, int x, int y, int w, int h, uint32_t flags)
+{
+    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    void *win = NULL;
+
+    #ifdef GOA_CLONE
+    // For GO Advance clones, ignores the requested resolution and just uses the entire screen
+    x = y = 0;
+    w = h = -1;
+    #endif
+
+    // Set BOX86_FORCE_ES=MN or BOX86_FORCE_ES=M to force a specific OpenGL ES version.
+    // M = major version, N = minor version
+    const char *force_es = getenv("BOX86_FORCE_ES");
+    if (force_es && *force_es && (force_es[0] != '0')) {
+        #define SDL_GL_CONTEXT_PROFILE_MASK 21
+        #define SDL_GL_CONTEXT_PROFILE_ES 4
+        #define SDL_GL_CONTEXT_MAJOR_VERSION 17
+        #define SDL_GL_CONTEXT_MINOR_VERSION 18
+        #define SDL_WINDOW_OPENGL 2
+        // Is BOX86_FORCE_ES incorrectly formatted?
+        if (!isdigit(force_es[0]) || (force_es[1] != '\0' && !isdigit(force_es[1]))) {
+            printf_log(LOG_NONE, "Warning: ignoring malformed BOX86_FORCE_ES.\n");
+        } else {
+            int (*SDL_GL_SetAttribute_p)(uint32_t, int) = dlsym(emu->context->sdl2lib->priv.w.lib, "SDL_GL_SetAttribute");
+            SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+            SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_MAJOR_VERSION, force_es[0] - '0');
+            SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_MINOR_VERSION, force_es[1] ? (force_es[1] - '0') : 0);
+            flags |= SDL_WINDOW_OPENGL;
+        }
+    }
+
+    return my->SDL_CreateWindow(title, x, y, w, h, flags);
 }
 
 char EXPORT *my2_SDL_GetBasePath(x86emu_t* emu) {

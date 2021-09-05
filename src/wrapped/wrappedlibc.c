@@ -35,6 +35,7 @@
 #include <sys/vfs.h>
 #include <spawn.h>
 #include <getopt.h>
+#include <pwd.h>
 
 #include "wrappedlibs.h"
 
@@ -142,6 +143,7 @@ extern int fix_64bit_inodes;
 
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -163,6 +165,7 @@ typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
+typedef void* (*pFu_t)(uint32_t);
 
 #define SUPER() \
     GO(_ITM_addUserCommitAction, iFpup_t)   \
@@ -2133,6 +2136,30 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     uint32_t r = fread(buf, 1, buflen, rnd);
     fclose(rnd);
     return r;
+}
+
+static struct passwd fakepwd = {};
+EXPORT int32_t my_getpwuid(x86emu_t* emu, uint32_t uid)
+{
+    void *ret = NULL;
+    library_t* lib = my_lib;
+    if(!lib) return 0;
+    void* f = dlsym(lib->priv.w.lib, "getpwuid");
+    if(f)
+        ret = ((pFu_t)f)(uid);
+    
+    // In case of failure, provide a fake one. Evil hack :/
+    if (!ret && !fakepwd.pw_name) {
+        fakepwd.pw_name = strdup("root");
+        fakepwd.pw_passwd = strdup("fakehash");
+        fakepwd.pw_uid = 0;
+        fakepwd.pw_gid = 0;
+        fakepwd.pw_gecos = strdup("root");
+        fakepwd.pw_dir = getenv("HOME");
+        fakepwd.pw_shell = strdup("/bin/bash");
+    }
+
+    return ret ? ret : (void*)&fakepwd;
 }
 
 EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
