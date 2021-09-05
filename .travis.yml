@@ -22,4 +22,4 @@ before_script:
 
 script:
     - make
-    - ctest --output-on-failure
+    - if [ "$TRAVIS_CPU_ARCH" != "arm64" ]; then ctest --output-on-failure ; fi
