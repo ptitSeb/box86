@@ -3,6 +3,8 @@
 ![Official logo](img/Box86Logo.png "Official Logo")
 Linux Userspace x86 Emulator with a twist
 
+[![Build Status](https://app.travis-ci.com/ptitSeb/box86.svg?branch=master)](https://app.travis-ci.com/ptitSeb/box86)
+
 ----
 
 Compiling/Installation
