@@ -91,3 +91,8 @@ A few tests are included.
 They can be launched with `ctest`
 They are very basic and don't test much for now.
 
+----
+
+Note about devices with Tegra X1 and newer.
+
+Nvidia don't provide armhf libraries for their GPU drivers at this moment so there is no special variable to compile it for them as it would be missleading for many people. If you still want to use it wihout GPU acceleration, building it with RPI4 configuration should work just fine. As instalation of Mesa can break Nvidia driver, safest option is usage of chroot.
