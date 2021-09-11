@@ -68,7 +68,7 @@ Notes about 64-bit platforms
 
 Because Box86 works by directly translating function calls from x86 to host system, the host system (the one Box86 is running on) needs to have 32-bit libraries. Box86 doesn't include any 32-bit <-> 64-bit translation. So basically, to run Box86 on, for example, an ARM64 platform, you will need to build Box86 for ARM 32-bit, and also need to have a chroot with 32-bit libraries.
 
-Also note that, even if there is a Box64, this one is only be able to run x86_64 binaries on 64-bit platforms. You still need Box86 (and a 32-bit chroot) to run x86 binaries (in fact, the same is the case on actual x86_64 Linux).
+If you look at a 64bits version of box86, look at [Box64](https://github.com/ptitSeb/box64): this one is able to run x86_64 binaries on 64-bit platforms. But note that you still need Box86 (and a 32-bit chroot) to run x86 binaries (as it also happens on actual x86_64 Linux that need x86 libs and binary on multiarch to run).
 
 ----
 
