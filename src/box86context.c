@@ -176,7 +176,8 @@ box86context_t *NewBox86Context(int argc)
     context->versym = NewDictionnary();
     context->system = NewBridge();
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, vFv, x86Syscall, 0);
+    context->vsyscall = AddBridge(context->system, iFEv, x86Syscall, 0);
+    addAlternate((void*)0xffffe400, (void*)context->vsyscall);
 #ifdef BUILD_LIB
     context->box86lib = RTLD_DEFAULT;   // not ideal
 #else

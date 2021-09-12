@@ -22,9 +22,10 @@
 #define F32     *(uint32_t*)(addr+=4, addr-4)
 #define F32S    *(int32_t*)(addr+=4, addr-4)
 #define PK(a)   *(uint8_t*)(addr+a)
-#define PK32(a)   *(uint32_t*)(addr+a)
-#define PK16(a)   *(uint16_t*)(addr+a)
-#define PKip(a)   *(uint8_t*)(ip+a)
+#define PK32(a) *(uint32_t*)(addr+a)
+#define PK16(a) *(uint16_t*)(addr+a)
+#define PKip(a) *(uint8_t*)(ip+a)
+#define PKa(a)  *(uint8_t*)(a)
 
 // GETGD    get x86 register in gd
 #define GETGD   gd = xEAX+((nextop&0x38)>>3)

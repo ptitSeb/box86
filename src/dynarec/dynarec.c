@@ -19,6 +19,7 @@
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynablock_private.h"
+#include "bridge.h"
 #endif
 
 #ifdef ARM
@@ -45,12 +46,20 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
     dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
     if(!block) {
         // no block, let link table as is...
-        #ifdef HAVE_TRACE
-        dynablock_t* db = FindDynablockFromNativeAddress(x2);
-        printf_log(LOG_INFO, "Warning, jumping to a no-block address from %p (db=%p, x86addr=%p)\n", x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
-        #endif
-        //tableupdate(arm_epilog, addr, table);
-        return arm_epilog;
+        if(hasAlternate((void*)addr)) {
+            printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
+            addr = (uintptr_t)getAlternate((void*)addr);
+            printf_log(LOG_INFO, " -> %p\n", (void*)addr);
+            block = DBGetBlock(emu, addr, 1, &current);
+        }
+        if(!block) {
+            #ifdef HAVE_TRACE
+            dynablock_t* db = FindDynablockFromNativeAddress(x2);
+            printf_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x86addr=%p)\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
+            #endif
+            //tableupdate(arm_epilog, addr, table);
+            return arm_epilog;
+        }
     }
     if(!block->done) {
         // not finished yet... leave linker
