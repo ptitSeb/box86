@@ -2139,7 +2139,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
 }
 
 static struct passwd fakepwd = {};
-EXPORT int32_t my_getpwuid(x86emu_t* emu, uint32_t uid)
+EXPORT void* my_getpwuid(x86emu_t* emu, uint32_t uid)
 {
     void *ret = NULL;
     library_t* lib = my_lib;
