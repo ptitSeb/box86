@@ -35,6 +35,7 @@ typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef SDL_GameControllerButtonBind (*gFpi_t)(void*, int32_t);
 typedef void (*vFipV_t)(int32_t, void*, ...);
+typedef int32_t (*iFupu_t)(uint32_t, void*, uint32_t);
 typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
@@ -46,6 +47,7 @@ typedef int32_t (*iFpupV_t)(void*, uint32_t, void*, ...);
 typedef uint32_t (*uFppuu_t)(void*, void*, uint32_t, uint32_t);
 typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_UnloadObject, vFp_t) \
@@ -105,6 +107,7 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_LogInfo, vFipV_t) \
 	GO(SDL_LogVerbose, vFipV_t) \
 	GO(SDL_LogWarn, vFipV_t) \
+	GO(SDL_DYNAPI_entry, iFupu_t) \
 	GO(SDL_TLSSet, iFupp_t) \
 	GO(SDL_SaveBMP_RW, iFppi_t) \
 	GO(SDL_RWseek, IFpIi_t) \
@@ -117,6 +120,7 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_RWread, uFppuu_t) \
 	GO(SDL_RWwrite, uFppuu_t) \
 	GO(SDL_OpenAudioDevice, iFpippi_t) \
-	GO(SDL_LoadWAV_RW, pFpippp_t)
+	GO(SDL_LoadWAV_RW, pFpippp_t) \
+	GO(SDL_CreateWindow, pFpiiiiu_t)
 
 #endif // __wrappedsdl2TYPES_H_

@@ -22,6 +22,7 @@ typedef uint32_t (*uFv_t)(void);
 typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef uintptr_t (*LFL_t)(uintptr_t);
+typedef void* (*pFu_t)(uint32_t);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFip_t)(int32_t, void*);
@@ -108,6 +109,7 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(getpwuid, pFu_t) \
 	GO(fstat, iFip_t) \
 	GO(lstat, iFpp_t) \
 	GO(stat, iFpp_t) \

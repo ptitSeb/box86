@@ -229,6 +229,7 @@
 #() LFpp
 #() pFEv
 #() pFEi
+#() pFEu
 #() pFEp
 #() pFii
 #() pFiu
@@ -661,6 +662,7 @@
 #() iFEiiN
 #() iFEipL
 #() iFEipp
+#() iFEupu
 #() iFEupp
 #() iFELup
 #() iFEpii
@@ -1560,6 +1562,7 @@
 #() uFuippppp
 #() uFppiuppp
 #() LFEpppppu
+#() pFEpiiiiu
 #() pFEpLiiii
 #() pFEpLiiiI
 #() pFEppCuup
@@ -2547,6 +2550,8 @@ wrappedlibc:
 - uFu:
 - uFp:
 - LFL:
+- pFu:
+  - getpwuid
 - pFL:
 - pFp:
 - vFip:
@@ -3664,6 +3669,8 @@ wrappedsdl2:
   - SDL_LogInfo
   - SDL_LogVerbose
   - SDL_LogWarn
+- iFupu:
+  - SDL_DYNAPI_entry
 - iFupp:
   - SDL_TLSSet
 - iFppi:
@@ -3688,6 +3695,8 @@ wrappedsdl2:
   - SDL_OpenAudioDevice
 - pFpippp:
   - SDL_LoadWAV_RW
+- pFpiiiiu:
+  - SDL_CreateWindow
 % pFJ -> pFuuuu
 % iFEJ -> iFEuuuu
 % JFEi -> pFEpi

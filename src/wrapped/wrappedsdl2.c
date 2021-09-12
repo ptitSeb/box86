@@ -687,7 +687,7 @@ EXPORT void *my2_SDL_CreateWindow(x86emu_t* emu, const char *title, int x, int y
         }
     }
 
-    return my->SDL_CreateWindow(title, x, y, w, h, flags);
+    return my->SDL_CreateWindow((void*)title, x, y, w, h, flags);
 }
 
 char EXPORT *my2_SDL_GetBasePath(x86emu_t* emu) {
