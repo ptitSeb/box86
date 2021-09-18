@@ -572,6 +572,9 @@ Op is 20-27
 // Yield
 #define YIELD(cond) EMIT(cond | 0b00110010<<20 | 0b1111<<12 | 1)
 
+// UDF
+#define UDF(imm16)    EMIT(0b1110<<28 | 0b011<<25 | 0b11111<<20 | (((imm16)>>4)&0xfff) | 0b1111<<4 | ((imm16)&0xf))
+
 // VFPU
 #define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 
