@@ -387,6 +387,10 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcrashhandler.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibv4l2.c"
+    "${BOX86_ROOT}/src/wrapped/wrappednspr4.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsmime3.c"
+    "${BOX86_ROOT}/src/wrapped/wrappednssutil3.c"
+    "${BOX86_ROOT}/src/wrapped/wrappednss3.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS

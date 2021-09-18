@@ -155,6 +155,7 @@
 #() iFuu
 #() iFup
 #() iFli
+#() iFLp
 #() iFpw
 #() iFpi
 #() iFpI
@@ -697,6 +698,7 @@
 #() iFipui
 #() iFipup
 #() iFipLi
+#() iFipLp
 #() iFippi
 #() iFippu
 #() iFippL
@@ -838,6 +840,7 @@
 #() pFiiuu
 #() pFiiup
 #() pFiipi
+#() pFiipp
 #() pFipii
 #() pFipip
 #() pFippi
@@ -850,6 +853,7 @@
 #() pFdipp
 #() pFdddd
 #() pFlfff
+#() pFLiip
 #() pFpiii
 #() pFpiip
 #() pFpiuu
@@ -1356,6 +1360,7 @@
 #() iFppLpLp
 #() iFppLppp
 #() iFpppiuu
+#() iFpppipi
 #() iFpppipp
 #() iFpppuii
 #() iFpppupu
@@ -1576,6 +1581,7 @@
 #() pFifffppp
 #() pFuupupup
 #() pFplppppp
+#() pFpLppiip
 #() pFppiiipp
 #() pFppiiCCC
 #() pFppiippp
@@ -1764,6 +1770,7 @@
 #() iFppLpiippp
 #() iFpppiiuuii
 #() iFpppiipiiu
+#() iFppppiiupp
 #() iFppppupiii
 #() iFppppppppu
 #() iFppppppppp
@@ -1780,6 +1787,7 @@
 #() pFEppuupwwC
 #() pFEpppppiiV
 #() pFEpppppppi
+#() pFEpppppppp
 #() pFpiiiiuuuu
 #() pFpupuuuuup
 #() pFppiiiiiip
@@ -1831,6 +1839,7 @@
 #() iFppuuiiuupi
 #() iFpppLLipppp
 #() iFppppiiuuii
+#() iFpppppppipi
 #() uFpppppppppp
 #() pFEiippppppp
 #() pFEpiiiiiipp
@@ -1912,6 +1921,7 @@
 #() pFEppuwwWWuCuu
 #() pFEppuuuwwwwWW
 #() pFEppuuuWWWCCi
+#() pFEppppppppppp
 #() pFWWiCCCCiipup
 #() pFppiiuuuiupup
 #() pFpppppppppppp
@@ -3351,6 +3361,11 @@ wrappedmpg123:
   - mpg123_replace_reader_handle_32
   - mpg123_replace_reader_handle_64
 wrappednsl:
+wrappednspr4:
+wrappednss3:
+- vFp:
+  - PK11_SetPasswordFunc
+wrappednssutil3:
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop
@@ -3754,6 +3769,17 @@ wrappedsdl2ttf:
   - TTF_OpenFontRW
 - pFpiii:
   - TTF_OpenFontIndexRW
+wrappedsmime3:
+- iFpp:
+  - SEC_PKCS12DecoderValidateBags
+- iFppp:
+  - SEC_PKCS12Encode
+- pFpppp:
+  - SEC_PKCS12CreateExportContext
+- pFpppppppp:
+  - SEC_PKCS12DecoderStart
+- pFppppppppppp:
+  - NSS_CMSEncoder_Start
 wrappedsmpeg:
 - vFpp:
   - SMPEG_getinfo

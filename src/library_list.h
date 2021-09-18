@@ -135,6 +135,10 @@ GO("libwayland-client.so.0", waylandclient)
 GO("libnsl.so.1", nsl)
 GO("libkrb5.so.3", krb5)
 GO("libgssapi_krb5.so.2", gssapikrb5)
+GO("libnspr4.so", nspr4)
+GO("libsmime3.so", smime3)
+GO("libnssutil3.so", nssutil3)
+GO("libnss3.so", nss3)
 
 #ifdef ANDROID
 GO("libc.so", libc)
