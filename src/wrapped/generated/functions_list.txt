@@ -2574,6 +2574,7 @@ wrappedlibc:
 - iFpi:
 - iFpL:
 - iFpp:
+  - execvp
   - lstat
   - stat
 - iFpV:

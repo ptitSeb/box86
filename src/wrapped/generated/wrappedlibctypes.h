@@ -111,6 +111,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(getpwuid, pFu_t) \
 	GO(fstat, iFip_t) \
+	GO(execvp, iFpp_t) \
 	GO(lstat, iFpp_t) \
 	GO(stat, iFpp_t) \
 	GO(_IO_file_stat, iFSp_t) \

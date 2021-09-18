@@ -287,7 +287,7 @@ GO2(execle, iFEpV, my_execve)  // Nope! This one needs wrapping, because is char
 GO2(execlp, iFpV, execvp)
 GOWM(execv, iFEpp)     //%%
 GOM(execve, iFEppp)   //%% and this one too...
-GOW(execvp, iFpp)
+GOWM(execvp, iFEpp)
 GO(exit, vFi)
 GO(_exit, vFi)
 GOW(_Exit, vFi)
