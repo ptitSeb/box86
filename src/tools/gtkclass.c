@@ -906,11 +906,12 @@ SUPER()
 my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, int parent)
 {
     if(!fcts) return NULL;
-    #define GO(A) if(used_gtypeinfo_##A==0 && memcmp(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t))==0) return &my_gtypeinfo_##A;
+    #define GO(A) if(used_gtypeinfo_##A!=0 && memcmp(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t))==0) return &my_gtypeinfo_##A;
     SUPER()
     #undef GO
     #define GO(A) if(used_gtypeinfo_##A == 0) {                         \
-        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));            \
+        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));       \
+        used_gtypeinfo_##A = 1;                                         \
         fct_parent_##A = parent;                                        \
         my_gtypeinfo_##A.class_size = fcts->class_size;                 \
         my_gtypeinfo_##A.base_init = (fcts->base_init)?((GetNativeFnc((uintptr_t)fcts->base_init))?GetNativeFnc((uintptr_t)fcts->base_init):my_funcs_base_init_##A):NULL;    \
