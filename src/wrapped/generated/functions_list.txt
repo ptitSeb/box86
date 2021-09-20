@@ -2132,6 +2132,7 @@ wrappedfreetype:
   - FT_Open_Face
 - iFpuuLppp:
   - FTC_Manager_New
+wrappedgconf2:
 wrappedgdk3:
 - vFpp:
   - gdk_init
