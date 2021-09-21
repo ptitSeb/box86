@@ -680,7 +680,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
-    if(Locks & (1<<8) && sig==SIGSEGV) //1<<8 is mutex_dyndump
+    if((Locks & (1<<8)) && (sig==SIGSEGV)) //1<<8 is mutex_dyndump
         cancelFillBlock();  // Segfault inside a Fillblock, just cancel it's creation, don't relock mutex
     dynablock_t* db = NULL;
     int db_searched = 0;
