@@ -392,6 +392,9 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedsmime3.c"
     "${BOX86_ROOT}/src/wrapped/wrappednssutil3.c"
     "${BOX86_ROOT}/src/wrapped/wrappednss3.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedplds4.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedplc4.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedssl3.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS

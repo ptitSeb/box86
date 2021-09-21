@@ -29,7 +29,7 @@
 //DATA(CERT_CertificateTemplate, 
 //GO(CERT_CertListFromCert, 
 //GO(CERT_CertTimesValid, 
-//GO(CERT_ChangeCertTrust, 
+GO(CERT_ChangeCertTrust, iFppp)
 //GO(CERT_CheckCertUsage, 
 //GO(CERT_CheckCertValidTimes, 
 //GO(CERT_CheckNameSpace, 
@@ -79,10 +79,10 @@
 //GO(CERT_DecodeUserNotice, 
 //GO(CERT_DerNameToAscii, 
 //GO(CERT_DestroyCertArray, 
-//GO(CERT_DestroyCertificate, 
-//GO(CERT_DestroyCertificateList, 
+GO(CERT_DestroyCertificate, vFp)
+GO(CERT_DestroyCertificateList, vFp)
 //GO(CERT_DestroyCertificatePoliciesExtension, 
-//GO(CERT_DestroyCertificateRequest, 
+GO(CERT_DestroyCertificateRequest, vFp)
 //GO(CERT_DestroyCertList, 
 //GO(CERT_DestroyCERTRevocationFlags, 
 //GO(CERT_DestroyName, 
@@ -149,7 +149,7 @@
 //GO(CERT_GenTime2FormattedAscii, 
 //GO(CERT_GetAVATag, 
 //GO(CERT_GetCertChainFromCert, 
-//GO(CERT_GetCertEmailAddress, 
+GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertificateDer, 
 //GO(CERT_GetCertificateNames, 
 //GO(CERT_GetCertificateRequestExtensions, 
@@ -160,21 +160,21 @@
 //GO(CERT_GetCertNicknames, 
 //GO(CERT_GetCertTimes, 
 //GO(CERT_GetCertTrust, 
-//GO(CERT_GetCertUid, 
+GO(CERT_GetCertUid, pFp)
 //GO(CERT_GetClassicOCSPDisabledPolicy, 
 //GO(CERT_GetClassicOCSPEnabledHardFailurePolicy, 
 //GO(CERT_GetClassicOCSPEnabledSoftFailurePolicy, 
-//GO(CERT_GetCommonName, 
+GO(CERT_GetCommonName, pFp)
 //GO(CERT_GetConstrainedCertificateNames, 
-//GO(CERT_GetCountryName, 
+GO(CERT_GetCountryName, pFp)
 //GO(CERT_GetDBContentVersion, 
-//GO(CERT_GetDefaultCertDB, 
-//GO(CERT_GetDomainComponentName, 
+GO(CERT_GetDefaultCertDB, pFv)
+GO(CERT_GetDomainComponentName, pFp)
 //GO(CERT_GetEncodedOCSPResponse, 
 //GO(CERT_GetFirstEmailAddress, 
 //GO(CERT_GetGeneralNameTypeFromString, 
 //GO(CERT_GetImposedNameConstraints, 
-//GO(CERT_GetLocalityName, 
+GO(CERT_GetLocalityName, pFp)
 //GO(CERT_GetNextEmailAddress, 
 //GO(CERT_GetNextGeneralName, 
 //GO(CERT_GetNextNameConstraint, 
@@ -182,14 +182,14 @@
 //GO(CERT_GetOCSPResponseStatus, 
 //GO(CERT_GetOCSPStatusForCertID, 
 //GO(CERT_GetOidString, 
-//GO(CERT_GetOrgName, 
-//GO(CERT_GetOrgUnitName, 
+GO(CERT_GetOrgName, pFp)
+GO(CERT_GetOrgUnitName, pFp)
 //GO(CERT_GetPKIXVerifyNistRevocationPolicy, 
 //GO(CERT_GetPrevGeneralName, 
 //GO(CERT_GetPrevNameConstraint, 
 //GO(CERT_GetSlopTime, 
 //GO(CERT_GetSSLCACerts, 
-//GO(CERT_GetStateName, 
+GO(CERT_GetStateName, pFp)
 //GO(CERT_GetSubjectNameDigest, 
 //GO(CERT_GetSubjectPublicKeyDigest, 
 //GO(CERT_GetUsePKIXForValidation, 
@@ -240,7 +240,7 @@ DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(__CERT_TraversePermCertsForNickname, 
 //GO(__CERT_TraversePermCertsForSubject, 
 //GO(CERT_UncacheCRL, 
-//GO(CERT_VerifyCACertForUsage, 
+GO(CERT_VerifyCACertForUsage, iFppiippp)
 //GO(CERT_VerifyCert, 
 //GO(CERT_VerifyCertificate, 
 //GO(CERT_VerifyCertificateNow, 
@@ -330,7 +330,7 @@ DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(NSS_Get_SEC_UTF8StringTemplate, 
 //GO(NSS_Get_sgn_DigestInfoTemplate, 
 //GO(NSS_GetVersion, 
-//GO(NSS_Init, 
+GO(NSS_Init, iFp)
 //GO(NSS_InitContext, 
 //GO(NSS_Initialize, 
 //GO(__nss_InitLock, 
@@ -349,7 +349,7 @@ GO(NSS_NoDB_Init, iFp)
 //GO(NSSRWLock_New, 
 //GO(NSSRWLock_UnlockRead, 
 //GO(NSSRWLock_UnlockWrite, 
-//GO(NSS_Shutdown, 
+GO(NSS_Shutdown, iFv)
 //GO(NSS_ShutdownContext, 
 //GO(NSS_UnregisterShutdown, 
 GO(NSS_VersionCheck, iFp)
@@ -765,7 +765,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECMOD_AddNewModuleEx, 
 //GO(SECMOD_CancelWait, 
 //GO(SECMOD_CanDeleteInternalModule, 
-//GO(SECMOD_CloseUserDB, 
+GO(SECMOD_CloseUserDB, iFp)
 //GO(SECMOD_CreateModule, 
 //GO(SECMOD_CreateModuleEx, 
 //GO(SECMOD_DeleteInternalModule, 

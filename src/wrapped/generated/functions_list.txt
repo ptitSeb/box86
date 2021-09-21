@@ -371,6 +371,7 @@
 #() iFpwp
 #() iFpii
 #() iFpiu
+#() iFpil
 #() iFpiL
 #() iFpip
 #() iFpiV
@@ -1537,6 +1538,7 @@
 #() iFppiiuui
 #() iFppiipii
 #() iFppiipiL
+#() iFppiippp
 #() iFppiuppi
 #() iFppipiip
 #() iFppipipi
@@ -3382,6 +3384,8 @@ wrappedpango:
   - pango_attribute_init
 wrappedpangocairo:
 wrappedpangoft2:
+wrappedplc4:
+wrappedplds4:
 wrappedpng12:
 - vFppp:
   - png_set_read_fn
@@ -3778,6 +3782,8 @@ wrappedsmime3:
   - SEC_PKCS12Encode
 - pFpppp:
   - SEC_PKCS12CreateExportContext
+- pFppppppp:
+  - NSS_CMSMessage_CreateFromDER
 - pFpppppppp:
   - SEC_PKCS12DecoderStart
 - pFppppppppppp:
@@ -3807,6 +3813,10 @@ wrappedsmpeg2:
   - SMPEG_new_data
 - pFppii:
   - SMPEG_new_rwops
+wrappedssl3:
+- iFppp:
+  - SSL_AuthCertificateHook
+  - SSL_BadCertHook
 wrappedtcmallocminimal:
 - iFpL:
   - munmap

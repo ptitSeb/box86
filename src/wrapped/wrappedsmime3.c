@@ -305,6 +305,16 @@ EXPORT void* my_NSS_CMSEncoder_Start(x86emu_t* emu, void* cmsg, void* outputf, v
                     find_NSSCMSGetDecryptKeyCallback_Fct(decryptcb), decryptarg, detached, items);
 }
 
+EXPORT void* my_NSS_CMSMessage_CreateFromDER(x86emu_t* emu, void* msg, void* cb, void* cb_arg,
+                void* pwfn, void* pwfn_arg, void* decrypt, void* decrypt_arg)
+{
+    smime3_my_t* my = (smime3_my_t*)my_lib->priv.w.p2;
+
+    return my->NSS_CMSMessage_CreateFromDER(msg, find_NSSCMSContentCallback_Fct(cb), cb_arg, 
+                    find_PK11PasswordFunc_Fct(pwfn), pwfn_arg, 
+                    find_NSSCMSGetDecryptKeyCallback_Fct(decrypt), decrypt_arg);
+}
+
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getSmime3My(lib);
 

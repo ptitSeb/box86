@@ -3,13 +3,13 @@
 #endif
 
 //GO(CERT_ConvertAndDecodeCertificate, 
-//GO(CERT_DecodeCertFromPackage, 
+GO(CERT_DecodeCertFromPackage, pFpi)
 //GO(CERT_DecodeCertPackage, 
 //GO(NSS_CMSContentInfo_GetBulkKey, 
 //GO(NSS_CMSContentInfo_GetBulkKeySize, 
-//GO(NSS_CMSContentInfo_GetContent, 
+GO(NSS_CMSContentInfo_GetContent, pFp)
 //GO(NSS_CMSContentInfo_GetContentEncAlgTag, 
-//GO(NSS_CMSContentInfo_GetContentTypeTag, 
+GO(NSS_CMSContentInfo_GetContentTypeTag, iFp)
 //GO(NSS_CMSContentInfo_SetBulkKey, 
 //GO(NSS_CMSContentInfo_SetContent, 
 //GO(NSS_CMSContentInfo_SetContent_Data, 
@@ -49,9 +49,9 @@ GOM(NSS_CMSEncoder_Start, pFEppppppppppp)
 //GO(NSS_CMSMessage_ContentLevelCount, 
 //GO(NSS_CMSMessage_Copy, 
 GO(NSS_CMSMessage_Create, pFp)
-//GO(NSS_CMSMessage_CreateFromDER, 
+GOM(NSS_CMSMessage_CreateFromDER, pFEppppppp)
 GO(NSS_CMSMessage_Destroy, vFp)
-//GO(NSS_CMSMessage_GetContent, 
+GO(NSS_CMSMessage_GetContent, pFp)
 GO(NSS_CMSMessage_GetContentInfo, pFp)
 //GO(NSS_CMSMessage_IsEncrypted, 
 //GO(NSS_CMSMessage_IsSigned, 
@@ -77,12 +77,12 @@ GO(NSS_CMSSignedData_Destroy, vFp)
 //GO(NSS_CMSSignedData_GetDigestAlgs, 
 //GO(NSS_CMSSignedData_GetSignerInfo, 
 //GO(NSS_CMSSignedData_HasDigests, 
-//GO(NSS_CMSSignedData_ImportCerts, 
+GO(NSS_CMSSignedData_ImportCerts, iFppii)
 //GO(NSS_CMSSignedData_SetDigests, 
 //GO(NSS_CMSSignedData_SetDigestValue, 
-//GO(NSS_CMSSignedData_SignerInfoCount, 
-//GO(NSS_CMSSignedData_VerifyCertsOnly, 
-//GO(NSS_CMSSignedData_VerifySignerInfo, 
+GO(NSS_CMSSignedData_SignerInfoCount, iFpi)
+GO(NSS_CMSSignedData_VerifyCertsOnly, iFppp)
+GO(NSS_CMSSignedData_VerifySignerInfo, iFpipi)
 //GO(NSS_CMSSignerInfo_AddMSSMIMEEncKeyPrefs, 
 //GO(NSS_CMSSignerInfo_AddSigningTime, 
 //GO(NSS_CMSSignerInfo_AddSMIMECaps, 

@@ -14,6 +14,7 @@
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
+typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*);
 typedef void* (*pFppppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
@@ -21,6 +22,7 @@ typedef void* (*pFppppppppppp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(SEC_PKCS12DecoderValidateBags, iFpp_t) \
 	GO(SEC_PKCS12Encode, iFppp_t) \
 	GO(SEC_PKCS12CreateExportContext, pFpppp_t) \
+	GO(NSS_CMSMessage_CreateFromDER, pFppppppp_t) \
 	GO(SEC_PKCS12DecoderStart, pFpppppppp_t) \
 	GO(NSS_CMSEncoder_Start, pFppppppppppp_t)
 
