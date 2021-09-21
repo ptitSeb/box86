@@ -49,6 +49,7 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
         if(hasAlternate((void*)addr)) {
             printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
             addr = (uintptr_t)getAlternate((void*)addr);
+            R_EIP = addr;
             printf_log(LOG_INFO, " -> %p\n", (void*)addr);
             block = DBGetBlock(emu, addr, 1, &current);
         }
