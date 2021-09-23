@@ -9,6 +9,12 @@
                     if((nextop&0xC0)==0xC0)
                         EW->word[1] = 0;
                     break;
+                case 1:                 /* STR Ew */
+                    GET_EW;
+                    EW->word[0] = 0x7f; // dummy return
+                    if((nextop&0xC0)==0xC0)
+                        EW->word[1] = 0;
+                    break;
                 case 4: //VERR
                 case 5: //VERW
                     GET_EW;
