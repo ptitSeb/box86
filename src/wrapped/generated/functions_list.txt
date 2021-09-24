@@ -1013,6 +1013,7 @@
 #() iFEpipi
 #() iFEpipp
 #() iFEpipV
+#() iFEpupp
 #() iFEpupV
 #() iFEpUup
 #() iFEpLpp
@@ -3706,9 +3707,10 @@ wrappedsdl2:
   - SDL_CreateThread
 - vFJppp:
   - SDL_GetJoystickGUIDInfo
+- iFpupp:
+  - SDL_vsnprintf
 - iFpupV:
   - SDL_snprintf
-  - SDL_vsnprintf
 - uFppuu:
   - SDL_RWread
   - SDL_RWwrite

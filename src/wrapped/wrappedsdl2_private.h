@@ -654,7 +654,7 @@ GO(SDL_utf8strlcpy, uFppu)
 // SDL_utf8strlen
 GO(SDL_VideoInit, iFp)
 GO(SDL_VideoQuit, vFv)
-GOM(SDL_vsnprintf, iFEpupV)
+GOM(SDL_vsnprintf, iFEpupp)
 // SDL_vsscanf
 GO(SDL_Vulkan_CreateSurface, iFppp)
 GO(SDL_Vulkan_GetDrawableSize, vFppp)
