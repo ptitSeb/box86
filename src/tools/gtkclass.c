@@ -635,6 +635,41 @@ static void bridgeGtkWindowClass(my_GtkWindowClass_t* class)
 
 #undef SUPERGO
 
+// ----- GtkTableClass ------
+// wrap (so bridge all calls, just in case)
+static void wrapGtkTableClass(my_GtkTableClass_t* class)
+{
+    wrapGtkContainerClass(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkTableClass(my_GtkTableClass_t* class)
+{   
+    unwrapGtkContainerClass(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkTableClass(my_GtkTableClass_t* class)
+{
+    bridgeGtkContainerClass(&class->parent_class);
+}
+
+// ----- GtkFixedClass ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkFixedClass(my_GtkFixedClass_t* class)
+{
+    wrapGtkContainerClass(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkFixedClass(my_GtkFixedClass_t* class)
+{   
+    unwrapGtkContainerClass(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkFixedClass(my_GtkFixedClass_t* class)
+{
+    bridgeGtkContainerClass(&class->parent_class);
+}
+
 // ----- MetaFramesClass ------
 
 // wrap (so bridge all calls, just in case)

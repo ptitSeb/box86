@@ -216,6 +216,17 @@ typedef struct my_MetaFramesClass_s
 
 } my_MetaFramesClass_t;
 
+typedef struct my_GtkTableClass_s
+{
+  my_GtkContainerClass_t parent_class;
+} my_GtkTableClass_t;
+
+typedef struct my_GtkFixedClass_s
+{
+  my_GtkContainerClass_t parent_class;
+} my_GtkFixedClass_t;
+
+
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
   void     (*value_init)         (void* value);
@@ -281,6 +292,8 @@ GTKCLASS(GtkMisc)       \
 GTKCLASS(GtkTreeView)   \
 GTKCLASS(GtkBin)        \
 GTKCLASS(GtkWindow)     \
+GTKCLASS(GtkTable)      \
+GTKCLASS(GtkFixed)      \
 GTKCLASS(MetaFrames)    \
 
 #define GTKCLASS(A) void Set##A##ID(int id);

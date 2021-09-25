@@ -49,6 +49,8 @@ GO(gtk_misc_get_type, iFv_t)                \
 GO(gtk_label_get_type, iFv_t)               \
 GO(gtk_tree_view_get_type, iFv_t)           \
 GO(gtk_window_get_type, iFv_t)              \
+GO(gtk_table_get_type, iFv_t)               \
+GO(gtk_fixed_get_type, iFv_t)               \
 GO(gtk_dialog_add_button, pFppi_t)          \
 GO(gtk_action_get_type, iFv_t)              \
 GO(gtk_spin_button_get_value, dFp_t)        \
@@ -1077,6 +1079,8 @@ EXPORT uint32_t my_gtk_input_add_full(x86emu_t* emu, int source, int condition, 
     SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
     SetGtkBinID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_bin_get_type());           \
     SetGtkWindowID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_window_get_type());     \
+    SetGtkTableID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_table_get_type());       \
+    SetGtkFixedID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_fixed_get_type());       \
     lib->priv.w.needed = 2;                                                     \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \
