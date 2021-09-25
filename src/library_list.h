@@ -143,6 +143,7 @@ GO("libnss3.so", nss3)
 GO("libplds4.so", plds4)
 GO("libplc4.so", plc4)
 GO("libssl3.so", ssl3)
+GO("libsecret-1.so.0", secret1)
 
 #ifdef ANDROID
 GO("libc.so", libc)
