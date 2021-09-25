@@ -320,4 +320,6 @@ void my_signal_delete(my_signal_t* sig);
 int my_signal_is_valid(void* sig);
 int my_signal_cb(void* a, void* b, void* c, void* d);
 
+void my_add_signal_offset(size_t klass, uint32_t offset, int n);
+
 #endif //__GTKCLASS_H__
