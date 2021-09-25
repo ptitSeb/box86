@@ -14,6 +14,7 @@
 typedef float (*fFp_t)(void*);
 typedef void* (*pFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -43,8 +44,8 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_type_class, pFi_t) \
 	GO(gtk_builder_connect_signals, vFpp_t) \
 	GO(gtk_init, vFpp_t) \
+	GO(gtk_type_unique, iFip_t) \
 	GO(gtk_init_check, iFpp_t) \
-	GO(gtk_type_unique, iFpp_t) \
 	GO(gtk_type_check_object_cast, pFpi_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_clipboard_request_text, vFppp_t) \

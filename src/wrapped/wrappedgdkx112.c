@@ -25,18 +25,9 @@ static char* libname = NULL;
 
 char* getGDKX11LibName() {return libname;}
 
-typedef int     (*iFpp_t)       (void*, void*);
-typedef void    (*vFpp_t)       (void*, void*);
-typedef void    (*vFppp_t)      (void*, void*, void*);
-typedef int     (*iFiippp_t)    (int, int, void*, void*, void*);
+//#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(gdk_event_handler_set, vFppp_t)          \
-    GO(gdk_input_add_full, iFiippp_t)           \
-    GO(gdk_init, vFpp_t)                        \
-    GO(gdk_init_check, iFpp_t)                  \
-    GO(gdk_window_add_filter, vFppp_t)          \
-    GO(gdk_window_remove_filter, vFppp_t)
+#include "generated/wrappedgdkx112types.h"
 
 typedef struct gdkx112_my_s {
     // functions

@@ -22,11 +22,9 @@
 const char* gthread2Name = "libgthread-2.0.so.0";
 #define LIBNAME gthread2
 
-typedef void  (*vFp_t)(void*);
+//#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(g_thread_init, vFp_t)                            \
-    GO(g_thread_init_with_errorcheck_mutexes, vFp_t)
+#include "generated/wrappedgthread2types.h"
 
 typedef struct gthread2_my_s {
     // functions

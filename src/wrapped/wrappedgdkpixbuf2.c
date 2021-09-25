@@ -20,10 +20,9 @@
 const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
 #define LIBNAME gdkpixbuf2
 
-typedef void* (*pFpiiiiiipp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
+//#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(gdk_pixbuf_new_from_data, pFpiiiiiipp_t)
+#include "generated/wrappedgdkpixbuf2types.h"
 
 typedef struct gdkpixbuf2_my_s {
     // functions

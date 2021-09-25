@@ -153,14 +153,9 @@ typedef struct  FT_Outline_Funcs_s
     long                    delta;
 } FT_Outline_Funcs_t;
 
-typedef int (*iFppp_t)(void*, void*, void*);
-typedef int (*iFpplp_t)     (void*, void*, long, void*);
-typedef int (*iFpuuLppp_t)  (void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
+//#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(FT_Outline_Decompose, iFppp_t) \
-    GO(FT_Open_Face, iFpplp_t)      \
-    GO(FTC_Manager_New, iFpuuLppp_t)
+#include "generated/wrappedfreetypetypes.h"
 
 typedef struct freetype_my_s {
     // functions

@@ -3585,7 +3585,7 @@ GO(gtk_type_flags_find_value, pFip)
 GO(gtk_type_flags_get_values, pFi)
 GO(gtk_type_init, vFi)
 GO(gtk_type_new, pFi)
-GOM(gtk_type_unique, iFEpp)
+GOM(gtk_type_unique, iFELp)
 //GO(gtk_ui_manager_add_ui, 
 //GO(gtk_ui_manager_add_ui_from_file, 
 //GO(gtk_ui_manager_add_ui_from_string, 

@@ -24,75 +24,27 @@ static char* libname = NULL;
 #define LIBNAME gtk3
 
 typedef int           (*iFv_t)(void);
-typedef void*         (*pFi_t)(int);
 typedef void          (*vFp_t)(void*);
-typedef void*         (*pFp_t)(void*);
 typedef double        (*dFp_t)(void*);
-typedef int           (*iFip_t)(int, void*);
-typedef int           (*iFpp_t)(void*, void*);
-typedef void*         (*pFpi_t)(void*, int);
-typedef void          (*vFpp_t)(void*, void*);
-typedef void*         (*pFppi_t)(void*, void*, int32_t);
-typedef int32_t       (*iFppp_t)(void*, void*, void*);
-typedef uint32_t      (*uFupp_t)(uint32_t, void*, void*);
-typedef void          (*vFppp_t)(void*, void*, void*);
-typedef int           (*iFpppp_t)(void*, void*, void*, void*);
-typedef void          (*vFpppp_t)(void*, void*, void*, void*);
-typedef void          (*vFpippp_t)(void*, int, void*, void*, void*);
-typedef int           (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef int           (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
-typedef void*         (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int);
-typedef void*         (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
-typedef void*         (*pFpppppppi_t)(void*, void*, void*, void*, void*, void*, void*, int);
-typedef void          (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
-typedef unsigned long (*LFppppppii_t)(void*, void*, void*, void*, void*, void*, int32_t, int32_t);
-typedef void*         (*pFpippppppp_t)(void*, int, void*, void*, void*, void*, void*, void*, void*);
-typedef void*         (*pFpipppppppi_t)(void*, int, void*, void*, void*, void*, void*, void*, void*, int);
+typedef void*         (*pFi_t)(int);
+typedef void*         (*pFppi_t)(void*, void*, int);
+typedef int           (*iFppp_t)(void*, void*, void*);
 
-#define SUPER() \
-    GO(gtk_object_get_type, iFv_t)              \
-    GO(gtk_object_set_data_full, vFpppp_t)      \
-    GO(g_type_check_instance_cast, pFpi_t)      \
-    GO(gtk_bin_get_type, iFv_t)                 \
-    GO(gtk_widget_get_type, iFv_t)              \
-    GO(gtk_button_get_type, iFv_t)              \
-    GO(gtk_container_get_type, iFv_t)           \
-    GO(gtk_label_get_type, iFv_t)               \
-    GO(gtk_tree_view_get_type, iFv_t)           \
-    GO(gtk_type_class, pFi_t)                   \
-    GO(gtk_button_get_label, pFp_t)             \
-    GO(gtk_signal_connect_full, LFppppppii_t)   \
-    GO(gtk_dialog_add_button, pFppi_t)          \
-    GO(gtk_message_dialog_format_secondary_text, vFpp_t)    \
-    GO(gtk_message_dialog_format_secondary_markup, vFpp_t)  \
-    GO(gtk_init, vFpp_t)                        \
-    GO(gtk_init_check, iFpp_t)                  \
-    GO(gtk_init_with_args, iFpppppp_t)          \
-    GO(gtk_menu_attach_to_widget, vFppp_t)      \
-    GO(gtk_menu_popup, vFpppppuu_t)             \
-    GO(gtk_timeout_add, uFupp_t)                \
-    GO(gtk_clipboard_set_with_data, iFppuppp_t) \
-    GO(gtk_clipboard_set_with_owner, iFppuppp_t)\
-    GO(gtk_stock_set_translate_func, vFpppp_t)  \
-    GO(gtk_container_forall, vFppp_t)           \
-    GO(gtk_tree_view_set_search_equal_func, vFpppp_t)   \
-    GO(gtk_text_iter_backward_find_char, iFpppp_t)      \
-    GO(gtk_text_iter_forward_find_char, iFpppp_t)       \
-    GO(gtk_toolbar_append_item, pFppppppp_t)    \
-    GO(gtk_toolbar_prepend_item, pFppppppp_t)   \
-    GO(gtk_toolbar_insert_item, pFpppppppi_t)   \
-    GO(gtk_toolbar_append_element, pFpippppppp_t)       \
-    GO(gtk_toolbar_prepend_element, pFpippppppp_t)      \
-    GO(gtk_toolbar_insert_element, pFpipppppppi_t)      \
-    GO(gtk_toolbar_insert_stock, pFppppppi_t)   \
-    GO(gtk_tree_sortable_set_sort_func, vFpippp_t)      \
-    GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t)\
-    GO(gtk_type_unique, iFip_t)                 \
-    GO(gtk_spin_button_get_value, dFp_t)        \
-    GO(gtk_builder_connect_signals_full, vFppp_t)       \
-    GO(gtk_action_get_type, iFv_t)              \
-    GO(g_type_class_ref, pFi_t)                 \
-    GO(g_type_class_unref, vFp_t)               \
+#define ADDED_FUNCTIONS()                   \
+GO(gtk_object_get_type, iFv_t)              \
+GO(gtk_dialog_add_button, pFppi_t)          \
+GO(gtk_bin_get_type, iFv_t)                 \
+GO(gtk_widget_get_type, iFv_t)              \
+GO(gtk_button_get_type, iFv_t)              \
+GO(gtk_container_get_type, iFv_t)           \
+GO(gtk_label_get_type, iFv_t)               \
+GO(gtk_tree_view_get_type, iFv_t)           \
+GO(gtk_action_get_type, iFv_t)              \
+GO(g_type_class_ref, pFi_t)                 \
+GO(g_type_class_unref, vFp_t)               \
+GO(gtk_spin_button_get_value, dFp_t)        \
+
+#include "generated/wrappedgtk3types.h"
 
 
 typedef struct gtk3_my_s {
@@ -668,7 +620,7 @@ EXPORT void my3_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sor
     my->gtk_tree_sortable_set_default_sort_func(sortable, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT int my3_gtk_type_unique(x86emu_t* emu, int parent, my_GtkTypeInfo_t* gtkinfo)
+EXPORT int my3_gtk_type_unique(x86emu_t* emu, size_t parent, my_GtkTypeInfo_t* gtkinfo)
 {
     library_t * lib = GetLibInternal(libname);
     gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;

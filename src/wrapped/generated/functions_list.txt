@@ -336,6 +336,7 @@
 #() iFEip
 #() iFEWW
 #() iFEup
+#() iFELp
 #() iFEpi
 #() iFEpL
 #() iFEpp
@@ -2412,9 +2413,10 @@ wrappedgtk3:
   - gtk_type_class
 - vFpp:
   - gtk_init
+- iFLp:
+  - gtk_type_unique
 - iFpp:
   - gtk_init_check
-  - gtk_type_unique
 - vFppp:
   - gtk_builder_connect_signals_full
   - gtk_container_forall
@@ -2464,9 +2466,10 @@ wrappedgtkx112:
 - vFpp:
   - gtk_builder_connect_signals
   - gtk_init
+- iFip:
+  - gtk_type_unique
 - iFpp:
   - gtk_init_check
-  - gtk_type_unique
 - pFpi:
   - gtk_type_check_object_cast
 - vFppp:

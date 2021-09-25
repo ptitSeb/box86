@@ -13,6 +13,7 @@
 
 typedef void* (*pFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef int32_t (*iFLp_t)(uintptr_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
@@ -33,8 +34,8 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gtk_type_class, pFi_t) \
 	GO(gtk_init, vFpp_t) \
+	GO(gtk_type_unique, iFLp_t) \
 	GO(gtk_init_check, iFpp_t) \
-	GO(gtk_type_unique, iFpp_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_container_forall, vFppp_t) \
 	GO(gtk_menu_attach_to_widget, vFppp_t) \

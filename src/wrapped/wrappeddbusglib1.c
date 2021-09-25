@@ -21,19 +21,9 @@
 const char* dbusglib1Name = "libdbus-glib-1.so.2";
 #define LIBNAME dbusglib1
 
-typedef void (*vFppp_t)(void*, void*, void*);
-typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
-typedef void*(*pFpppppiV_t)(void*, void*, void*, void*, void*, int, ...);
-typedef void*(*pFpppppiiV_t)(void*, void*, void*, void*, void*, int, int, ...);
+//#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(dbus_g_type_collection_value_iterate, vFppp_t)   \
-    GO(dbus_g_type_map_value_iterate, vFppp_t)          \
-    GO(dbus_g_proxy_begin_call, pFpppppiV_t)            \
-    GO(dbus_g_proxy_begin_call_with_timeout, pFpppppiiV_t)  \
-    GO(dbus_g_proxy_connect_signal, vFppppp_t)          \
-    GO(dbus_g_proxy_disconnect_signal, vFpppp_t)
+#include "generated/wrappeddbusglib1types.h"
 
 typedef struct dbusglib1_my_s {
     // functions
