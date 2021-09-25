@@ -25,6 +25,7 @@ typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFipppi_t)(int32_t, void*, void*, void*, int32_t);
 typedef uintptr_t (*LFupppp_t)(uint32_t, void*, void*, void*, void*);
+typedef uintptr_t (*LFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef uintptr_t (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
 typedef int32_t (*iFipupupi_t)(int32_t, void*, uint32_t, void*, uint32_t, void*, int32_t);
 typedef uint32_t (*uFpiupppp_t)(void*, int32_t, uint32_t, void*, void*, void*, void*);
@@ -50,6 +51,7 @@ typedef uint32_t (*uFpiippppiup_t)(void*, int32_t, int32_t, void*, void*, void*,
 	GO(g_type_register_static, iFippi_t) \
 	GO(g_type_register_fundamental, iFipppi_t) \
 	GO(g_signal_add_emission_hook, LFupppp_t) \
+	GO(g_signal_connect_object, LFppppi_t) \
 	GO(g_signal_connect_data, LFpppppu_t) \
 	GO(g_type_register_static_simple, iFipupupi_t) \
 	GO(g_signal_handlers_block_matched, uFpiupppp_t) \

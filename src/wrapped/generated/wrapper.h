@@ -1416,6 +1416,7 @@ void UFpippup(x86emu_t *emu, uintptr_t fnc);
 void lFipLipu(x86emu_t *emu, uintptr_t fnc);
 void lFipLipp(x86emu_t *emu, uintptr_t fnc);
 void LFEupppp(x86emu_t *emu, uintptr_t fnc);
+void LFEppppi(x86emu_t *emu, uintptr_t fnc);
 void LFpipipi(x86emu_t *emu, uintptr_t fnc);
 void LFpLippp(x86emu_t *emu, uintptr_t fnc);
 void LFSpLiip(x86emu_t *emu, uintptr_t fnc);

@@ -225,7 +225,7 @@ GO(g_signal_chain_from_overridden_handler, vFpppppppppp)  //vaarg
 GO(g_signal_connect_closure, LFpppi)
 GO(g_signal_connect_closure_by_id, LFpuppi)
 GOM(g_signal_connect_data, LFEpppppu)
-//GOM(g_signal_connect_object, LFEppBpi)
+GOM(g_signal_connect_object, LFEppppi)
 GO2(g_signal_emit, vFpuuV, g_signal_emit_valist) // vaarg
 GO(g_signal_emit_by_name, vFppppppppppp)    //vaarg
 GO(g_signal_emitv, vFpuup)

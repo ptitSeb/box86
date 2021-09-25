@@ -23,68 +23,16 @@ const char* gobject2Name = "libgobject-2.0.so.0";
 #define LIBNAME gobject2
 library_t *my_lib = NULL;
 
-typedef int   (*iFv_t)(void);
-typedef void* (*pFi_t)(int);
-typedef int   (*iFp_t)(void*);
-typedef void* (*pFp_t)(void*);
-typedef int8_t(*cFp_t)(void*);
-typedef uint8_t(*CFp_t)(void*);
-typedef int (*iFpp_t)(void*, void*);
-typedef void* (*pFip_t)(int, void*);
-typedef void* (*pFpi_t)(void*, int);
-typedef void  (*vFpi_t)(void*, int);
-typedef void  (*vFpp_t)(void*, void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef void  (*vFpc_t)(void*, int8_t);
-typedef void  (*vFpC_t)(void*, uint8_t);
-typedef void (*vFiip_t)(int, int, void*);
-typedef int (*iFppp_t)(void*, void*, void*);
-typedef void* (*pFppp_t)(void*, void*, void*);
-typedef void* (*pFipp_t)(int, void*, void*);
-typedef void (*vFiip_t)(int, int, void*);
-typedef int (*iFippi_t)(int, void*, void*, int);
-typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
-typedef int (*iFipppi_t)(int, void*, void*, void*, int);
-typedef unsigned long (*LFupppp_t)(uint32_t, void*, void*, void*, void*);
-typedef unsigned long (*LFpppppu_t)(void*, void*, void*, void*, void*, uint32_t);
-typedef uint32_t (*uFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
-typedef unsigned long (*LFpiupppp_t)(void*, int, uint32_t, void*, void*, void*, void*);
-typedef uint32_t (*uFpiippppiup_t)(void*, int, int, void*, void*, void*, void*, int, uint32_t, void*);
-typedef uint32_t (*uFpiiupppiuV_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, ...);
-typedef uint32_t (*uFpiiupppiup_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*);
-typedef uint32_t (*uFpiiupppiupp_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*, void*);
-typedef uint32_t (*uFpiiupppiuppp_t)(void*, int, int, uint32_t, void*, void*, void*, int, uint32_t, void*, void*, void*);
+typedef size_t(*LFv_t)(void);
+typedef void*(*pFL_t)(size_t);
+typedef void*(*pFipp_t)(int, void*, void*);
 
-#define SUPER() \
-    GO(g_object_get_type, iFv_t)                \
-    GO(g_type_name, pFi_t)                      \
-    GO(g_signal_connect_data, LFpppppu_t)       \
-    GO(g_boxed_type_register_static, iFppp_t)   \
-    GO(g_signal_new, uFpiiupppiuV_t)            \
-    GO(g_signal_newv, uFpiippppiup_t)           \
-    GO(g_signal_new_valist, uFpiippppiup_t)     \
-    GO(g_signal_handlers_block_matched, uFpiupppp_t)        \
-    GO(g_signal_handlers_unblock_matched, uFpiupppp_t)      \
-    GO(g_signal_handlers_disconnect_matched, uFpiupppp_t)   \
-    GO(g_signal_handler_find, LFpiupppp_t)      \
-    GO(g_object_new, pFip_t)                    \
-    GO(g_object_new_valist, pFipp_t)            \
-    GO(g_type_register_static, iFippi_t)        \
-    GO(g_type_register_fundamental, iFipppi_t)  \
-    GO(g_type_value_table_peek, pFi_t)          \
-    GO(g_value_register_transform_func, vFiip_t)\
-    GO(g_signal_add_emission_hook, LFupppp_t)   \
-    GO(g_type_add_interface_static, vFiip_t)    \
-    GO(g_param_spec_set_qdata_full, vFpupp_t)   \
-    GO(g_param_type_register_static, iFpp_t)    \
-    GO(g_value_array_sort, pFpp_t)              \
-    GO(g_value_array_sort_with_data, pFppp_t)   \
-    GO(g_object_set_data_full, vFpppp_t)        \
-    GO(g_type_class_peek_parent, pFp_t)         \
-    GO(g_value_init, pFpi_t)                    \
-    GO(g_value_reset, pFp_t)                    \
-    GO(g_param_spec_get_default_value, pFp_t)   \
+#define ADDED_FUNCTIONS()           \
+ GO(g_object_get_type, LFv_t)       \
+ GO(g_type_name, pFL_t)             \
+ GO(g_object_new_valist, pFipp_t)   \
+
+#include "generated/wrappedgobject2types.h"
 
 typedef struct gobject2_my_s {
     // functions
@@ -431,6 +379,28 @@ static void* findValueTransformFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
     return NULL;
 }
+// GCallback  (generic function with 6 arguments, hopefully it's enough)
+#define GO(A)   \
+static uintptr_t my_GCallback_fct_##A = 0;                                             \
+static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)    \
+{                                                                                           \
+    return (void*)RunFunction(my_context, my_GCallback_fct_##A, 6, a, b, c, d, e, f);  \
+}
+SUPER()
+#undef GO
+static void* findGCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
+    return NULL;
+}
 // GParamSpecTypeInfo....
 // First the structure GParamSpecTypeInfo statics, with paired x86 source pointer
 typedef struct my_GParamSpecTypeInfo_s {
@@ -570,6 +540,15 @@ static void* findcompareFct(void* fct)
 }
 #undef SUPER
 
+EXPORT uintptr_t my_g_signal_connect_object(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags)
+{
+    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
+
+    //TODO: get the type of instance to be more precise below
+
+    return my->g_signal_connect_object(instance, detailed, findGCallbackFct(c_handler), object, flags);
+}
+
 EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
@@ -598,7 +577,7 @@ EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags,
         default:
             printf_log(LOG_NONE, "Warning, gobject g_signal_new called with too many parameters (%d)\n", n);
     }
-    return ((uFpiiupppiuppp_t)my->g_signal_new)(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
+    return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
 }
 
 EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* types)
