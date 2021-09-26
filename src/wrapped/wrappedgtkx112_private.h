@@ -1566,8 +1566,8 @@ GO(gtk_list_store_get_type, iFv)
 GO(gtk_list_store_insert, vFppi)
 GO(gtk_list_store_insert_after, vFppp)
 GO(gtk_list_store_insert_before, vFppp)
-//GOM(gtk_list_store_insert_with_values, vFppiV)    // wrap with gtk_list_store_insert_with_valuesv
-GO(gtk_list_store_insert_with_valuesv, vFppippi)    //TODO: check if GValues need alignement
+//GOM(gtk_list_store_insert_with_values, vFppiV)    // cannot wrap with gtk_list_store_insert_with_valuesv!
+GO(gtk_list_store_insert_with_valuesv, vFppippi)    //TODO: GValues need alignement!
 GO(gtk_list_store_iter_is_valid, iFpp)
 GO(gtk_list_store_move_after, vFppp)
 GO(gtk_list_store_move_before, vFppp)
@@ -1580,7 +1580,7 @@ GO2(gtk_list_store_set, vFppV, gtk_list_store_set_valist)
 GO(gtk_list_store_set_column_types, vFpip)
 GO(gtk_list_store_set_valist, vFppp)
 GO(gtk_list_store_set_value, vFppiG)
-GO(gtk_list_store_set_valuesv, vFppppi) //TODO: check if GValues need alignement
+GO(gtk_list_store_set_valuesv, vFppppi) //TODO: GValues need alignement!
 GO(gtk_list_store_swap, vFppp)
 GO(gtk_list_toggle_add_mode, vFp)
 GO(gtk_list_toggle_focus_row, vFp)

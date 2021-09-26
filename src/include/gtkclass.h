@@ -226,6 +226,14 @@ typedef struct my_GtkFixedClass_s
   my_GtkContainerClass_t parent_class;
 } my_GtkFixedClass_t;
 
+typedef struct my_GDBusObjectManagerClientClass_s
+{
+  my_GObjectClass_t parent_class;
+  void    (*interface_proxy_signal)             (void* manager, void* object_proxy, void* interface_proxy, void* sender_name, void* signal_name, void* parameters);
+  void    (*interface_proxy_properties_changed) (void* manager, void* object_proxy, void* interface_proxy, void* changed_properties, void* invalidated_properties);
+  void* padding[8];
+} my_GDBusObjectManagerClientClass_t;
+
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -295,6 +303,7 @@ GTKCLASS(GtkWindow)     \
 GTKCLASS(GtkTable)      \
 GTKCLASS(GtkFixed)      \
 GTKCLASS(MetaFrames)    \
+GTKCLASS(GDBusObjectManagerClient)  \
 
 #define GTKCLASS(A) void Set##A##ID(int id);
 GTKCLASSES()

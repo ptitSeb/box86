@@ -24,7 +24,10 @@ const char* gio2Name = "libgio-2.0.so.0";
 
 static char* libname = NULL;
 
-//#define ADDED_FUNCTIONS()           \
+typedef int(*iFv_t)(void);
+
+#define ADDED_FUNCTIONS()                           \
+GO(g_dbus_object_manager_client_get_type, iFv_t)    \
 
 #include "generated/wrappedgio2types.h"
 
@@ -664,7 +667,8 @@ EXPORT uint32_t my_g_bus_own_name_on_connection(x86emu_t* emu, void* connection,
 
 #define CUSTOM_INIT \
     libname = lib->name;                \
-    lib->priv.w.p2 = getGio2My(lib);   \
+    lib->priv.w.p2 = getGio2My(lib);    \
+    SetGDBusObjectManagerClientID(((gio2_my_t*)lib->priv.w.p2)->g_dbus_object_manager_client_get_type());     \
     lib->priv.w.needed = 1;             \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgmodule-2.0.so.0");

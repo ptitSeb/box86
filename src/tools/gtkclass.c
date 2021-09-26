@@ -701,6 +701,42 @@ static void bridgeMetaFramesClass(my_MetaFramesClass_t* class)
     bridgeGtkWindowClass(&class->parent_class);
 }
 
+// ----- GDBusObjectManagerClientClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GDBusObjectManagerClient,interface_proxy_signal, void, (void* manager, void* object_proxy, void* interface_proxy, void* sender_name, void* signal_name, void* parameters), 6, manager, object_proxy, interface_proxy, sender_name, signal_name, parameters);
+WRAPPER(GDBusObjectManagerClient,interface_proxy_properties_changed, void, (void* manager, void* object_proxy, void* interface_proxy, void* changed_properties, void* invalidated_properties), 5, manager, object_proxy, interface_proxy, changed_properties, invalidated_properties);
+
+#define SUPERGO()                                       \
+    GO(interface_proxy_signal, vFpppppp);               \
+    GO(interface_proxy_properties_changed, vFppppp);    \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
+{
+    wrapGObjectClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GDBusObjectManagerClient (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
+{   
+    unwrapGObjectClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GDBusObjectManagerClient (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass_t* class)
+{
+    bridgeGObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GDBusObjectManagerClient (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
@@ -1117,7 +1153,7 @@ static int my_funcs_base_finalize_##A(void* g_class) {   \
 static uintptr_t fct_funcs_class_init_##A = 0;                      \
 static int my_funcs_class_init_##A(void* g_class, void* data) {     \
     printf_log(LOG_DEBUG, "Calling fct_funcs_class_init_" #A " wrapper\n");             \
-    wrapGTKClass(g_class, fct_parent_##A);                          \
+    /*wrapGTKClass(g_class, fct_parent_##A);*/                       \
     int ret = (int)RunFunction(my_context, fct_funcs_class_init_##A, 2, g_class, data);    \
     unwrapGTKClass(g_class, fct_parent_##A);                        \
     bridgeGTKClass(g_class, fct_parent_##A);                        \
