@@ -18,6 +18,7 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* gio2Name = "libgio-2.0.so.0";
 #define LIBNAME gio2

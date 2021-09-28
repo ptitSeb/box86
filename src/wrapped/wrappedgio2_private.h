@@ -1562,9 +1562,9 @@ GO(g_simple_proxy_resolver_get_type, iFv)
 //GO(g_srv_target_get_weight, 
 //GO(g_srv_target_list_sort, 
 //GO(g_srv_target_new, 
-//GO(g_static_resource_fini, 
+GO(g_static_resource_fini, vFp)
 //GO(g_static_resource_get_resource, 
-//GO(g_static_resource_init, 
+GO(g_static_resource_init, vFp)
 //GO(g_subprocess_communicate, 
 //GO(g_subprocess_communicate_async, 
 //GO(g_subprocess_communicate_finish, 

@@ -2415,6 +2415,7 @@ wrappedgtk3:
 - pFi:
   - gtk_type_class
 - vFpp:
+  - gtk_builder_connect_signals
   - gtk_init
 - iFLp:
   - gtk_type_unique

@@ -22,13 +22,19 @@
 const char* gtk3Name = "libgtk-3.so.0";
 static char* libname = NULL;
 #define LIBNAME gtk3
+static library_t* my_lib = NULL;
 
 typedef int           (*iFv_t)(void);
 typedef void          (*vFp_t)(void*);
 typedef double        (*dFp_t)(void*);
 typedef void*         (*pFi_t)(int);
+typedef int           (*iFpp_t)(void*, void*);
+typedef void*         (*pFpp_t)(void*, void*);
+typedef void*         (*pFpu_t)(void*, uint32_t);
 typedef void*         (*pFppi_t)(void*, void*, int);
+typedef void*         (*pFppp_t)(void*, void*, void*);
 typedef int           (*iFppp_t)(void*, void*, void*);
+typedef void          (*vFpipV_t)(void*, int, void*, ...);
 
 #define ADDED_FUNCTIONS()                   \
 GO(gtk_object_get_type, iFv_t)              \
@@ -43,6 +49,11 @@ GO(gtk_action_get_type, iFv_t)              \
 GO(g_type_class_ref, pFi_t)                 \
 GO(g_type_class_unref, vFp_t)               \
 GO(gtk_spin_button_get_value, dFp_t)        \
+GO(gtk_builder_lookup_callback_symbol, pFpp_t)  \
+GO(g_module_symbol, iFppp_t)                \
+GO(g_log, vFpipV_t)                         \
+GO(g_module_open, pFpu_t)                   \
+GO(g_module_close, vFp_t)                   \
 
 #include "generated/wrappedgtk3types.h"
 
@@ -56,6 +67,7 @@ typedef struct gtk3_my_s {
 
 static void* getGtk3My(library_t* lib)
 {
+    my_lib = lib;
     gtk3_my_t* my = (gtk3_my_t*)calloc(1, sizeof(gtk3_my_t));
     #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
     SUPER()
@@ -66,6 +78,7 @@ static void* getGtk3My(library_t* lib)
 
 static void freeGtk3My(void* lib)
 {
+    my_lib = NULL;
     //gtk3_my_t *my = (gtk3_my_t *)lib;
 }
 
@@ -73,8 +86,7 @@ static box86context_t* context = NULL;
 
 EXPORT uintptr_t my3_gtk_signal_connect_full(x86emu_t* emu, void* object, void* name, void* c_handler, void* unsupported, void* data, void* closure, uint32_t signal, int after)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     if(!context)
         context = emu->context;
@@ -371,8 +383,7 @@ static void* findGtkTreeIterCompareFuncFct(void* fct)
 
 EXPORT void my3_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     void* btn = first;
     while(btn) {
@@ -384,8 +395,7 @@ EXPORT void my3_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first,
 
 EXPORT void my3_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dialog, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     char* buf = NULL;
     #ifndef NOALIGN
@@ -404,8 +414,7 @@ EXPORT void my3_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* di
 
 EXPORT void my3_gtk_message_dialog_format_secondary_markup(x86emu_t* emu, void* dialog, void* fmt, void* b)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     char* buf = NULL;
     #ifndef NOALIGN
@@ -423,8 +432,7 @@ EXPORT void my3_gtk_message_dialog_format_secondary_markup(x86emu_t* emu, void* 
 }
 EXPORT void* my3_gtk_type_class(x86emu_t* emu, int type)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     void* class = my->gtk_type_class(type);
     return wrapCopyGTKClass(class, type);
@@ -432,8 +440,7 @@ EXPORT void* my3_gtk_type_class(x86emu_t* emu, int type)
 
 EXPORT void my3_gtk_init(x86emu_t* emu, void* argc, void* argv)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_init(argc, argv);
     my_checkGlobalGdkDisplay();
@@ -442,8 +449,7 @@ EXPORT void my3_gtk_init(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT int my3_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     int ret = my->gtk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
@@ -453,8 +459,7 @@ EXPORT int my3_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT int my3_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* param, void* entries, void* trans, void* error)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
     my_checkGlobalGdkDisplay();
@@ -464,40 +469,35 @@ EXPORT int my3_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* p
 
 EXPORT void my3_gtk_menu_attach_to_widget(x86emu_t* emu, void* menu, void* widget, void* f)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_menu_attach_to_widget(menu, widget, findMenuDetachFct(f));
 }
 
 EXPORT void my3_gtk_menu_popup(x86emu_t* emu, void* menu, void* shell, void* item, void* f, void* data, uint32_t button, uint32_t time_)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_menu_popup(menu, shell, item, findMenuPositionFct(f), data, button, time_);
 }
 
 EXPORT uint32_t my3_gtk_timeout_add(x86emu_t* emu, uint32_t interval, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_timeout_add(interval, findGtkFunctionFct(f), data);
 }
 
 EXPORT int my3_gtk_clipboard_set_with_data(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_clipboard_set_with_data(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
 
 EXPORT int my3_gtk_clipboard_set_with_owner(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_clipboard_set_with_owner(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
@@ -509,8 +509,7 @@ static void* my_translate_func(void* path, my_signal_t* sig)
 
 EXPORT void my3_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my_signal_t *sig = new_mysignal(f, data, notify);
     my->gtk_stock_set_translate_func(domain, my_translate_func, sig, my_signal_delete);
@@ -518,112 +517,98 @@ EXPORT void my3_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* 
 
 EXPORT void my3_gtk_container_forall(x86emu_t* emu, void* container, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_container_forall(container, findGtkCallbackFct(f), data);
 }
 
 EXPORT void my3_gtk_tree_view_set_search_equal_func(x86emu_t* emu, void* tree_view, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_tree_view_set_search_equal_func(tree_view, findGtkTreeViewSearchEqualFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my3_gtk_text_iter_backward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_text_iter_backward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 EXPORT int my3_gtk_text_iter_forward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_text_iter_forward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 EXPORT void* my3_gtk_toolbar_append_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_append_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my3_gtk_toolbar_prepend_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_prepend_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my3_gtk_toolbar_insert_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_insert_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
 EXPORT void* my3_gtk_toolbar_append_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_append_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my3_gtk_toolbar_prepend_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_prepend_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my3_gtk_toolbar_insert_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_insert_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
 EXPORT void* my3_gtk_toolbar_insert_stock(x86emu_t* emu, void* toolbar, void* stock_id, void* tooltip_text, void* tooltip_private, void* f, void* data, int position)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_toolbar_insert_stock(toolbar, stock_id, tooltip_text, tooltip_private, findToolbarFct(f), data, position);
 }
 
 EXPORT void my3_gtk_tree_sortable_set_sort_func(x86emu_t* emu, void* sortable, int id, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_tree_sortable_set_sort_func(sortable, id, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my3_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sortable, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_tree_sortable_set_default_sort_func(sortable, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my3_gtk_type_unique(x86emu_t* emu, size_t parent, my_GtkTypeInfo_t* gtkinfo)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_type_unique(parent, findFreeGtkTypeInfo(gtkinfo, parent));
 }
@@ -635,28 +620,72 @@ EXPORT unsigned long my3_gtk_signal_connect(x86emu_t* emu, void* object, void* n
 
 EXPORT void my3_gtk_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_object_set_data_full(object, key, data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT float my3_gtk_spin_button_get_value_as_float(x86emu_t* emu, void* spinner)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     return my->gtk_spin_button_get_value(spinner);
 }
 
 EXPORT void my3_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gtk3_my_t *my = (gtk3_my_t*)lib->priv.w.p2;
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
 
     my->gtk_builder_connect_signals_full(builder, findBuilderConnectFct(f), data);
 }
-//GtkMisc is deprecated in GTK3, so use widget directly...
+
+typedef struct my_connectargs_s {
+  void* module;
+  void* data;
+} my_connectargs_t;
+//defined in gobject2...
+uintptr_t my_g_signal_connect_object(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags);
+uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags);
+static void my3_gtk_builder_connect_signals_default(void* builder, void* object, 
+                                                    char* signal_name, char* handler_name,
+                                                    void* connect_object, uint32_t flags, my_connectargs_t* args)
+{
+  void* func;
+  gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
+
+  func = my->gtk_builder_lookup_callback_symbol(builder, handler_name);
+  if (!func && args && args->module) {
+    my->g_module_symbol(args->module, handler_name, &func);
+  }
+  // Mixing Native and emulated code... the my_g_signal_* function will handle that (GetNativeFnc does)
+  if(!func)
+      func = (void*)FindGlobalSymbol(my_context->maplib, handler_name, 0, NULL);
+
+  if(!func) {
+      my->g_log("Gtk", 1<<4, "Could not find signal handler '%s'.", handler_name);
+      return;
+  }
+
+  if (connect_object)
+    my_g_signal_connect_object(thread_get_emu(), object, signal_name, func, connect_object, flags);
+  else
+    my_g_signal_connect_data(thread_get_emu(), object, signal_name, func, args->data, NULL, flags);
+}
+
+EXPORT void my3_gtk_builder_connect_signals(x86emu_t* emu, void* builder, void* data)
+{
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
+
+    my_connectargs_t args = {0};
+    args.data = data;
+    if(my->g_module_open && my->g_module_close)
+        args.module = my->g_module_open(NULL, 1);
+
+    my->gtk_builder_connect_signals_full(builder, my3_gtk_builder_connect_signals_default, &args);
+
+    if(args.module)
+        my->g_module_close(args.module);
+}
 
 #define PRE_INIT    \
     if(box86_nogtk) \

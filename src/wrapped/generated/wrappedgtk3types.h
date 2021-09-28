@@ -33,6 +33,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gtk_type_class, pFi_t) \
+	GO(gtk_builder_connect_signals, vFpp_t) \
 	GO(gtk_init, vFpp_t) \
 	GO(gtk_type_unique, iFLp_t) \
 	GO(gtk_init_check, iFpp_t) \
