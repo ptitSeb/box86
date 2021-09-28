@@ -105,6 +105,8 @@ typedef struct my_GSourceFuncs_s {
   int  (*check)    (void* source);
   int  (*dispatch) (void* source, GSourceFunc callback,void* user_data);
   void (*finalize) (void* source);
+  GSourceFunc closure;
+  void* marshal;
 } my_GSourceFuncs_t;
 
 #define SUPER() \
@@ -193,7 +195,7 @@ SUPER()
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
 static uintptr_t fct_funcs_prepare_##A = 0;  \
-static int my_funcs_prepare_##A(void* source, int timeout_) {   \
+static int my_funcs_prepare_##A(void* source, int* timeout_) {   \
     return (int)RunFunction(my_context, fct_funcs_prepare_##A, 2, source, timeout_);    \
 }   \
 static uintptr_t fct_funcs_check_##A = 0;  \
