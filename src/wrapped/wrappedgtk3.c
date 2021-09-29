@@ -332,6 +332,28 @@ static void* findGtkTreeViewSearchEqualFuncFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkTreeViewSearchEqualFunc callback\n");
     return NULL;
 }
+// GtkTreeCellDataFunc
+#define GO(A)   \
+static uintptr_t my_GtkTreeCellDataFunc_fct_##A = 0;                                                \
+static void my_GtkTreeCellDataFunc_##A(void* tree, void* cell, void* model, void* iter, void* data) \
+{                                                                                                   \
+    RunFunction(my_context, my_GtkTreeCellDataFunc_fct_##A, 5, tree, cell, model, iter, data);      \
+}
+SUPER()
+#undef GO
+static void* findGtkTreeCellDataFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkTreeCellDataFunc_fct_##A == (uintptr_t)fct) return my_GtkTreeCellDataFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkTreeCellDataFunc_fct_##A == 0) {my_GtkTreeCellDataFunc_fct_##A = (uintptr_t)fct; return my_GtkTreeCellDataFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkTreeCellDataFunc callback\n");
+    return NULL;
+}
 
 // GDestroyNotify
 #define GO(A)   \
@@ -685,6 +707,13 @@ EXPORT void my3_gtk_builder_connect_signals(x86emu_t* emu, void* builder, void* 
 
     if(args.module)
         my->g_module_close(args.module);
+}
+
+EXPORT void my3_gtk_tree_view_column_set_cell_data_func(x86emu_t* emu, void* tree, void* cell, void* f, void* data, void* destroy)
+{
+    gtk3_my_t *my = (gtk3_my_t*)my_lib->priv.w.p2;
+
+    my->gtk_tree_view_column_set_cell_data_func(tree, cell, findGtkTreeCellDataFuncFct(f), data, findGDestroyNotifyFct(destroy));
 }
 
 #define PRE_INIT    \

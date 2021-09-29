@@ -21,6 +21,7 @@ typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
+typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
@@ -51,6 +52,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_text_iter_backward_find_char, iFpppp_t) \
 	GO(gtk_text_iter_forward_find_char, iFpppp_t) \
 	GO(gtk_tree_sortable_set_sort_func, vFpippp_t) \
+	GO(gtk_tree_view_column_set_cell_data_func, vFppppp_t) \
 	GO(gtk_clipboard_set_with_data, iFppuppp_t) \
 	GO(gtk_clipboard_set_with_owner, iFppuppp_t) \
 	GO(gtk_init_with_args, iFpppppp_t) \

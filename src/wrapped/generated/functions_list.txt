@@ -2441,6 +2441,8 @@ wrappedgtk3:
   - gtk_text_iter_forward_find_char
 - vFpippp:
   - gtk_tree_sortable_set_sort_func
+- vFppppp:
+  - gtk_tree_view_column_set_cell_data_func
 - iFppuppp:
   - gtk_clipboard_set_with_data
   - gtk_clipboard_set_with_owner

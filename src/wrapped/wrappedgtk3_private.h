@@ -368,7 +368,7 @@ GO(gtk_cell_renderer_get_type, iFv)
 //GO(gtk_cell_renderer_get_visible, 
 GO(gtk_cell_renderer_mode_get_type, iFv)
 GO(gtk_cell_renderer_pixbuf_get_type, iFv)
-//GO(gtk_cell_renderer_pixbuf_new, 
+GO(gtk_cell_renderer_pixbuf_new, pFv)
 GO(gtk_cell_renderer_progress_get_type, iFv)
 //GO(gtk_cell_renderer_progress_new, 
 //GO(gtk_cell_renderer_render, 
@@ -3398,27 +3398,27 @@ GOM(gtk_tree_sortable_set_default_sort_func, vFEpppp)
 GO(gtk_tree_sortable_set_sort_column_id, vFpii)
 GOM(gtk_tree_sortable_set_sort_func, vFEpippp)
 GO(gtk_tree_sortable_sort_column_changed, vFp)
-//GO(gtk_tree_store_append, 
-//GO(gtk_tree_store_clear, 
+GO(gtk_tree_store_append, vFppp)
+GO(gtk_tree_store_clear, vFp)
 GO(gtk_tree_store_get_type, iFv)
 //GO(gtk_tree_store_insert, 
 //GO(gtk_tree_store_insert_after, 
 //GO(gtk_tree_store_insert_before, 
 //GO(gtk_tree_store_insert_with_values, 
 //GO(gtk_tree_store_insert_with_valuesv, 
-//GO(gtk_tree_store_is_ancestor, 
-//GO(gtk_tree_store_iter_depth, 
-//GO(gtk_tree_store_iter_is_valid, 
+GO(gtk_tree_store_is_ancestor, iFppp)
+GO(gtk_tree_store_iter_depth, iFpp)
+GO(gtk_tree_store_iter_is_valid, iFpp)
 //GO(gtk_tree_store_move_after, 
 //GO(gtk_tree_store_move_before, 
-//GO(gtk_tree_store_new, 
-//GO(gtk_tree_store_newv, 
-//GO(gtk_tree_store_prepend, 
+GO2(gtk_tree_store_new, pFuV, gtk_tree_store_newv)
+GO(gtk_tree_store_newv, pFup)
+GO(gtk_tree_store_prepend, vFppp)
 //GO(gtk_tree_store_remove, 
-//GO(gtk_tree_store_reorder, 
-//GO(gtk_tree_store_set, 
+GO(gtk_tree_store_reorder, vFppp)
+GO2(gtk_tree_store_set, vFppV, gtk_tree_store_set_valist)
 //GO(gtk_tree_store_set_column_types, 
-//GO(gtk_tree_store_set_valist, 
+GO(gtk_tree_store_set_valist, vFppp)
 //GO(gtk_tree_store_set_value, 
 //GO(gtk_tree_store_set_valuesv, 
 //GO(gtk_tree_store_swap, 
@@ -3464,7 +3464,7 @@ GO(gtk_tree_view_column_queue_resize, vFp)
 GO(gtk_tree_view_columns_autosize, vFp)
 GO(gtk_tree_view_column_set_alignment, vFpf)
 GO(gtk_tree_view_column_set_attributes, vFpppppppppppp) //vaarg
-//GOM(gtk_tree_view_column_set_cell_data_func, vFEppBpB)
+GOM(gtk_tree_view_column_set_cell_data_func, vFEppppp)
 GO(gtk_tree_view_column_set_clickable, vFpi)
 GO(gtk_tree_view_column_set_expand, vFpi)
 GO(gtk_tree_view_column_set_fixed_width, vFpi)
