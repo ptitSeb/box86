@@ -400,7 +400,10 @@ GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesNV, iFppp)
 
 // VK_KHR_fragment_shading_rate
 GO(vkCmdSetFragmentShadingRateKHR, vFppp)
-GO(vkGetPhysicalDeviceFragmentShadingRatesKHR, vFppp)
+GO(vkGetPhysicalDeviceFragmentShadingRatesKHR, iFppp)
 
 // VK_NV_coverage_reduction_mode
 GO(vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV, iFppp)
+
+// VK_EXT_tooling_info
+GO(vkGetPhysicalDeviceToolPropertiesEXT, iFppp)
