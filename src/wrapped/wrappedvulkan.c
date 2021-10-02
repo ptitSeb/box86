@@ -36,6 +36,7 @@ typedef struct vulkan_my_s {
     #define GO(A, B)    B   A;
     SUPER()
     #undef GO
+    void* currentInstance;  // track current instance. If using multiple instance, that will be a mess!
 } vulkan_my_t;
 
 void* getVulkanMy(library_t* lib)
@@ -49,6 +50,13 @@ void* getVulkanMy(library_t* lib)
 void freeVulkanMy(void* p)
 {
     //vulkan_my_t* my = (vulkan_my_t*)p;
+}
+void updateInstance(vulkan_my_t* my)
+{
+    void* p;
+    #define GO(A, W) p = my_context->vkprocaddress(my->currentInstance, #A); if(p) my->A = p;
+    SUPER()
+    #undef GO
 }
 
 void fillVulkanProcWrapper(box86context_t*);
@@ -122,11 +130,19 @@ EXPORT void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* instance, void* name)
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
+    if(instance!=my->currentInstance) {
+        my->currentInstance = instance;
+        updateInstance(my);
+    }
     // check if vkprocaddress is filled, and search for lib and fill it if needed
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
-    void* symbol;
+    void* symbol = my_context->vkprocaddress(instance, rname);
+    if(!symbol) {
+        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
+        return NULL;    // easy
+    }
     if(is_my) {
         // try again, by using custom "my_" now...
         char tmp[200];
@@ -134,14 +150,9 @@ EXPORT void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* instance, void* name)
         strcat(tmp, rname);
         symbol = dlsym(emu->context->box86lib, tmp);
         // need to update symbol link maybe
-        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)emu->context->vkprocaddress(instance, rname);;
+        #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)my_context->vkprocaddress(instance, rname);;
         SUPER()
         #undef GO
-    } else 
-        symbol = emu->context->vkprocaddress(instance, rname);
-    if(!symbol) {
-        if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
-        return NULL;    // easy
     }
     return resolveSymbol(emu, symbol, rname);
 }

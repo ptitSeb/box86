@@ -388,3 +388,9 @@ GO(vkGetPhysicalDeviceMultisamplePropertiesEXT, vFpiP)
 
 // VK_EXT_headless_surface
 GOM(vkCreateHeadlessSurfaceEXT, iFEpPpp)
+
+//VK_KHR_performance_query
+GO(vkAcquireProfilingLockKHR, iFpP)
+GO(vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR, iFpuppp)
+GO(vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR, vFppp)
+GO(vkReleaseProfilingLockKHR, vFp)
