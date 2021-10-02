@@ -385,3 +385,6 @@ GO(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, iFppp)
 // VK_EXT_sample_locations
 GO(vkCmdSetSampleLocationsEXT, vFpP)
 GO(vkGetPhysicalDeviceMultisamplePropertiesEXT, vFpiP)
+
+// VK_EXT_headless_surface
+GOM(vkCreateHeadlessSurfaceEXT, iFEpPpp)

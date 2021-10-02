@@ -639,3 +639,5 @@ EXPORT int my_vkDestroyDebugReportCallbackEXT(x86emu_t* emu, void* instance, voi
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
 }
+
+CREATE(vkCreateHeadlessSurfaceEXT)

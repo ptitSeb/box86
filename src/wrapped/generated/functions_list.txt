@@ -3958,6 +3958,7 @@ wrappedvulkan:
   - vkCreateEvent
   - vkCreateFence
   - vkCreateFramebuffer
+  - vkCreateHeadlessSurfaceEXT
   - vkCreateImage
   - vkCreateImageView
   - vkCreatePipelineCache

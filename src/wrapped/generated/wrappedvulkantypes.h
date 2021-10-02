@@ -80,6 +80,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateEvent, iFpPpp_t) \
 	GO(vkCreateFence, iFpPpp_t) \
 	GO(vkCreateFramebuffer, iFpPpp_t) \
+	GO(vkCreateHeadlessSurfaceEXT, iFpPpp_t) \
 	GO(vkCreateImage, iFpPpp_t) \
 	GO(vkCreateImageView, iFpPpp_t) \
 	GO(vkCreatePipelineCache, iFpPpp_t) \
