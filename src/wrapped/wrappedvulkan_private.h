@@ -394,3 +394,6 @@ GO(vkAcquireProfilingLockKHR, iFpP)
 GO(vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR, iFpuppp)
 GO(vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR, vFppp)
 GO(vkReleaseProfilingLockKHR, vFp)
+
+// VK_NV_cooperative_matrix
+GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesNV, iFppp)
