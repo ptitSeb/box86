@@ -25,6 +25,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "dynarec_arm_functions.h"
+#include "bridge.h"
 
 void arm_fstp(x86emu_t* emu, void* p)
 {
