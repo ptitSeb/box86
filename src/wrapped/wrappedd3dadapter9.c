@@ -98,6 +98,7 @@ static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9);
 
 const char* d3dadapter9Name = "d3dadapter9.so.1";
 #define LIBNAME d3dadapter9
+#define ALTNAME "/usr/lib/arm-linux-gnueabihf/d3d/d3dadapter9.so.1"
 
 typedef void* (*pFp_t)(void*);
 

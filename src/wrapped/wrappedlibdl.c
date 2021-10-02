@@ -78,8 +78,13 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             if(sys)
                 return sys;
         }
+        if(!strcmp(rfilename, "/usr/lib/i386-linux-gnu/d3d")) {
+            void* sys = my_dlopen(emu, "d3dadapter9.so.1", flag);
+            if(sys)
+                return sys;
+        }
         if(dlsym_error || box86_log>=LOG_DEBUG) {
-            printf_log(LOG_NONE, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+            printf_log(LOG_NONE, "BOX86: Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
         }
         // check if alread dlopenned...
         for (int i=0; i<dl->lib_sz; ++i) {
