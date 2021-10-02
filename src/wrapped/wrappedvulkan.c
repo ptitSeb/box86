@@ -73,7 +73,7 @@ static void* resolveSymbol(x86emu_t* emu, void* symbol, const char* rname)
     }
     if(k==kh_end(emu->context->vkwrappers)) {
         if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", NULL);
-        if(dlsym_error && box86_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
+        if(dlsym_error) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
@@ -122,7 +122,7 @@ EXPORT void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* instance, void* name)
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
+    // check if vkprocaddress is filled, and search for lib and fill it if needed
     // get proc adress using actual glXGetProcAddress
     k = kh_get(symbolmap, emu->context->vkmymap, rname);
     int is_my = (k==kh_end(emu->context->vkmymap))?0:1;
