@@ -3934,12 +3934,14 @@ wrappedvulkan:
 - iFpUp:
   - vkFreeMemory
 - iFppp:
+  - vkDestroyDebugReportCallbackEXT
   - vkGetPhysicalDeviceDisplayPropertiesKHR
 - iFPpp:
   - vkCreateInstance
 - iFpUup:
   - vkGetDisplayPlaneCapabilitiesKHR
 - iFpppp:
+  - vkCreateDebugReportCallbackEXT
   - vkCreateDebugUtilsMessengerEXT
   - vkCreateWaylandSurfaceKHR
 - iFpPpp:

@@ -60,9 +60,11 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroySwapchainKHR, vFpUp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
 	GO(vkFreeMemory, iFpUp_t) \
+	GO(vkDestroyDebugReportCallbackEXT, iFppp_t) \
 	GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t) \
 	GO(vkCreateInstance, iFPpp_t) \
 	GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t) \
+	GO(vkCreateDebugReportCallbackEXT, iFpppp_t) \
 	GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t) \
 	GO(vkCreateWaylandSurfaceKHR, iFpppp_t) \
 	GO(vkAllocateMemory, iFpPpp_t) \

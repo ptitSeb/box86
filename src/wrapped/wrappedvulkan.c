@@ -23,93 +23,13 @@ const char* vulkanName = "libvulkan.so.1";
 #define LIBNAME vulkan
 static library_t *my_lib = NULL;
 
-typedef void(*vFpp_t)       (void*, void*);
-typedef void*(*pFpp_t)      (void*, void*);
-typedef int (*iFppp_t)      (void*, void*, void*);
-typedef void(*vFppp_t)      (void*, void*, void*);
 typedef void(*vFpUp_t)      (void*, uint64_t, void*);
-typedef int (*iFpppp_t)     (void*, void*, void*, void*);
-typedef int (*iFpUup_t)     (void*, uint64_t, uint32_t, void*);
-typedef int (*iFppppp_t)    (void*, void*, void*, void*, void*);
-typedef int (*iFpuppp_t)    (void*, uint32_t, void*, void*, void*);
-typedef int (*iFpUppp_t)    (void*, uint64_t, void*, void*, void*);
-typedef void(*vFpupup_t)    (void*, uint32_t, void*, uint32_t, void*);
-typedef int (*iFpUuppp_t)   (void*, uint64_t, uint32_t, void*, void*, void*);
-typedef void(*vFpiiiiipp_t) (void*, int, int, int, int, int, void*, void*);
-typedef void(*vFpiiiupupup_t)(void*, int, int, int, uint32_t, void*, uint32_t, void*, uint32_t, void*);
 
-#define SUPER() \
-    GO(vkAllocateMemory, iFpppp_t)                  \
-    GO(vkCreateBuffer, iFpppp_t)                    \
-    GO(vkCreateBufferView, iFpppp_t)                \
-    GO(vkCreateCommandPool, iFpppp_t)               \
-    GO(vkCreateComputePipelines, iFpUuppp_t)        \
-    GO(vkCreateDescriptorPool, iFpppp_t)            \
-    GO(vkCreateDescriptorSetLayout, iFpppp_t)       \
-    GO(vkCreateDescriptorUpdateTemplate, iFpppp_t)  \
-    GO(vkCreateDescriptorUpdateTemplateKHR, iFpppp_t)\
-    GO(vkCreateDevice, iFpppp_t)                    \
-    GO(vkCreateDisplayModeKHR, iFpUppp_t)           \
-    GO(vkCreateDisplayPlaneSurfaceKHR, iFpppp_t)    \
-    GO(vkCreateEvent, iFpppp_t)                     \
-    GO(vkCreateFence, iFpppp_t)                     \
-    GO(vkCreateFramebuffer, iFpppp_t)               \
-    GO(vkCreateGraphicsPipelines, iFpUuppp_t)       \
-    GO(vkCreateImage, iFpppp_t)                     \
-    GO(vkCreateImageView, iFpppp_t)                 \
-    GO(vkCreateInstance, iFppp_t)                   \
-    GO(vkCreatePipelineCache, iFpppp_t)             \
-    GO(vkCreatePipelineLayout, iFpppp_t)            \
-    GO(vkCreateQueryPool, iFpppp_t)                 \
-    GO(vkCreateRenderPass, iFpppp_t)                \
-    GO(vkCreateSampler, iFpppp_t)                   \
-    GO(vkCreateSamplerYcbcrConversion, iFpppp_t)    \
-    GO(vkCreateSemaphore, iFpppp_t)                 \
-    GO(vkCreateShaderModule, iFpppp_t)              \
-    GO(vkCreateSharedSwapchainsKHR, iFpuppp_t)      \
-    GO(vkCreateSwapchainKHR, iFpppp_t)              \
-    GO(vkCreateWaylandSurfaceKHR, iFpppp_t)         \
-    GO(vkCreateXcbSurfaceKHR, iFpppp_t)             \
-    GO(vkCreateXlibSurfaceKHR, iFpppp_t)            \
-    GO(vkDestroyBuffer, vFpUp_t)                    \
-    GO(vkDestroyBufferView, vFpUp_t)                \
-    GO(vkDestroyCommandPool, vFpUp_t)               \
-    GO(vkDestroyDescriptorPool, vFpUp_t)            \
-    GO(vkDestroyDescriptorSetLayout, vFpUp_t)       \
-    GO(vkDestroyDescriptorUpdateTemplate, vFpUp_t)  \
-    GO(vkDestroyDescriptorUpdateTemplateKHR, vFpUp_t)\
-    GO(vkDestroyDevice, vFpp_t)                     \
-    GO(vkDestroyEvent, vFpUp_t)                     \
-    GO(vkDestroyFence, vFpUp_t)                     \
-    GO(vkDestroyFramebuffer, vFpUp_t)               \
-    GO(vkDestroyImage, vFpUp_t)                     \
-    GO(vkDestroyImageView, vFpUp_t)                 \
-    GO(vkDestroyInstance, vFpp_t)                   \
-    GO(vkDestroyPipeline, vFpUp_t)                  \
-    GO(vkDestroyPipelineCache, vFpUp_t)             \
-    GO(vkDestroyPipelineLayout, vFpUp_t)            \
-    GO(vkDestroyQueryPool, vFpUp_t)                 \
-    GO(vkDestroyRenderPass, vFpUp_t)                \
-    GO(vkDestroySampler, vFpUp_t)                   \
+#define ADDED_FUNCTIONS()                           \
     GO(vkDestroySamplerYcbcrConversion, vFpUp_t)    \
-    GO(vkDestroySamplerYcbcrConversionKHR, vFpUp_t) \
-    GO(vkDestroySemaphore, vFpUp_t)                 \
-    GO(vkDestroyShaderModule, vFpUp_t)              \
-    GO(vkDestroySurfaceKHR, vFpUp_t)                \
-    GO(vkDestroySwapchainKHR, vFpUp_t)              \
-    GO(vkFreeMemory, vFpUp_t)                       \
-    GO(vkGetDeviceProcAddr, pFpp_t)                 \
-    GO(vkGetInstanceProcAddr, pFpp_t)               \
-    GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t)    \
-    GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t)    \
-    GO(vkGetPhysicalDeviceProperties, vFpp_t)       \
-    GO(vkGetPhysicalDeviceQueueFamilyProperties, vFppp_t)               \
-    GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiiipp_t)    \
-    GO(vkUpdateDescriptorSets, vFpupup_t)           \
-    GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t)  \
-    GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t)                \
-    GO(vkGetPhysicalDeviceMemoryProperties, vFpp_t) \
-    GO(vkCmdPipelineBarrier, vFpiiiupupup_t)        \
+
+
+#include "generated/wrappedvulkantypes.h"
 
 typedef struct vulkan_my_s {
     // functions
@@ -353,6 +273,28 @@ static void* find_InternalFreeNotification_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for Vulkan InternalFreeNotification callback\n");
+    return NULL;
+}
+// DebugReportCallbackEXT ...
+#define GO(A)   \
+static uintptr_t my_DebugReportCallbackEXT_fct_##A = 0;                                                                             \
+static int my_DebugReportCallbackEXT_##A(int a, int b, uint64_t c, size_t d, int e, void* f, void* g, void* h)                      \
+{                                                                                                                                   \
+    return RunFunction(my_context, my_DebugReportCallbackEXT_fct_##A, 9, a, b, c&0xffffffff, (c>>32)&0xffffffff, d, e, f, g, h);    \
+}
+SUPER()
+#undef GO
+static void* find_DebugReportCallbackEXT_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DebugReportCallbackEXT_fct_##A == (uintptr_t)fct) return my_DebugReportCallbackEXT_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DebugReportCallbackEXT_fct_##A == 0) {my_DebugReportCallbackEXT_fct_##A = (uintptr_t)fct; return my_DebugReportCallbackEXT_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Vulkan DebugReportCallbackEXT callback\n");
     return NULL;
 }
 
@@ -670,4 +612,30 @@ EXPORT void my_vkCmdPipelineBarrier(x86emu_t* emu, void* device, int src, int ds
     void* aligned = (imageCount)?vkalignStruct(pImages, desc, imageCount):NULL;
     my->vkCmdPipelineBarrier(device, src, dst, dep, barrierCount, pBarriers, bufferCount, pBuffers, imageCount, aligned);
     if(imageCount) vkunalignStruct(pImages, aligned, desc, imageCount);
+}
+
+typedef struct my_VkDebugReportCallbackCreateInfoEXT_s {
+    int         sType;
+    void*       pNext;
+    uint32_t    flags;
+    void*       pfnCallback;
+    void*       pUserData;
+} my_VkDebugReportCallbackCreateInfoEXT_t;
+
+EXPORT int my_vkCreateDebugReportCallbackEXT(x86emu_t* emu, void* instance, 
+                                             my_VkDebugReportCallbackCreateInfoEXT_t* create, 
+                                             my_VkAllocationCallbacks_t* alloc, void* callback)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    my_VkDebugReportCallbackCreateInfoEXT_t dbg = *create;
+    my_VkAllocationCallbacks_t my_alloc; 
+    dbg.pfnCallback = find_DebugReportCallbackEXT_Fct(dbg.pfnCallback);
+    return my->vkCreateDebugReportCallbackEXT(instance, &dbg, find_VkAllocationCallbacks(&my_alloc, alloc), callback);
+}
+
+EXPORT int my_vkDestroyDebugReportCallbackEXT(x86emu_t* emu, void* instance, void* callback, void* alloc)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
 }

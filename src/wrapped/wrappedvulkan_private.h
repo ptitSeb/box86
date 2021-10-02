@@ -206,9 +206,9 @@ GO(vkTrimCommandPool, vFpUi)
 GO(vkResetQueryPool, vFpUuu)
 
 // VK_EXT_debug_report
-//GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
+GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
 GO(vkDebugReportMessageEXT, vFpiiULipp)
-//GOM(vkDestroyDebugReportCallbackEXT, iFEppp)
+GOM(vkDestroyDebugReportCallbackEXT, iFEppp)
 
 //VK_EXT_debug_utils
 GO(vkCmdBeginDebugUtilsLabelEXT, vFpp)  //TODO: Cehck alignement of this extension
