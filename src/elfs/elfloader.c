@@ -490,14 +490,14 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, elfheader_t* head, int cn
             case R_386_GLOB_DAT:
                 if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, version, vername)) {
                     // set global offs / size for the symbol
-                    offs = sym->st_value + head->delta;
+                    offs = sym->st_value;
                     end = offs + sym->st_size;
-                    if(sym->st_size) {
-                        printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY %p/%p (%p/%p -> %p/%p) size=%d on sym=%s (ver %d/%s) \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, version, vername?vername:"(none)");
-                        memmove((void*)globoffs, (void*)offs, sym->st_size);   // preapply to copy part from lib to main elf
-                        AddWeakSymbol(GetGlobalData(maplib), symname, offs, sym->st_size, version, vername);
+                    if(sym->st_size && offs) {
+                        printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY %p/%p (%p/%p -> %p/%p) size=%d on sym=%s (ver %d/%s) \n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)(offs + head->delta), (void*)globoffs, sym->st_size, symname, version, vername?vername:"(none)");
+                        memmove((void*)globoffs, (void*)(offs + head->delta), sym->st_size);   // preapply to copy part from lib to main elf
+                        AddWeakSymbol(GetGlobalData(maplib), symname, offs + head->delta, sym->st_size, version, vername);
                     } else {
-                        printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY %p/%p (%p/%p -> %p/%p) null sized on sym=%s (ver %d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname, version, vername?vername:"(none)");
+                        printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY %p/%p (%p/%p -> %p/%p) null sized/value on sym=%s (ver %d/%s)\n", (bind==STB_LOCAL)?"Local":"Global", p, globp, (void*)(p?(*p):0), (void*)(globp?(*globp):0), (void*)offs, (void*)globoffs, symname, version, vername?vername:"(none)");
                     }
                     *p = globoffs;
                 } else {
