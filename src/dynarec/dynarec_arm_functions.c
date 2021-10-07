@@ -210,7 +210,7 @@ int fpu_get_scratch_quad(dynarec_arm_t* dyn)
         if(dyn->fpu_extra_qscratch) {
             dynarec_log(LOG_NONE, "Warning, Extra QScratch slot taken and need another one!\n");
         } else
-            dyn->fpu_extra_qscratch = fpu_get_reg_quad(dyn);
+            dyn->fpu_extra_qscratch = fpu_get_reg_quad(dyn, NEON_CACHE_SCR, 0);
         return dyn->fpu_extra_qscratch;
     }
     int i = (dyn->fpu_scratch+3)&(~3);
@@ -228,12 +228,14 @@ void fpu_reset_scratch(dynarec_arm_t* dyn)
 }
 #define FPUFIRST    8
 // Get a FPU double reg
-int fpu_get_reg_double(dynarec_arm_t* dyn)
+int fpu_get_reg_double(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     // TODO: check upper limit?
     int i=0;
     while (dyn->fpuused[i]) ++i;
     dyn->fpuused[i] = 1;
+    dyn->neoncache[i].n = n;
+    dyn->neoncache[i].t = t;
     return i+FPUFIRST; // return a Dx
 }
 // Free a FPU double reg
@@ -242,13 +244,18 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
     // TODO: check upper limit?
     int i=reg-FPUFIRST;
     dyn->fpuused[i] = 0;
+    dyn->neoncache[i].v = 0;
 }
 // Get a FPU quad reg
-int fpu_get_reg_quad(dynarec_arm_t* dyn)
+int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     int i=0;
     while (dyn->fpuused[i] || dyn->fpuused[i+1]) i+=2;
     dyn->fpuused[i] = dyn->fpuused[i+1] = 1;
+    dyn->neoncache[i].t = t;
+    dyn->neoncache[i].n = n;
+    dyn->neoncache[i+1].t = t;
+    dyn->neoncache[i+1].n = n;
     return i+FPUFIRST; // Return a Dx, not a Qx
 }
 // Free a FPU quad reg
@@ -256,13 +263,17 @@ void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
 {
     int i=reg-FPUFIRST;
     dyn->fpuused[i] = dyn->fpuused[i+1] = 0;
+    dyn->neoncache[i].v = 0;
+    dyn->neoncache[i+1].v = 0;
 }
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn)
 {
     dyn->fpu_reg = 0;
-    for (int i=0; i<24; ++i)
+    for (int i=0; i<24; ++i) {
         dyn->fpuused[i]=0;
+        dyn->neoncache[i].v = 0;
+    }
 }
 
 #define F8      *(uint8_t*)(addr++)

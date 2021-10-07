@@ -465,6 +465,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
 #define x87_do_pop      STEPNAME(x87_do_pop)
 #define x87_get_cache   STEPNAME(x87_get_cache)
+#define x87_get_neoncache STEPNAME(x87_get_neoncache)
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
 #define x87_forget      STEPNAME(x87_forget)
@@ -597,6 +598,8 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
 // get cache index for a x87 reg, create the entry if needed
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+// get neoncache index for a x87 reg
+int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x87 reg, create the entry if needed
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // refresh a value from the cache ->emu (nothing done if value is not cached)

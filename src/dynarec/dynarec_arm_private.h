@@ -20,6 +20,20 @@ typedef struct instruction_arm_s {
     int                 retn;
 } instruction_arm_t;
 
+#define NEON_CACHE_NONE 0
+#define NEON_CACHE_ST   1
+#define NEON_CACHE_MM   2
+#define NEON_CACHE_XMMW 3
+#define NEON_CACHE_XMMR 4
+#define NEON_CACHE_SCR  5
+typedef union neon_cache_s {
+    int8_t           v;
+    struct {
+        unsigned int t:4;   // reg type
+        unsigned int n:4;   // reg number
+    };
+} neon_cache_t;
+
 typedef union sse_cache_s {
     int     v;
     struct {
@@ -43,6 +57,7 @@ typedef struct dynarec_arm_s {
     int                 mmxcache[8];// cache status for the 8 MMX registers
     sse_cache_t         ssecache[8];// cache status for the 8 SSE(2) registers
     int                 fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
+    neon_cache_t        neoncache[25];  // cache for the 8..31 double reg from fpu, plus x87 stack delta
     int                 x87stack;   // cache stack counter
     int                 mmxcount;   // number of mmx register used (not both mmx and x87 at the same time)
     int                 fpu_scratch;// scratch counter
