@@ -1,6 +1,7 @@
 #define INIT    
 #define FINI     \
     dyn->insts[ninst].x86.addr = addr; \
+    dyn->insts[ninst].n = dyn->n;   \
     if(ninst) dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr;
 #define MESSAGE(A, ...)  
 #define EMIT(A)     

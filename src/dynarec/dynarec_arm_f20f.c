@@ -184,12 +184,14 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             GETEX(d0, 0);
-            d1 = fpu_get_scratch_double(dyn);
-            s0 = fpu_get_scratch_single(dyn);
-            VCVT_F32_F64(s0, d0);
-            VMOV_64(d1, v0);
-            VMOV_32(d1*2, s0);
-            VMOV_64(v0, d1);
+            if(v0<16) {
+                VCVT_F32_F64(v0*2, d0);
+            } else {
+                d1 = fpu_get_scratch_double(dyn);
+                VMOV_64(d1, v0);
+                VCVT_F32_F64(d1*2, d0);
+                VMOV_64(v0, d1);
+            }
             break;
 
         case 0x5C:

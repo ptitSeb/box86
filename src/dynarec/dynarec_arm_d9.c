@@ -80,9 +80,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // swap those too
             i1 = x87_get_neoncache(dyn, ninst, x1, x2, nextop&7);
             i2 = x87_get_neoncache(dyn, ninst, x1, x2, 0);
-            i3 = dyn->neoncache[i1].v;
-            dyn->neoncache[i1].v = dyn->neoncache[i2].v;
-            dyn->neoncache[i2].v = i3;
+            i3 = dyn->n.neoncache[i1].v;
+            dyn->n.neoncache[i1].v = dyn->n.neoncache[i2].v;
+            dyn->n.neoncache[i2].v = i3;
             break;
 
         case 0xD0:

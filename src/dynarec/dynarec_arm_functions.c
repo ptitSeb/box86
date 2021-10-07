@@ -234,8 +234,8 @@ int fpu_get_reg_double(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
     int i=0;
     while (dyn->fpuused[i]) ++i;
     dyn->fpuused[i] = 1;
-    dyn->neoncache[i].n = n;
-    dyn->neoncache[i].t = t;
+    dyn->n.neoncache[i].n = n;
+    dyn->n.neoncache[i].t = t;
     return i+FPUFIRST; // return a Dx
 }
 // Free a FPU double reg
@@ -244,7 +244,7 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
     // TODO: check upper limit?
     int i=reg-FPUFIRST;
     dyn->fpuused[i] = 0;
-    dyn->neoncache[i].v = 0;
+    dyn->n.neoncache[i].v = 0;
 }
 // Get a FPU quad reg
 int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
@@ -252,10 +252,10 @@ int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
     int i=0;
     while (dyn->fpuused[i] || dyn->fpuused[i+1]) i+=2;
     dyn->fpuused[i] = dyn->fpuused[i+1] = 1;
-    dyn->neoncache[i].t = t;
-    dyn->neoncache[i].n = n;
-    dyn->neoncache[i+1].t = t;
-    dyn->neoncache[i+1].n = n;
+    dyn->n.neoncache[i].t = t;
+    dyn->n.neoncache[i].n = n;
+    dyn->n.neoncache[i+1].t = t;
+    dyn->n.neoncache[i+1].n = n;
     return i+FPUFIRST; // Return a Dx, not a Qx
 }
 // Free a FPU quad reg
@@ -263,8 +263,8 @@ void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
 {
     int i=reg-FPUFIRST;
     dyn->fpuused[i] = dyn->fpuused[i+1] = 0;
-    dyn->neoncache[i].v = 0;
-    dyn->neoncache[i+1].v = 0;
+    dyn->n.neoncache[i].v = 0;
+    dyn->n.neoncache[i+1].v = 0;
 }
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn)
@@ -272,7 +272,7 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
     dyn->fpu_reg = 0;
     for (int i=0; i<24; ++i) {
         dyn->fpuused[i]=0;
-        dyn->neoncache[i].v = 0;
+        dyn->n.neoncache[i].v = 0;
     }
 }
 

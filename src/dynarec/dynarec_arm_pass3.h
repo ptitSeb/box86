@@ -22,18 +22,18 @@
             dyn->insts[ninst].x86.use_flags,    \
             dyn->insts[ninst].x86.need_flags);  \
         for(int ii=0; ii<24; ++ii) {            \
-            switch(dyn->neoncache[ii].t) {  \
-                case NEON_CACHE_ST: dynarec_log(LOG_NONE, " D%d:ST%d", ii+8, dyn->neoncache[ii].n); break;               \
-                case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:MM%d", ii+8, dyn->neoncache[ii].n); break;               \
-                case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:XMM%d", (ii+8)/2, dyn->neoncache[ii].n); ++ii; break;   \
-                case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:xmm%d", (ii+8)/2, dyn->neoncache[ii].n); ++ii; break;   \
-                case NEON_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:Scratch", ii+8); break;                                 \
+            switch(dyn->n.neoncache[ii].t) {    \
+                case NEON_CACHE_ST: dynarec_log(LOG_NONE, " D%d:ST%d", ii+8, dyn->n.neoncache[ii].n); break;                \
+                case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:MM%d", ii+8, dyn->n.neoncache[ii].n); break;                \
+                case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:XMM%d", (ii+8)/2, dyn->n.neoncache[ii].n); ++ii; break;   \
+                case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:xmm%d", (ii+8)/2, dyn->n.neoncache[ii].n); ++ii; break;   \
+                case NEON_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:Scratch", ii+8); break;                                    \
                 case NEON_CACHE_NONE:           \
                 default:    break;              \
             }                                   \
         }                                       \
-        if(dyn->neoncache[24].v)                \
-            printf_log(LOG_NONE, " st:%d", dyn->neoncache[24].v);           \
+        if(dyn->n.ststack)                      \
+            printf_log(LOG_NONE, " st:%d", dyn->n.ststack);                 \
         dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");    \
     }
 

@@ -457,10 +457,10 @@ static void x87_reset(dynarec_arm_t* dyn, int ninst)
     for (int i=0; i<8; ++i)
         dyn->x87cache[i] = -1;
     dyn->x87stack = 0;
-    dyn->neoncache[24].v = 0;
+    dyn->n.ststack = 0;
     for(int i=0; i<24; ++i)
-        if(dyn->neoncache[i].t == NEON_CACHE_ST)
-            dyn->neoncache[i].v = 0;
+        if(dyn->n.neoncache[i].t == NEON_CACHE_ST)
+            dyn->n.neoncache[i].v = 0;
 #endif
 }
 
@@ -492,7 +492,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     STR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
     // reset x87stack
     dyn->x87stack = 0;
-    dyn->neoncache[24].v = 0;
+    dyn->n.ststack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
 #endif
 }
@@ -503,11 +503,11 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1)
     if(dyn->mmxcount)
         mmx_purgecache(dyn, ninst, s1);
     dyn->x87stack+=1;
-    dyn->neoncache[24].v+=1;
+    dyn->n.ststack+=1;
     // move all regs in cache, and find a free one
     for(int j=0; j<24; ++j)
-        if(dyn->neoncache[j].t == NEON_CACHE_ST)
-            ++dyn->neoncache[j].n;
+        if(dyn->n.neoncache[j].t == NEON_CACHE_ST)
+            ++dyn->n.neoncache[j].n;
     int ret = -1;
     for(int i=0; i<8; ++i)
         if(dyn->x87cache[i]!=-1)
@@ -527,11 +527,11 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
     if(dyn->mmxcount)
         mmx_purgecache(dyn, ninst, s1);
     dyn->x87stack+=1;
-    dyn->neoncache[24].v+=1;
+    dyn->n.ststack+=1;
     // move all regs in cache
     for(int j=0; j<24; ++j)
-        if(dyn->neoncache[j].t == NEON_CACHE_ST)
-            ++dyn->neoncache[j].n;
+        if(dyn->n.neoncache[j].t == NEON_CACHE_ST)
+            ++dyn->n.neoncache[j].n;
     for(int i=0; i<8; ++i)
         if(dyn->x87cache[i]!=-1)
             ++dyn->x87cache[i];
@@ -545,11 +545,11 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
     if(dyn->mmxcount)
         mmx_purgecache(dyn, ninst, s1);
     dyn->x87stack-=1;
-    dyn->neoncache[24].v-=1;
+    dyn->n.ststack-=1;
     // move all regs in cache, poping ST0
     for(int j=0; j<24; ++j)
-        if(dyn->neoncache[j].t == NEON_CACHE_ST && dyn->neoncache[j].n)
-            --dyn->neoncache[j].n;
+        if(dyn->n.neoncache[j].t == NEON_CACHE_ST && dyn->n.neoncache[j].n)
+            --dyn->n.neoncache[j].n;
     for(int i=0; i<8; ++i)
         if(dyn->x87cache[i]!=-1) {
             --dyn->x87cache[i];
@@ -575,7 +575,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     if(a!=0) {
         // reset x87stack
         dyn->x87stack = 0;
-        dyn->neoncache[24].v = 0;
+        dyn->n.ststack = 0;
         // Add x87stack to emu fpu_stack
         LDR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
         if(a>0) {
@@ -711,7 +711,7 @@ int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
 #if STEP > 0
     for(int ii=0; ii<24; ++ii)
-        if(dyn->neoncache[ii].t == NEON_CACHE_ST && dyn->neoncache[ii].n==st)
+        if(dyn->n.neoncache[ii].t == NEON_CACHE_ST && dyn->n.neoncache[ii].n==st)
             return ii;
 #endif
     return 0;
@@ -985,8 +985,8 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite)
     if(dyn->ssecache[a].v!=-1) {
         if(forwrite) {
             dyn->ssecache[a].write = 1;    // update only if forwrite
-            dyn->neoncache[dyn->ssecache[a].reg+0].t = NEON_CACHE_XMMW;
-            dyn->neoncache[dyn->ssecache[a].reg+1].t = NEON_CACHE_XMMW;
+            dyn->n.neoncache[dyn->ssecache[a].reg+0].t = NEON_CACHE_XMMW;
+            dyn->n.neoncache[dyn->ssecache[a].reg+1].t = NEON_CACHE_XMMW;
         }
         return dyn->ssecache[a].reg;
     }
@@ -1012,8 +1012,8 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 #if STEP > 0
     if(dyn->ssecache[a].v!=-1) {
         dyn->ssecache[a].write = 1;
-        dyn->neoncache[dyn->ssecache[a].reg+0].t = NEON_CACHE_XMMW;
-        dyn->neoncache[dyn->ssecache[a].reg+1].t = NEON_CACHE_XMMW;
+        dyn->n.neoncache[dyn->ssecache[a].reg+0].t = NEON_CACHE_XMMW;
+        dyn->n.neoncache[dyn->ssecache[a].reg+1].t = NEON_CACHE_XMMW;
         return dyn->ssecache[a].reg;
     }
     dyn->ssecache[a].reg = fpu_get_reg_quad(dyn, NEON_CACHE_XMMW, a);
