@@ -2091,6 +2091,8 @@ wrappeddbus:
   - dbus_connection_remove_filter
   - dbus_timeout_set_data
   - dbus_watch_set_data
+- iFpiV:
+  - dbus_message_append_args
 - vFpppp:
   - dbus_connection_set_dispatch_status_function
   - dbus_connection_set_wakeup_main_function
@@ -2130,6 +2132,9 @@ wrappedexpat:
 - vFppp:
   - XML_SetElementHandler
 wrappedfontconfig:
+- pFpV:
+  - FcObjectSetBuild
+  - FcPatternBuild
 - iFppiuui:
   - FcPatternAdd
   - FcPatternAddWeak
@@ -2158,6 +2163,12 @@ wrappedgdkpixbuf2:
 - pFpiiiiiipp:
   - gdk_pixbuf_new_from_data
 wrappedgdkx112:
+- vFp:
+  - gdk_bitmap_unref
+  - gdk_pixmap_unref
+- pFp:
+  - gdk_bitmap_ref
+  - gdk_pixmap_ref
 - vFpp:
   - gdk_init
 - iFpp:
@@ -2190,8 +2201,13 @@ wrappedgio2:
   - g_simple_async_result_new
   - g_simple_async_result_new_from_error
   - g_simple_async_result_new_take_error
+- pFpppV:
+  - g_dbus_message_new_method_error
 - vFpippp:
   - g_async_initable_init_async
+- vFpuipV:
+  - g_dbus_method_invocation_return_error
+  - g_simple_async_result_set_error
 - vFpipppp:
   - g_dbus_connection_new_for_address
 - vFiippppV:
@@ -2232,6 +2248,8 @@ wrappedgio2:
 - vFpppppppiippp:
   - g_dbus_connection_call
 wrappedglib2:
+- vFp:
+  - g_atexit
 - pFp:
   - g_completion_new
   - g_main_context_get_poll_func
@@ -2255,6 +2273,8 @@ wrappedglib2:
 - iFpp:
   - g_source_remove_by_funcs_user_data
   - g_vprintf
+- iFpV:
+  - g_printf
 - uFpp:
   - g_idle_add
   - g_printf_string_upper_bound
@@ -2273,7 +2293,10 @@ wrappedglib2:
 - pFpV:
   - g_build_filename
   - g_markup_printf_escaped
+  - g_strdup_printf
+  - g_strjoin
   - g_variant_new
+  - g_variant_new_parsed
 - vFppp:
   - g_array_sort_with_data
   - g_hash_table_foreach
@@ -2281,11 +2304,16 @@ wrappedglib2:
   - g_ptr_array_sort_with_data
   - g_static_private_set
 - vFppV:
+  - g_string_append_printf
+  - g_string_printf
   - g_variant_get
 - iFppp:
   - g_vasprintf
   - g_vfprintf
   - g_vsprintf
+- iFppV:
+  - g_fprintf
+  - g_sprintf
 - uFipp:
   - g_child_watch_add
 - uFupp:
@@ -2310,13 +2338,19 @@ wrappedglib2:
   - g_datalist_id_set_data_full
 - vFpppp:
   - g_source_set_callback
+- vFpppV:
+  - g_log
 - iFpLpp:
   - g_vsnprintf
+- iFpLpV:
+  - g_snprintf
 - uFippp:
   - g_idle_add_full
 - uFpipp:
   - g_io_add_watch
   - g_log_set_handler
+- pFpipV:
+  - g_error_new
 - pFpupp:
   - g_datalist_id_dup_data
 - pFppip:
@@ -2369,6 +2403,9 @@ wrappedgobject2:
 - vFiip:
   - g_type_add_interface_static
   - g_value_register_transform_func
+- vFppV:
+  - g_object_get
+  - g_object_set
 - iFppp:
   - g_boxed_type_register_static
 - pFipV:
@@ -2377,6 +2414,8 @@ wrappedgobject2:
   - g_value_array_sort_with_data
 - pFppV:
   - g_object_connect
+- vFpuuV:
+  - g_signal_emit
 - vFpupp:
   - g_param_spec_set_qdata_full
 - vFpppp:
@@ -2421,14 +2460,22 @@ wrappedgtk3:
   - gtk_type_unique
 - iFpp:
   - gtk_init_check
+- pFiV:
+  - gtk_list_store_new
+- pFuV:
+  - gtk_tree_store_new
 - vFppp:
   - gtk_builder_connect_signals_full
   - gtk_container_forall
   - gtk_menu_attach_to_widget
 - vFppV:
   - gtk_dialog_add_buttons
+  - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+  - gtk_tree_model_get
+  - gtk_tree_store_set
+  - gtk_widget_style_get
 - uFupp:
   - gtk_timeout_add
 - vFpppp:
@@ -2436,6 +2483,9 @@ wrappedgtk3:
   - gtk_stock_set_translate_func
   - gtk_tree_sortable_set_default_sort_func
   - gtk_tree_view_set_search_equal_func
+- vFpppV:
+  - gtk_container_child_get
+  - gtk_container_child_set
 - iFpppp:
   - gtk_text_iter_backward_find_char
   - gtk_text_iter_forward_find_char
@@ -2472,10 +2522,16 @@ wrappedgtkx112:
 - vFpp:
   - gtk_builder_connect_signals
   - gtk_init
+- iFii:
+  - gtk_type_is_a
 - iFip:
   - gtk_type_unique
 - iFpp:
   - gtk_init_check
+- pFiV:
+  - gtk_list_store_new
+- pFuV:
+  - gtk_tree_store_new
 - pFpi:
   - gtk_type_check_object_cast
 - vFppp:
@@ -2487,8 +2543,12 @@ wrappedgtkx112:
   - gtk_tree_model_foreach
 - vFppV:
   - gtk_dialog_add_buttons
+  - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+  - gtk_tree_model_get
+  - gtk_tree_store_set
+  - gtk_widget_style_get
 - uFupp:
   - gtk_timeout_add
 - vFppup:
@@ -2499,6 +2559,9 @@ wrappedgtkx112:
   - gtk_stock_set_translate_func
   - gtk_tree_sortable_set_default_sort_func
   - gtk_tree_view_set_search_equal_func
+- vFpppV:
+  - gtk_container_child_get
+  - gtk_container_child_set
 - iFpppp:
   - gtk_text_iter_backward_find_char
   - gtk_text_iter_forward_find_char
@@ -2569,8 +2632,10 @@ wrappedlibc:
 - vFp:
 - iFv:
 - iFi:
+  - __close_nocancel
 - iFL:
 - iFp:
+  - getwc
 - iFO:
 - uFv:
 - uFu:
@@ -2580,6 +2645,8 @@ wrappedlibc:
   - getpwuid
 - pFL:
 - pFp:
+  - __secure_getenv
+  - secure_getenv
 - vFip:
 - vFpi:
 - vFpu:
@@ -2592,22 +2659,30 @@ wrappedlibc:
 - iFpp:
   - execvp
   - lstat
+  - scanf
   - stat
 - iFpV:
+  - execl
+  - execle
+  - execlp
 - iFSp:
   - _IO_file_stat
 - IFII:
 - UFUU:
 - pFip:
+- pFuu:
+  - aligned_alloc
 - pFpi:
 - pFpp:
 - vFipV:
+  - syslog
 - vFpuu:
 - vFpup:
   - _ITM_addUserCommitAction
 - vFppu:
 - vFppp:
 - iFvpp:
+  - __vwprintf_chk
 - iFvpV:
 - iFiip:
 - iFiiN:
@@ -2621,13 +2696,27 @@ wrappedlibc:
 - iFppi:
 - iFppL:
 - iFppp:
+  - _IO_vfscanf
 - iFppV:
+  - __isoc99_fscanf
+  - __isoc99_sscanf
+  - fscanf
+  - sscanf
+  - swscanf
 - iFpOu:
+  - __libc_open
 - iFpOV:
+- KFppi:
+  - __strtold_internal
+- KFppu:
+  - strtold_l
 - lFipL:
+  - __read_nocancel
 - pFpii:
 - pFpip:
 - pFpLL:
+- vFiipV:
+  - __syslog_chk
 - vFpLLp:
 - vFpppp:
   - __libc_init
@@ -2638,6 +2727,7 @@ wrappedlibc:
 - iFipuu:
 - iFippi:
 - iFpvpp:
+  - __vfwprintf_chk
 - iFpvpV:
 - iFpipp:
 - iFpipV:
@@ -2647,6 +2737,9 @@ wrappedlibc:
 - iFppii:
 - iFppiV:
 - iFpppp:
+  - _IO_vfprintf
+- KFppip:
+  - __strtold_l
 - lFipiI:
 - lFpupp:
 - vFpLLpp:
@@ -2802,6 +2895,19 @@ wrappedlibm:
   - __log_finite
   - __sinh_finite
   - __sqrt_finite
+- KFK:
+  - acoshl
+  - acosl
+  - asinhl
+  - asinl
+  - atanhl
+  - cbrtl
+  - erfcl
+  - erfl
+  - ldexpl
+  - lgammal
+  - logl
+  - tgammal
 - fFff:
   - __atan2f_finite
   - __hypotf_finite
@@ -2810,6 +2916,12 @@ wrappedlibm:
   - __atan2_finite
   - __hypot_finite
   - __pow_finite
+- KFKK:
+  - fmodl
+  - powl
+- KFKp:
+  - frexpl
+  - lgammal_r
 - pFps:
 - UFsvvs:
   - cpowf
@@ -2833,6 +2945,7 @@ wrappedlibncurses6:
   - printw
 - iFppV:
   - vw_printw
+  - vwprintw
 - iFiipV:
   - mvprintw
 - iFpiipV:
@@ -2865,10 +2978,16 @@ wrappedlibpthread:
   - __pthread_mutex_trylock
   - __pthread_mutex_unlock
   - pthread_attr_destroy
+  - pthread_cond_broadcast@GLIBC_2.0
+  - pthread_cond_destroy@GLIBC_2.0
+  - pthread_cond_signal@GLIBC_2.0
   - pthread_mutex_destroy
   - pthread_mutex_lock
   - pthread_mutex_trylock
   - pthread_mutex_unlock
+  - pthread_rwlock_rdlock
+  - pthread_rwlock_unlock
+  - pthread_rwlock_wrlock
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore
@@ -2881,7 +3000,9 @@ wrappedlibpthread:
   - __pthread_mutex_init
   - __pthread_once
   - pthread_attr_setschedparam
+  - pthread_cond_init@GLIBC_2.0
   - pthread_cond_wait
+  - pthread_cond_wait@GLIBC_2.0
   - pthread_key_create
   - pthread_mutex_init
   - pthread_mutex_timedlock
@@ -2904,6 +3025,7 @@ wrappedlibpthread:
   - pthread_atfork
   - pthread_attr_getstack
   - pthread_cond_timedwait
+  - pthread_cond_timedwait@GLIBC_2.0
 - iFpppp:
   - pthread_create
 wrappedlibresolv:
@@ -2938,6 +3060,9 @@ wrappedlibssl:
 - iFlpppp:
   - SSL_get_ex_new_index
 wrappedlibtiff:
+- iFpuV:
+  - TIFFGetField
+  - TIFFSetField
 - pFpppppppppp:
   - TIFFClientOpen
 wrappedlibtinfo:
@@ -3629,6 +3754,8 @@ wrappedsdl2:
   - SDL_RWclose
   - SDL_RemoveTimer
   - SDL_SaveAllDollarTemplates
+  - SDL_mutexP
+  - SDL_mutexV
 - iFJ:
   - SDL_IsJoystickHIDAPI
   - SDL_IsJoystickXInput
@@ -3709,6 +3836,8 @@ wrappedsdl2:
   - SDL_TLSSet
 - iFppi:
   - SDL_SaveBMP_RW
+- iFppV:
+  - SDL_sscanf
 - IFpIi:
   - SDL_RWseek
 - pFupp:
@@ -3717,6 +3846,10 @@ wrappedsdl2:
   - SDL_LoadFile_RW
 - pFppp:
   - SDL_CreateThread
+- vFiupV:
+  - SDL_LogMessage
+- vFpuup:
+  - SDL_qsort
 - vFJppp:
   - SDL_GetJoystickGUIDInfo
 - iFpupp:
@@ -4012,6 +4145,8 @@ wrappedxml2:
 - vFpppp:
   - xmlSchemaSetParserErrors
   - xmlSchemaSetValidErrors
+- iFpipV:
+  - xmlStrPrintf
 - iFpppp:
   - xmlHashRemoveEntry2
   - xmlHashUpdateEntry

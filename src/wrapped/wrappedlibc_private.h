@@ -1025,6 +1025,7 @@ GO(__libc_free, vFp)
 // __libc_freeres
 GOM(__libc_init_first, vFEipV)  //%%
 // _libc_intl_domainname    // type R
+GO2(__libc_open, iFEpOu, my_open)
 // __libc_longjmp
 // __libc_mallinfo
 GO(__libc_malloc, pFL)
@@ -1033,10 +1034,12 @@ GO(__libc_memalign, pFLL)
 // __libc_pthread_init
 GO(__libc_pvalloc, pFL)
 // __libc_pwrite
+GO2(__libc_read, lFipL, my_read) //%%,noE
 GO(__libc_realloc, pFpL)
 // __libc_sa_len
 // __libc_siglongjmp
 GOM(__libc_start_main, iFEpippppp) //%%
+GO2(__libc_sigaction, iFEipp, my_sigaction) //%%
 // __libc_system
 // __libc_thread_freeres
 GO(__libc_valloc, pFL)
@@ -1217,7 +1220,8 @@ GOM(_obstack_newchunk, vFpi) //%%,noE
 // __obstack_printf_chk
 GOWM(obstack_vprintf, iFEpppp)  //%%
 // __obstack_vprintf_chk
-// on_exit  // Weak
+GOWM(on_exit, iFEpp)  //%%
+GO2(__on_exit, iFEpp, my_on_exit)   //%%
 GOWM(open, iFEpOu)    //%%
 GOWM(__open, iFEpOu)  //%%
 GO(__open_2, iFpO)
@@ -1801,7 +1805,7 @@ GOM(syscall, uFEv) //%%
 GOW(sysconf, lFi)
 GO(__sysconf, lFi)
 // sysctl   // Weak
-// __sysctl
+GO(__sysctl, iFp)
 DATA(_sys_errlist, 4)
 DATA(sys_errlist, 4)
 GO(sysinfo, iFp)

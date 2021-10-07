@@ -39,6 +39,7 @@ typedef int32_t (*iFSp_t)(void*, void*);
 typedef int64_t (*IFII_t)(int64_t, int64_t);
 typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef void* (*pFip_t)(int32_t, void*);
+typedef void* (*pFuu_t)(uint32_t, uint32_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
@@ -61,10 +62,13 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
 typedef int32_t (*iFpOV_t)(void*, int32_t, ...);
+typedef double (*KFppi_t)(void*, void*, int32_t);
+typedef double (*KFppu_t)(void*, void*, uint32_t);
 typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef void* (*pFpLL_t)(void*, uintptr_t, uintptr_t);
+typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFiiip_t)(int32_t, int32_t, int32_t, void*);
@@ -83,6 +87,7 @@ typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef double (*KFppip_t)(void*, void*, int32_t, void*);
 typedef intptr_t (*lFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef intptr_t (*lFpupp_t)(void*, uint32_t, void*, void*);
 typedef void (*vFpLLpp_t)(void*, uintptr_t, uintptr_t, void*, void*);
@@ -109,16 +114,41 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(__close_nocancel, iFi_t) \
+	GO(getwc, iFp_t) \
 	GO(getpwuid, pFu_t) \
+	GO(__secure_getenv, pFp_t) \
+	GO(secure_getenv, pFp_t) \
 	GO(fstat, iFip_t) \
 	GO(execvp, iFpp_t) \
 	GO(lstat, iFpp_t) \
+	GO(scanf, iFpp_t) \
 	GO(stat, iFpp_t) \
+	GO(execl, iFpV_t) \
+	GO(execle, iFpV_t) \
+	GO(execlp, iFpV_t) \
 	GO(_IO_file_stat, iFSp_t) \
+	GO(aligned_alloc, pFuu_t) \
+	GO(syslog, vFipV_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
+	GO(__vwprintf_chk, iFvpp_t) \
 	GO(modify_ldt, iFipL_t) \
 	GO(getopt, iFipp_t) \
+	GO(_IO_vfscanf, iFppp_t) \
+	GO(__isoc99_fscanf, iFppV_t) \
+	GO(__isoc99_sscanf, iFppV_t) \
+	GO(fscanf, iFppV_t) \
+	GO(sscanf, iFppV_t) \
+	GO(swscanf, iFppV_t) \
+	GO(__libc_open, iFpOu_t) \
+	GO(__strtold_internal, KFppi_t) \
+	GO(strtold_l, KFppu_t) \
+	GO(__read_nocancel, lFipL_t) \
+	GO(__syslog_chk, vFiipV_t) \
 	GO(__libc_init, vFpppp_t) \
+	GO(__vfwprintf_chk, iFpvpp_t) \
+	GO(_IO_vfprintf, iFpppp_t) \
+	GO(__strtold_l, KFppip_t) \
 	GO(getopt_long, iFipppp_t) \
 	GO(getopt_long_only, iFipppp_t)
 

@@ -11,9 +11,12 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpuV_t)(void*, uint32_t, ...);
 typedef void* (*pFpppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(TIFFGetField, iFpuV_t) \
+	GO(TIFFSetField, iFpuV_t) \
 	GO(TIFFClientOpen, pFpppppppppp_t)
 
 #endif // __wrappedlibtiffTYPES_H_

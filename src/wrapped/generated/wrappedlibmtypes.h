@@ -14,8 +14,11 @@
 typedef uint64_t (*UFs_t)(void*);
 typedef float (*fFf_t)(float);
 typedef double (*dFd_t)(double);
+typedef double (*KFK_t)(double);
 typedef float (*fFff_t)(float, float);
 typedef double (*dFdd_t)(double, double);
+typedef double (*KFKK_t)(double, double);
+typedef double (*KFKp_t)(double, void*);
 typedef void* (*pFps_t)(void*, void*);
 typedef uint64_t (*UFsvvs_t)(void*, void, void, void*);
 typedef void* (*pFpsvvvvs_t)(void*, void*, void, void, void, void, void*);
@@ -59,12 +62,28 @@ typedef void* (*pFpsvvvvs_t)(void*, void*, void, void, void, void, void*);
 	GO(__log_finite, dFd_t) \
 	GO(__sinh_finite, dFd_t) \
 	GO(__sqrt_finite, dFd_t) \
+	GO(acoshl, KFK_t) \
+	GO(acosl, KFK_t) \
+	GO(asinhl, KFK_t) \
+	GO(asinl, KFK_t) \
+	GO(atanhl, KFK_t) \
+	GO(cbrtl, KFK_t) \
+	GO(erfcl, KFK_t) \
+	GO(erfl, KFK_t) \
+	GO(ldexpl, KFK_t) \
+	GO(lgammal, KFK_t) \
+	GO(logl, KFK_t) \
+	GO(tgammal, KFK_t) \
 	GO(__atan2f_finite, fFff_t) \
 	GO(__hypotf_finite, fFff_t) \
 	GO(__powf_finite, fFff_t) \
 	GO(__atan2_finite, dFdd_t) \
 	GO(__hypot_finite, dFdd_t) \
 	GO(__pow_finite, dFdd_t) \
+	GO(fmodl, KFKK_t) \
+	GO(powl, KFKK_t) \
+	GO(frexpl, KFKp_t) \
+	GO(lgammal_r, KFKp_t) \
 	GO(cpowf, UFsvvs_t)
 
 #endif // __wrappedlibmTYPES_H_

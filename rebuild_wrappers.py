@@ -416,7 +416,7 @@ class Function:
 		
 		if self.is2:
 			self.fun2 = line.split(',')[2].split(')')[0].strip()
-			if self.type.hasemu != self.fun2.startswith("my_"):
+			if self.type.hasemu != self.fun2.startswith("my_") and not self._noE:
 				# If this raises because of a different prefix, open a pull request
 				print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]), file=sys.stderr)
 				self.invalid = True
@@ -431,10 +431,10 @@ class Function:
 			print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]), file=sys.stderr)
 			self.invalid = True
 			return
-		if self._noE and not self.ismy:
+		if self._noE and not self.ismy and not self.is2:
 			raise ValueError("Invalid meta: 'no E' provided but function is not a GOM")
 		
-		if self.ismy:
+		if self.ismy or self.is2:
 			# Add this to the typedefs
 			self.filespec.typedefs[self.type.withoutE].append(self)
 

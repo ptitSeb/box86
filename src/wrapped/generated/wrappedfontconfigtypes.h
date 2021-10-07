@@ -11,9 +11,12 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFpV_t)(void*, ...);
 typedef int32_t (*iFppiuui_t)(void*, void*, int32_t, uint32_t, uint32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(FcObjectSetBuild, pFpV_t) \
+	GO(FcPatternBuild, pFpV_t) \
 	GO(FcPatternAdd, iFppiuui_t) \
 	GO(FcPatternAddWeak, iFppiuui_t)
 

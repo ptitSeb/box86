@@ -14,14 +14,18 @@
 typedef float (*fFp_t)(void*);
 typedef void* (*pFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef int32_t (*iFii_t)(int32_t, int32_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef void* (*pFiV_t)(int32_t, ...);
+typedef void* (*pFuV_t)(uint32_t, ...);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void (*vFppup_t)(void*, void*, uint32_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef void (*vFpppV_t)(void*, void*, void*, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
@@ -44,8 +48,11 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_type_class, pFi_t) \
 	GO(gtk_builder_connect_signals, vFpp_t) \
 	GO(gtk_init, vFpp_t) \
+	GO(gtk_type_is_a, iFii_t) \
 	GO(gtk_type_unique, iFip_t) \
 	GO(gtk_init_check, iFpp_t) \
+	GO(gtk_list_store_new, pFiV_t) \
+	GO(gtk_tree_store_new, pFuV_t) \
 	GO(gtk_type_check_object_cast, pFpi_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_clipboard_request_text, vFppp_t) \
@@ -54,8 +61,12 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_menu_attach_to_widget, vFppp_t) \
 	GO(gtk_tree_model_foreach, vFppp_t) \
 	GO(gtk_dialog_add_buttons, vFppV_t) \
+	GO(gtk_list_store_set, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
+	GO(gtk_tree_model_get, vFppV_t) \
+	GO(gtk_tree_store_set, vFppV_t) \
+	GO(gtk_widget_style_get, vFppV_t) \
 	GO(gtk_timeout_add, uFupp_t) \
 	GO(gtk_action_group_add_actions, vFppup_t) \
 	GO(gtk_clipboard_request_contents, vFpppp_t) \
@@ -63,6 +74,8 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_stock_set_translate_func, vFpppp_t) \
 	GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t) \
 	GO(gtk_tree_view_set_search_equal_func, vFpppp_t) \
+	GO(gtk_container_child_get, vFpppV_t) \
+	GO(gtk_container_child_set, vFpppV_t) \
 	GO(gtk_text_iter_backward_find_char, iFpppp_t) \
 	GO(gtk_text_iter_forward_find_char, iFpppp_t) \
 	GO(gtk_signal_connect, LFpppp_t) \

@@ -11,6 +11,8 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
+typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -18,6 +20,10 @@ typedef int32_t (*iFiipp_t)(int32_t, int32_t, void*, void*);
 typedef int32_t (*iFiippp_t)(int32_t, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(gdk_bitmap_unref, vFp_t) \
+	GO(gdk_pixmap_unref, vFp_t) \
+	GO(gdk_bitmap_ref, pFp_t) \
+	GO(gdk_pixmap_ref, pFp_t) \
 	GO(gdk_init, vFpp_t) \
 	GO(gdk_init_check, iFpp_t) \
 	GO(gdk_event_handler_set, vFppp_t) \

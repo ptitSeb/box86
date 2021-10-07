@@ -35,10 +35,16 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(__pthread_mutex_trylock, iFp_t) \
 	GO(__pthread_mutex_unlock, iFp_t) \
 	GO(pthread_attr_destroy, iFp_t) \
+	GO(pthread_cond_broadcast@GLIBC_2.0, iFp_t) \
+	GO(pthread_cond_destroy@GLIBC_2.0, iFp_t) \
+	GO(pthread_cond_signal@GLIBC_2.0, iFp_t) \
 	GO(pthread_mutex_destroy, iFp_t) \
 	GO(pthread_mutex_lock, iFp_t) \
 	GO(pthread_mutex_trylock, iFp_t) \
 	GO(pthread_mutex_unlock, iFp_t) \
+	GO(pthread_rwlock_rdlock, iFp_t) \
+	GO(pthread_rwlock_unlock, iFp_t) \
+	GO(pthread_rwlock_wrlock, iFp_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
 	GO(pthread_attr_setscope, iFpi_t) \
@@ -48,7 +54,9 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(__pthread_mutex_init, iFpp_t) \
 	GO(__pthread_once, iFpp_t) \
 	GO(pthread_attr_setschedparam, iFpp_t) \
+	GO(pthread_cond_init@GLIBC_2.0, iFpp_t) \
 	GO(pthread_cond_wait, iFpp_t) \
+	GO(pthread_cond_wait@GLIBC_2.0, iFpp_t) \
 	GO(pthread_key_create, iFpp_t) \
 	GO(pthread_mutex_init, iFpp_t) \
 	GO(pthread_mutex_timedlock, iFpp_t) \
@@ -65,6 +73,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_atfork, iFppp_t) \
 	GO(pthread_attr_getstack, iFppp_t) \
 	GO(pthread_cond_timedwait, iFppp_t) \
+	GO(pthread_cond_timedwait@GLIBC_2.0, iFppp_t) \
 	GO(pthread_create, iFpppp_t)
 
 #endif // __wrappedlibpthreadTYPES_H_

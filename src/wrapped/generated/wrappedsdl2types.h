@@ -38,10 +38,13 @@ typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef int32_t (*iFupu_t)(uint32_t, void*, uint32_t);
 typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
 typedef void* (*pFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
+typedef void (*vFiupV_t)(int32_t, uint32_t, void*, ...);
+typedef void (*vFpuup_t)(void*, uint32_t, uint32_t, void*);
 typedef void (*vFJppp_t)(SDL_JoystickGUID, void*, void*, void*);
 typedef int32_t (*iFpupp_t)(void*, uint32_t, void*, void*);
 typedef int32_t (*iFpupV_t)(void*, uint32_t, void*, ...);
@@ -55,6 +58,8 @@ typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t)
 	GO(SDL_RWclose, iFp_t) \
 	GO(SDL_RemoveTimer, iFp_t) \
 	GO(SDL_SaveAllDollarTemplates, iFp_t) \
+	GO(SDL_mutexP, iFp_t) \
+	GO(SDL_mutexV, iFp_t) \
 	GO(SDL_IsJoystickHIDAPI, iFJ_t) \
 	GO(SDL_IsJoystickXInput, iFJ_t) \
 	GO(SDL_RWtell, IFp_t) \
@@ -111,10 +116,13 @@ typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t)
 	GO(SDL_DYNAPI_entry, iFupu_t) \
 	GO(SDL_TLSSet, iFupp_t) \
 	GO(SDL_SaveBMP_RW, iFppi_t) \
+	GO(SDL_sscanf, iFppV_t) \
 	GO(SDL_RWseek, IFpIi_t) \
 	GO(SDL_AddTimer, pFupp_t) \
 	GO(SDL_LoadFile_RW, pFppi_t) \
 	GO(SDL_CreateThread, pFppp_t) \
+	GO(SDL_LogMessage, vFiupV_t) \
+	GO(SDL_qsort, vFpuup_t) \
 	GO(SDL_GetJoystickGUIDInfo, vFJppp_t) \
 	GO(SDL_vsnprintf, iFpupp_t) \
 	GO(SDL_snprintf, iFpupV_t) \

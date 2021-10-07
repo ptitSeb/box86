@@ -449,7 +449,29 @@ static void* findcompare64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
     return NULL;
 }
-
+// on_exit
+#define GO(A)   \
+static uintptr_t my_on_exit_fct_##A = 0;                    \
+static void my_on_exit_##A(int a, const void* b)            \
+{                                                           \
+    RunFunction(my_context, my_on_exit_fct_##A, 2, a, b);   \
+}
+SUPER()
+#undef GO
+static void* findon_exitFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_on_exit_fct_##A == (uintptr_t)fct) return my_on_exit_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_on_exit_fct_##A == 0) {my_on_exit_fct_##A = (uintptr_t)fct; return my_on_exit_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc on_exit callback\n");
+    return NULL;
+}
 #undef SUPER
 
 // some my_XXX declare and defines
@@ -2832,6 +2854,11 @@ EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun 
 {
   iFiiiV_t f = semctl;
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
+}
+
+EXPORT int my_on_exit(x86emu_t* emu, void* f, void* args)
+{
+    return on_exit(findon_exitFct(f), args);
 }
 
 

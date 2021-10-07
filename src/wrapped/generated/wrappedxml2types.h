@@ -20,6 +20,7 @@ typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFpipV_t)(void*, int32_t, void*, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppi_t)(void*, void*, void*, int32_t);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
@@ -43,6 +44,7 @@ typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(xmlNewCharEncodingHandler, pFppp_t) \
 	GO(xmlSchemaSetParserErrors, vFpppp_t) \
 	GO(xmlSchemaSetValidErrors, vFpppp_t) \
+	GO(xmlStrPrintf, iFpipV_t) \
 	GO(xmlHashRemoveEntry2, iFpppp_t) \
 	GO(xmlHashUpdateEntry, iFpppp_t) \
 	GO(xmlRegisterInputCallbacks, iFpppp_t) \
