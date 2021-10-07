@@ -589,7 +589,7 @@ VFPU cond 1 1 1 0 1 D 1 1 0 1 1 1 Vd 1 0 1 0 1 1 M 0 Vm VCVT<c>.F64.F32 <Dd>, <S
 VFPU cond 1 1 1 0 1 D 1 1 0 1 1 1 Vd 1 0 1 1 1 1 M 0 Vm VCVT<c>.F32.F64 <Sd>, <Dm>
 VFPU cond 1 1 1 0 1 D 1 1 1 0 0 0 Vd 1 0 1 sz op 1 M 0 Vm VCVT<c>.F\(size ? "64" : "32")\.\(op ? "S" : "U")\32 <Dd>, <Sm>
 VFPU cond 1 1 1 0 1 D 1 1 1 0 1 U Vd 1 0 1 sz op 1 i 0 imm4 @ set uint8_t td = (u << 2) + op + 1@ td=0b001=0b010=0b101 const char* Td Td,"S16","U16","S32","U32"@ set imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1)@ @ VCVT<c>.F\(size ? "64" : "32")\.\Td\ <Dd>, <Dd>, #<imm>
-VFPU cond 1 1 1 0 1 D 1 1 1 1 0 U Vd 1 0 1 sz op 1 M 0 Vm VCVT\(op ? "" : "R")\<c>.\(u ? "U" : "S")\32.F\(size ? "64" : "32")\ <Sd>, <Dm>
+VFPU cond 1 1 1 0 1 D 1 1 1 1 U 1 Vd 1 0 1 sz op 1 M 0 Vm VCVT\(op ? "" : "R")\<c>.\(u ? "U" : "S")\32.F\(size ? "64" : "32")\ <Sd>, <Dm>
 VFPU cond 1 1 1 0 1 D 1 1 1 1 1 U Vd 1 0 1 sz op 1 i 0 imm4 @ set uint8_t td = (u << 2) + op + 1@ td=0b001=0b010=0b101 const char* Td Td,"S16","U16","S32","U32"@ set imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1)@ @ VCVT<c>.\Td\.F\(size ? "64" : "32")\ <Dd>, <Dd>, #<imm>
 ;INVALIDATE <4> 1 1 1 0 1 <1> 1 1 <8> 1 0 1 <4> 0 <4>
 ;INVALIDATE <4> 1 1 1 0 <12> 1 0 1 <4> 0 <4>

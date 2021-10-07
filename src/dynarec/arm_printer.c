@@ -5072,10 +5072,10 @@ const char* arm_print(uint32_t opcode) {
 		imm5 = (16 << op) - (imm5 >> 4) - ((imm5 & 0xF) << 1);
 		
 		sprintf(ret, "VCVT%s.F%s.%s %s, %s, #%d", cond, (size ? "64" : "32"), Td, vecname[(size << 5) + d], vecname[(size << 5) + d], imm5);
-	} else if ((opcode & 0x0FBE0E50) == 0x0EBC0A40) {
+	} else if ((opcode & 0x0FBD0E50) == 0x0EBD0A40) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int op = (opcode >> 7) & 1;
-		int u = (opcode >> 16) & 1;
+		int u = (opcode >> 17) & 1;
 		int size = (opcode >> 8) & 0x1;
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
