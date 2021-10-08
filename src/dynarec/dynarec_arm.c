@@ -324,20 +324,20 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     dynarec_arm_t helper = {0};
     helper.start = addr;
     uintptr_t start = addr;
+    helper.cap = 64; // needs epilog handling
+    helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
+    // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         block->done = 1;
         free(helper.next);
+        free(helper.insts);
         return (void*)block;
     }
-    helper.cap = helper.size+3; // needs epilog handling
-    helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
     // already protect the block and compute hash signature
     protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
-    // pass 1, addresses, x86 jump addresses, flags
-    arm_pass1(&helper, addr);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
@@ -356,6 +356,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                 helper.insts[i].x86.jmp_insts = k;
             }
         }
+    // pass 1, flags
+    arm_pass1(&helper, addr);
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.set_flags && !helper.insts[i].x86.need_flags) {
             helper.insts[i].x86.need_flags = needed_flags(&helper, i+1, helper.insts[i].x86.set_flags, 0);

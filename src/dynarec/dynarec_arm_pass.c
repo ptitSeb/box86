@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 
 #include "debug.h"
 #include "box86context.h"
