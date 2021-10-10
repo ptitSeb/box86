@@ -26,7 +26,7 @@
         for(int ii=0; ii<24; ++ii) {            \
             switch(dyn->insts[ninst].n.neoncache[ii].t) {    \
                 case NEON_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:ST%d", ii+8, dyn->insts[ninst].n.neoncache[ii].n); break;              \
-                case NEON_CACHE_ST_F: dynarec_log(LOG_NONE, " D%d:st%d", ii+8, dyn->insts[ninst].n.neoncache[ii].n); break;              \
+                case NEON_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:st%d", (ii+8)*2, dyn->insts[ninst].n.neoncache[ii].n); break;          \
                 case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:MM%d", ii+8, dyn->insts[ninst].n.neoncache[ii].n); break;                \
                 case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:XMM%d", (ii+8)/2, dyn->insts[ninst].n.neoncache[ii].n); ++ii; break;   \
                 case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:xmm%d", (ii+8)/2, dyn->insts[ninst].n.neoncache[ii].n); ++ii; break;   \
