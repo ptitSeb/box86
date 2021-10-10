@@ -288,7 +288,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 2: // CALL Ed
                     INST_NAME("CALL FS:Ed");
-                    PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
+                    PASS2IF(ninst && dyn->insts[ninst-1].x86.set_flags, 1) {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state

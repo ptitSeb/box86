@@ -265,7 +265,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x2, wback, 0);
                         LDR_IMM9(x3, wback, 4);
                     }
-                    if(dyn->insts && ninst<dyn->size
+                    if(ninst<dyn->size
                       && dyn->insts[ninst+1].x86.addr
                       && *(uint8_t*)dyn->insts[ninst+1].x86.addr==0xDF
                       && (((*(uint8_t*)(dyn->insts[ninst+1].x86.addr+1))>>3)&7)==7)
@@ -322,7 +322,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("FISTP i64, ST0");
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
-                    if(dyn->insts && ninst
+                    if(ninst
                       && dyn->insts[ninst-1].x86.addr
                       && *(uint8_t*)dyn->insts[ninst-1].x86.addr==0xDF
                       && (((*(uint8_t*)(dyn->insts[ninst-1].x86.addr+1))>>3)&7)==5)

@@ -2079,7 +2079,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x14, 0);
-                    if(box86_log<2 && dyn->insts && dyn->insts[ninst].natcall) {   // call the wrapper directly
+                    if(box86_log<2 && dyn->insts[ninst].natcall) {   // call the wrapper directly
                         uintptr_t ncall[2];
                         memcpy(ncall,  (void*)(dyn->insts[ninst].natcall+2), 2*sizeof(void*));   // the wrapper + function
                         MOV32(xEIP, dyn->insts[ninst].natcall+2+4+4);
@@ -2111,7 +2111,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     jump_to_epilog(dyn, 0, xEIP, ninst);
                     break;*/
                 default:
-                    if(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags) {
+                    if(ninst && dyn->insts[ninst-1].x86.set_flags) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
@@ -2699,7 +2699,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF(ninst && dyn->insts && dyn->insts[ninst-1].x86.set_flags, 1) {
+                    PASS2IF(ninst && dyn->insts[ninst-1].x86.set_flags, 1) {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state

@@ -43,7 +43,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     INIT;
     while(ok) {
         ip = addr;
-        if(dyn->insts && (dyn->insts[ninst].x86.barrier==1)) {
+        if((dyn->insts[ninst].x86.barrier==1)) {
             NEW_BARRIER_INST;
         }
         // propagate ST stack state, especial stack pop that are defered
@@ -80,17 +80,22 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
         INST_EPILOG;
 
-        if(dyn->insts && dyn->insts[ninst+1].x86.barrier) {
+        if(dyn->insts[ninst+1].x86.barrier) {
             fpu_purgecache(dyn, ninst, x1, x2, x3);
             if(dyn->insts[ninst+1].x86.barrier!=2) {
                 dyn->state_flags = 0;
                 dyn->dfnone = 0;
             }
         }
-        if(!ok && !need_epilog && dyn->insts && (addr < (dyn->start+dyn->isize))) {
+        if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {
             ok = 1;
         }
-        if(!ok && !need_epilog && !dyn->insts && getProtection(addr+3))
+        #if STEP == 0
+        int step0 = 1;
+        #else
+        int step0 = 0;
+        #endif
+        if(!ok && !need_epilog && step0 && getProtection(addr+3))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
@@ -108,7 +113,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         #if STEP == 0
         if(ok && !isJumpTableDefault((void*)addr))
         #else
-        if(ok && dyn->insts && (ninst==dyn->size))
+        if(ok && (ninst==dyn->size))
         #endif
         {
             #if STEP == 3
