@@ -52,10 +52,14 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("FCMOVB ST0, STx");
             READFLAGS(X_CF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, 1<<F_CF);
-            VMOVcond_64(cNE, v1, v2);   // F_CF==1
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cNE, v1, v2);   // F_CF==1
+            } else {
+                VMOVcond_64(cNE, v1, v2);   // F_CF==1
+            }
             break;
         case 0xC8:
         case 0xC9:
@@ -67,10 +71,14 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCF:
             INST_NAME("FCMOVE ST0, STx");
             READFLAGS(X_ZF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, 1<<F_ZF);
-            VMOVcond_64(cNE, v1, v2);   // F_ZF==1
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cNE, v1, v2);   // F_ZF==1
+            } else {
+                VMOVcond_64(cNE, v1, v2);   // F_ZF==1
+            }
             break;
         case 0xD0:
         case 0xD1:
@@ -82,10 +90,14 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD7:
             INST_NAME("FCMOVBE ST0, STx");
             READFLAGS(X_CF|X_ZF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, (1<<F_CF)|(1<<F_ZF));
-            VMOVcond_64(cNE, v1, v2);   // F_CF==1 | F_ZF==1
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cNE, v1, v2);   // F_CF==1 | F_ZF==1
+            } else {
+                VMOVcond_64(cNE, v1, v2);   // F_CF==1 | F_ZF==1
+            }
             break;
         case 0xD8:
         case 0xD9:
@@ -97,16 +109,24 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDF:
             INST_NAME("FCMOVU ST0, STx");
             READFLAGS(X_PF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, 1<<F_PF);
-            VMOVcond_64(cNE, v1, v2);   // F_PF==1
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cNE, v1, v2);   // F_PF==1
+            } else {
+                VMOVcond_64(cNE, v1, v2);   // F_PF==1
+            }
             break;       
         case 0xE9:
             INST_NAME("FUCOMPP ST0, ST1");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, 1);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, 1, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOM(x1, x2);
             x87_do_pop(dyn, ninst, x3);
             x87_do_pop(dyn, ninst, x3);
@@ -129,7 +149,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FIADD ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -139,7 +159,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("FIMUL ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -149,7 +169,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("FICOM ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -160,7 +180,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("FICOMP ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -172,7 +192,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4:
                     INST_NAME("FISUB ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -182,7 +202,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("FISUBR ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -192,7 +212,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("FIDIV ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
@@ -202,7 +222,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("FIDIVR ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     GETED;
                     d0 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);

@@ -2043,16 +2043,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr-1));
                 #endif
             }
-            #if STEP == 0
-            if (i32==0)
-                tmp = 1;
-            else if (((u32)>0x10000) && (PKa(u32+0)==0x8B) && (((PKa(u32+1))&0xC7)==0x04) && (PKa(u32+2)==0x24) && (PKa(u32+3)==0xC3))
-                tmp = 2;
-            /*else if(isNativeCall(dyn, u32, NULL, NULL))
-                tmp = 3;*/
-            else 
-                tmp = 0;
-            #elif STEP < 2
+            #if STEP < 2
             if (i32==0)
                 tmp = dyn->insts[ninst].pass2choice = 1;
             else if (((u32)>0x10000) && (PKa(u32+0)==0x8B) && (((PKa(u32+1))&0xC7)==0x04) && (PKa(u32+2)==0x24) && (PKa(u32+3)==0xC3))

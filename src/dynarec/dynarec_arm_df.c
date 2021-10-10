@@ -73,9 +73,14 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEF:
             INST_NAME("FUCOMIP ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0))
+            {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOMI(x1, x2);
             x87_do_pop(dyn, ninst, x3);
             break;
@@ -89,9 +94,14 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF7:
             INST_NAME("FCOMIP ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0))
+            {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOMI(x1, x2);
             x87_do_pop(dyn, ninst, x3);
             break;
@@ -142,16 +152,21 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ew");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0);
                     LDRSH_IMM8(x1, wback, fixedaddress);
-                    s0 = fpu_get_scratch_single(dyn);
-                    VMOVtoV(s0, x1);
-                    VCVT_F64_S32(v1, s0);
+                    if(ST_IS_F(0)) {
+                        VMOVtoV(v1, x1);
+                        VCVT_F32_S32(v1, v1);
+                    } else {
+                        s0 = fpu_get_scratch_single(dyn);
+                        VMOVtoV(s0, x1);
+                        VCVT_F64_S32(v1, s0);
+                    }
                     break;
                 case 1:
                     INST_NAME("FISTTP Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0, 0);
                     ed = x1;
                     s0 = fpu_get_scratch_single(dyn);
@@ -161,7 +176,11 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
-                    VCVTR_S32_F64(s0, v1);
+                    if(ST_IS_F(0)) {
+                        VCVTR_S32_F32(s0, v1);
+                    } else {
+                        VCVTR_S32_F64(s0, v1);
+                    }
                     VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
@@ -174,7 +193,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("FIST Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0, 0);
                     ed = x1;
@@ -184,7 +203,11 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
-                    VCVTR_S32_F64(s0, v1);
+                    if(ST_IS_F(0)) {
+                        VCVTR_S32_F32(s0, v1);
+                    } else {
+                        VCVTR_S32_F64(s0, v1);
+                    }
                     VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
@@ -196,7 +219,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("FISTP Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 255, 0, 0);
                     ed = x1;
@@ -206,7 +229,11 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
-                    VCVTR_S32_F64(s0, v1);
+                    if(ST_IS_F(0)) {
+                        VCVTR_S32_F32(s0, v1);
+                    } else {
+                        VCVTR_S32_F64(s0, v1);
+                    }
                     VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
@@ -227,7 +254,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                     v2 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
@@ -374,7 +401,6 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         #else
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         x87_forget(dyn, ninst, x2, x3, 0);
-                        //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                         if(ed!=x1) {MOV_REG(x1, ed);}
                         CALL(arm_fistp64, -1, 0);
                         #endif

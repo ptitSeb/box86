@@ -6,11 +6,12 @@
 typedef struct x86emu_s x86emu_t;
 
 #define NEON_CACHE_NONE 0
-#define NEON_CACHE_ST   1
-#define NEON_CACHE_MM   2
-#define NEON_CACHE_XMMW 3
-#define NEON_CACHE_XMMR 4
-#define NEON_CACHE_SCR  5
+#define NEON_CACHE_ST_D 1
+#define NEON_CACHE_ST_F 2
+#define NEON_CACHE_MM   3
+#define NEON_CACHE_XMMW 4
+#define NEON_CACHE_XMMR 5
+#define NEON_CACHE_SCR  6
 typedef union neon_cache_s {
     int8_t           v;
     struct {
@@ -20,7 +21,11 @@ typedef union neon_cache_s {
 } neon_cache_t;
 typedef struct neoncache_s {
     neon_cache_t neoncache[24];
-    int8_t       ststack;
+    int8_t       stack;
+    int8_t       stack_next;
+    int8_t       stack_pop;
+    uint8_t      combined1;
+    uint8_t      combined2;
 } neoncache_t;
 
 typedef struct instruction_arm_s {

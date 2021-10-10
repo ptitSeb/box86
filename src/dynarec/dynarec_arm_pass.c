@@ -46,6 +46,18 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(dyn->insts && (dyn->insts[ninst].x86.barrier==1)) {
             NEW_BARRIER_INST;
         }
+        // propagate ST stack state, especial stack pop that are defered
+        if(dyn->n.stack_pop) {
+            for(int j=0; j<24; ++j)
+                if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D || dyn->n.neoncache[j].t == NEON_CACHE_ST_F)) {
+                    if(dyn->n.neoncache[j].n<dyn->n.stack_pop)
+                        dyn->n.neoncache[j].v = 0;
+                    else
+                        dyn->n.neoncache[j].n-=dyn->n.stack_pop;
+                }
+            dyn->n.stack_pop = 0;
+        }
+        dyn->n.stack = dyn->n.stack_next;
         NEW_INST;
         fpu_reset_scratch(dyn);
 #ifdef HAVE_TRACE

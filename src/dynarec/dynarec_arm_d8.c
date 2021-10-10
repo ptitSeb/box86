@@ -50,9 +50,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
         case 0xC7:
             INST_NAME("FADD ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VADD_F64(v1, v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VADD_F32(v1, v1, v2);
+            } else {
+                VADD_F64(v1, v1, v2);
+            }
             break;
         case 0xC8:
         case 0xC9:
@@ -63,9 +67,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCE:
         case 0xCF:
             INST_NAME("FMUL ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VMUL_F64(v1, v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VMUL_F32(v1, v1, v2);
+            } else {
+                VMUL_F64(v1, v1, v2);
+            }
             break;
         case 0xD0:
         case 0xD1:
@@ -76,9 +84,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD6:
         case 0xD7:
             INST_NAME("FCOM ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOM(x1, x2);
             break;
         case 0xD8:
@@ -90,9 +102,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDE:
         case 0xDF:
             INST_NAME("FCOMP ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOM(x1, x2);
             x87_do_pop(dyn, ninst, x3);
             break;
@@ -105,9 +121,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xE6:
         case 0xE7:
             INST_NAME("FSUB ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VSUB_F64(v1, v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VSUB_F32(v1, v1, v2);
+            } else {
+                VSUB_F64(v1, v1, v2);
+            }
             break;
         case 0xE8:
         case 0xE9:
@@ -118,9 +138,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEE:
         case 0xEF:
             INST_NAME("FSUBR ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VSUB_F64(v1, v2, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VSUB_F32(v1, v2, v1);
+            } else {
+                VSUB_F64(v1, v2, v1);
+            }
             break;
         case 0xF0:
         case 0xF1:
@@ -131,9 +155,13 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF6:
         case 0xF7:
             INST_NAME("FDIV ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VDIV_F64(v1, v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VDIV_F32(v1, v1, v2);
+            } else {
+                VDIV_F64(v1, v1, v2);
+            }
             break;
         case 0xF8:
         case 0xF9:
@@ -144,16 +172,20 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFE:
         case 0xFF:
             INST_NAME("FDIVR ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VDIV_F64(v1, v2, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VDIV_F32(v1, v2, v1);
+            } else {
+                VDIV_F64(v1, v2, v1);
+            }
             break;
       
         default:
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FADD ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -164,12 +196,16 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VADD_F64(v1, v1, d1);
+                    if(ST_IS_F(0)) {
+                        VADD_F32(v1, v1, s0);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VADD_F64(v1, v1, d1);
+                    }
                     break;
                 case 1:
                     INST_NAME("FMUL ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -180,12 +216,16 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VMUL_F64(v1, v1, d1);
+                    if(ST_IS_F(0)) {
+                        VMUL_F32(v1, v1, s0);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VMUL_F64(v1, v1, d1);
+                    }
                     break;
                 case 2:
                     INST_NAME("FCOM ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -196,13 +236,17 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VCMP_F64(v1, d1);
+                    if(ST_IS_F(0)) {
+                        VCMP_F32(v1, s0);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VCMP_F64(v1, d1);
+                    }
                     FCOM(x1, x2);
                     break;
                 case 3:
                     INST_NAME("FCOMP ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -213,14 +257,18 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VCMP_F64(v1, d1);
+                    if(ST_IS_F(0)) {
+                        VCMP_F32(v1, s0);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VCMP_F64(v1, d1);
+                    }
                     FCOM(x1, x2);
                     x87_do_pop(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FSUB ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -231,12 +279,16 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VSUB_F64(v1, v1, d1);
+                    if(ST_IS_F(0)) {
+                        VSUB_F32(v1, v1, s0);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VSUB_F64(v1, v1, d1);
+                    }
                     break;
                 case 5:
                     INST_NAME("FSUBR ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -247,12 +299,16 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VSUB_F64(v1, d1, v1);
+                    if(ST_IS_F(0)) {
+                        VSUB_F32(v1, s0, v1);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VSUB_F64(v1, d1, v1);
+                    }
                     break;
                 case 6:
                     INST_NAME("FDIV ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -263,12 +319,16 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VDIV_F64(v1, v1, d1);
+                    if(ST_IS_F(0)) {
+                        VDIV_F32(v1, v1, s0);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VDIV_F64(v1, v1, d1);
+                    }
                     break;
                 case 7:
                     INST_NAME("FDIVR ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                     s0 = fpu_get_scratch_single(dyn);
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
@@ -279,8 +339,12 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         VMOVtoV(s0, ed);
                     }
-                    VCVT_F64_F32(d1, s0);
-                    VDIV_F64(v1, d1, v1);
+                    if(ST_IS_F(0)) {
+                        VDIV_F32(v1, s0, v1);
+                    } else {
+                        VCVT_F64_F32(d1, s0);
+                        VDIV_F64(v1, d1, v1);
+                    }
                     break;
                 default:
                     DEFAULT;

@@ -4696,6 +4696,8 @@ const char* arm_print(uint32_t opcode) {
 		int rn = (opcode >> 16) & 0xF;
 		uint8_t imm8 = ((opcode >> 0) & 0xFF);
 		
+		imm8*=4;
+		
 		sprintf(ret, "VSTR%s %s, [%s, #%s%d]", cond, vecname[(size << 5) + d], regname[rn], (u ? "" : "-"), imm8);
 	} else if ((opcode & 0x0E100F01) == 0x0C000B01) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
@@ -4754,6 +4756,8 @@ const char* arm_print(uint32_t opcode) {
 		int d = ((opcode >> 22) & 1) << 4 | ((opcode >> 12) & 0xF);
 		int rn = (opcode >> 16) & 0xF;
 		uint8_t imm8 = ((opcode >> 0) & 0xFF);
+		
+		imm8*=4;
 		
 		sprintf(ret, "VLDR%s %s, [%s, #%s%d]", cond, vecname[(size << 5) + d], regname[rn], (u ? "" : "-"), imm8);
 	} else if ((opcode & 0x0E100F01) == 0x0C100B01) {

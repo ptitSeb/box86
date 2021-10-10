@@ -429,14 +429,14 @@ INVALIDATE <4> 1 1 0 1 1 <1> 1 <9> 1 0 1 <9>
 INVALIDATE <4> 1 1 0 1 1 <1> 1 <9> 1 0 1 <9>
 VFPU cond 1 1 0 1 0 D 1 0 1 1 0 1 Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FSTMX<c> <LIst>
 VFPU cond 1 1 0 1 0 D 1 0 1 1 0 1 Vd 1 0 1 sz imm8 VPUSH<c> <list>
-VFPU cond 1 1 0 1 U D 0 0 Rn Vd 1 0 1 sz imm8 VSTR<c> <Dd>, [<Rn>{, #+/-<imm>}]
+VFPU cond 1 1 0 1 U D 0 0 Rn Vd 1 0 1 sz imm8 @ set imm8*=4@ @ VSTR<c> <Dd>, [<Rn>{, #+/-<imm>}]
 VFPU cond 1 1 0 @<2> D W 0 Rn Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FSTM\(param == 0b01 ? "IA" : "DB")\X<c> <Rn>{!}, <LIst>
 VFPU cond 1 1 0 @<2> D W 0 Rn Vd 1 0 1 sz imm8 VSTM\(param == 0b01 ? "IA" : "DB")\<c> <Rn>{!}, <list>
 VFPU cond 1 1 0 0 1 D 1 1 1 1 0 1 Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FLDMX<c> <LIst>
 VFPU cond 1 1 0 0 1 D 1 1 1 1 0 1 Vd 1 0 1 sz imm8 VPOP<c> <list>
 VFPU cond 1 1 0 1 0 D 0 1 1 1 1 1 Vd 1 0 1 sz 0 0 0 0 0 0 0 0 VLDR<c> <Dd>, [PC, #-0]
 VFPU cond 1 1 0 1 U D 0 1 1 1 1 1 Vd 1 0 1 sz imm8 VLDR<c> <Dd>, <label>
-VFPU cond 1 1 0 1 U D 0 1 Rn Vd 1 0 1 sz imm8 VLDR<c> <Dd>, [<Rn>{, #+/-<imm>}]
+VFPU cond 1 1 0 1 U D 0 1 Rn Vd 1 0 1 sz imm8 @ set imm8*=4@ @ VLDR<c> <Dd>, [<Rn>{, #+/-<imm>}]
 VFPU cond 1 1 0 @<2> D W 1 Rn Vd 1 0 1 1 imm8/01 @ set --imm8@ @ FLDM\(param == 0b01 ? "IA" : "DB")\X<c> <Rn>{!}, <LIst>
 VFPU cond 1 1 0 @<2> D W 1 Rn Vd 1 0 1 sz imm8 VLDM\(param == 0b01 ? "IA" : "DB")\<c> <Rn>{!}, <list>
 INVALIDATE <4> 1 1 0 <25>

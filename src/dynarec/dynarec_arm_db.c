@@ -50,10 +50,14 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("FCMOVNB ST0, STx");
             READFLAGS(X_CF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, 1<<F_CF);
-            VMOVcond_64(cEQ, v1, v2);   // F_CF==0
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cEQ, v1, v2);   // F_CF==0
+            } else {
+                VMOVcond_64(cEQ, v1, v2);   // F_CF==0
+            }
             break;
         case 0xC8:
         case 0xC9:
@@ -65,10 +69,14 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCF:
             INST_NAME("FCMOVNE ST0, STx");
             READFLAGS(X_ZF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, 1<<F_ZF);
-            VMOVcond_64(cEQ, v1, v2);   // F_ZF==0
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cEQ, v1, v2);   // F_ZF==0
+            } else {
+                VMOVcond_64(cEQ, v1, v2);   // F_ZF==0
+            }
             break;
         case 0xD0:
         case 0xD1:
@@ -80,10 +88,14 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD7:
             INST_NAME("FCMOVNBE ST0, STx");
             READFLAGS(X_CF|X_ZF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, (1<<F_CF)|(1<<F_ZF));
-            VMOVcond_64(cEQ, v1, v2);   // F_CF==0 & F_ZF==0
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cEQ, v1, v2);   // F_CF==0 & F_ZF==0
+            } else {
+                VMOVcond_64(cEQ, v1, v2);   // F_CF==0 & F_ZF==0
+            }
             break;
         case 0xD8:
         case 0xD9:
@@ -95,10 +107,14 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDF:
             INST_NAME("FCMOVNU ST0, STx");
             READFLAGS(X_PF);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             TSTS_IMM8(xFlags, 1<<F_PF);
-            VMOVcond_64(cEQ, v1, v2);   // F_PF==0
+            if(ST_IS_F(0)) {
+                VMOVcond_32(cEQ, v1, v2);   // F_PF==0
+            } else {
+                VMOVcond_64(cEQ, v1, v2);   // F_PF==0
+            }
             break;
         case 0xE1:
             INST_NAME("FDISI8087_NOP"); // so.. NOP?
@@ -127,9 +143,13 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEF:
             INST_NAME("FUCOMI ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOMI(x1, x2);
             break;
         case 0xF0:  
@@ -142,9 +162,13 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF7:
             INST_NAME("FCOMI ST0, STx");
             SETFLAGS(X_ALL, SF_SET);
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOMI(x1, x2);
             break;
 
@@ -160,7 +184,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ed");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
@@ -174,7 +198,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("FISTTP Ed, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
@@ -199,7 +223,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("FIST Ed, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x14); // x1 have the modified RPSCR reg
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
@@ -224,7 +248,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("FISTP Ed, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     u8 = x87_setround(dyn, ninst, x1, x2, x14); // x1 have the modified RPSCR reg
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);

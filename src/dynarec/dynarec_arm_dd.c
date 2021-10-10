@@ -58,9 +58,13 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xD6:
         case 0xD7:
             INST_NAME("FST ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VMOV_64(v2, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VMOV_32(v2, v1);
+            } else {
+                VMOV_64(v2, v1);
+            }
             break;
         case 0xD8:
             INST_NAME("FSTP ST0, ST0");
@@ -74,9 +78,13 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDE:
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VMOV_64(v2, v1);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VMOV_32(v2, v1);
+            } else {
+                VMOV_64(v2, v1);
+            }
             x87_do_pop(dyn, ninst, x3);
             break;
 
@@ -89,9 +97,13 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xE6:
         case 0xE7:
             INST_NAME("FUCOM ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOM(x1, x2);
             break;
         case 0xE8:
@@ -103,9 +115,13 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEE:
         case 0xEF:
             INST_NAME("FUCOMP ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7);
-            VCMP_F64(v1, v2);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                VCMP_F32(v1, v2);
+            } else {
+                VCMP_F64(v1, v2);
+            }
             FCOM(x1, x2);
             x87_do_pop(dyn, ninst, x3);
             break;
@@ -141,7 +157,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD double");
-                    v1 = x87_do_push(dyn, ninst, x1);
+                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
 		            parity = getedparity(dyn, ninst, addr, nextop, 3);
 		            if (parity) {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);
@@ -163,7 +179,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("FST double");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
                     if(parity) {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);
@@ -177,7 +193,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("FSTP double");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
                     if(parity) {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);

@@ -591,17 +591,17 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 // cache of the local stack counter, to avoid upadte at every call
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
 // fpu push. Return the Dd value to be used
-int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1);
+int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t);
 // fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
 // get cache index for a x87 reg, create the entry if needed
-int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
 // get neoncache index for a x87 reg
 int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x87 reg, create the entry if needed
-int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
+int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
@@ -614,6 +614,30 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+
+#define neoncache_st_coherency STEPNAME(neoncache_st_coherency)
+int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b);
+
+#if STEP == 0
+#define ST_IS_F(A)          0
+#define X87_COMBINE(A, B)   NEON_CACHE_ST_D
+#define X87_ST0             NEON_CACHE_ST_D
+#define X87_ST(A)           NEON_CACHE_ST_D
+#elif STEP == 1
+#define ST_IS_F(A) (neoncache_get_current_st(dyn, ninst, A)==NEON_CACHE_ST_F)
+#define X87_COMBINE(A, B) neoncache_combine_st(dyn, ninst, A, B)
+#define X87_ST0     neoncache_get_current_st(dyn, ninst, 0)
+#define X87_ST(A)   neoncache_get_current_st(dyn, ninst, A)
+#else
+#define ST_IS_F(A) (neoncache_get_st(dyn, ninst, A)==NEON_CACHE_ST_F)
+#if STEP == 3
+#define X87_COMBINE(A, B) neoncache_st_coherency(dyn, ninst, A, B)
+#else
+#define X87_COMBINE(A, B) neoncache_get_st(dyn, ninst, A)
+#endif
+#define X87_ST0     neoncache_get_st(dyn, ninst, 0)
+#define X87_ST(A)   neoncache_get_st(dyn, ninst, A)
+#endif
 
 //MMX helpers
 // get neon register for a MMX reg, create the entry if needed
