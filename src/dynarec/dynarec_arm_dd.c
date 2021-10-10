@@ -238,14 +238,20 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
-                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0, 0);
-                    LDR_IMM9(x1, xEmu, offsetof(x86emu_t, top));
-                    MOVW(x2, offsetof(x86emu_t, sw));
-                    ADD_REG_LSL_IMM5(x2, xEmu, x2, 0);
-                    LDRH_IMM8(x3, x2, 0);
-                    BFI(x3, x1, 11, 3); // inject TOP at bit 11 (3 bits)
-                    STRH_IMM8(x3, ed, 0);   // store whole sw flags
+                    LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+                    LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+                    if(dyn->x87stack) {
+                        // update top
+                        if(dyn->x87stack>0) {
+                            SUB_IMM8(x2, x2, dyn->x87stack);
+                        } else {
+                            ADD_IMM8(x2, x2, -dyn->x87stack);
+                        }
+                        AND_IMM8(x2, x2, 7);
+                    }
+                    BFI(x1, x2, 11, 3); // inject top
+                    STRH_IMM8(x1, ed, 0);   // store whole sw flags
                     break;
                 default:
                     DEFAULT;
