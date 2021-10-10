@@ -46,7 +46,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("FFREE STx");
             x87_purgecache(dyn, ninst, x1, x2, x3);
-            MOVW(x1, nextop-0xC0);
+            MOVW(x1, nextop&7);
             CALL(fpu_do_free, -1, 0);
             break;
         case 0xD0:
