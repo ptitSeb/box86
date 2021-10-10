@@ -278,14 +278,9 @@
         /* greater than leave 0 */                                          \
     }                                                                       \
     SET_DFNONE(s1);                                                         \
-    IFX(X_OF|X_PEND) {                                                      \
-        BFC(xFlags, F_OF, 1);                                               \
-    }                                                                       \
-    IFX(X_AF|X_PEND) {                                                      \
-        BFC(xFlags, F_AF, 1);                                               \
-    }                                                                       \
-    IFX(X_SF|X_PEND) {                                                      \
-        BFC(xFlags, F_SF, 1);                                               \
+    IFX(X_OF|X_AF|X_SF|X_PEND) {                                            \
+        /* clear 0b100010010000 */                                          \
+        BIC_IMM8(xFlags, xFlags, 0b10001001, 14);                           \
     }                                                                       \
 
 
