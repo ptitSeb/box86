@@ -81,8 +81,8 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCF:
             INST_NAME("FXCH STx");
             // swap the cache value, not the double value itself :p
-            i1 = x87_get_cache(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            i2 = x87_get_cache(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            i1 = x87_get_cache(dyn, ninst, 1, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            i2 = x87_get_cache(dyn, ninst, 1, x1, x2, 0, X87_COMBINE(0, nextop&7));
             i3 = dyn->x87cache[i1];
             dyn->x87cache[i1] = dyn->x87cache[i2];
             dyn->x87cache[i2] = i3;

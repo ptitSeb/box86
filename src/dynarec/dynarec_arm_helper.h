@@ -462,6 +462,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_neoncache STEPNAME(x87_get_neoncache)
 #define x87_get_st      STEPNAME(x87_get_st)
+#define x87_get_st_empty  STEPNAME(x87_get_st)
 #define x87_refresh     STEPNAME(x87_refresh)
 #define x87_forget      STEPNAME(x87_forget)
 #define x87_reget_st    STEPNAME(x87_reget_st)
@@ -592,11 +593,13 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
 // get cache index for a x87 reg, create the entry if needed
-int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
+int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int a, int t);
 // get neoncache index for a x87 reg
 int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 // get vfpu register for a x87 reg, create the entry if needed
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
+// get vfpu register for a x87 reg, create the entry if needed. Do not fetch the Stx if not already in cache
+int x87_get_st_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
 void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)

@@ -723,7 +723,7 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
 }
 #endif
 
-int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st, int t)
+int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int st, int t)
 {
 #if STEP > 0
     if(dyn->mmxcount)
@@ -737,7 +737,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st, int t)
             #endif
             return i;
         }
-    MESSAGE(LOG_DUMP, "\tCreate x87 Cache for ST%d\n", st);
+    MESSAGE(LOG_DUMP, "\tCreate %sx87 Cache for ST%d\n", populate?"and populate ":"", st);
     // get a free spot
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
@@ -746,18 +746,20 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st, int t)
     // found, setup and grab the value
     dyn->x87cache[ret] = st;
     dyn->x87reg[ret] = fpu_get_reg_double(dyn, NEON_CACHE_ST_D, st);
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
-    int a = st - dyn->x87stack;
-    if(a) {
-        if(a<0) {
-            SUB_IMM8(s2, s2, -a);
-        } else {
-            ADD_IMM8(s2, s2, a);
+    if(populate) {
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        int a = st - dyn->x87stack;
+        if(a) {
+            if(a<0) {
+                SUB_IMM8(s2, s2, -a);
+            } else {
+                ADD_IMM8(s2, s2, a);
+            }
+            AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
         }
-        AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+        ADD_REG_LSL_IMM5(s2, xEmu, s2, 3);
+        VLDR_64(dyn->x87reg[ret], s2, offsetof(x86emu_t, x87));
     }
-    ADD_REG_LSL_IMM5(s2, xEmu, s2, 3);
-    VLDR_64(dyn->x87reg[ret], s2, offsetof(x86emu_t, x87));
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 
     return ret;
@@ -778,7 +780,16 @@ int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t)
 {
 #if STEP > 0
-    int ret = dyn->x87reg[x87_get_cache(dyn, ninst, s1, s2, a, t)];
+    int ret = dyn->x87reg[x87_get_cache(dyn, ninst, 1, s1, s2, a, t)];
+    return ret * dyn->n.neoncache[ret-FPUFIRST].t;
+#else
+    return 0;
+#endif
+}
+int x87_get_st_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t)
+{
+#if STEP > 0
+    int ret = dyn->x87reg[x87_get_cache(dyn, ninst, 0, s1, s2, a, t)];
     return ret * dyn->n.neoncache[ret-FPUFIRST].t;
 #else
     return 0;
