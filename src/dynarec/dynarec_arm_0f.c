@@ -1092,7 +1092,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x77:
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
-            mmx_purgecache(dyn, ninst, x1);
+            mmx_purgecache(dyn, ninst, 0, x1);
             break;
 
         case 0x7E:
@@ -1130,17 +1130,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         #define GO(GETFLAGS, NO, YES, F)   \
-            READFLAGS(F);   \
+            READFLAGS(F|(dyn->insts[ninst].x86.barrier?0:X_PEND));      \
             i32_ = F32S;    \
-            BARRIER(2);     \
+            BARRIER(3);     \
             JUMP(addr+i32_);\
             GETFLAGS;   \
             if(dyn->insts) {    \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
                     /* out of the block */                  \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
-                    Bcond(NO, i32);     \
-                    jump_to_next(dyn, addr+i32_, 0, ninst); \
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);\
+                    Bcond(NO, i32);                                     \
+                    if(!dyn->insts[ninst].x86.barrier)                  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i32_, 0, ninst);             \
                 } else {    \
                     /* inside the block */  \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
@@ -1486,7 +1488,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 0:
                         INST_NAME("FXSAVE Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        fpu_purgecache(dyn, ninst, x1, x2, x3);
+                        // A purge is probably not needed, just a full refresh
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         if((nextop&0xC0)==0xC0) {
                             DEFAULT;
                         } else {
@@ -1498,7 +1501,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 1:
                         INST_NAME("FXRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        fpu_purgecache(dyn, ninst, x1, x2, x3);
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         if((nextop&0xC0)==0xC0) {
                             DEFAULT;
                         } else {

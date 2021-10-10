@@ -46,7 +46,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
         case 0xC7:
             INST_NAME("FFREE STx");
-            x87_purgecache(dyn, ninst, x1, x2, x3);
+            x87_purgecache(dyn, ninst, 0, x1, x2, x3);
             MOVW(x1, nextop&7);
             CALL(fpu_do_free, -1, 0);
             break;
@@ -224,21 +224,21 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4: 
                     INST_NAME("FRSTOR m108byte");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_frstor, -1, 0);
                     break;
                 case 6: 
                     INST_NAME("FSAVE m108byte");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fsave, -1, 0);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
-                    fpu_purgecache(dyn, ninst, x1, x2, x3);
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0, 0);
                     LDR_IMM9(x1, xEmu, offsetof(x86emu_t, top));
                     MOVW(x2, offsetof(x86emu_t, sw));

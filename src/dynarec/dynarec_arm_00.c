@@ -690,23 +690,25 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
-        #define GO(GETFLAGS, NO, YES, F)    \
-            READFLAGS(F);                   \
-            i8 = F8S;   \
-            BARRIER(2); \
-            JUMP(addr+i8);\
-            GETFLAGS;   \
-            if(dyn->insts) {    \
-                if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
-                    /* out of the block */                  \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8); \
-                    Bcond(NO, i32);     \
-                    jump_to_next(dyn, addr+i8, 0, ninst); \
-                } else {    \
-                    /* inside the block */  \
+        #define GO(GETFLAGS, NO, YES, F)                                \
+            READFLAGS(F|(dyn->insts[ninst].x86.barrier?0:X_PEND));      \
+            i8 = F8S;                                                   \
+            BARRIER(3);                                                 \
+            JUMP(addr+i8);                                              \
+            GETFLAGS;                                                   \
+            if(dyn->insts) {                                            \
+                if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
+                    /* out of the block */                              \
+                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);\
+                    Bcond(NO, i32);                                     \
+                    if(!dyn->insts[ninst].x86.barrier)                  \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
+                    jump_to_next(dyn, addr+i8, 0, ninst);               \
+                } else {                                                \
+                    /* inside the block */                              \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
-                    Bcond(YES, i32);    \
-                }   \
+                    Bcond(YES, i32);                                    \
+                }                                                       \
             }
 
         case 0x70:

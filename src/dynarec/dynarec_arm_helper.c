@@ -471,7 +471,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     if(!dyn->x87stack)
         return;
     if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, scratch);
+        mmx_purgecache(dyn, ninst, 0, scratch);
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->x87stack);
     int a = dyn->x87stack;
     // Add x87stack to emu fpu_stack
@@ -515,7 +515,7 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
 {
 #if STEP > 0
     if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, s1);
+        mmx_purgecache(dyn, ninst, 0, s1);
     dyn->x87stack+=1;
     dyn->n.stack+=1;
     dyn->n.stack_next+=1;
@@ -547,7 +547,7 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 0
     if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, s1);
+        mmx_purgecache(dyn, ninst, 0, s1);
     dyn->x87stack+=1;
     dyn->n.stack+=1;
     dyn->n.stack_next+=1;
@@ -566,7 +566,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
 {
 #if STEP > 0
     if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, s1);
+        mmx_purgecache(dyn, ninst, 0, s1);
     dyn->x87stack-=1;
     dyn->n.stack_next-=1;
     dyn->n.stack_pop+=1;
@@ -582,7 +582,7 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
 #endif
 }
 
-void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
 #if STEP > 0
     int ret = 0;
@@ -591,11 +591,12 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             ret = 1;
     if(!ret && !dyn->x87stack)    // nothing to do
         return;
-    MESSAGE(LOG_DUMP, "\tPurge x87 Cache and Synch Stackcount (%+d)---\n", dyn->x87stack);
+    MESSAGE(LOG_DUMP, "\tPurge %sx87 Cache and Synch Stackcount (%+d)---\n", next?"locally ":"", dyn->x87stack);
     int a = dyn->x87stack;
     if(a!=0) {
         // reset x87stack
-        dyn->x87stack = 0;
+        if(!next)
+            dyn->x87stack = 0;
         // Add x87stack to emu fpu_stack
         LDR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
         if(a>0) {
@@ -649,10 +650,11 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
         for (int i=0; i<8; ++i)
             if(dyn->x87cache[i]!=-1) {
                 #if STEP == 1
-                neoncache_promote_double(dyn, ninst, dyn->x87cache[i], dyn->n.stack_next);
+                if(!next)   // don't force promotion here
+                    neoncache_promote_double(dyn, ninst, dyn->x87cache[i], dyn->n.stack_next);
                 #endif
                 #if STEP == 3
-                if(neoncache_get_st_f(dyn, ninst, dyn->x87cache[i], dyn->n.stack_next)>=0) {
+                if(!next && neoncache_get_st_f(dyn, ninst, dyn->x87cache[i], dyn->n.stack_next)>=0) {
                     MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", dyn->x87cache[i]);
                 }
                 #endif
@@ -663,18 +665,30 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
                 } else {
                     ADD_REG_LSL_IMM5(s3, xEmu, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
                 }
-                VSTR_64(dyn->x87reg[i], s3, offsetof(x86emu_t, x87));    // save the value
-                fpu_free_reg_double(dyn, dyn->x87reg[i]);
-                dyn->x87reg[i] = -1;
-                dyn->x87cache[i] = -1;
-                dyn->n.stack_pop+=1;
+                if(next) {
+                    // need to check if a ST_F need local promotion
+                    if(neoncache_get_st_f(dyn, ninst, dyn->x87cache[i], dyn->n.stack_next)>=0) {
+                        VCVT_F64_F32(0, dyn->x87reg[i]*2);
+                        VSTR_64(0, s3, offsetof(x86emu_t, x87));    // save the value
+                    } else {
+                        VSTR_64(dyn->x87reg[i], s3, offsetof(x86emu_t, x87));    // save the value
+                    }
+                } else {
+                    VSTR_64(dyn->x87reg[i], s3, offsetof(x86emu_t, x87));    // save the value
+                    fpu_free_reg_double(dyn, dyn->x87reg[i]);
+                    dyn->x87reg[i] = -1;
+                    dyn->x87cache[i] = -1;
+                    dyn->n.stack_pop+=1;
+                }
             }
     }
-    dyn->n.stack_next = 0;
-    #if STEP == 1
-    // refresh the cached valued, in case it's a purge outside a instruction
-    dyn->insts[ninst].n = dyn->n;
-    #endif
+    if(!next) {
+        dyn->n.stack_next = 0;
+        #if STEP == 1
+        // refresh the cached valued, in case it's a purge outside a instruction
+        dyn->insts[ninst].n = dyn->n;
+        #endif
+    }
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
 #endif
 }
@@ -713,7 +727,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st, int t)
 {
 #if STEP > 0
     if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, s1);
+        mmx_purgecache(dyn, ninst, 0, s1);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
@@ -841,7 +855,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
 #if STEP > 0
     if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, s1);
+        mmx_purgecache(dyn, ninst, 0, s1);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
@@ -949,7 +963,7 @@ int mmx_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int a)
 {
 #if STEP > 0
     if(!dyn->x87stack && isx87Empty(dyn, ninst))
-        x87_purgecache(dyn, ninst, s1, s2, s3);
+        x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     ++dyn->mmxcount;
@@ -966,7 +980,7 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int
 {
 #if STEP > 0
     if(!dyn->x87stack && isx87Empty(dyn, ninst))
-        x87_purgecache(dyn, ninst, s1, s2, s3);
+        x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if(dyn->mmxcache[a]!=-1)
         return dyn->mmxcache[a];
     ++dyn->mmxcount;
@@ -977,17 +991,18 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int
 #endif
 }
 // purge the MMX cache only(needs 3 scratch registers)
-void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
 {
 #if STEP > 0
     if(!dyn->mmxcount)
         return;
-    dyn->mmxcount = 0;
+    if(!next)
+        dyn->mmxcount = 0;
     int old = -1;
     for (int i=0; i<8; ++i)
         if(dyn->mmxcache[i]!=-1) {
             if (old==-1) {
-                MESSAGE(LOG_DUMP, "\tPurge MMX Cache ------\n");
+                MESSAGE(LOG_DUMP, "\tPurge %sMMX Cache ------\n", next?"locally ":"");
                 ADD_IMM8(s1, xEmu, offsetof(x86emu_t, mmx[i]));
                 old = i+1;  //+1 because VST1 with write back
             } else {
@@ -997,8 +1012,10 @@ void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
                 old = i+1;
             }
             VST1_32_W(dyn->mmxcache[i], s1);
-            fpu_free_reg_double(dyn, dyn->mmxcache[i]);
-            dyn->mmxcache[i] = -1;
+            if(!next) {
+                fpu_free_reg_double(dyn, dyn->mmxcache[i]);
+                dyn->mmxcache[i] = -1;
+            }
         }
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
@@ -1081,8 +1098,8 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
     return 0;
 #endif
 }
-// purge the SSE cache only(needs 3 scratch registers)
-static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
+// purge the SSE cache only(needs 1 scratch registers)
+static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
 {
 #if STEP > 0
     int old = -1;
@@ -1090,7 +1107,7 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->ssecache[i].v!=-1) {
             if(dyn->ssecache[i].write) {
                 if (old==-1) {
-                    MESSAGE(LOG_DUMP, "\tPurge SSE Cache ------\n");
+                    MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next?"locally ":"");
                     int offs = offsetof(x86emu_t, xmm[i]);
                     if(!(offs&3) && (offs>>2)<256) {
                         ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
@@ -1107,8 +1124,10 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int s1)
                 }
                 VST1Q_32_W(dyn->ssecache[i].reg, s1);
             }
-            fpu_free_reg_quad(dyn, dyn->ssecache[i].reg);
-            dyn->ssecache[i].v = -1;
+            if(!next) {
+                fpu_free_reg_quad(dyn, dyn->ssecache[i].reg);
+                dyn->ssecache[i].v = -1;
+            }
         }
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
@@ -1197,12 +1216,13 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
 #endif
 }
 
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
-    x87_purgecache(dyn, ninst, s1, s2, s3);
-    mmx_purgecache(dyn, ninst, s1);
-    sse_purgecache(dyn, ninst, s1);
-    fpu_reset_reg(dyn);
+    x87_purgecache(dyn, ninst, next, s1, s2, s3);
+    mmx_purgecache(dyn, ninst, next, s1);
+    sse_purgecache(dyn, ninst, next, s1);
+    if(!next)
+        fpu_reset_reg(dyn);
 }
 
 #ifdef HAVE_TRACE

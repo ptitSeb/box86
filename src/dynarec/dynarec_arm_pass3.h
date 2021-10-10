@@ -12,11 +12,12 @@
 #define INST_NAME(name) \
     if(box86_dynarec_dump) {\
         printf_x86_instruction(my_context->dec, &dyn->insts[ninst].x86, name); \
-        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, state=%d/%d, set=%X, use=%X, need=%X", \
+        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, barrier=%d state=%d/%d, set=%X, use=%X, need=%X", \
             (box86_dynarec_dump>1)?"\e[32m":"", \
             (void*)(dyn->arm_start+dyn->insts[ninst].address),  \
             dyn->insts[ninst].size/4,           \
             ninst,                              \
+            dyn->insts[ninst].x86.barrier,      \
             dyn->insts[ninst].x86.state_flags,  \
             dyn->state_flags,                   \
             dyn->insts[ninst].x86.set_flags,    \

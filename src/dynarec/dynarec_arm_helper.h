@@ -654,10 +654,10 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // common coproc helpers
 // reset the cache
 void fpu_reset(dynarec_arm_t* dyn, int ninst);
-// purge the FPU cache (needs 3 scratch registers)
-void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-void x87_purgecache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int s1);
+// purge the FPU cache (needs 3 scratch registers) next=1 if for a conditionnal branch jumping out of block (no tracking updated)
+void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
+void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
+void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1);
 #ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 #endif

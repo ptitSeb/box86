@@ -342,9 +342,9 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
             uintptr_t j = helper.insts[i].x86.jmp;
-            if(j<start || j>=end)
+            if(j<start || j>=end) {
                 helper.insts[i].x86.jmp_insts = -1;
-            else {
+            } else {
                 // find jump address instruction
                 int k=-1;
                 for(int i2=0; i2<helper.size && k==-1; ++i2) {
@@ -356,6 +356,16 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                 helper.insts[i].x86.jmp_insts = k;
             }
         }
+    // check for the optionnal barriers now
+    for(int i=helper.size-1; i>=0; --i)
+        if(helper.insts[i].x86.barrier==3)
+            if(helper.insts[i].x86.jmp_insts == -1) {
+                if(i==helper.size-1 || helper.insts[i+1].x86.barrier)
+                    helper.insts[i].x86.barrier=2;  // nope, end of block or barrier just after
+                else
+                    helper.insts[i].x86.barrier=0;  // ok, no need for a barrier here after all
+            } else 
+                helper.insts[i].x86.barrier=2;
     // pass 1, flags
     arm_pass1(&helper, addr);
     for(int i=0; i<helper.size; ++i)
