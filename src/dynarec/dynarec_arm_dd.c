@@ -31,6 +31,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int parity;
     uint8_t ed;
     int v1, v2;
+    int i1, i2, i3;
 
     MAYUSE(v2);
     MAYUSE(v1);
@@ -78,6 +79,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDE:
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
+            #if 0
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             if(ST_IS_F(0)) {
@@ -85,6 +87,20 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VMOV_64(v2, v1);
             }
+            #else
+            // copy the cache value for st0 to stx
+            i1 = x87_get_cache(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            i2 = x87_get_cache(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            i3 = dyn->x87cache[i1];
+            dyn->x87cache[i1] = dyn->x87cache[i2];
+            dyn->x87cache[i2] = i3;
+            // swap those too
+            i1 = x87_get_neoncache(dyn, ninst, x1, x2, nextop&7);
+            i2 = x87_get_neoncache(dyn, ninst, x1, x2, 0);
+            i3 = dyn->n.neoncache[i1].v;
+            dyn->n.neoncache[i1].v = dyn->n.neoncache[i2].v;
+            dyn->n.neoncache[i2].v = i3;
+            #endif
             x87_do_pop(dyn, ninst, x3);
             break;
 
