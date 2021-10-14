@@ -1,6 +1,6 @@
 language: c
 arch:
-  - arm64
+  - arm64-graviton2
   - amd64
 os: linux
 dist: focal
