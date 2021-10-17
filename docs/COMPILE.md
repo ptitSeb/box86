@@ -49,6 +49,12 @@ sudo systemctl restart systemd-binfmt
 
 As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
+#### for Snapdragon 845
+
+`mkdir build; cd build; cmake .. -DSD845=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+
+As most Snapdragon 845 device run AARCH64 OS, in most cases you'll need an `armhf` multiarch environment, and an armhf gcc: On mobian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+
 #### for Other ARM Linux platforms
 
  `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
