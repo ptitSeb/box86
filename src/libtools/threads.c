@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <setjmp.h>
 #include <sys/mman.h>
+#include <dlfcn.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -28,8 +29,13 @@
 #include "dynablock.h"
 #endif
 
-void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
-void _pthread_cleanup_pop_restore(void* buffer, int exec);
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef void (*vFpi_t)(void*, int);
+//starting with glibc 2.34+, those 2 functions are in libc.so as versionned symbol only
+// So use dlsym to get the symbol unversionned, as simple link will not work.
+static vFppp_t real_pthread_cleanup_push_defer = NULL;
+static vFpi_t real_pthread_cleanup_pop_restore = NULL;
+// those function can be used simply
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop(void* buffer, int exec);
 
@@ -630,7 +636,7 @@ EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
 #ifndef ANDROID
 EXPORT void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg)
 {
-	_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
+	real_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_push(x86emu_t* emu, void* buffer, void* routine, void* arg)
@@ -640,7 +646,7 @@ EXPORT void my__pthread_cleanup_push(x86emu_t* emu, void* buffer, void* routine,
 
 EXPORT void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec)
 {
-	_pthread_cleanup_pop_restore(buffer, exec);
+	real_pthread_cleanup_pop_restore(buffer, exec);
 }
 
 EXPORT void my__pthread_cleanup_pop(x86emu_t* emu, void* buffer, int exec)
@@ -912,6 +918,9 @@ emu_jmpbuf_t* GetJmpBuf()
 
 void init_pthread_helper()
 {
+	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
+	real_pthread_cleanup_pop_restore = (vFpi_t)dlsym(NULL, "_pthread_cleanup_pop_restore");
+
 	InitCancelThread();
 	mapcond = kh_init(mapcond);
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
