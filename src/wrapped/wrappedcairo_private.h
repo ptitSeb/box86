@@ -377,22 +377,22 @@ GO(cairo_user_to_device_distance, vFppp)
 //GO(cairo_xcb_surface_create_with_xrender_format, 
 //GO(cairo_xcb_surface_set_drawable, 
 //GO(cairo_xcb_surface_set_size, 
-//GO(cairo_xlib_device_debug_cap_xrender_version, 
-//GO(cairo_xlib_device_debug_get_precision, 
-//GO(cairo_xlib_device_debug_set_precision, 
-//GO(cairo_xlib_surface_create, 
-//GO(cairo_xlib_surface_create_for_bitmap, 
+GO(cairo_xlib_device_debug_cap_xrender_version, vFpii)
+GO(cairo_xlib_device_debug_get_precision, iFp)
+GO(cairo_xlib_device_debug_set_precision, vFpi)
+GO(cairo_xlib_surface_create, pFpppii)
+GO(cairo_xlib_surface_create_for_bitmap, pFpppii)
 //GO(cairo_xlib_surface_create_with_xrender_format, 
-//GO(cairo_xlib_surface_get_depth, 
-//GO(cairo_xlib_surface_get_display, 
-//GO(cairo_xlib_surface_get_drawable, 
-//GO(cairo_xlib_surface_get_height, 
-//GO(cairo_xlib_surface_get_screen, 
-//GO(cairo_xlib_surface_get_visual, 
-//GO(cairo_xlib_surface_get_width, 
+GO(cairo_xlib_surface_get_depth, iFp)
+GO(cairo_xlib_surface_get_display, pFp)
+GO(cairo_xlib_surface_get_drawable, pFp)
+GO(cairo_xlib_surface_get_height, iFp)
+GO(cairo_xlib_surface_get_screen, pFp)
+GO(cairo_xlib_surface_get_visual, pFp)
+GO(cairo_xlib_surface_get_width, iFp)
 //GO(cairo_xlib_surface_get_xrender_format, 
-//GO(cairo_xlib_surface_set_drawable, 
-//GO(cairo_xlib_surface_set_size, 
+GO(cairo_xlib_surface_set_drawable, vFppii)
+GO(cairo_xlib_surface_set_size, vFpii)
 //GO(cairo_xml_create, 
 //GO(cairo_xml_create_for_stream, 
 //GO(cairo_xml_for_recording_surface, 
