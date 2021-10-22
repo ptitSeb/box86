@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(cairo_set_user_data, iFpppp_t)
 
 #endif // __wrappedcairoTYPES_H_

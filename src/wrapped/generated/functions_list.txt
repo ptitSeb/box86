@@ -2051,6 +2051,8 @@ wrappedbz2:
 - iFpiii:
   - BZ2_bzCompressInit
 wrappedcairo:
+- iFpppp:
+  - cairo_set_user_data
 wrappedcrashhandler:
 wrappedcrypto:
 - vFv:
