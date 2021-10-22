@@ -954,6 +954,9 @@ EXPORT void* my_XSynchronize(x86emu_t* emu, void* display, int onoff)
 #define CUSTOM_INIT                 \
     box86->x11lib = lib;            \
     lib->priv.w.p2 = getX11My(lib); \
+    lib->priv.w.needed = 1; \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
+    lib->priv.w.neededlibs[0] = strdup("libdl.so.2"); \
     if(x11threads) ((x11_my_t*)lib->priv.w.p2)->XInitThreads();
 
 #define CUSTOM_FINI \
