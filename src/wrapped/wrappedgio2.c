@@ -26,9 +26,11 @@ const char* gio2Name = "libgio-2.0.so.0";
 static char* libname = NULL;
 
 typedef int(*iFv_t)(void);
+typedef void*(*pFipppp_t)(int, void*, void*, void*, void*);
 
 #define ADDED_FUNCTIONS()                           \
 GO(g_dbus_object_manager_client_get_type, iFv_t)    \
+GO(g_initable_new_valist, pFipppp_t)                \
 
 #include "generated/wrappedgio2types.h"
 
@@ -660,6 +662,14 @@ EXPORT uint32_t my_g_bus_own_name_on_connection(x86emu_t* emu, void* connection,
     gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
     // note that a mecanism with a new callback, cleaned with notify, is also possible here
     return my->g_bus_own_name_on_connection(connection, name, flags, findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
+}
+
+EXPORT void* my_g_initable_new(x86emu_t* emu, int type, void* cancellable, void* error, void* first, void* va)
+{
+    library_t * lib = GetLibInternal(libname);
+    gio2_my_t *my = (gio2_my_t*)lib->priv.w.p2;
+
+    return my->g_initable_new_valist(type, first, va, cancellable, error);
 }
 
 #define PRE_INIT    \

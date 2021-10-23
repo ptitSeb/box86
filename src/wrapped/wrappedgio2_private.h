@@ -940,7 +940,7 @@ GO(g_icon_to_string, pFp)
 //GO(g_inet_socket_address_new_from_string, 
 GO(g_initable_get_type, iFv)
 GO(g_initable_init, iFppp)
-GO(g_initable_new, pFippppppppppppppp)    // vaarg, should vrap with g_initable_new_valist
+GOM(g_initable_new, pFEipppV)
 GO(g_initable_newv, pFpippp)
 GO(g_initable_new_valist, pFipppp)
 //GO(g_input_stream_clear_pending, 

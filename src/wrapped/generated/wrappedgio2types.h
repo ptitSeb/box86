@@ -21,6 +21,7 @@ typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppV_t)(void*, void*, void*, ...);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void (*vFpuipV_t)(void*, uint32_t, int32_t, void*, ...);
+typedef void* (*pFipppV_t)(int32_t, void*, void*, void*, ...);
 typedef void (*vFpipppp_t)(void*, int32_t, void*, void*, void*, void*);
 typedef void (*vFiippppV_t)(int32_t, int32_t, void*, void*, void*, void*, ...);
 typedef void (*vFiupippp_t)(int32_t, uint32_t, void*, int32_t, void*, void*, void*);
@@ -58,6 +59,7 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_async_initable_init_async, vFpippp_t) \
 	GO(g_dbus_method_invocation_return_error, vFpuipV_t) \
 	GO(g_simple_async_result_set_error, vFpuipV_t) \
+	GO(g_initable_new, pFipppV_t) \
 	GO(g_dbus_connection_new_for_address, vFpipppp_t) \
 	GO(g_async_initable_new_async, vFiippppV_t) \
 	GO(g_async_initable_newv_async, vFiupippp_t) \
