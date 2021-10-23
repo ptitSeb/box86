@@ -11,6 +11,7 @@
 #include "bridge.h"
 #include "librarian/library_private.h"
 #include "x86emu.h"
+#include "callback.h"
 
 static library_t* my_lib = NULL;
 
