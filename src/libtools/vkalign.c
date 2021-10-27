@@ -461,6 +461,7 @@ typedef struct my_VkComputePipelineCreateInfo_x86_t {
 #define VK_UUID_SIZE                      16
 
 #define NOCHANGE\
+    case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:          \
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:    \
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:       \
     case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:          \
