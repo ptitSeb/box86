@@ -1,6 +1,21 @@
 Current version
 ======
 * Reworked Elfloader part, with better handling of versionned symbols
+* Improve speed for x87 code (by avoiding many float<->double conversion)
+* Improve speed of the custom allocator used by dynarec and Hash (speedup loading)
+* Added a detection of box64 in uname call, to expose an x86_64 system instead of i386 one
+* Added a fix for linking box86 on system using glibc 2.34+
+* A few more wrapped libs
+* More ARM hardware option in CMake (Phytium, SD845)
+* Changed a bit struture of Dynarec, switching some operations from Pass1 to Pass0
+* Small fixes to elfloader
+* Some fixes and improvments on wrapped libs (mainly gtk2, gtk3 and d3dadpter)
+* Better VSyscall implementation
+* Fixed the "Alternate" handling (address shadowing on x86 side)
+* A few opcodes border case fixes
+* Improved wrapper helpers (from rajdakin)
+* Added a mecanism to cancel a Dynarec block construction if it triggers a segfault (instead of a crash)
+* Improvment to the handling of longjmp inside signal handlers
 
 v0.2.2
 ======
