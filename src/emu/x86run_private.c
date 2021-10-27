@@ -37,6 +37,7 @@ void EXPORT my___libc_init(x86emu_t* emu, void* raw_args __unused, void (*onexit
     Push(emu, (uint32_t)my_context->argc);
 
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_init\n", my_context->argc, my_context->argv, my_context->envv, main);
+    // should call structors->preinit_array and structors->init_array!
     // call main and finish
     PushExit(emu);
     R_EIP=(uint32_t)main;
