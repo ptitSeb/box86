@@ -861,7 +861,7 @@ EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 	am->sign = 0;
 	return ret;
 }
-int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_destroy")));
+EXPORT int my___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_destroy")));
 
 EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
 {
