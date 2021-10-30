@@ -55,6 +55,12 @@ As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environme
 
 As most Snapdragon 845 device run AARCH64 OS, in most cases you'll need an `armhf` multiarch environment, and an armhf gcc: On mobian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
+#### for Phytium
+
+`mkdir build; cd build; cmake .. -DPHYTIUM=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+
+As most Phytium (D2000 or FT2000/4) device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian/ubuntu, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+
 #### for Other ARM Linux platforms
 
  `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
