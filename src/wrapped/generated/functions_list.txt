@@ -149,6 +149,7 @@
 #() iFiI
 #() iFiu
 #() iFiU
+#() iFil
 #() iFip
 #() iFIi
 #() iFui
@@ -397,6 +398,7 @@
 #() iFpll
 #() iFplp
 #() iFpLi
+#() iFpLL
 #() iFpLp
 #() iFppi
 #() iFppI
@@ -3969,6 +3971,7 @@ wrappedssl3:
 - iFppp:
   - SSL_AuthCertificateHook
   - SSL_BadCertHook
+wrappedtbbmalloc:
 wrappedtcmallocminimal:
 - iFpL:
   - munmap
