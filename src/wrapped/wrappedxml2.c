@@ -35,6 +35,7 @@ typedef void    (*vFpp_t)       (void*, void*);
 typedef int     (*iFppp_t)      (void*, void*, void*);
 typedef void    (*vFppp_t)      (void*, void*, void*);
 typedef void*   (*pFppp_t)      (void*, void*, void*);
+typedef int     (*iFppii_t)     (void*, void*, int, int);
 typedef void*   (*pFpppi_t)     (void*, void*, void*, int);
 typedef int     (*iFpppp_t)     (void*, void*, void*, void*);
 typedef void    (*vFpppp_t)     (void*, void*, void*, void*);
@@ -72,6 +73,7 @@ typedef void    (*vFpppppp_t)   (void*, void*, void*, void*, void*, void*);
     GO(xmlParserInputBufferCreateIO, pFpppi_t)      \
     GO(xmlInitMemory, iFv_t)                        \
     GO(xmlParseDocument, iFp_t)                     \
+    GO(xmlParseChunk, iFppii_t)                     \
 
 EXPORT uintptr_t my_xmlFree = 0;
 EXPORT uintptr_t my_xmlMalloc = 0;
@@ -1413,6 +1415,20 @@ EXPORT int my_xmlParseDocument(x86emu_t* emu, my_xmlSAXHandler_t** p)
     int ret = my->xmlParseDocument(p);
     restoreSaxHandler(&sax_handler, old_saxhandler);
     return ret;
+}
+
+EXPORT int my_xmlParseChunk(x86emu_t* emu, my_xmlSAXHandler_t** p, void* chunk, int size, int terminate)
+{
+    // p is xmlParserCtxtPtr ctxt, so a xmlParserCtxt* and 1st field of xmlParserCtxt is a xmlSaxHandler*
+    xml2_my_t* my = (xml2_my_t*)my_lib->priv.w.p2;
+
+    my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
+    my_xmlSAXHandler_t sax_handler = {0};
+    wrapSaxHandler(&sax_handler, old_saxhandler);
+    int ret = my->xmlParseChunk(p, chunk, size, terminate);
+    restoreSaxHandler(&sax_handler, old_saxhandler);
+    return ret;
+
 }
 
 #define CUSTOM_INIT \

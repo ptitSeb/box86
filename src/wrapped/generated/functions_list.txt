@@ -4151,6 +4151,8 @@ wrappedxml2:
   - xmlSchemaSetValidErrors
 - iFpipV:
   - xmlStrPrintf
+- iFppii:
+  - xmlParseChunk
 - iFpppp:
   - xmlHashRemoveEntry2
   - xmlHashUpdateEntry
