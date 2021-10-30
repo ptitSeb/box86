@@ -95,7 +95,7 @@ To have a trace enabled build ( ***it will be slower***), add `-DHAVE_TRACE=1` b
 
 *to have ARM Dynarec*
 
-The Dynarec is only available on the ARM architecture(Right now, anyways.). Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`. Also, be sure to use `-marm` in compilation flags (because many compileur use Thumb as default, and the dynarec will not work in this mode).
+The Dynarec is only available on the ARM architecture(Right now, anyways.). Notes also that VFPv3 and NEON are required for the Dynarec. Activate it by using `-DARM_DYNAREC=1`. Also, be sure to use `-marm` in compilation flags (because many compileur use Thumb as default, and the dynarec will not work in this mode). Note that compiling with `ARM_DYNAREC` but without hardware profile is not advise. If you get error building that "target CPU does not support ARM mode", then try to pick hardware profile (like ODROID for armv7 or PI4 for armv8). Also, if you are using a 64bits with armhf multiarch, it's much easier to pick one of the hardware profile like `RPI4ARM64`, `RK3399`, `PHYTIUM` or `SD845`.
 
 *not building from a git clone*
 
