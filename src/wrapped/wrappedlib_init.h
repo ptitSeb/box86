@@ -41,6 +41,8 @@
 #define DATAB(N, S)
 // data, "my_" type
 #define DATAM(N, S)
+// data, "my_" type Weak
+#define DATAVM(N, S)
 
 // #define the 4 maps first
 #undef GO
@@ -103,7 +105,9 @@ static const map_onedata_t MAPNAME(datamap)[] = {
 #define DATAV(N, S)
 #define DATAB(N, S)
 #undef DATAM
+#undef DATAVM
 #define DATAM(N, S) {#N, S, 0},
+#define DATAVM(N, S) {#N, S, 1},
 static const map_onedata_t MAPNAME(mydatamap)[] = {
     #include PRIVATE(LIBNAME)
 };
@@ -120,6 +124,7 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef DATAV
 #undef DATAB
 #undef DATAM
+#undef DATAVM
 
 #include DOIT(LIBNAME,undefs)
 #undef DOIT
