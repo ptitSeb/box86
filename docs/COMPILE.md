@@ -49,6 +49,10 @@ sudo systemctl restart systemd-binfmt
 
 As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
+#### for Tinker Board (1/1S) or RK3288
+
+`mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+
 #### for Allwinner A64
 
 `mkdir build; cd build; cmake .. -DA64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
