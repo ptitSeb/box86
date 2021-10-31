@@ -229,53 +229,6 @@ int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n)
     return (i==n)?1:0;
 }
 
-uint32_t needed_flags(dynarec_arm_t *dyn, int ninst, uint32_t setf, int recurse)
-{
-    if(recurse == 10)
-        return X_PEND;
-    if(ninst == dyn->size)
-        return X_PEND; // no more instructions, or too many jmp loop, stop
-    
-    uint32_t needed = dyn->insts[ninst].x86.use_flags;
-    if(needed) {
-        setf &= ~needed;
-        if(!setf)   // all flags already used, no need to continue
-            return needed;
-    }
-
-    if(!needed && !dyn->insts[ninst].x86.set_flags && !dyn->insts[ninst].x86.jmp_insts) {
-        int start = ninst;
-        int end = ninst;
-        while(end<dyn->size && !dyn->insts[end].x86.use_flags && !dyn->insts[end].x86.set_flags && !dyn->insts[end].x86.jmp_insts)
-            ++end;
-        needed = needed_flags(dyn, end, setf, recurse);
-        for(int i=start; i<end; ++i)
-            dyn->insts[i].x86.need_flags = needed;
-        return needed;
-    }
-
-    if(dyn->insts[ninst].x86.set_flags && (dyn->insts[ninst].x86.state_flags!=SF_MAYSET)) {
-        if((setf & ~dyn->insts[ninst].x86.set_flags) == 0)
-            return needed;    // all done, gives all the flags needed
-        setf |= dyn->insts[ninst].x86.set_flags;    // add new flags to continue
-    }
-
-    int jinst = dyn->insts[ninst].x86.jmp_insts;
-    if(dyn->insts[ninst].x86.jmp) {
-        dyn->insts[ninst].x86.need_flags = (jinst==-1)?X_PEND:needed_flags(dyn, jinst, setf, recurse+1);
-        if(dyn->insts[ninst].x86.use_flags)  // conditionnal jump
-             dyn->insts[ninst].x86.need_flags |= needed_flags(dyn, ninst+1, setf, recurse);
-    } else
-        dyn->insts[ninst].x86.need_flags = needed_flags(dyn, ninst+1, setf, recurse);
-    if(dyn->insts[ninst].x86.state_flags==SF_MAYSET)
-        needed |= dyn->insts[ninst].x86.need_flags;
-    else
-        needed |= (dyn->insts[ninst].x86.need_flags & ~dyn->insts[ninst].x86.set_flags);
-    if(needed == (X_PEND|X_ALL))
-        needed = X_ALL;
-    return needed;
-}
-
 instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, int arm_size)
 {
     // x86 instruction is <16 bytes
@@ -357,7 +310,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             }
         }
     // check for the optionnal barriers now
-    for(int i=helper.size-1; i>=0; --i)
+    for(int i=helper.size-1; i>=0; --i) {
+        if(helper.insts[i].x86.barrier) helper.insts[i].x86.use_flags |= X_PEND;
         if(helper.insts[i].x86.barrier==3)
             if(helper.insts[i].x86.jmp_insts == -1) {
                 if(i==helper.size-1 || helper.insts[i+1].x86.barrier)
@@ -366,14 +320,24 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                     helper.insts[i].x86.barrier=0;  // ok, no need for a barrier here after all
             } else 
                 helper.insts[i].x86.barrier=2;
+    }
     // pass 1, flags
     arm_pass1(&helper, addr);
-    for(int i=0; i<helper.size; ++i)
-        if(helper.insts[i].x86.set_flags && !helper.insts[i].x86.need_flags) {
-            helper.insts[i].x86.need_flags = needed_flags(&helper, i+1, helper.insts[i].x86.set_flags, 0);
-            if((helper.insts[i].x86.need_flags&X_PEND) && (helper.insts[i].x86.state_flags==SF_MAYSET))
-                helper.insts[i].x86.need_flags = X_ALL;
+    uint32_t last_need = X_PEND;
+    for(int i = helper.size; i-- > 0;) {
+        helper.insts[i].x86.need_flags = last_need;
+        if ((helper.insts[i].x86.set_flags) && !(helper.insts[i].x86.state_flags & SF_MAYSET)) {
+            if (last_need & X_PEND) {
+                last_need = (~helper.insts[i].x86.set_flags) & X_ALL;
+            } else {
+                last_need &= ~helper.insts[i].x86.set_flags;
+            }
         }
+        last_need |= helper.insts[i].x86.use_flags;
+        if (last_need == (X_PEND | X_ALL)) {
+            last_need = X_ALL;
+        }
+    }
     
     // pass 2, instruction size
     arm_pass2(&helper, addr);
