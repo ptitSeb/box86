@@ -986,6 +986,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 BFI(eb1, x14, eb2*8, 8);
             } else {
                 GETGB(x14);
+                DMB_ISH();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0);
                 MARKLOCK;
                 // do the swap with exclusive locking
@@ -995,6 +996,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 CMPS_IMM8(x3, 0);
                 B_MARKLOCK(cNE);
                 BFI(gb1, x1, gb2*8, 8);
+                DMB_ISH();
             }
             break;
         case 0x87:
@@ -1010,6 +1012,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             } else {
                 GETGD;
+                DMB_ISH();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 1);
                 if(!fixedaddress) {
                     TSTS_IMM8(ed, 3);
@@ -1033,6 +1036,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 if(!fixedaddress) {
                     MARK2;
                 }
+                DMB_ISH();
                 MOV_REG(gd, x1);
             }
             break;

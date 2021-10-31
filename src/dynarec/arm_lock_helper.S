@@ -20,6 +20,7 @@
 
 arm_lock_read_b:
     // address is r0, return is r0
+    dmb     ish
     ldrexb  r0, [r0]
     bx      lr
 
@@ -31,6 +32,7 @@ arm_lock_write_b:
 
 arm_lock_read_h:
     // address is r0, return is r0
+    dmb     ish
     ldrexh  r0, [r0]
     bx      lr
 
@@ -43,6 +45,7 @@ arm_lock_write_h:
 arm_lock_read_d:
     // address is r0, return is r0
     // r0 needs to be aligned
+    dmb     ish
     ldrex   r0, [r0]
     bx      lr
 
@@ -55,6 +58,7 @@ arm_lock_write_d:
 
 arm_lock_read_dd:
     // address is r2, return is r0, r1
+    dmb     ish
     ldrexd  r2, r3, [r2]
     str     r2, [r0]
     str     r3, [r1]
@@ -70,6 +74,7 @@ arm_lock_write_dd:
 arm_lock_xchg:
     // address is r0, value is r1, return old value in r0
     // r0 needs to be aligned
+    dmb     ish
     ldrex   r2, [r0]
     strex   r3, r1, [r0]
     cmp     r3, #1
@@ -80,6 +85,7 @@ arm_lock_xchg:
 arm_lock_storeifnull:
     // address is r0, value is r1, r1 store to r0 only if [r0] is 0. return new [r0] value (so r1 or old value)
     // r0 needs to be aligned
+    dmb     ish
     ldrex   r2, [r0]
     cmp     r2, #0
     bne     arm_lock_storeifnull_exit
@@ -93,6 +99,7 @@ arm_lock_storeifnull_exit:
 
 arm_lock_storeifref:
     push    {r4}
+    dmb     ish
 arm_lock_storeifref_loop:
     // address is r0, value is r1, r1 store to r0 only if [r0] is r2. return new [r0] value (so r1 or old value)
     ldrex   r3, [r0]

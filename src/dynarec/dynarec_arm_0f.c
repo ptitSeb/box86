@@ -1475,14 +1475,18 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xAE:
             nextop = F8;
+            // xFENCE -> DMB is approximative, but should be good enough
             if((nextop&0xF8)==0xE8) {
                 INST_NAME("LFENCE");
+                DMB_ISH();
             } else
             if((nextop&0xF8)==0xF0) {
                 INST_NAME("MFENCE");
+                DMB_ISH();
             } else
             if((nextop&0xF8)==0xF8) {
                 INST_NAME("SFENCE");
+                DMB_ISH();
             } else {
                 switch((nextop>>3)&7) {
                     case 0:
