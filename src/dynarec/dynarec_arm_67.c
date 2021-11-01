@@ -132,9 +132,9 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
             
-        #define GO(NO, YES)   \
-            BARRIER(2); \
-            JUMP(addr+i8);\
+        #define GO(NO, YES)     \
+            BARRIER(2);         \
+            JUMP(addr+i8, 1);   \
             if(dyn->insts) {    \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
                     /* out of the block */                  \

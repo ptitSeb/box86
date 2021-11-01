@@ -291,6 +291,22 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     // already protect the block and compute hash signature
     protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
+    // Compute flag_need, without taking into account any barriers
+    uint32_t last_need = X_PEND;
+    for(int i = helper.size; i-- > 0;) {
+        last_need |= helper.insts[i].x86.use_flags;
+        if (last_need == (X_PEND | X_ALL)) {
+            last_need = X_ALL;
+        }
+        helper.insts[i].x86.need_flags = last_need;
+        if ((helper.insts[i].x86.set_flags) && !(helper.insts[i].x86.state_flags & SF_MAYSET)) {
+            if (last_need & X_PEND) {
+                last_need = (~helper.insts[i].x86.set_flags) & X_ALL;
+            } else {
+                last_need &= ~helper.insts[i].x86.set_flags;
+            }
+        }
+    }
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
@@ -311,7 +327,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         }
     // check for the optionnal barriers now
     for(int i=helper.size-1; i>=0; --i) {
-        if(helper.insts[i].x86.barrier) helper.insts[i].x86.use_flags |= X_PEND;
         if(helper.insts[i].x86.barrier==3)
             if(helper.insts[i].x86.jmp_insts == -1) {
                 if(i==helper.size-1 || helper.insts[i+1].x86.barrier)
@@ -321,9 +336,40 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             } else 
                 helper.insts[i].x86.barrier=2;
     }
-    // pass 1, flags
-    arm_pass1(&helper, addr);
-    uint32_t last_need = X_PEND;
+    // check to remove useless barrier, in case of jump when destination doesn't needs flags
+    for(int i=helper.size-1; i>=0; --i) {
+        if(helper.insts[i].x86.jmp
+        && helper.insts[i].x86.jmp_insts>=0
+        && helper.insts[helper.insts[i].x86.jmp_insts].x86.barrier==1) {
+            int k = helper.insts[i].x86.jmp_insts;
+            //TODO: optimize FPU barrier too
+            if((!helper.insts[k].x86.need_flags)
+             ||(helper.insts[k].x86.set_flags==X_ALL
+                  && helper.insts[k].x86.state_flags==SF_SET)
+             ||(helper.insts[k].x86.state_flags==SF_SET_PENDING)) {
+                //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Removed barrier for inst %d\n", k);
+                helper.insts[k].x86.barrier = 4; // remove barrier (keep FPU barrier, and still reset state flag)
+             }
+        }
+    }
+    // reset need_flags and compute again, now taking barrier into account (because barrier change use_flags)
+    for(int i = helper.size; i-- > 0;) {
+        if(helper.insts[i].x86.barrier==1)
+            // immediate barrier
+            helper.insts[i].x86.use_flags |= X_PEND;
+        else if(helper.insts[i].x86.jmp 
+        && helper.insts[i].x86.jmp_insts>=0
+        ) {
+            if(helper.insts[helper.insts[i].x86.jmp_insts].x86.barrier==1)
+                // jumpto barrier
+                helper.insts[i].x86.use_flags |= X_PEND;
+            else
+                helper.insts[i].x86.use_flags |= helper.insts[helper.insts[i].x86.jmp_insts].x86.need_flags;
+        }
+    }
+    for(int i = helper.size; i-- > 0;)
+        helper.insts[i].x86.need_flags = 0;
+    last_need = X_PEND;
     for(int i = helper.size; i-- > 0;) {
         helper.insts[i].x86.need_flags = last_need;
         if ((helper.insts[i].x86.set_flags) && !(helper.insts[i].x86.state_flags & SF_MAYSET)) {
@@ -338,6 +384,9 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             last_need = X_ALL;
         }
     }
+
+    // pass 1, float optimisations
+    arm_pass1(&helper, addr);
     
     // pass 2, instruction size
     arm_pass2(&helper, addr);

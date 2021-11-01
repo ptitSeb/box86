@@ -24,6 +24,7 @@ typedef struct instruction_x86_s {
     int32_t     size;   // size of the instruction
     int         barrier; // next instruction is a jump point, so no optim allowed
     uintptr_t   jmp;    // offset to jump to, even if conditionnal (0 if not), no relative offset here
+    int         jmp_cond;   // 1 of conditionnal jump
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
     uint32_t    use_flags;  // 0 or combination of X_?F
     uint32_t    set_flags;  // 0 or combination of X_?F

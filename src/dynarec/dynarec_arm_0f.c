@@ -1131,10 +1131,10 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         #define GO(GETFLAGS, NO, YES, F)   \
             READFLAGS(F|(dyn->insts[ninst].x86.barrier?0:X_PEND));      \
-            i32_ = F32S;    \
-            BARRIER(3);     \
-            JUMP(addr+i32_);\
-            GETFLAGS;   \
+            i32_ = F32S;        \
+            BARRIER(3);         \
+            JUMP(addr+i32_, 1); \
+            GETFLAGS;           \
             if(dyn->insts) {    \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
                     /* out of the block */                  \

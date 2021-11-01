@@ -694,7 +694,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(F|(dyn->insts[ninst].x86.barrier?0:X_PEND));      \
             i8 = F8S;                                                   \
             BARRIER(3);                                                 \
-            JUMP(addr+i8);                                              \
+            JUMP(addr+i8, 1);                                           \
             GETFLAGS;                                                   \
             if(dyn->insts) {                                            \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
@@ -1993,9 +1993,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDF:
             addr = dynarecDF(dyn, addr, ip, ninst, ok, need_epilog);
             break;
-        #define GO(NO, YES)   \
-            BARRIER(2); \
-            JUMP(addr+i8);\
+        #define GO(NO, YES)     \
+            BARRIER(2);         \
+            JUMP(addr+i8, 1);   \
             if(dyn->insts) {    \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
                     /* out of the block */                  \
@@ -2150,7 +2150,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 INST_NAME("JMP Ib");
                 i32 = F8S;
             }
-            JUMP(addr+i32);
+            JUMP(addr+i32, 0);
             if(dyn->insts) {
                 PASS2IF(dyn->insts[ninst].x86.jmp_insts==-1, 1) {
                     // out of the block

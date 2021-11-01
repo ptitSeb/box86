@@ -312,7 +312,7 @@
         ((B==SF_SET_PENDING && !(dyn->insts[ninst].x86.need_flags&X_PEND)?SF_SET:B))
 #endif
 #ifndef JUMP
-#define JUMP(A) 
+#define JUMP(A, C) 
 #endif
 #ifndef BARRIER
 #define BARRIER(A) 
