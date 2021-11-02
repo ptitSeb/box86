@@ -1181,6 +1181,7 @@ GO(gtk_hbutton_box_get_type, iFv)
 GO(gtk_hbutton_box_new, pFv)
 GO(gtk_hbutton_box_set_layout_default, vFi)
 GO(gtk_hbutton_box_set_spacing_default, vFi)
+GO(gtk_header_bar_get_type, lFv)
 GO(gtk_hpaned_get_type, iFv)
 //GO(gtk_hpaned_new, 
 GO(gtk_hruler_get_type, iFv)

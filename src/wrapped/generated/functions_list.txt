@@ -2112,6 +2112,7 @@ wrappeddbus:
   - dbus_connection_add_filter
   - dbus_pending_call_set_notify
 - iFppppp:
+  - dbus_connection_try_register_fallback
   - dbus_connection_try_register_object_path
 - iFpppppp:
   - dbus_connection_set_timeout_functions

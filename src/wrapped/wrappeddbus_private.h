@@ -76,7 +76,7 @@ GOM(dbus_connection_set_wakeup_main_function, vFEpppp)
 GOM(dbus_connection_set_watch_functions, iFEpppppp)
 //GO(dbus_connection_set_windows_user_function, 
 GO(dbus_connection_steal_borrowed_message, vFpp)
-//GO(dbus_connection_try_register_fallback, 
+GOM(dbus_connection_try_register_fallback, iFEppppp)
 GOM(dbus_connection_try_register_object_path, iFEppppp)
 GO(dbus_connection_unref, vFp)
 GO(dbus_connection_unregister_object_path, iFpp)
