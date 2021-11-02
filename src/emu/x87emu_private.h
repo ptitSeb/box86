@@ -132,41 +132,7 @@ static inline double fpu_round(x86emu_t* emu, double d) {
     }
 }
 
-static inline void fpu_fxam(x86emu_t* emu) {
-    emu->sw.f.F87_C1 = (ST0.ud[1]&0x80000000)?1:0;
-    if(!emu->fpu_stack) {
-        emu->sw.f.F87_C3 = 1;
-        emu->sw.f.F87_C2 = 0;
-        emu->sw.f.F87_C0 = 1;
-        return;
-    }
-    if(isinf(ST0.d)) 
-    {  // TODO: Unsuported and denormal not analysed...
-        emu->sw.f.F87_C3 = 0;
-        emu->sw.f.F87_C2 = 1;
-        emu->sw.f.F87_C0 = 1;
-        return;
-    }
-    if(isnan(ST0.d))
-    {  // TODO: Unsuported and denormal not analysed...
-        emu->sw.f.F87_C3 = 0;
-        emu->sw.f.F87_C2 = 0;
-        emu->sw.f.F87_C0 = 1;
-        return;
-    }
-    if(ST0.d==0.0)
-    {
-        emu->sw.f.F87_C3 = 1;
-        emu->sw.f.F87_C2 = 0;
-        emu->sw.f.F87_C0 = 0;
-        return;
-    }
-    // normal...
-    emu->sw.f.F87_C3 = 0;
-    emu->sw.f.F87_C2 = 1;
-    emu->sw.f.F87_C0 = 0;
-
-}
+void fpu_fxam(x86emu_t* emu);
 
 static inline void fpu_ftst(x86emu_t* emu) {
     emu->sw.f.F87_C1 = 0;

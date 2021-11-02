@@ -459,6 +459,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define x87_do_push     STEPNAME(x87_do_push)
 #define x87_do_push_empty STEPNAME(x87_do_push_empty)
 #define x87_do_pop      STEPNAME(x87_do_pop)
+#define x87_get_current_cache   STEPNAME(x87_get_current_cache)
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_neoncache STEPNAME(x87_get_neoncache)
 #define x87_get_st      STEPNAME(x87_get_st)
@@ -592,6 +593,8 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t);
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
+// get cache index for a x87 reg, return -1 if cache doesn't exist
+int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t);
 // get cache index for a x87 reg, create the entry if needed
 int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int a, int t);
 // get neoncache index for a x87 reg

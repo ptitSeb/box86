@@ -129,9 +129,66 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE5:
             INST_NAME("FXAM");
+            #if 1
+            i1 = x87_get_current_cache(dyn, ninst, 0, NEON_CACHE_ST_D);
+            // value put in x14
+            if(i1==-1) {
+                // not in cache, so check Empty status and load it
+                // x14 will be the actual top
+                LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
+                i2 = -dyn->x87stack;
+                if(i2) {
+                    if(i2<0) {
+                        SUB_IMM8(x14, x14, -i2);
+                    } else {
+                        ADD_IMM8(x14, x14, i2);
+                    }
+                    AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
+                }
+                ADD_REG_LSL_IMM5(x1, xEmu, x14, 3);
+                LDRD_IMM8(x2, x1, offsetof(x86emu_t, x87)); // load r2/r3 with ST0 anyway, for sign extraction
+                ADD_REG_LSL_IMM5(x1, xEmu, x14, 2);
+                LDR_IMM9(x1, x1, offsetof(x86emu_t, p_regs));
+                CMPS_IMM8(x1, 0b11);
+                MOVW_COND(cEQ, x14, 0b100000100000000); // empty: C3,C2,C0 = 101
+                B_MARK3(cEQ);
+            } else {
+                // simply move from cache reg to r2/r3
+                v1 = dyn->x87reg[i1];
+                VMOVfrV_D(x2, x3, v1);
+            }
+            // get exponant in r1
+            MOV_REG_LSR_IMM5(x1, x3, 20);
+            MOVW(x14, 0x7ff);
+            ANDS_REG_LSL_IMM5(x1, x1, x14, 0);
+            B_MARK(cNE); // not zero or denormal
+            BIC_IMM8_ROR(x1, x3, 0b10, 1); // remove sign bit
+            ORRS_REG_LSL_IMM5(x1, x1, x2, 0);
+            MOVW_COND(cEQ, x14, 0b100000000000000); // Zero: C3,C2,C0 = 100
+            MOVW_COND(cNE, x14, 0b100010000000000); // Denormal: C3,C2,C0 = 110
+            B_MARK3(c__);
+            MARK;
+            CMPS_REG_LSL_IMM5(x1, x14, 0);   // infinite/NaN?
+            MOVW_COND(cNE, x14, 0b000010000000000); // normal: C3,C2,C0 = 010
+            B_MARK3(cNE);
+            ORR_IMM8(x1, x1, 0x08, 12);  //prepare mask, 0x7ff | 0x800 => 0xfff
+            BIC_REG_LSL_IMM5(x1, x3, x1, 20);
+            ORRS_REG_LSL_IMM5(x1, x1, x2, 0);
+            MOVW_COND(cEQ, x14, 0b000010100000000); // infinity: C3,C2,C0 = 011
+            MOVW_COND(cNE, x14, 0b000000100000000); // NaN: C3,C2,C0 = 001
+            MARK3;
+            // Extract signa & Update SW
+            MOV_REG_LSR_IMM5(x1, x3, 31);
+            BFI(x14, x1, 9, 1); //C1
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            BIC_IMM8(x1, x1, 0b01000111, 12);
+            ORR_REG_LSL_IMM5(x14, x14, x1, 0);
+            STRH_IMM8(x14, xEmu, offsetof(x86emu_t, sw));
+            #else
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_refresh(dyn, ninst, x1, x2, 0);
             CALL(fpu_fxam, -1, 0);  // should be possible inline, but is it worth it?
+            #endif
             break;
 
         case 0xE8:

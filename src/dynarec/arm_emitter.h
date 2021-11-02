@@ -185,11 +185,14 @@ Op is 20-27
 // and dst, src, #(imm8)
 #define AND_IMM8(dst, src, imm8) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// and dst, src1, #imm ror rot*2
+#define AND_IMM8_ROR(dst, src, imm8, rot) \
+    EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
 // and.s dst, src, #(imm8)
 #define ANDS_IMM8(dst, src, imm8) \
     EMIT(0xe2100000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // and.s dst, src1, #imm ror rot*2
-#define ANDS_IMM8_ROR(src, imm8, rot) \
+#define ANDS_IMM8_ROR(dst, src, imm8, rot) \
     EMIT(0xe2100000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
 // add dst, src, #(imm8)
 #define ADD_IMM8(dst, src, imm8) \
@@ -308,6 +311,9 @@ Op is 20-27
 // bic.cond dst, src, IMM8
 #define BIC_IMM8_COND(cond, dst, src, imm8, rot) \
     EMIT((cond) | 0x03c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
+// bic dst, src1, #imm ror rot*2
+#define BIC_IMM8_ROR(dst, src, imm8, rot) \
+    EMIT(0xe3c00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
 // bic.s dst, src1, #imm ror rot*2
 #define BICS_IMM8_ROR(dst, src, imm8, rot) \
     EMIT(0xe3d00000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )

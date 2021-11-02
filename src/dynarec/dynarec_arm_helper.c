@@ -723,11 +723,9 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
 }
 #endif
 
-int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int st, int t)
+int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
 {
 #if STEP > 0
-    if(dyn->mmxcount)
-        mmx_purgecache(dyn, ninst, 0, s1);
     // search in cache first
     for (int i=0; i<8; ++i)
         if(dyn->x87cache[i]==st) {
@@ -737,9 +735,22 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, i
             #endif
             return i;
         }
+    return -1;
+#else
+    return 0;
+#endif
+}
+
+int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, int st, int t)
+{
+#if STEP > 0
+    if(dyn->mmxcount)
+        mmx_purgecache(dyn, ninst, 0, s1);
+    int ret = x87_get_current_cache(dyn, ninst, st, t);
+    if(ret!=-1)
+        return ret;
     MESSAGE(LOG_DUMP, "\tCreate %sx87 Cache for ST%d\n", populate?"and populate ":"", st);
     // get a free spot
-    int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->x87cache[i]==-1)
             ret = i;
