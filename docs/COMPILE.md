@@ -51,7 +51,7 @@ As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environme
 
 #### for Tinker Board (1/1S) or RK3288
 
-`mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+`mkdir build; cd build; cmake .. -DRK3288=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
 
 #### for Allwinner A64
 
