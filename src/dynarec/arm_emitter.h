@@ -336,9 +336,6 @@ Op is 20-27
 #define MVN_COND_REG_LSL_IMM5(cond, dst, rm, imm5) \
     EMIT(cond | 0x01e00000 | ((dst) << 12) | (0 << 16) | brLSL(imm5, rm) )
 
-// Single data transfert construction
-#define SDT_REG(Cond, P, U, B, W, L, Rn, Rd, ShiftRm) (Cond | (0b00<<26) | (1<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | ShiftRm)
-#define SDT_OFF(Cond, P, U, B, W, L, Rn, Rd, Imm12)   (Cond | (0b00<<26) | (0<<25) | (P<<24) | (U<<23) | (B<<22) | (U<<23) | (W<<21) | (L<<20) | (Rn<<16) | (Rd<<12) | Imm12)
 // ldr reg, [addr, #+/-imm9]
 #define LDR_IMM9(reg, addr, imm9) EMIT(0xe5100000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
 // ldrxx reg, [addr, #+/-imm9]
@@ -584,9 +581,6 @@ Op is 20-27
 
 // UDF
 #define UDF(imm16)    EMIT(0b1110<<28 | 0b011<<25 | 0b11111<<20 | (((imm16)>>4)&0xfff) | 0b1111<<4 | ((imm16)&0xf))
-
-// VFPU
-#define TRANSFERT64(C, op) ((0b1100<<24) | (0b010<<21) | (0b101<<9) | ((C)<<8) | ((op)<<4))
 
 // Move from FPSCR to Arm register
 #define VMRS(Rt)    EMIT(c__ | (0b1110<<24) | (0b1111<<20) | (0b0001<<16) | ((Rt)<<12) | (0b1010<<8) | (0b0001<<4) | (0b0000))
