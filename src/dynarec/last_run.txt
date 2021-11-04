@@ -252,7 +252,7 @@ NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 1 1 @<4> 1 1 0 1 @ size=0b00=0b01 uint8_
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 1 1 @<4> 1 1 1 1 @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\]
 NEON 1 1 1 1 0 1 0 0 1 D 1 0 Rn Vd size 1 1 @<4> Rm @ size=0b00=0b01 uint8_t temp temp,1,1,3@ set uint8_t temp2 = param & temp@ temp2=0b0=0b1=0b10 char align[6] !@ %@ align[0] = '\0'@ sprintf(align, ":%d", (size ? 64 : 32))@ sprintf(align, ":128")@ sprintf(align, "???")@ set uint8_t x = param >> (size + 1)@ set int spacing = size ? ((param >> size) & 1) : 0@ @ VLD4<c>.\%d8 &l&l size\ {\vecname[0x20 + d]\[\%dx\], \vecname[0x21 + d + spacing]\[\%dx\], \vecname[0x22 + d + 2*spacing]\[\%dx\], \vecname[0x23 + d + 3*spacing]\[\%dx\]}, [<Rn>\align\], <Rm>
 INVALIDATE 1 1 1 1 0 1 0 0 <3> 0 <20>
-ARM_ 1 1 1 1 0 1 0 0 @<1> 0 0 1 Rn @<8> @<4> @<4> "NOP"
+ARM_ 1 1 1 1 0 1 0 0 @<1> 0 0 1 Rn @<8> @<4> @<4> 'NOP'
 ARM_ 1 1 1 1 0 1 0 0 U 1 0 1 Rn (1) (1) (1) (1) imm12 PLI [<Rn>, #+/-<imm12>]
 ARM_ 1 1 1 1 0 1 0 1 U @<1> 0 1 Rn (1) (1) (1) (1) imm12 PLD\param ? "W" : ""\ [<Rn>, #+/-<imm12>]
 ARM_ 1 1 1 1 0 1 0 1 U (1) 0 1 1 1 1 1 (1) (1) (1) (1) imm12 PLD [PC, #+/-<imm>]
@@ -260,7 +260,7 @@ ARM_ 1 1 1 1 0 1 0 1 0 1 1 1 (1) (1) (1) (1) (1) (1) (1) (1) (0) (0) (0) (0) 0 0
 ARM_ 1 1 1 1 0 1 0 1 0 1 1 1 (1) (1) (1) (1) (1) (1) (1) (1) (0) (0) (0) (0) 0 1 0 0 @<4> @ param=0b1111=0b1110=0b1011=0b1010=0b0111=0b0110=0b0011=0b0010 const char* option option,"SY","ST","ISH","ISHST","NSH","NSHST","OSH","OSHST","!!!"@ @ DSB \option\
 ARM_ 1 1 1 1 0 1 0 1 0 1 1 1 (1) (1) (1) (1) (1) (1) (1) (1) (0) (0) (0) (0) 0 1 0 1 @<4> @ param=0b1111=0b1110=0b1011=0b1010=0b0111=0b0110=0b0011=0b0010 const char* option option,"SY","ST","ISH","ISHST","NSH","NSHST","OSH","OSHST","!!!"@ @ DMB \option\
 ARM_ 1 1 1 1 0 1 0 1 0 1 1 1 (1) (1) (1) (1) (1) (1) (1) (1) (0) (0) (0) (0) 0 1 1 0 @<4> @ param=0b1111 const char* option option,"SY","!!!"@ @ ISB \option\
-ARM_ 1 1 1 1 0 1 1 0 @<1> 0 0 1 Rn @<8> @<3> 0 @<4> "NOP"
+ARM_ 1 1 1 1 0 1 1 0 @<1> 0 0 1 Rn @<8> @<3> 0 @<4> 'NOP'
 ARMs 1 1 1 1 0 1 1 0 U 1 0 1 Rn (1) (1) (1) (1) imm5 type 0 Rm PLI [<Rn>, +/-<Rm>{, <shift>}]
 ARMs 1 1 1 1 0 1 1 1 U @<1> 0 1 Rn (1) (1) (1) (1) imm5 type 0 Rm PLD\param ? "W" : ""\ [<Rn>, +/-<Rm>{, <shift>}]
 INVALIDATE 1 1 1 1 0 1 1 1 1 1 1 1 <4> <8> 1 1 1 1 <4>

@@ -621,7 +621,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					skiprbr = False
 					if idx % 2:
 						if text == "c":
-							if variables["cond"] != -1:
+							if variables["cond"] >= 0:
 								append("%s")
 								printf_args = printf_args + ", cond"
 						elif text == "Rd":

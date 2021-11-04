@@ -3387,7 +3387,7 @@ const char* arm_print(uint32_t opcode) {
 		int param3_4 = (opcode >> 4) & 0xF;
 		int param4_4 = (opcode >> 0) & 0xF;
 		
-		sprintf(ret, ""NOP"");
+		sprintf(ret, "'NOP'");
 	} else if ((opcode & 0xFF700000) == 0xF4500000) {
 		int rn = (opcode >> 16) & 0xF;
 		int u = (opcode >> 23) & 1;
@@ -3477,7 +3477,7 @@ const char* arm_print(uint32_t opcode) {
 		int param3_3 = (opcode >> 5) & 0x7;
 		int param4_4 = (opcode >> 0) & 0xF;
 		
-		sprintf(ret, ""NOP"");
+		sprintf(ret, "'NOP'");
 	} else if ((opcode & 0xFF700010) == 0xF6500000) {
 		int rn = (opcode >> 16) & 0xF;
 		int rm = (opcode >> 0) & 0xF;
@@ -4279,7 +4279,7 @@ const char* arm_print(uint32_t opcode) {
 		sprintf(ret, "SEV%s", cond);
 	} else if ((opcode & 0xFFFF00FF) == 0xE3200014) {
 		
-		sprintf(ret, "CSDB%s", cond);
+		sprintf(ret, "CSDB");
 	} else if ((opcode & 0x0FFF00F0) == 0x032000F0) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		uint8_t imm4 = ((opcode >> 0) & 0xF);
@@ -4889,7 +4889,7 @@ const char* arm_print(uint32_t opcode) {
 	} else if ((opcode & 0xFFF000F0) == 0xE7F000F0) {
 		uint16_t imm16 = (((opcode >> 8) & 0xFFF) << 4) | ((opcode >> 0) & 0xF);
 		
-		sprintf(ret, "UDF%s #0x%x", cond, imm16);
+		sprintf(ret, "UDF #0x%x", imm16);
 	} else if ((opcode & 0x0FDF0000) == 0x080D0000) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rn = (opcode >> 16) & 0xF;
