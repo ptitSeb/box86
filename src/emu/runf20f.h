@@ -218,8 +218,8 @@
         tmp8s = 0;
         switch(tmp8u&7) {
             case 0: tmp8s=(GX.d[0] == EX->d[0]); break;
-            case 1: tmp8s=isless(GX.d[0], EX->d[0]); break;
-            case 2: tmp8s=islessequal(GX.d[0], EX->d[0]); break;
+            case 1: tmp8s=isless(GX.d[0], EX->d[0]) && !(isnan(GX.d[0]) || isnan(EX->d[0])); break;
+            case 2: tmp8s=islessequal(GX.d[0], EX->d[0]) && !(isnan(GX.d[0]) || isnan(EX->d[0])); break;
             case 3: tmp8s=isnan(GX.d[0]) || isnan(EX->d[0]); break;
             case 4: tmp8s=(GX.d[0] != EX->d[0]); break;
             case 5: tmp8s=isnan(GX.d[0]) || isnan(EX->d[0]) || isgreaterequal(GX.d[0], EX->d[0]); break;
