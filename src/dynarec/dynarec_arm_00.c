@@ -1486,14 +1486,41 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEDW(x14, x1);
-                    u8 = F8;
-                    MOVW(x2, u8);
-                    CALL_(rcr32, ed, (1<<x14));
-                    WBACK;
+                    u8 = F8&0x1f;
+                    if(u8==1) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                        IFX(X_PEND) {
+                            STR_IMM9(ed, xEmu, offsetof(x86emu_t, op1));
+                            MOVW(x3, u8);
+                            STR_IMM9(x3, xEmu, offsetof(x86emu_t, op2));
+                            SET_DF(x3, d_rcr32);
+                        } else IFX(X_ALL) {
+                            SET_DFNONE(x3);
+                        }
+                        IFX(X_OF) {
+                            XOR_REG_LSR_IMM8(x3, xFlags, ed, 31);
+                            BFI(xFlags, x3, F_OF, 1);
+                        }
+                        MOVS_REG_LSR_IMM5(x3, xFlags, 1);    // load CC (F_CF==0) into ARM CF
+                        MOVS_REG_RRX(ed, ed);
+                        IFX(X_PEND) {
+                            STR_IMM9(ed, xEmu, offsetof(x86emu_t, res));
+                        }
+                        IFX(X_CF) {
+                            ORR_IMM8_COND(cCS, xFlags, xFlags, 1, 0);
+                            BFC_COND(cCC, xFlags, F_CF, 1);
+
+                        }
+                        WBACK;
+                    } else if(u8>1) {
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        MOVW(x2, u8);
+                        CALL_(rcr32, ed, (1<<x14));
+                        WBACK;
+                    }
                     break;
                 case 4:
                 case 6:
