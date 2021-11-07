@@ -1038,12 +1038,23 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("DIV Ew");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_ALL, SF_SET);
-                    GETEW(x1);
-                    STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
-                    CALL(div16, -1, 0);
-                    LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    if(arm_div) {
+                        GETEW(x1);
+                        SETFLAGS(X_ALL, SF_SET);
+                        UXTH(x2, xEAX, 0);
+                        ORR_REG_LSL_IMM5(x2, x2, xEDX, 16);
+                        UDIV(x3, x2, ed);
+                        MLS(x14, x3, ed, x2);  // x14 = x2 mod ed (i.e. x2 - x3*ed)
+                        BFI(xEAX, x3, 1, 16);
+                        BFI(xEDX, x14, 1, 16);
+                    } else {
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        SETFLAGS(X_ALL, SF_SET);
+                        GETEW(x1);
+                        STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                        CALL(div16, -1, 0);
+                        LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
+                    }
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
