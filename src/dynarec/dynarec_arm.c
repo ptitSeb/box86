@@ -295,6 +295,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     uint32_t last_need = X_PEND;
     for(int i = helper.size; i-- > 0;) {
         last_need |= helper.insts[i].x86.use_flags;
+        if((helper.insts[i].x86.state_flags == SF_SUBSET) && (last_need&X_PEND))
+            last_need = (X_ALL & (~helper.insts[i].x86.set_flags) ) | helper.insts[i].x86.use_flags;
         if (last_need == (X_PEND | X_ALL)) {
             last_need = X_ALL;
         }
@@ -372,6 +374,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     last_need = X_PEND;
     for(int i = helper.size; i-- > 0;) {
         helper.insts[i].x86.need_flags = last_need;
+        if((helper.insts[i].x86.state_flags == SF_SUBSET) && (last_need&X_PEND))
+            last_need = (X_ALL & (~helper.insts[i].x86.set_flags) ) | helper.insts[i].x86.use_flags;
         if ((helper.insts[i].x86.set_flags) && !(helper.insts[i].x86.state_flags & SF_MAYSET)) {
             if (last_need & X_PEND) {
                 last_need = (~helper.insts[i].x86.set_flags) & X_ALL;
