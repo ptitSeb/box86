@@ -1710,30 +1710,37 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     if(opcode==0xD0) {
                         INST_NAME("ROL Eb, 1");
-                        MOVW(x2, 1);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                        GETEB(x1);
+                        emit_rol8c(dyn, ninst, ed, 1, x2, x14);
+                        EBBACK;
                     } else {
                         INST_NAME("ROL Eb, CL");
                         AND_IMM8(x2, xECX, 0x1f);
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        GETEB(x1);
+                        CALL_(rol8, x1, (1<<x3));
+                        EBBACK;
                     }
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
-                    GETEB(x1);
-                    CALL_(rol8, x1, (1<<x3));
-                    EBBACK;
                     break;
                 case 1:
                     if(opcode==0xD0) {
                         INST_NAME("ROR Eb, 1");
                         MOVW(x2, 1);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                        GETEB(x1);
+                        emit_ror8c(dyn, ninst, ed, 1, x2, x14);
+                        EBBACK;
                     } else {
                         INST_NAME("ROR Eb, CL");
                         AND_IMM8(x2, xECX, 0x1f);
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        GETEB(x1);
+                        CALL_(ror8, x1, (1<<x3));
+                        EBBACK;
                     }
-                    SETFLAGS(X_OF|X_CF, SF_SET);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    GETEB(x1);
-                    CALL_(ror8, x1, (1<<x3));
-                    EBBACK;
                     break;
                 case 2:
                     if(opcode==0xD0) {INST_NAME("RCL Eb, 1");} else {INST_NAME("RCL Eb, CL");}
