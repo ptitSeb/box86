@@ -1465,7 +1465,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
             SETFLAGS(X_ALL, SF_SET);
-            UXTB(x3, xECX, 0);
+            AND_IMM8(x3, xECX, 0x1f);
             GETED;
             GETGD;
             emit_shrd32(dyn, ninst, ed, gd, x3, x14);
