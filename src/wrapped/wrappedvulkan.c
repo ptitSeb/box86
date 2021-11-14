@@ -84,8 +84,9 @@ static void* resolveSymbol(x86emu_t* emu, void* symbol, const char* rname)
         if(dlsym_error) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret = AddBridge(emu->context->system, kh_value(emu->context->vkwrappers, k), symbol, 0);
+    const char* constname = kh_key(emu->context->vkwrappers, k);
+    AddOffsetSymbol(emu->context->maplib, symbol, constname);
+    ret = AddBridge(emu->context->system, kh_value(emu->context->vkwrappers, k), symbol, 0, constname);
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p (%p)\n", (void*)ret, symbol);
     return (void*)ret;
 }

@@ -79,15 +79,15 @@ static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9);
 #define UNPACK(...) __VA_ARGS__
 
 #define GO(name, type, size) \
-    new->name = (void*)AddBridge(emu->context->system, type, real->name, size*4)
+    new->name = (void*)AddBridge(emu->context->system, type, real->name, size*4, #name)
 
 #define GOM(name, type, size) \
     my_##name##_real = (void*)real->name; \
-    new->name = (void*)AddBridge(emu->context->system, type, my_##name, size*4)
+    new->name = (void*)AddBridge(emu->context->system, type, my_##name, size*4, "my_" #name)
 
 #define GO2(name, type, size) \
     my_##name##_real2 = (void*)real->name; \
-    new->name = (void*)AddBridge(emu->context->system, type, my_##name2, size*4)
+    new->name = (void*)AddBridge(emu->context->system, type, my_##name2, size*4, "my_" #name)
 
 #include "wrappedd3dadapter9_gen.h"
 
@@ -410,7 +410,7 @@ EXPORT void* my_D3DAdapter9GetProc(x86emu_t* emu, void *ptr)
 
     my->adapter.major_version = adapter->major_version;
     my->adapter.minor_version = adapter->minor_version;
-    my->adapter.create_adapter = (void*)AddBridge(emu->context->system, iFEip, my_create_adapter, 8);
+    my->adapter.create_adapter = (void*)AddBridge(emu->context->system, iFEip, my_create_adapter, 8, "my_create_adapter");
 
     return &my->adapter;
 }

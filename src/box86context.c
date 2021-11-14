@@ -37,6 +37,7 @@ void initAllHelpers(box86context_t* context)
         return;
     my_context = context;
     init_pthread_helper();
+    init_bridge_helper();
     init_signal_helper(context);
     inited = 1;
 }
@@ -49,7 +50,7 @@ void finiAllHelpers(box86context_t* context)
         return;
     fini_pthread_helper(context);
     fini_signal_helper();
-    cleanAlternate();
+    fini_bridge_helper();
     fini_custommem_helper(context);
     finied = 1;
 }
@@ -176,7 +177,7 @@ box86context_t *NewBox86Context(int argc)
     context->versym = NewDictionnary();
     context->system = NewBridge();
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, iFEv, x86Syscall, 0);
+    context->vsyscall = AddBridge(context->system, iFEv, x86Syscall, 0, NULL);
     addAlternate((void*)0xffffe400, (void*)context->vsyscall);
 #ifdef BUILD_LIB
     context->box86lib = RTLD_DEFAULT;   // not ideal

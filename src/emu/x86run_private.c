@@ -77,6 +77,13 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
 const char* GetNativeName(void* p)
 {
     static char buff[500] = {0};
+    #ifdef HAVE_TRACE
+    {
+        const char* n = getBridgeName(p);
+        if(n)
+            return n;
+    }
+    #endif
     Dl_info info;
     if(dladdr(p, &info)==0) {
         const char *ret = GetNameOffset(my_context->maplib, p);

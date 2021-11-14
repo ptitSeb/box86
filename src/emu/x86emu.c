@@ -49,13 +49,13 @@ uint32_t* GetParityTab()
 
 void PushExit(x86emu_t* emu)
 {
-    uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0);
+    uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0, "(ExitEmulation)");
     Push(emu, endMarker);
 }
 
 void* GetExit()
 {
-    return (void*)AddCheckBridge(my_context->system, NULL, NULL, 0);
+    return (void*)AddCheckBridge(my_context->system, NULL, NULL, 0, "(ExitEmulation)");
 }
 
 static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)

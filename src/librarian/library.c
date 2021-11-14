@@ -668,7 +668,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
         } else 
             AddOffsetSymbol(lib->context->maplib, symbol, name);
-        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->mysymbolmap, k), symbol, 0);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->mysymbolmap, k), symbol, 0, name);
         *size = sizeof(void*);
         return 1;
     }
@@ -686,7 +686,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
         } else 
             AddOffsetSymbol(lib->context->maplib, symbol, name);
-        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->stsymbolmap, k), symbol, 4);    // all of this for this little "4"
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->stsymbolmap, k), symbol, 4, name);    // all of this for this little "4"
         *size = sizeof(void*);
         return 1;
     }
@@ -705,7 +705,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             return 0;
         } else 
             AddOffsetSymbol(lib->context->maplib, symbol, name);
-        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbolmap, k), symbol, 0);
+        *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbolmap, k), symbol, 0, name);
         *size = sizeof(void*);
         return 1;
     }
@@ -723,7 +723,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
             } else 
                 AddOffsetSymbol(lib->context->maplib, symbol, name);
-            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wmysymbolmap, k), symbol, 0);
+            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wmysymbolmap, k), symbol, 0, name);
             *size = sizeof(void*);
             return 1;
         }
@@ -740,7 +740,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
             } else 
                 AddOffsetSymbol(lib->context->maplib, symbol, name);
-            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wstsymbolmap, k), symbol, 4); // all of this for this little "4"
+            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wstsymbolmap, k), symbol, 4, name); // all of this for this little "4"
             *size = sizeof(void*);
             return 1;
         }
@@ -758,7 +758,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 return 0;
             } else 
                 AddOffsetSymbol(lib->context->maplib, symbol, name);
-            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wsymbolmap, k), symbol, 0);
+            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->wsymbolmap, k), symbol, 0, name);
             *size = sizeof(void*);
             return 1;
         }
@@ -776,7 +776,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 return 0;
             } else 
                 AddOffsetSymbol(lib->context->maplib, symbol, name);
-            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbol2map, k).w, symbol, 0);
+            *addr = AddBridge(lib->priv.w.bridge, kh_value(lib->symbol2map, k).w, symbol, 0, name);
             *size = sizeof(void*);
             return 1;
         }

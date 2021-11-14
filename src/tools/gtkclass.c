@@ -98,7 +98,7 @@ static void* reverse_##NAME##_##A(wrapper_t W, void* fct)                       
     if((void*)my_##NAME##_##A##_7 == fct) return (void*)my_##NAME##_##A##_fct_7;\
     Dl_info info;                                                               \
     if(dladdr(fct, &info))                                                      \
-        return (void*)AddCheckBridge(my_bridge, W, fct, 0);                     \
+        return (void*)AddCheckBridge(my_bridge, W, fct, 0, NULL);               \
     return fct;                                                                 \
 }
 
@@ -375,7 +375,7 @@ static void bridgeGtkWidgetClass(my_GtkWidgetClass_t* class)
 WRAPPER(GtkContainer, add, void, (void* container, void* widget), 2, container, widget);
 WRAPPER(GtkContainer, remove, void, (void* container, void* widget), 2, container, widget);
 WRAPPER(GtkContainer, check_resize, void, (void* container), 1, container);
-WRAPPER(GtkContainer, forall, void, (void* container, int include_internals, void* callback, void* callback_data), 4, container, include_internals, AddCheckBridge(my_bridge, vFpp, callback, 0), callback_data);
+WRAPPER(GtkContainer, forall, void, (void* container, int include_internals, void* callback, void* callback_data), 4, container, include_internals, AddCheckBridge(my_bridge, vFpp, callback, 0, NULL), callback_data);
 WRAPPER(GtkContainer, set_focus_child, void, (void* container, void* widget), 2, container, widget);
 WRAPPER(GtkContainer, child_type, int, (void* container), 1, container);
 WRAPPER(GtkContainer, composite_name, void*, (void* container, void* child), 2, container, child);

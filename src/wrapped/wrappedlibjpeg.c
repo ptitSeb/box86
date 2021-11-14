@@ -304,9 +304,9 @@ static void wrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr)
     if(!mgr)
         return;
     void *p;
-    #define GO(A, W)    \
-        p = is_##A##Fct(mgr->A);                                \
-        if(!p) p = (void*)AddCheckBridge(bridge, W, mgr->A, 0); \
+    #define GO(A, W)                                                    \
+        p = is_##A##Fct(mgr->A);                                        \
+        if(!p) p = (void*)AddCheckBridge(bridge, W, mgr->A, 0, NULL);   \
         mgr->A = p;
 
     SUPER()

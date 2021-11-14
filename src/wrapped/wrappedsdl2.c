@@ -201,7 +201,7 @@ static void* reverse_eventfilter_Fct(void* fct)
     #define GO(A) if(my_eventfilter_##A == fct) return (void*)my_eventfilter_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, iFpp, fct, 0);
+    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, iFpp, fct, 0, NULL);
 }
 
 // LogOutput
@@ -234,7 +234,7 @@ static void* reverse_LogOutput_Fct(void* fct)
     #define GO(A) if(my_LogOutput_##A == fct) return (void*)my_LogOutput_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, vFpiip, fct, 0);
+    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, vFpiip, fct, 0, NULL);
 }
 
 #undef SUPER
@@ -643,7 +643,7 @@ int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *tabl
             void *w = NULL; \
             void *f = NULL; \
             if (get_sdl_priv(emu, #sym, &w, &f)) { \
-                table[i] = AddCheckBridge(my_context->sdl2lib->priv.w.bridge, w, f, 0); \
+                table[i] = AddCheckBridge(my_context->sdl2lib->priv.w.bridge, w, f, 0, #sym); \
             } \
             else \
                 table[i] = (uintptr_t)NULL; \
@@ -846,7 +846,8 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
         return NULL;
     }
     AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    ret  = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0);
+    const char* constname = kh_key(emu->context->glwrappers, k);
+    ret  = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "%p\n", (void*)ret);
     return (void*)ret;
 }
@@ -1059,7 +1060,7 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
         emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
 
     if(emu->context->vkprocaddress)
-        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0);
+        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");
     return NULL;
 }
 
