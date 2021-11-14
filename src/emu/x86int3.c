@@ -86,7 +86,6 @@ void x86Int3(x86emu_t* emu)
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
             if(box86_log>=LOG_DEBUG /*|| have_trace*/) {
-                pthread_mutex_lock(&emu->context->mutex_trace);
                 int tid = GetTID();
                 char buff[256] = "\0";
                 char buff2[64] = "\0";
@@ -96,12 +95,7 @@ void x86Int3(x86emu_t* emu)
                 int perr = 0;
                 uint32_t *pu32 = NULL;
                 const char *s = NULL;
-                {
-                    Dl_info info;
-                    if(dladdr((void*)addr, &info))
-                        s = info.dli_sname;
-                }
-                if(!s) s = GetNativeName((void*)addr);
+                s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
                     snprintf(buff, 256, "%s", " ... ");
                 } else
@@ -282,10 +276,10 @@ void x86Int3(x86emu_t* emu)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
+                pthread_mutex_lock(&emu->context->mutex_trace);
                 printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
-                pthread_mutex_lock(&emu->context->mutex_trace);
                 if(post)
                     switch(post) {
                     case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1, pu32?pu32[1]:-1);
@@ -313,6 +307,7 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==3 && ((int)R_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
+                pthread_mutex_lock(&emu->context->mutex_trace);
                 printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
