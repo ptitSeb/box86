@@ -921,10 +921,7 @@ int main(int argc, const char **argv, const char **env) {
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvVars(my_context);
 
-    if(argv[0][0]=='/')
-        my_context->box86path = strdup(argv[0]);
-    else
-        my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
+    my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
     // check if box64 is present
     {
         my_context->box64path = strdup(my_context->box86path);
@@ -977,10 +974,7 @@ int main(int argc, const char **argv, const char **env) {
     }
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
-    if(strchr(prog, '/'))
-        my_context->argv[0] = strdup(prog);
-    else
-        my_context->argv[0] = ResolveFile(prog, &my_context->box86_path);
+    my_context->argv[0] = ResolveFile(prog, &my_context->box86_path);
 
     const char* prgname = strrchr(prog, '/');
     if(!prgname)
