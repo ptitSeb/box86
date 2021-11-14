@@ -87,6 +87,8 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreatePipelineLayout, iFpPpp_t) \
 	GO(vkCreateQueryPool, iFpPpp_t) \
 	GO(vkCreateRenderPass, iFpPpp_t) \
+	GO(vkCreateRenderPass2, iFpPpp_t) \
+	GO(vkCreateRenderPass2KHR, iFpPpp_t) \
 	GO(vkCreateSampler, iFpPpp_t) \
 	GO(vkCreateSamplerYcbcrConversion, iFpPpp_t) \
 	GO(vkCreateSamplerYcbcrConversionKHR, iFpPpp_t) \

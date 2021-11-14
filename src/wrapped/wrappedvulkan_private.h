@@ -204,6 +204,12 @@ GO(vkTrimCommandPool, vFpUi)
 
 // VK_VERSION_1_2
 GO(vkResetQueryPool, vFpUuu)
+GO(vkCmdBeginRenderPass2, vFpPP)
+GO(vkCmdEndRenderPass2, vFpP)
+GO(vkCmdNextSubpass2, vFpPP)
+GOM(vkCreateRenderPass2, iFEpPpp)
+GO(vkCmdDrawIndexedIndirectCount, vFpUUUUuu)
+GO(vkCmdDrawIndirectCount, vFpUUUUuu)
 
 // VK_EXT_debug_report
 GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -407,3 +413,31 @@ GO(vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV, iFppp)
 
 // VK_EXT_tooling_info
 GO(vkGetPhysicalDeviceToolPropertiesEXT, iFppp)
+
+// VK_KHR_create_renderpass2
+GO(vkCmdBeginRenderPass2KHR, vFpPP)
+GO(vkCmdEndRenderPass2KHR, vFpP)
+GO(vkCmdNextSubpass2KHR, vFpPP)
+GOM(vkCreateRenderPass2KHR, iFEpPpp)
+
+// VK_EXT_extended_dynamic_state
+GO(vkCmdBindVertexBuffers2EXT, vFpuupppp)
+GO(vkCmdSetCullModeEXT, vFpu)
+GO(vkCmdSetDepthBoundsTestEnableEXT, vFpu)
+GO(vkCmdSetDepthCompareOpEXT, vFpu)
+GO(vkCmdSetDepthTestEnableEXT, vFpu)
+GO(vkCmdSetDepthWriteEnableEXT, vFpu)
+GO(vkCmdSetFrontFaceEXT, vFpu)
+GO(vkCmdSetPrimitiveTopologyEXT, vFpi)
+GO(vkCmdSetScissorWithCountEXT, vFup)
+GO(vkCmdSetStencilOpEXT, vFpuiiii)
+GO(vkCmdSetStencilTestEnableEXT, vFpu)
+GO(vkCmdSetViewportWithCountEXT, vFpup)
+
+// VK_KHR_draw_indirect_count
+GO(vkCmdDrawIndexedIndirectCountKHR, vFpUUUUuu)
+GO(vkCmdDrawIndirectCountKHR, vFpUUUUuu)
+
+// VK_AMD_draw_indirect_count
+GO(vkCmdDrawIndexedIndirectCountAMD, vFpUUUUuu)
+GO(vkCmdDrawIndirectCountAMD, vFpUUUUuu)

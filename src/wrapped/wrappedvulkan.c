@@ -486,6 +486,8 @@ CREATE(vkCreateSwapchainKHR)
 CREATE(vkCreateWaylandSurfaceKHR)
 CREATE(vkCreateXcbSurfaceKHR)
 CREATE(vkCreateXlibSurfaceKHR)
+CREATE(vkCreateRenderPass2)
+CREATE(vkCreateRenderPass2KHR)
 
 DESTROY64(vkDestroyBuffer)
 DESTROY64(vkDestroyBufferView)
