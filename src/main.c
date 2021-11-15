@@ -1163,7 +1163,7 @@ int main(int argc, const char **argv, const char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
-    #if defined(RPI) || defined(RK3399)
+    #if defined(RPI) || defined(RK3399) || defined(RK3288) || defined(GOA_CLONE) || defined(PYRA) || defined(PANDORA)
     if(box86_tokitori2) {
         uint32_t *patch = (uint32_t*)0x85897f4;
         if(*patch==0x2000) {
