@@ -129,7 +129,7 @@ elseif(PHYTIUM)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.1-a+simd+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard")
 elseif(ARM_DYNAREC)
     #if DYNAREC is selected alone, without any arch
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv7 -mfpu=neon")
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv7-a+simd -mfpu=neon")
 endif()
 
 if(POWER9)
