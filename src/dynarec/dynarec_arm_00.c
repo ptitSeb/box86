@@ -1091,7 +1091,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                 } else {
                     if(box86_dynarec_strongmem && 
-                     (dyn->insts[ninst].x86.barrier || !ninst || box86_dynarec_strongmem>1 || (ninst && dyn->insts[ninst-1].x86.barrier))) {
+                     (dyn->insts[ninst].x86.barrier || !ninst || (box86_dynarec_strongmem>1) || (ninst && dyn->insts[ninst-1].x86.barrier))) {
                         DMB_ISH();
                     }
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0, 0);
@@ -1108,7 +1108,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
                 if(box86_dynarec_strongmem && 
-                    (dyn->insts[ninst].x86.barrier || !ninst || box86_dynarec_strongmem>1 || (ninst && dyn->insts[ninst-1].x86.barrier))) {
+                    (dyn->insts[ninst].x86.barrier || !ninst || (box86_dynarec_strongmem>1) || (ninst && dyn->insts[ninst-1].x86.barrier))) {
                     DMB_ISH();
                 }
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, 0);
