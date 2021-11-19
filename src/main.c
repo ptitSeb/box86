@@ -53,6 +53,7 @@ int box86_dynarec_dump = 0;
 int box86_dynarec_forced = 0;
 int box86_dynarec_largest = 0;
 int box86_dynarec_bigblock = 1;
+int box86_dynarec_strongmem = 0;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -300,6 +301,15 @@ void LoadLogEnv()
         }
         if(!box86_dynarec_bigblock)
         printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
+    }
+    p = getenv("BOX86_DYNAREC_STRONGMEM");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='2')
+                box86_dynarec_strongmem = p[0]-'0';
+        }
+        if(box86_dynarec_strongmem)
+        printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box86_dynarec_strongmem==1)?" with limited performace loss":"");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {
