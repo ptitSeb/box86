@@ -1,4 +1,4 @@
-Current version
+v0.2.4
 ======
 * Some work on Dynarec to limit the number of mutex use, and also allow smaller block to be built (for JIT'd programs)
 * Introduce BOX86_DYNAREC_STRONGMEM, like with box64 (not found any program that needs that yet)
