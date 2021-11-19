@@ -91,11 +91,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             ok = 1;
         }
         #if STEP == 0
-        int step0 = 1;
-        #else
-        int step0 = 0;
-        #endif
-        if(!ok && !need_epilog && step0 && getProtection(addr+3))
+        if(!ok && !need_epilog && box86_dynarec_bigblock && getProtection(addr+3))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
@@ -108,6 +104,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     dynarec_log(LOG_DEBUG, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
                 }
             }
+        #endif
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
         #if STEP == 0

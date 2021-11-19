@@ -52,6 +52,7 @@ int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
 int box86_dynarec_forced = 0;
 int box86_dynarec_largest = 0;
+int box86_dynarec_bigblock = 1;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -290,6 +291,15 @@ void LoadLogEnv()
         }
         if(box86_dynarec_forced)
         printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
+    }
+    p = getenv("BOX86_DYNAREC_BIGBLOCK");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_bigblock = p[0]-'0';
+        }
+        if(!box86_dynarec_bigblock)
+        printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {

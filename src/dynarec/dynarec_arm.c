@@ -58,13 +58,15 @@ void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const cha
 }
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr) {
+    if(!box86_dynarec_bigblock)
+        return;
+    for(int i=0; i<dyn->next_sz; ++i)
+        if(dyn->next[i]==addr)
+            return;
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 16;
         dyn->next = (uintptr_t*)realloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
-    for(int i=0; i<dyn->next_sz; ++i)
-        if(dyn->next[i]==addr)
-            return;
     dyn->next[dyn->next_sz++] = addr;
 }
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr) {
