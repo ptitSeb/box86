@@ -41,21 +41,21 @@ sudo systemctl restart systemd-binfmt
 
 #### for ODROID
 
-`mkdir build; cd build; cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
+`mkdir build; cd build; cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 #### for RK3399
 
-`mkdir build; cd build; cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+`mkdir build; cd build; cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
 #### for Tinker Board (1/1S) or RK3288
 
-`mkdir build; cd build; cmake .. -DRK3288=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+`mkdir build; cd build; cmake .. -DRK3288=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 #### for Allwinner A64
 
-`mkdir build; cd build; cmake .. -DA64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
+`mkdir build; cd build; cmake .. -DA64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 As most Allwinner A64 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
@@ -73,11 +73,11 @@ As most Phytium (D2000 or FT2000/4) device run AARCH64 OS, you'll need an `armhf
 
 #### for Other ARM Linux platforms
 
- `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
+ `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 #### for x86 Linux
 
- `mkdir build; cd build; cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j$(nproc)`
+ `mkdir build; cd build; cmake .. -DCMAKE_C_FLAGS="-m32" -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 #### use ccmake
 
