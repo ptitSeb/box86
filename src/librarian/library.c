@@ -376,7 +376,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu)
         RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
 #ifdef HAVE_TRACE
         if(trace_func) {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
+            if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 free(trace_func);
