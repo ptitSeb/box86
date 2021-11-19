@@ -74,7 +74,7 @@ int box86_dynarec_trace = 0;
 #ifdef PANDORA
 int x11color16 = 0;
 #endif
-#if defined(RPI) || defined(RK3399)
+#if defined(RPI) || defined(RK3399) || defined(RK3288) || defined(GOA_CLONE) || defined(PYRA) || defined(PANDORA)
 int box86_tokitori2 = 0;
 #endif
 int box86_zoom = 0;
@@ -1008,7 +1008,7 @@ int main(int argc, const char **argv, const char **env) {
         free(my_context->argv[0]);
         my_context->argv[0] = strdup("./UnrealLinux.bin");
     }
-    #if defined(RPI) || defined(RK3399)
+    #if defined(RPI) || defined(RK3399) || defined(RK3288) || defined(GOA_CLONE) || defined(PYRA) || defined(PANDORA)
     // special case for TokiTori 2+, that check if texture max size is > = 8192
     if(strstr(prgname, "TokiTori2.bin.x86")==prgname) {
         printf_log(LOG_INFO, "TokiTori 2+ detected, runtime patch to fix GPU non-power-of-two faillure\n");
