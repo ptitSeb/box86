@@ -1,5 +1,8 @@
 Current version
 ======
+* Some work on Dynarec to limit the number of mutex use, and also allow smaller block to be built (for JIT'd programs)
+* Introduce BOX86_DYNAREC_STRONGMEM, like with box64 (not found any program that needs that yet)
+* More vulkan wrapped function (so dkvk works, at least with RX550)
 * Reworked Elfloader part, with better handling of versionned symbols
 * Improve speed for x87 code (by avoiding many float<->double conversion)
 * Improve speed of the custom allocator used by dynarec and Hash (speedup loading)
