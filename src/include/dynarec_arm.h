@@ -4,6 +4,7 @@
 typedef struct dynablock_s dynablock_t;
 typedef struct x86emu_s x86emu_t;
 
+void CancelBlock();
 void* FillBlock(dynablock_t* block, uintptr_t addr);
 
 #endif //__DYNAREC_ARM_H_

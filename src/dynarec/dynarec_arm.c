@@ -265,6 +265,22 @@ uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
+__thread void* current_helper = NULL;
+
+void CancelBlock()
+{
+    dynarec_arm_t* helper = (dynarec_arm_t*)current_helper;
+    current_helper = NULL;
+    if(!helper)
+        return;
+    free(helper->next);
+    free(helper->insts);
+    free(helper->sons_x86);
+    free(helper->sons_arm);
+    if(helper->dynablock && helper->dynablock->block)
+        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
+}
+
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
 dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
@@ -277,17 +293,22 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     // init the helper
     dynarec_arm_t helper = {0};
+    current_helper = &helper;
+    helper.dynablock = block;
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 64; // needs epilog handling
     helper.insts = (instruction_arm_t*)calloc(helper.cap, sizeof(instruction_arm_t));
     // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
+    // no need for next anymore
+    free(helper.next);
+    helper.next_sz = helper.next_cap = 0;
+    helper.next = NULL;
+    // basic checks
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
-        block->done = 1;
-        free(helper.next);
-        free(helper.insts);
+        CancelBlock();
         return (void*)block;
     }
     // already protect the block and compute hash signature
@@ -401,8 +422,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     void* p = (void*)AllocDynarecMap(block, sz);
     if(p==NULL) {
         dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %d) failed, cancelling block\n", block, sz);
-        free(helper.insts);
-        free(helper.next);
+        CancelBlock();
         return NULL;
     }
     helper.block = p;
@@ -446,7 +466,9 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     // ok, free the helper now
     free(helper.insts);
+    helper.insts = NULL;
     free(helper.next);
+    helper.next = NULL;
     block->size = sz;
     block->isize = helper.size;
     block->block = p;
@@ -459,9 +481,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     // Check if something changed, to abbort if it as
     if(block->hash != hash) {
         dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%d)=%x/%x\n", block->x86_addr, block->x86_size, block->hash, hash);
-        free(helper.sons_x86);
-        free(helper.sons_arm);
-        FreeDynarecMap(block, (uintptr_t)p, sz);
+        CancelBlock();
         return NULL;
     }
     // fill sons if any
@@ -491,7 +511,10 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             free(sons);
     }
     free(helper.sons_x86);
+    helper.sons_x86 = NULL;
     free(helper.sons_arm);
+    helper.sons_arm = NULL;
+    current_helper = NULL;
     block->done = 1;
     return (void*)block;
 }

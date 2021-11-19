@@ -4,6 +4,7 @@
 #include "dynarec_private.h"
 
 typedef struct x86emu_s x86emu_t;
+typedef struct dynablock_s dynablock_t;
 
 #define NEON_CACHE_NONE 0
 #define NEON_CACHE_ST_D 1
@@ -80,6 +81,7 @@ typedef struct dynarec_arm_s {
     uintptr_t*          sons_x86;   // the x86 address of potential dynablock sons
     void**              sons_arm;   // the arm address of potential dynablock sons
     int                 sons_size;  // number of potential dynablock sons
+    dynablock_t*        dynablock;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

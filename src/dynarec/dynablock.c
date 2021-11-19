@@ -338,6 +338,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     pthread_mutex_lock(&my_context->mutex_dyndump);
     if(sigsetjmp(&dynarec_jmpbuf, 1)) {
         printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
+        pthread_mutex_unlock(&my_context->mutex_dyndump);
         return NULL;
     }
     void* ret = FillBlock(block, filladdr);

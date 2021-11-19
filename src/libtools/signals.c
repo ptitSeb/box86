@@ -659,6 +659,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     relockMutex(Locks);
 }
 
+extern __thread void* current_helper;
+
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
@@ -680,8 +682,10 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
-    if((Locks & (1<<8)) && (sig==SIGSEGV)) //1<<8 is mutex_dyndump
-        cancelFillBlock();  // Segfault inside a Fillblock, just cancel it's creation, don't relock mutex
+    if((Locks & (1<<8)) && (sig==SIGSEGV) && current_helper) { //1<<8 is mutex_dyndump
+        relockMutex(Locks);
+        cancelFillBlock();  // Segfault inside a Fillblock
+    }
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
