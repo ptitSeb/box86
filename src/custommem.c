@@ -32,7 +32,6 @@
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
 static dynablocklist_t*    dynmap[DYNAMAP_SIZE];     // 4G of memory mapped by 4K block
-static pthread_mutex_t     mutex_mmap;
 static mmaplist_t          *mmaplist = NULL;
 static int                 mmapsize = 0;
 static int                 mmapcap = 0;
@@ -492,11 +491,9 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
     if(!size)
         return 0;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        pthread_mutex_lock(&mutex_mmap);
         #ifndef USE_MMAP
         void *p = NULL;
         if(posix_memalign(&p, box86_pagesize, size)) {
-            pthread_mutex_unlock(&mutex_mmap);
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
@@ -504,7 +501,6 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         #else
         void* p = mmap(NULL, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
         if(p==(void*)-1) {
-            pthread_mutex_unlock(&mutex_mmap);
             dynarec_log(LOG_INFO, "Cannot create dynamic map of %d bytes\n", size);
             return 0;
         }
@@ -519,17 +515,12 @@ uintptr_t AllocDynarecMap(dynablock_t* db, int size)
         int ret;
         k = kh_put(dynablocks, blocks, (uintptr_t)p, &ret);
         kh_value(blocks, k) = db;
-        pthread_mutex_unlock(&mutex_mmap);
         return (uintptr_t)p;
     }
     
-    pthread_mutex_lock(&mutex_mmap);
-
     uintptr_t ret = FindFreeDynarecMap(db, size);
     if(!ret)
         ret = AddNewDynarecMap(db, size);
-
-    pthread_mutex_unlock(&mutex_mmap);
 
     return ret;
 }
@@ -539,7 +530,6 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
     if(!addr || !size)
         return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
-        pthread_mutex_lock(&mutex_mmap);
         #ifndef USE_MMAP
         free((void*)addr);
         #else
@@ -551,12 +541,9 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
             if(k!=kh_end(blocks))
                 kh_del(dynablocks, blocks, k);
         }
-        pthread_mutex_unlock(&mutex_mmap);
         return;
     }
-    pthread_mutex_lock(&mutex_mmap);
     ActuallyFreeDynarecMap(db, addr, size);
-    pthread_mutex_unlock(&mutex_mmap);
 }
 
 dynablocklist_t* getDB(uintptr_t idx)
@@ -735,9 +722,6 @@ int unlockCustommemMutex()
             ret|=(1<<B);                \
         }
     GO(mutex_blocks, 0)
-    #ifdef DYNAREC
-    GO(mutex_mmap, 1)
-    #endif
     #undef GO
     return ret;
 }
@@ -749,9 +733,6 @@ void relockCustommemMutex(int locks)
             pthread_mutex_lock(&A);     \
 
     GO(mutex_blocks, 0)
-    #ifdef DYNAREC
-    GO(mutex_mmap, 1)
-    #endif
     #undef GO
 }
 
@@ -761,9 +742,6 @@ static void init_mutexes(void)
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&mutex_blocks, &attr);
-#ifdef DYNAREC
-    pthread_mutex_init(&mutex_mmap, &attr);
-#endif
 
     pthread_mutexattr_destroy(&attr);
 }
@@ -799,52 +777,41 @@ void fini_custommem_helper(box86context_t *ctx)
         return;
     inited = 0;
 #ifdef DYNAREC
-    dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
-    for (int i=0; i<mmapsize; ++i) {
-        if(mmaplist[i].block)
-            #ifdef USE_MMAP
-            munmap(mmaplist[i].block, mmaplist[i].size);
-            #else
-            free(mmaplist[i].block);
-            #endif
-        if(mmaplist[i].dblist) {
-            kh_destroy(dynablocks, mmaplist[i].dblist);
-            mmaplist[i].dblist = NULL;
+    if(box86_dynarec) {
+        dynarec_log(LOG_DEBUG, "Free global Dynarecblocks\n");
+        for (int i=0; i<mmapsize; ++i) {
+            if(mmaplist[i].block)
+                #ifdef USE_MMAP
+                munmap(mmaplist[i].block, mmaplist[i].size);
+                #else
+                free(mmaplist[i].block);
+                #endif
+            if(mmaplist[i].dblist) {
+                kh_destroy(dynablocks, mmaplist[i].dblist);
+                mmaplist[i].dblist = NULL;
+            }
+            if(mmaplist[i].helper) {
+                free(mmaplist[i].helper);
+                mmaplist[i].helper = NULL;
+            }
         }
-        if(mmaplist[i].helper) {
-            free(mmaplist[i].helper);
-            mmaplist[i].helper = NULL;
+        if(dblist_oversized) {
+            kh_destroy(dynablocks, dblist_oversized);
+            dblist_oversized = NULL;
         }
+        mmapsize = 0;
+        mmapcap = 0;
+        dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
+        uintptr_t idx = 0;
+        uintptr_t end = ((0xFFFFFFFF)>>DYNAMAP_SHIFT);
+        for (uintptr_t i=idx; i<=end; ++i)
+            if(dynmap[i])
+                FreeDynablockList(&dynmap[i]);
+        free(mmaplist);
+        for (int i=0; i<DYNAMAP_SIZE; ++i)
+            if(box86_jumptable[i]!=box86_jmptbl_default)
+                free(box86_jumptable[i]);
     }
-    if(dblist_oversized) {
-        kh_destroy(dynablocks, dblist_oversized);
-        dblist_oversized = NULL;
-    }
-    mmapsize = 0;
-    mmapcap = 0;
-    dynarec_log(LOG_DEBUG, "Free dynamic Dynarecblocks\n");
-    uintptr_t idx = 0;
-    uintptr_t end = ((0xFFFFFFFF)>>DYNAMAP_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        dynablocklist_t* dblist = dynmap[i];
-        if(dblist) {
-            uintptr_t startdb = StartDynablockList(dblist);
-            uintptr_t enddb = EndDynablockList(dblist);
-            uintptr_t startaddr = 0;
-            if(startaddr<startdb) startaddr = startdb;
-            uintptr_t endaddr = 0xFFFFFFFF;
-            if(endaddr>enddb) endaddr = enddb;
-            FreeRangeDynablock(dblist, startaddr, endaddr-startaddr+1);
-        }
-    }
-    for (uintptr_t i=idx; i<=end; ++i)
-        if(dynmap[i])
-            FreeDynablockList(&dynmap[i]);
-    pthread_mutex_destroy(&mutex_mmap);
-    free(mmaplist);
-    for (int i=0; i<DYNAMAP_SIZE; ++i)
-        if(box86_jumptable[i]!=box86_jmptbl_default)
-            free(box86_jumptable[i]);
 #endif
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP

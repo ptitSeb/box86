@@ -300,6 +300,13 @@ void FreeBox86Context(box86context_t** context)
         }
     }
 
+    free_neededlib(&ctx->neededlibs);
+
+    if(ctx->emu_sig)
+        FreeX86Emu(&ctx->emu_sig);
+
+    finiAllHelpers(ctx);
+
     pthread_mutex_destroy(&ctx->mutex_once);
     pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);
@@ -311,13 +318,6 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
-
-    free_neededlib(&ctx->neededlibs);
-
-    if(ctx->emu_sig)
-        FreeX86Emu(&ctx->emu_sig);
-
-    finiAllHelpers(ctx);
 
     free(ctx);
 }
