@@ -1,3 +1,7 @@
+Current version
+======
+
+
 v0.2.4
 ======
 * Some work on Dynarec to limit the number of mutex use, and also allow smaller block to be built (for JIT'd programs)
