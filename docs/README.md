@@ -7,6 +7,8 @@ Linux Userspace x86 Emulator with a twist
 
 ----
 
+[中文](README_CN.md)
+
 Compiling/Installation
 ----
 > Compilation instructions can be found [here](COMPILE.md)  
