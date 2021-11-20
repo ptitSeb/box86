@@ -7,6 +7,8 @@ Linux Userspace x86 Emulator with a twist
 
 ----
 
+[中文](README_CN.md)
+
 Compiling/Installation
 ----
 > Compilation instructions can be found [here](COMPILE.md)  
@@ -14,9 +16,9 @@ Compiling/Installation
 
 Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, like ARM (host system needs to be 32bit little-endian).
 
-You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit only systems. Also, you *NEED* a 32-bit toolchain to build Box86. A toolchain that only supports 64-bit will not compile Box86, and you'll get errors (typically on aarch64, you get "-marm" not recognized, and you'll need a multiarch or chroot environnement).
+You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit only systems. Also, you *NEED* a 32-bit toolchain to build Box86. A toolchain that only supports 64-bit will not compile Box86, and you'll get errors (typically on aarch64, you get "-marm" not recognized, and you'll need a multiarch or chroot environment).
 
-Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
+Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at those bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
 
 Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
 
@@ -87,10 +89,10 @@ Notes about Steam
 
 Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works:
 - First problem is Steam crashing after the sign-in window, if you encounter this issue, you may need to add libappindicator. To install it on Debian, run `sudo apt install libappindicator1`.
-- If you select to "Remember password", Steam is crashing on subsequent starts, unless you have libnm intalled. To install it on Debian, run `sudo apt install libnm0`.
+- If you select to "Remember password", Steam is crashing on subsequent starts, unless you have libnm installed. To install it on Debian, run `sudo apt install libnm0`.
 - Once open, Steam will only work on "Small Mode" and in "Big Picture", not in the regular "Large Mode". This is because some Steam components used in the browser view are only 64-bit now. So go in the "View" menu and switch to "Small view", else the list will stay empty. Alternatively, Steam can be started in small mode directly by using `+open steam://open/minigameslist` command line arguments.
 - To avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` as environment variables. 
-- Some Steam games (most Source engine games, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it and will try to LD_PRELOAD it, for better compatibility. While it should work without the aformentionned feature, it is safer to add it to your system if you intend to play those game. To install it on Debian, run `sudo apt install libtcmalloc-minimal4`.
+- Some Steam games (most Source engine games, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it and will try to LD_PRELOAD it, for better compatibility. While it should work without the aforementioned feature, it is safer to add it to your system if you intend to play those game. To install it on Debian, run `sudo apt install libtcmalloc-minimal4`.
 
 Steam for Windows installs fine but doesn't work yet.
 
@@ -107,19 +109,19 @@ Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those mod
 Notes about Vulkan
 ----
 
-Box86 already wrap vulikan. If your system has a 32bits vulkan driver, box86 will use it when needed. Note that vulkan wrapping has not been tested much, due to the limited vulkan support on the hardware I currently own. Profile 1.0 and 1.1, whith some extension, should be OK. 1.2 is not really wrapped. I know some demos work on Pi4 (Sascha Willems demos build for x86 work the same as if build on armhf directly). Note that the Vulkan driver of the Pi4 DOES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardxware support) and a few other things that make dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
+Box86 already wrap Vulkan. If your system has a 32bits Vulkan driver, box86 will use it when needed. Note that Vulkan wrapping has not been tested much, due to the limited Vulkan support on the hardware I currently own. Profile 1.0 and 1.1, with some extension, should be OK. 1.2 is not really wrapped. I know some demos work on Pi4 (Sascha Willems demos build for x86 work the same as if build on armhf directly). Note that the Vulkan driver of the Pi4 DOES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardware support) and a few other things that make dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
 
 ----
 Final word
 ----
 
-I want to thank everyone who has contributed to box86 developpement.
+I want to thank everyone who has contributed to box86 development.
 There are many ways to contribute: code, financial, hardware and advertisement!
 So, in no particular order, I want to thank:
  * For their major code contribution: rajdakin, icecream95, M-HT
  * For their major financial contribution: FlyingFathead, stormchaser3000
  * For their hardware contribution: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [DragonBox](https://pyra-handheld.com/), [Novaspirit](https://www.youtube.com/channel/UCrjKdwxaQMSV_NDywgKXVmw), [HardKernel](https://www.hardkernel.com/), [TwisterOS team](https://twisteros.com/)
- * For their continous advertisement of box86 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS team](https://twisteros.com/), [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg)
+ * For their continuous advertisement of box86 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS team](https://twisteros.com/), [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg)
 
 And I also thank the many other people who participated even once in the project.
 
