@@ -19,6 +19,7 @@
 #include "x86run.h"
 #include "librarian.h"
 #include "elfloader.h"
+#include "bridge.h"
 #ifdef HAVE_TRACE
 #include "x86trace.h"
 #endif
