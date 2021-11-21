@@ -211,6 +211,10 @@
 #define CALL_2D(F, M) call_d(dyn, ninst, F, NULL, 2, x3, -1, M, 0)
 // CALL_1DD will use x3 for the call address. Return value in D0, 1 ARG in D0, cals 2 functions in a row
 #define CALL_1DD(F, F2, M) call_d(dyn, ninst, F, F2, 1, x3, -1, M, 0)
+// CALL_1D_U64 will use S as scratch. Return value in ret/ret2, 1 ARG in D0
+#define CALL_1DR_U64(R, ret, ret2, S, M) call_dr(dyn, ninst, R, 1, S, ret, ret2, M, 1)
+// CALL_1D will use S as scratch. Return value in D0, 1 ARG in D0
+#define CALL_1DR(R, S, M) call_dr(dyn, ninst, R, 1, S, -1, -1, M, 0)
 
 #define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
 #define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
@@ -380,6 +384,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define iret_to_epilog  STEPNAME(iret_to_epilog_)
 #define call_c          STEPNAME(call_c_)
 #define call_d          STEPNAME(call_d_)
+#define call_dr         STEPNAME(call_dr_)
 #define grab_fsdata     STEPNAME(grab_fsdata_)
 #define grab_tlsdata    STEPNAME(grab_tlsdata_)
 #define emit_cmp8       STEPNAME(emit_cmp8)
@@ -508,6 +513,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n);
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst);
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t mask, int saveflags);
 void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg, int ret, uint32_t mask, int saveflags);
+void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int ret2, uint32_t mask, int saveflags);
 void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg);
 void emit_lock(dynarec_arm_t* dyn, uintptr_t addr, int ninst);

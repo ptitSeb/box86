@@ -367,6 +367,52 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
 #define ARM_SOFTFP
 #endif
 // call a function with n double args (taking care of the SOFTFP / HARD call) that return a double too
+void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int ret2, uint32_t mask, int saveflags)
+{
+    if(ret!=-2 && !mask) {
+        // ARM ABI require the stack to be 8-bytes aligned!
+        // so, if no mask asked, add one to stay 8-bytes aligned
+        if(ret!=xFlags) mask=1<<xFlags; else mask=1<<x3;
+    }
+    if(ret!=-2) {
+        PUSH(xSP, (1<<xEmu) | mask);
+    }
+    fpu_pushcache(dyn, ninst, s1);
+    if(saveflags) {
+        STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
+    #ifdef ARM_SOFTFP
+    if(n==1) {
+        SUB_IMM8(xSP, xSP, 8);
+        VST1_64(0, xSP);    //store args on the stack
+    } else {    // n == 2, nothing else!
+        SUB_IMM8(xSP, xSP, n*8);
+        ADD_IMM8(reg, xSP, 8);
+        VST1_64(1, reg);
+        VST1_64(0, xSP);    //store args on the stack
+    }
+    #endif
+    BLX(reg);
+    #ifdef ARM_SOFTFP
+    ADD_IMM8(xSP, xSP, n*8);
+    VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
+    #endif
+    fpu_popcache(dyn, ninst, s1);
+    if(ret>=0) {
+        MOV_REG(ret, 0);
+    }
+    if(ret2>=0) {
+        MOV_REG(ret2, 1);
+    }
+    if(ret!=-2) {
+        POP(xSP, (1<<xEmu) | mask);
+    }
+    if(saveflags) {
+        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
+    SET_NODF();
+}
+// call a function with n double args (taking care of the SOFTFP / HARD call) that return a double too
 void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg, int ret, uint32_t mask, int saveflags)
 {
     if(ret!=-2 && !mask) {

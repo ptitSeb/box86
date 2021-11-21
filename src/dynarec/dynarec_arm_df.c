@@ -23,7 +23,7 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
-
+static const void* round_map[4] = {arm_fist64_0, arm_fist64_1, arm_fist64_2, arm_fist64_3};
 uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
@@ -343,9 +343,43 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             STR_IMM9(x3, ed, 4);
                         }
                     } else {
-                        #if 0
-                        v1 = x87_get_st(dyn, ninst, x2, x3, 0);
+                        #if 1
+                        v1 = x87_get_st(dyn, ninst, x2, x3, 0, NEON_CACHE_ST_D);
                         //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                        #if 1
+                        //  get TOP
+                        LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
+                        int a = 0 - dyn->x87stack;
+                        if(a<0) {
+                            SUB_IMM8(x14, x14, -a);
+                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
+                        } else if(a>0) {
+                            ADD_IMM8(x14, x14, a);
+                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
+                        }
+                        ADD_REG_LSL_IMM5(x14, xEmu, x14, 4);  // each fpu_ll is 2 int64: ref than ll
+                        MOVW(x2, offsetof(x86emu_t, fpu_ll));   //can be optimized?
+                        ADD_REG_LSL_IMM5(x14, x14, x2, offsetof(fpu_ll_t, sref));
+                        VLDR_64(v2, x14, 0);
+                        VCEQ_32(v2, v2, v1);    // compare
+                        VMOVfrV_D(x2, x3, v2);
+                        ANDS_REG_LSL_IMM5(x2, x2, x3, 0);   // if NE then values are the same!
+                        B_MARK(cEQ);    // do the i64 conversion
+                        // memcpy(ed, &STll(0).ll, sizeof(int64_t));
+                        LDRD_IMM8(x2, x14, offsetof(fpu_ll_t, sq));  // load ll
+                        B_MARK3(c__);
+                        MARK;
+                        // load round mode
+                        LDRH_IMM8(x14, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+                        UBFX(x2, x14, 10, 2);    // extract round...
+                        MOV32(x14, round_map);
+                        LDR_REG_LSL_IMM5(x2, x14, x2, 2);
+                        VMOV_64(0, v1);    // prepare call to log2
+                        CALL_1DR_U64(x2, x2, x3, x14, (1<<x1));
+                        MARK3;
+                        STR_IMM9(x2, ed, 0);
+                        STR_IMM9(x3, ed, 4);
+                        #else
                         v2 = fpu_get_scratch_double(dyn);
                         v0 = fpu_get_scratch_double(dyn);
                         s0 = fpu_get_scratch_single(dyn);
@@ -407,6 +441,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MARK3;
                         STR_IMM9(x2, x1, 0);
                         STR_IMM9(x3, x1, 4);
+                        #endif
                         #else
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         x87_forget(dyn, ninst, x2, x3, 0);

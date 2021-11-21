@@ -116,6 +116,43 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
     }
 }
 
+int64_t arm_fist64_0(double d)
+{
+    int64_t tmp;
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+        tmp = 0x8000000000000000LL;
+    else
+        tmp = nearbyint(d);
+    return tmp;
+}
+int64_t arm_fist64_1(double d)
+{
+    int64_t tmp;
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+        tmp = 0x8000000000000000LL;
+    else
+        tmp = floor(d);
+    return tmp;
+}
+int64_t arm_fist64_2(double d)
+{
+    int64_t tmp;
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+        tmp = 0x8000000000000000LL;
+    else
+        tmp = ceil(d);
+    return tmp;
+}
+int64_t arm_fist64_3(double d)
+{
+    int64_t tmp;
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+        tmp = 0x8000000000000000LL;
+    else
+        tmp = trunc(d);
+    return tmp;
+}
+
 void arm_fistt64(x86emu_t* emu, int64_t* ed)
 {
     // used of memcpy to avoid aligments issues

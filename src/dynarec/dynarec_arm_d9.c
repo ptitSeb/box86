@@ -34,6 +34,7 @@ static const float  f_pi  = PI;
 static const float  f_lg2 = LG2;
 static const float  f_ln2 = LN2;
 
+static const void* round_map[4] = {nearbyint, floor, ceil, trunc};
 uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
@@ -277,21 +278,20 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xFC:
             INST_NAME("FRNDINT");
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            // use C helper for now, nothing staightforward is available
-            x87_forget(dyn, ninst, x1, x2, 0);
-            CALL(arm_frndint, -1, 0);
-            /*
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            // check if finite first
             VCMP_F64_0(v1);
             VMRS_APSR();
             B_NEXT(cVS);    // Unordered, skip
             B_NEXT(cEQ);    // Zero, skip
-            u8 = x87_setround(dyn, ninst, x1, x2, x3);
-            VCVT_S32_F64(x1, v1);   // limit to 32bits....
-            VCVT_F64_S32(v1, x1);
-            x87_restoreround(dyn, ninst, u8);
-            */
+            // load round mode
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+            UBFX(x2, x1, 10, 2);    // extract round...
+            MOV32(x1, round_map);
+            LDR_REG_LSL_IMM5(x2, x1, x2, 2);
+            VMOV_64(0, v1);    // prepare call to log2
+            CALL_1DR(x2, x3, 0);
+            VMOV_64(v1, 0);
             break;
         case 0xF0:
             INST_NAME("F2XM1");

@@ -23,6 +23,11 @@ void arm_fsave(x86emu_t* emu, uint8_t* ed);
 void arm_frstor(x86emu_t* emu, uint8_t* ed);
 void arm_fprem1(x86emu_t* emu);
 
+int64_t arm_fist64_0(double d);
+int64_t arm_fist64_1(double d);
+int64_t arm_fist64_2(double d);
+int64_t arm_fist64_3(double d);
+
 void arm_ud(x86emu_t* emu);
 
 #define FPUFIRST    8
