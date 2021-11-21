@@ -80,6 +80,23 @@ uint64_t _fistpq_(double a)
     :"=m" (ret):"m"(a), "m"(t1), "m"(t2):"cc");
     return ret;
 }
+uint64_t _frndint_(double a)
+{
+    uint64_t ret;
+    uint16_t t1, t2;
+    asm volatile (
+    "fldl %1\n"
+    "fstcw %2\n"
+    "mov %2, %%ax\n"
+    "mov $0x0c, %%ah\n"
+    "mov %%ax, %3\n"
+    "fldcw %3\n"
+    "frndint\n"
+    "fstpl %0\n"
+    "fldcw %2\n"
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2):"cc");
+    return ret;
+}
 #endif
 
 int main(int argc, const char** argv)
@@ -118,9 +135,14 @@ int main(int argc, const char** argv)
    za = (flags>>(8+6))&1?'Z':'-';
    pa = (flags>>(8+2))&1?'P':'-';
    printf("%c%c%c\n", za, pa, ca);
+   printf("FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&a, _frndint_(a));
+   printf("FRNDINT 0x%llx => 0x%llx\n", *(uint64_t*)&b, _frndint_(b));
    printf("FISTP 0x%llx => word: %x\n", *(uint64_t*)&a, _fistpw_(a));
+   printf("FISTP 0x%llx => word: %x\n", *(uint64_t*)&b, _fistpw_(b));
    printf("FISTP 0x%llx => long: %x\n", *(uint64_t*)&a, _fistpl_(a));
+   printf("FISTP 0x%llx => long: %x\n", *(uint64_t*)&b, _fistpl_(b));
    printf("FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&a, _fistpq_(a));
+   printf("FISTP 0x%llx => quad: %llx\n", *(uint64_t*)&b, _fistpq_(b));
  }
  printf("\nDone\n");
 }
