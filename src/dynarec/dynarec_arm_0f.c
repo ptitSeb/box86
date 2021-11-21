@@ -1396,13 +1396,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            UXTB(x3, xECX, 0);
-            GETEDW(x14, x1);
+            SETFLAGS(X_ALL, SF_SET);
+            AND_IMM8(x3, xECX, 0x1f);
+            GETED;
             GETGD;
-            MOV_REG(x2, gd);
-            CALL(shld32, ed, (wback?(1<<wback):0));
+            emit_shld32(dyn, ninst, ed, gd, x3, x14);
             WBACK;
             break;
 

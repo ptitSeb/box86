@@ -454,6 +454,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define emit_shrd32c    STEPNAME(emit_shrd32c)
 #define emit_shld32c    STEPNAME(emit_shld32c)
 #define emit_shrd32     STEPNAME(emit_shrd32)
+#define emit_shld32     STEPNAME(emit_shld32)
 
 #define emit_pf         STEPNAME(emit_pf)
 
@@ -583,6 +584,7 @@ void emit_ror8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4);
 void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int s3, int s4);
 void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 

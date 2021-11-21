@@ -257,18 +257,27 @@ Op is 20-27
 // orr dst, src1, src2, lsl #imm
 #define ORR_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
+// orr.cond dst, src1, src2, lsl #imm
+#define ORR_REG_LSL_IMM5_COND(cond, dst, src1, src2, imm5) \
+    EMIT(cond | 0x01800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // orr.s dst, src1, src2, lsl #imm
 #define ORRS_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // orr dst, src1, src2, lsr #imm
 #define ORR_REG_LSR_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
+// orr.cond dst, src1, src2, lsr #imm
+#define ORR_REG_LSR_IMM5_COND(cond, dst, src1, src2, imm5) \
+    EMIT(cond | 0x01800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
 // orr.s dst, src1, src2, lsr #imm
 #define ORRS_REG_LSR_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
 // orr.s dst, src1, src2, lsl rs
 #define ORRS_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
+// orr.s dst, src1, src2, lsr rs
+#define ORRS_REG_LSR_REG(dst, src1, src2, rs) \
+    EMIT(0xe1900000 | ((dst) << 12) | ((src1) << 16) | brRLSR(rs, src2) )
 // orr dst, src1, #imm8
 #define ORR_IMM8(dst, src, imm8, rot) \
     EMIT(0xe3800000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | imm8 )
@@ -281,6 +290,9 @@ Op is 20-27
 // orr dst, src1, src2, lsl rs
 #define ORR_REG_LSL_REG(dst, src1, src2, rs) \
     EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSL(rs, src2) )
+// orr dst, src1, src2, lsr rs
+#define ORR_REG_LSR_REG(dst, src1, src2, rs) \
+    EMIT(0xe1800000 | ((dst) << 12) | ((src1) << 16) | brRLSR(rs, src2) )
 // xor dst, src1, src2, lsl #imm
 #define XOR_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe0200000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
@@ -486,6 +498,8 @@ Op is 20-27
 
 // UBFX: Unsigned Bit Field Extract: extract any number of bits from Rn, zero extend and put in Rd
 #define UBFX(rd, rn, lsb, width)    EMIT(c__ | (0b0111111<<21) | (((width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b101<<4) | (rn))
+// UBFX: Unsigned Bit Field Extract: extract any number of bits from Rn, zero extend and put in Rd
+#define UBFX_COND(cond, rd, rn, lsb, width)    EMIT(cond | (0b0111111<<21) | (((width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b101<<4) | (rn))
 // SBFX: Signed Bit Field Extract: extract any number of bits from Rn, zero extend and put in Rd
 #define SBFX(rd, rn, lsb, width)    EMIT(c__ | (0b0111101<<21) | (((width)-1)<<16) | ((rd)<<12) | ((lsb)<<7) | (0b101<<4) | (rn))
 
