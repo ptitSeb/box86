@@ -2612,7 +2612,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SETFLAGS(X_ALL, SF_SET);
                     if(arm_div && ninst && dyn->insts 
                        && dyn->insts[ninst-1].x86.addr 
-                       && *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0x31 
+                       && (*(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0x31 
+                        || *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0x33)
                        && *(uint8_t*)(dyn->insts[ninst-1].x86.addr+1)==0xD2) {
                         // previous instruction is XOR EDX, EDX, so its 32bits / 32bits
                         SET_DFNONE(x2); // flags are undefined
