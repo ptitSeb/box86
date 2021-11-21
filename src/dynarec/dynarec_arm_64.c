@@ -299,8 +299,8 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0);
                         LDR_REG_LSL_IMM5(xEIP, ed, x14, 0);
                     }
-                    BARRIER(1);
-                    BARRIER_NEXT(1);
+                    BARRIER(BARRIER_FULL);
+                    BARRIER_NEXT(BARRIER_FULL);
                     if(!dyn->insts || ninst!=dyn->size-1) {
                     } else {
                         *need_epilog = 0;

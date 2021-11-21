@@ -6,6 +6,12 @@
 typedef struct x86emu_s x86emu_t;
 typedef struct dynablock_s dynablock_t;
 
+#define BARRIER_NONE    0
+#define BARRIER_FULL    1
+#define BARRIER_NOFLAGS 2
+#define BARRIER_MAYBE   3
+#define BARRIER_FPU     4
+
 #define NEON_CACHE_NONE 0
 #define NEON_CACHE_ST_D 1
 #define NEON_CACHE_ST_F 2

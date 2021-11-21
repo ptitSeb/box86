@@ -43,7 +43,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     INIT;
     while(ok) {
         ip = addr;
-        if((dyn->insts[ninst].x86.barrier==1)) {
+        if((dyn->insts[ninst].x86.barrier==BARRIER_FULL)) {
             NEW_BARRIER_INST;
         }
         // propagate ST stack state, especial stack pop that are defered
@@ -82,7 +82,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
         if(dyn->insts[ninst+1].x86.barrier) {
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            if(dyn->insts[ninst+1].x86.barrier!=2) {
+            if(dyn->insts[ninst+1].x86.barrier!=BARRIER_NOFLAGS) {
                 dyn->state_flags = 0;
                 dyn->dfnone = 0;
             }
@@ -116,7 +116,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             #if STEP == 3
             dynarec_log(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
             #endif
-            BARRIER(2);
+            BARRIER(BARRIER_NOFLAGS);
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             jump_to_next(dyn, addr, 0, ninst);
             ok=0; need_epilog=0;

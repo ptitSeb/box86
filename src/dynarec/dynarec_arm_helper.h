@@ -331,7 +331,7 @@
 #define UFLAG_DF(r, A) if(dyn->insts[ninst].x86.need_flags) {SET_DF(r, A)}
 #define UFLAG_IF if(dyn->insts[ninst].x86.need_flags)
 #ifndef DEFAULT
-#define DEFAULT      *ok = -1; BARRIER(2)
+#define DEFAULT      *ok = -1; BARRIER(BARRIER_NOFLAGS)
 #endif
 #ifndef NEW_BARRIER_INST
 #define NEW_BARRIER_INST

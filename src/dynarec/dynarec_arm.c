@@ -346,26 +346,26 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                         k=i2;
                 }
                 if(k!=-1)   // -1 if not found, mmm, probably wrong, exit anyway
-                    helper.insts[k].x86.barrier = 1;
+                    helper.insts[k].x86.barrier = BARRIER_FULL;
                 helper.insts[i].x86.jmp_insts = k;
             }
         }
     // check for the optionnal barriers now
     for(int i=helper.size-1; i>=0; --i) {
-        if(helper.insts[i].x86.barrier==3)
+        if(helper.insts[i].x86.barrier==BARRIER_MAYBE)
             if(helper.insts[i].x86.jmp_insts == -1) {
                 if(i==helper.size-1 || helper.insts[i+1].x86.barrier)
-                    helper.insts[i].x86.barrier=2;  // nope, end of block or barrier just after
+                    helper.insts[i].x86.barrier=BARRIER_NOFLAGS;  // nope, end of block or barrier just after
                 else
-                    helper.insts[i].x86.barrier=0;  // ok, no need for a barrier here after all
+                    helper.insts[i].x86.barrier=BARRIER_NONE;  // ok, no need for a barrier here after all
             } else 
-                helper.insts[i].x86.barrier=2;
+                helper.insts[i].x86.barrier=BARRIER_NOFLAGS;
     }
     // check to remove useless barrier, in case of jump when destination doesn't needs flags
     for(int i=helper.size-1; i>=0; --i) {
         if(helper.insts[i].x86.jmp
         && helper.insts[i].x86.jmp_insts>=0
-        && helper.insts[helper.insts[i].x86.jmp_insts].x86.barrier==1) {
+        && helper.insts[helper.insts[i].x86.jmp_insts].x86.barrier==BARRIER_FULL) {
             int k = helper.insts[i].x86.jmp_insts;
             //TODO: optimize FPU barrier too
             if((!helper.insts[k].x86.need_flags)
@@ -373,19 +373,19 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                   && helper.insts[k].x86.state_flags==SF_SET)
              ||(helper.insts[k].x86.state_flags==SF_SET_PENDING)) {
                 //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Removed barrier for inst %d\n", k);
-                helper.insts[k].x86.barrier = 4; // remove barrier (keep FPU barrier, and still reset state flag)
+                helper.insts[k].x86.barrier = BARRIER_FPU; // remove barrier (keep FPU barrier, and still reset state flag)
              }
         }
     }
     // reset need_flags and compute again, now taking barrier into account (because barrier change use_flags)
     for(int i = helper.size; i-- > 0;) {
-        if(helper.insts[i].x86.barrier==1)
+        if(helper.insts[i].x86.barrier==BARRIER_FULL)
             // immediate barrier
             helper.insts[i].x86.use_flags |= X_PEND;
         else if(helper.insts[i].x86.jmp 
         && helper.insts[i].x86.jmp_insts>=0
         ) {
-            if(helper.insts[helper.insts[i].x86.jmp_insts].x86.barrier==1)
+            if(helper.insts[helper.insts[i].x86.jmp_insts].x86.barrier==BARRIER_FULL)
                 // jumpto barrier
                 helper.insts[i].x86.use_flags |= X_PEND;
             else
