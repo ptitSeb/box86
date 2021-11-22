@@ -1,18 +1,25 @@
-# box86
-
 ![Official logo](img/Box86Logo.png "Official Logo")
-Linux Userspace x86 Emulator with a twist
 
-[![Build Status](https://app.travis-ci.com/ptitSeb/box86.svg?branch=master)](https://app.travis-ci.com/ptitSeb/box86)
+<p align="center">Linux Userspace x86_64 Emulator with a twist
+<p align="center">
+  <a href="https://github.com/ptitSeb/box86/blob/main/docs/CHANGELOG.md">
+    View changelog</a>
+  |
+  <a href="https://github.com/ptitSeb/box86/blob/main/docs/README_CN.md">
+    中文</a>
+  |
+  <a href="https://github.com/ptitSeb/box86/issues/new">
+    Report an error</a>
+
+<p align="center">
+    <img src="https://app.travis-ci.com/ptitSeb/box86.svg?branch=master" alt="build status">
+    <img src="https://img.shields.io/github/stars/ptitSeb/box86" alt="stars">
+    <img src="https://img.shields.io/github/forks/ptitSeb/box86" alt="forks">
+    <img src="https://img.shields.io/github/contributors/ptitSeb/box86" alt="contributors">
+    <img src="https://img.shields.io/github/issues-pr/ptitSeb/box86" alt="prs">
+    <img src="https://img.shields.io/github/issues/ptitSeb/box86" alt="issues">
 
 ----
-
-[中文](README_CN.md)
-
-Compiling/Installation
-----
-> Compilation instructions can be found [here](COMPILE.md)  
-> Instructions for installing Wine for Box86 can be found [here](X86WINE.md)  
 
 Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, like ARM (host system needs to be 32bit little-endian).
 
@@ -31,13 +38,21 @@ To enable TRACE (i.e. dumping to stdout all individual x86 instructions executed
 
 Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86primop.c](../src/emu/x86primop.c) for copyright details
 
-Here's  6 videos, the first 2 videos are videos of "Airline Tycoon Deluxe" and "Heretic 2" running on a GigaHertz OpenPandora (the second one is using  the dynarec), and the next 2 videos are videos of of "Bit.Trip.Runner" and "Neverwinter Night" running on an ODroid XU4 (without dynarec), and the last 2  videos are on on a Pi4: Shovel Knight (video from @ITotalJustice) and Freedom Planet (video from @djazz), also without dynarec.
+----
+Compiling/Installation
+----
+> Compilation instructions can be found [here](COMPILE.md)  
+> Instructions for installing Wine for Box86 can be found [here](X86WINE.md)  
+
+----
+
+Here are 6 videos, the first 2 videos are videos of "Airline Tycoon Deluxe" and "Heretic 2" running on a GigaHertz OpenPandora (the second one is using  the dynarec), and the next 2 videos are videos of of "Bit.Trip.Runner" and "Neverwinter Night" running on an ODroid XU4 (without dynarec), and the last 2  videos are on on a Pi4: Shovel Knight (video from @ITotalJustice) and Freedom Planet (video from @djazz), also without dynarec.
 
 [![Play on Youtube](https://img.youtube.com/vi/bLt0hMoFDLk/3.jpg)](https://www.youtube.com/watch?v=bLt0hMoFDLk) [![Play on Youtube](https://img.youtube.com/vi/MM7kWYts7IA/3.jpg)](https://www.youtube.com/watch?v=MM7kWYts7IA) [![Play on Youtube](https://img.youtube.com/vi/8hr71S029Hg/1.jpg)](https://www.youtube.com/watch?v=8hr71S029Hg) [![Play on Youtube](https://img.youtube.com/vi/B4YN37z3-ws/1.jpg)](https://www.youtube.com/watch?v=B4YN37z3-ws) [![Play on Youtube](https://img.youtube.com/vi/xk8Q30mxqPg/1.jpg)](https://www.youtube.com/watch?v=xk8Q30mxqPg) [![Play on Youtube](https://img.youtube.com/vi/_QMRMVvYrqU/1.jpg)](https://www.youtube.com/watch?v=_QMRMVvYrqU)
 
-You can find many more Box86 video on Youtube in the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) Channels
+You can find many more Box86 videos on the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) YouTube channels.
 
-Compatibility list is there: https://github.com/ptitSeb/box86-compatibility-list/issues
+Compatibility list is here: https://github.com/ptitSeb/box86-compatibility-list/issues
 
 <img src="img/Box86Icon.png" width="96" height="96">
 
