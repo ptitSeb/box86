@@ -1,23 +1,10 @@
 ![Official logo](img/Box86Logo.png "Official Logo")
 
-<p align="center">Linux Userspace x86 Emulator with a twist
-<p align="center">
-  <a href="https://github.com/ptitSeb/box86/blob/main/docs/CHANGELOG.md">
-    View changelog</a>
-  |
-  <a href="https://github.com/ptitSeb/box86/blob/main/docs/README_CN.md">
-    中文</a>
-  |
-  <a href="https://github.com/ptitSeb/box86/issues/new">
-    Report an error</a>
+Linux Userspace x86_64 Emulator with a twist
 
-<p align="center">
-    <img src="https://app.travis-ci.com/ptitSeb/box86.svg?branch=master" alt="build status">
-    <img src="https://img.shields.io/github/stars/ptitSeb/box86" alt="stars">
-    <img src="https://img.shields.io/github/forks/ptitSeb/box86" alt="forks">
-    <img src="https://img.shields.io/github/contributors/ptitSeb/box86" alt="contributors">
-    <img src="https://img.shields.io/github/issues-pr/ptitSeb/box86" alt="prs">
-    <img src="https://img.shields.io/github/issues/ptitSeb/box86" alt="issues">
+[View changelog](https://github.com/ptitSeb/box86/blob/master/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box86/blob/master/docs/README_CN.md) | [Report an error](https://github.com/ptitSeb/box86/issues/new)
+
+![build](https://app.travis-ci.com/ptitSeb/box86.svg?branch=master) ![stars](https://img.shields.io/github/stars/ptitSeb/box86) ![forks](https://img.shields.io/github/forks/ptitSeb/box86) ![contributors](https://img.shields.io/github/contributors/ptitSeb/box86) ![prs](https://img.shields.io/github/issues-pr/ptitSeb/box86) ![issues](https://img.shields.io/github/issues/ptitSeb/box86)
 
 ----
 
