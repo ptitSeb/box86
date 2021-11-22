@@ -1,6 +1,6 @@
 ![Official logo](img/Box86Logo.png "Official Logo")
 
-<p align="center">Linux Userspace x86_64 Emulator with a twist
+<p align="center">Linux Userspace x86 Emulator with a twist
 <p align="center">
   <a href="https://github.com/ptitSeb/box86/blob/main/docs/CHANGELOG.md">
     View changelog</a>
