@@ -47,7 +47,7 @@ sudo systemctl restart systemd-binfmt
 
 `mkdir build; cd build; cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
-As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. Also, on armbian, you may need to also use `sudo apt install libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other similar file not found at link.
 
 #### for Tinker Board (1/1S) or RK3288
 
@@ -57,7 +57,7 @@ As most RK3399 device run AARCH64 OS, you'll need an `armhf` multiarch environme
 
 `mkdir build; cd build; cmake .. -DA64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
-As most Allwinner A64 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+As most Allwinner A64 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. Also, on armbian, you may need to also use `sudo apt install libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other similar file not found at link.
 
 #### for Snapdragon 845
 
@@ -69,7 +69,7 @@ As most Snapdragon 845 device run AARCH64 OS, in most cases you'll need an `armh
 
 `mkdir build; cd build; cmake .. -DPHYTIUM=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
 
-As most Phytium (D2000 or FT2000/4) device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian/ubuntu, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+As most Phytium (D2000 or FT2000/4) device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian/ubuntu, install it with `sudo apt install gcc-arm-linux-gnueabihf`. Also, on armbian, you may need to also use `sudo apt install libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other similar file not found at link.
 
 #### for Other ARM Linux platforms
 
