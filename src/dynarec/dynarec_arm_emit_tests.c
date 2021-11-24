@@ -374,7 +374,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
-// emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch
+// emit TEST8 instruction, from test s1 , s2, using s3 and s4 as scratch. May destroy s2 also
 void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     IFX_PENDOR0 {
@@ -401,10 +401,9 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
-        AND_IMM8(s3, s3, 0xE0); // lsr 5 masking pre-applied
+        AND_IMM8(s2, s3, 0xE0); // lsr 5 masking pre-applied
         MOV32(s4, GetParityTab());
-        LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-        AND_REG_LSL_IMM5(s3, s1, s2, 0);
+        LDR_REG_LSR_IMM5(s4, s4, s2, 5-2);   // x/32 and then *4 because array is integer
         AND_IMM8(s3, s3, 31);
         MVN_REG_LSR_REG(s4, s4, s3);
         BFI(xFlags, s4, F_PF, 1);
