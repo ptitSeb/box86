@@ -681,6 +681,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xAF:
             INST_NAME("SCASW");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             GETDIR(x3, 2);
             UXTH(x1, xEAX, 0);
             LDRHAI_REG_LSL_IMM5(x2, xEDI, x3);
