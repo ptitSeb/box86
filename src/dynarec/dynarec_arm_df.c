@@ -31,7 +31,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t j32;
     uint8_t wback;
     uint8_t ed;
-    int v0, v1, v2;
+    int /*v0, */v1, v2;
     int s0;
     int fixedaddress;
     int parity;
@@ -39,7 +39,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(s0);
     MAYUSE(v2);
     MAYUSE(v1);
-    MAYUSE(v0);
+    //MAYUSE(v0);
     MAYUSE(j32);
 
     switch(nextop) {
@@ -346,6 +346,8 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         #if 1
                         v1 = x87_get_st(dyn, ninst, x2, x3, 0, NEON_CACHE_ST_D);
                         //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                        fpu_get_scratch_double(dyn); // to alocate v0
+                        v2 = fpu_get_scratch_double(dyn);
                         #if 1
                         //  get TOP
                         LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
@@ -380,7 +382,6 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(x2, ed, 0);
                         STR_IMM9(x3, ed, 4);
                         #else
-                        v2 = fpu_get_scratch_double(dyn);
                         v0 = fpu_get_scratch_double(dyn);
                         s0 = fpu_get_scratch_single(dyn);
                         // check STll(0).ref==ST(0).q so emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top]

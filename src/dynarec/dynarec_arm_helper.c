@@ -383,8 +383,12 @@ void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int
     }
     #ifdef ARM_SOFTFP
     if(n==1) {
-        SUB_IMM8(xSP, xSP, 8);
-        VST1_64(0, xSP);    //store args on the stack
+        if(ret==-1) {
+            SUB_IMM8(xSP, xSP, 8);
+            VST1_64(0, xSP);    //store args on the stack
+        } else {
+            VMOVfrV_64(0, 1, 0);// D0 -> r0:r1
+        }
     } else {    // n == 2, nothing else!
         SUB_IMM8(xSP, xSP, n*8);
         ADD_IMM8(reg, xSP, 8);
@@ -394,8 +398,10 @@ void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int
     #endif
     BLX(reg);
     #ifdef ARM_SOFTFP
-    ADD_IMM8(xSP, xSP, n*8);
-    VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
+    if(ret==-1) {
+        ADD_IMM8(xSP, xSP, n*8);
+        VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
+    }
     #endif
     fpu_popcache(dyn, ninst, s1);
     if(ret>=0) {
