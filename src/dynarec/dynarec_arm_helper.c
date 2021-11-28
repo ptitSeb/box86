@@ -382,24 +382,18 @@ void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int
         STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
     #ifdef ARM_SOFTFP
-    if(n==1) {
-        if(ret==-1 && 0) {
-            SUB_IMM8(xSP, xSP, 8);
-            VST1_64(0, xSP);    //store args on the stack
-        } else {
-            VMOVfrV_64(0, 1, 0);// D0 -> r0:r1
-        }
-    } else {    // n == 2, nothing else!
-        SUB_IMM8(xSP, xSP, n*8);
-        ADD_IMM8(reg, xSP, 8);
-        VST1_64(1, reg);
-        VST1_64(0, xSP);    //store args on the stack
+    VMOVfrV_64(0, 1, 0);// D0 -> r0:r1
+    if(n!=1) { // n == 2, nothing else!
+        PUSH(xSP, (1<<2) | (1<<3));
+        VMOVfrV_64(2, 3, 1);
     }
     #endif
     BLX(reg);
     #ifdef ARM_SOFTFP
+    if(n!=1) {
+        POP(xSP, (1<<2) | (1<<3));
+    }
     if(ret==-1) {
-        //ADD_IMM8(xSP, xSP, n*8);
         VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
     }
     #endif
@@ -434,27 +428,25 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
         STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
     #ifdef ARM_SOFTFP
-    if(n==1) {
-        SUB_IMM8(xSP, xSP, 8);
-        VST1_64(0, xSP);    //store args on the stack
-    } else {    // n == 2, nothing else!
-        SUB_IMM8(xSP, xSP, n*8);
-        ADD_IMM8(reg, xSP, 8);
-        VST1_64(1, reg);
-        VST1_64(0, xSP);    //store args on the stack
+    VMOVfrV_64(0, 1, 0);// D0 -> r0:r1
+    if(n!=1) { // n == 2, nothing else!
+        PUSH(xSP, (1<<2) | (1<<3));
+        VMOVfrV_64(2, 3, 1);
     }
     #endif
     MOV32(reg, (uintptr_t)fnc);
     BLX(reg);
     if(fnc2) {
         #ifdef ARM_SOFTFP
-        STM(xSP, (1<<0)|(1<<1));    // put r0:r1 result on the stack for next call
+        // result are already in r0:r1 for next call
         #endif
         MOV32(reg, (uintptr_t)fnc2);
         BLX(reg);
     }
     #ifdef ARM_SOFTFP
-    ADD_IMM8(xSP, xSP, n*8);
+    if(n!=1) {
+        POP(xSP, (1<<2) | (1<<3));
+    }
     VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
     #endif
     fpu_popcache(dyn, ninst, reg);
