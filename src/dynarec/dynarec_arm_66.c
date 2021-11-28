@@ -1046,8 +1046,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ORR_REG_LSL_IMM5(x2, x2, xEDX, 16);
                         UDIV(x3, x2, ed);
                         MLS(x14, x3, ed, x2);  // x14 = x2 mod ed (i.e. x2 - x3*ed)
-                        BFI(xEAX, x3, 1, 16);
-                        BFI(xEDX, x14, 1, 16);
+                        BFI(xEAX, x3, 0, 16);
+                        BFI(xEDX, x14, 0, 16);
                     } else {
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         SETFLAGS(X_ALL, SF_SET);
