@@ -340,6 +340,48 @@ void UpdateFlags(x86emu_t *emu)
             CONDITIONAL_SET_FLAG(XOR2(bc >> 30), F_OF);
             CONDITIONAL_SET_FLAG(bc & 0x8, F_AF);
             break;
+        case d_rcl8:
+            cc = (emu->op1 >> (8 - emu->op2)) & 0x1;
+            CONDITIONAL_SET_FLAG(cc, F_CF);
+            CONDITIONAL_SET_FLAG(emu->op2 == 1 && XOR2(cc + ((emu->res >> 6) & 0x2)), F_OF);
+            break;
+        case d_rcl16:
+            cc = (emu->op1 >> (16 - emu->op2)) & 0x1;
+            CONDITIONAL_SET_FLAG(cc, F_CF);
+    		CONDITIONAL_SET_FLAG(emu->op2 == 1 && XOR2(cc + ((emu->res >> 14) & 0x2)), F_OF);
+            break;
+        case d_rcl32:
+            cc = (emu->op1 >> (32 - emu->op2)) & 0x1;
+            CONDITIONAL_SET_FLAG(cc, F_CF);
+		    CONDITIONAL_SET_FLAG(emu->op2 == 1 && XOR2(cc + ((emu->res >> 30) & 0x2)), F_OF);
+            break;
+        case d_rcr8:
+            if (cnt == 1) {
+                CONDITIONAL_SET_FLAG(emu->op1 & 0x1, F_CF);
+    			cc = ACCESS_FLAG(F_CF) != 0;
+                CONDITIONAL_SET_FLAG(XOR2(cc + ((emu->op1 >> 6) & 0x2)), F_OF);
+            } else {
+                CONDITIONAL_SET_FLAG((emu->op1 >> (cnt - 1)) & 0x1, F_CF);
+            }
+            break;
+        case d_rcr16:
+            if (cnt == 1) {
+                CONDITIONAL_SET_FLAG(emu->op1 & 0x1, F_CF);
+    			cc = ACCESS_FLAG(F_CF) != 0;
+                CONDITIONAL_SET_FLAG(XOR2(cc + ((emu->op1 >> 14) & 0x2)), F_OF);
+            } else {
+                CONDITIONAL_SET_FLAG((emu->op1 >> (cnt - 1)) & 0x1, F_CF);
+            }
+            break;
+        case d_rcr32:
+            if (cnt == 1) {
+                CONDITIONAL_SET_FLAG(emu->op1 & 0x1, F_CF);
+    			cc = ACCESS_FLAG(F_CF) != 0;
+                CONDITIONAL_SET_FLAG(XOR2(cc + ((emu->op1 >> 30) & 0x2)), F_OF);
+            } else {
+                CONDITIONAL_SET_FLAG((emu->op1 >> (cnt - 1)) & 0x1, F_CF);
+            }
+            break;
         case d_shl8:
             if (emu->op2 < 8) {
                 cnt = emu->op2 % 8;
