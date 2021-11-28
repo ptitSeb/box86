@@ -22,7 +22,7 @@ const char* dbusName = "libdbus-1.so.3";
 #define LIBNAME dbus
 static library_t* my_lib = NULL;
 
-//#define ADDED_FUNCTIONS()           \
+//#define ADDED_FUNCTIONS()
 
 #include "generated/wrappeddbustypes.h"
 
