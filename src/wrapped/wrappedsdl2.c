@@ -593,8 +593,6 @@ EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, v
 
 static int get_sdl_priv(x86emu_t* emu, const char *sym_str, void **w, void **f)
 {
-    sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-
     #define GO(sym, _w) \
         else if (strcmp(#sym, sym_str) == 0) \
         { \
@@ -634,10 +632,10 @@ int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *tabl
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     int i = 0;
-    uintptr_t start, end;
     uintptr_t tab[tablesize];
     int r = my->SDL_DYNAPI_entry(version, tab, tablesize);
-
+    (void)r;
+    
     #define SDL_DYNAPI_PROC(ret, sym, args, parms, ...) \
         if (i < tablesize) { \
             void *w = NULL; \
@@ -658,7 +656,6 @@ int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *tabl
 EXPORT void *my2_SDL_CreateWindow(x86emu_t* emu, const char *title, int x, int y, int w, int h, uint32_t flags)
 {
     sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
-    void *win = NULL;
 
     #ifdef GOA_CLONE
     // For GO Advance clones, ignores the requested resolution and just uses the entire screen
