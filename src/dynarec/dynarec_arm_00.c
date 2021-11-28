@@ -1855,7 +1855,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETED;
                     IFX(X_PEND) {
                         STR_IMM9(ed, xEmu, offsetof(x86emu_t, op1));
-                        MOVW(x3, u8);
+                        MOVW(x3, 1);
                         STR_IMM9(x3, xEmu, offsetof(x86emu_t, op2));
                         SET_DF(x3, d_rcr32);
                     } else IFX(X_ALL) {
