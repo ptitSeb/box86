@@ -383,7 +383,7 @@ void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int
     }
     #ifdef ARM_SOFTFP
     if(n==1) {
-        if(ret==-1) {
+        if(ret==-1 && 0) {
             SUB_IMM8(xSP, xSP, 8);
             VST1_64(0, xSP);    //store args on the stack
         } else {
@@ -399,7 +399,7 @@ void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int
     BLX(reg);
     #ifdef ARM_SOFTFP
     if(ret==-1) {
-        ADD_IMM8(xSP, xSP, n*8);
+        //ADD_IMM8(xSP, xSP, n*8);
         VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
     }
     #endif
