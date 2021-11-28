@@ -469,6 +469,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
 void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     int j32;
+    MAYUSE(j32);
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
@@ -525,6 +526,7 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     int j32;
+    MAYUSE(j32);
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));

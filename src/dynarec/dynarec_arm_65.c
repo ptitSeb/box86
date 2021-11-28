@@ -35,6 +35,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(j32);
     MAYUSE(wback);
     MAYUSE(wb2);
+    MAYUSE(wb);
     
     switch(opcode) {
 
