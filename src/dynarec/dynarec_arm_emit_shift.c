@@ -546,7 +546,7 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 
     IFX(X_CF) {
         RSB_IMM8(s4, s3, 32);
-        MOV_REG_LSR_IMM5(s4, s1, s4);
+        MOV_REG_LSR_REG(s4, s1, s4);
         BFI(xFlags, s4, F_CF, 1);
     }
     IFX(X_OF) {
