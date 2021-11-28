@@ -348,7 +348,7 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
     for(int i=0; i<mmapsize; ++i) {
         if(mmaplist[i].maxfree>=size+sizeof(blockmark_t) && !mmaplist[i].locked) {
             mmaplist[i].locked = 1;
-            int rsize = 0;
+            size_t rsize = 0;
             sub = getFirstBlock(mmaplist[i].block, size, &rsize, mmaplist[i].first);
             if(sub) {
                 uintptr_t ret = (uintptr_t)allocBlock(mmaplist[i].block, sub, size, &mmaplist[i].first);
