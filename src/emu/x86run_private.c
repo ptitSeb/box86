@@ -356,6 +356,7 @@ void UpdateFlags(x86emu_t *emu)
 		    CONDITIONAL_SET_FLAG(emu->op2 == 1 && XOR2(cc + ((emu->res >> 30) & 0x2)), F_OF);
             break;
         case d_rcr8:
+            cnt = emu->op2 % 9;
             if (cnt == 1) {
                 CONDITIONAL_SET_FLAG(emu->op1 & 0x1, F_CF);
     			cc = ACCESS_FLAG(F_CF) != 0;
@@ -365,6 +366,7 @@ void UpdateFlags(x86emu_t *emu)
             }
             break;
         case d_rcr16:
+            cnt = emu->op2 % 17;
             if (cnt == 1) {
                 CONDITIONAL_SET_FLAG(emu->op1 & 0x1, F_CF);
     			cc = ACCESS_FLAG(F_CF) != 0;
@@ -374,6 +376,7 @@ void UpdateFlags(x86emu_t *emu)
             }
             break;
         case d_rcr32:
+            cnt = emu->op2 % 33;
             if (cnt == 1) {
                 CONDITIONAL_SET_FLAG(emu->op1 & 0x1, F_CF);
     			cc = ACCESS_FLAG(F_CF) != 0;
