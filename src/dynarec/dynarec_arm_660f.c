@@ -1562,7 +1562,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGW(x1);
             GETEW(x2);
             BFI((xEAX+((nextop&0x38)>>3)), x2, 0, 16);  // GW <- EW
-            emit_add16(dyn, ninst, x1, x2, x14, x3, 1);
+            emit_add16(dyn, ninst, x2, x1, x14, x3, 1);
             EWBACK;
             break;
         case 0xC2:
