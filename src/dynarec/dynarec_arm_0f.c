@@ -577,23 +577,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             v2 = fpu_get_scratch_quad(dyn);
-            #if 0
-            VRSQRTEQ_F32(v2, q0);
-            //step?
-            VRECPEQ_F32(v0, v2);
-            //step?
-            #else
-            // more precise
-            if(v0==q0)
-                v1 = fpu_get_scratch_quad(dyn);
-            else 
-                v1 = v0;
-            VRSQRTEQ_F32(v2, q0);
-            VMULQ_F32(v1, v2, q0);
-            VRSQRTSQ_F32(v1, v1, v2);
-            VMULQ_F32(v1, v1, v2);
-            VMULQ_F32(v0, v1, q0);
-            #endif
+            v1 = fpu_get_scratch_quad(dyn);
+            // Newton-Raphson: Xn+1 = Xn*(3-d*Xn²)/2 converge to 1/sqrt(d) with X0 = result of VSQRTE
+            // and VSQRTS is (3-A*B)/2
+            // so VSQRTE(d) -> X    is initial step
+            // VSQRTS(d,X*X)*X -> X loop
+            // than d*X -> SQRT(d) (because X ~ 1/sqrt(d))
+            VRSQRTEQ_F32(v2, q0);       // v2 = X0 (=X), q0 = d
+            VMULQ_F32(v1, v2, v2);      // v1 = X0²
+            VRSQRTSQ_F32(v1, v1, q0);   // v1 = (3-d*X0²)/2
+            VMULQ_F32(v2, v2, v1);      // v2 = X0*(3-d*X0²)/2 = X1
+            VMULQ_F32(v1, v2, v2);      // v1 = x1²
+            VRSQRTSQ_F32(v1, v1, q0);   // v1 = (3-d*X1²)/2
+            VMULQ_F32(v2, v2, v1);      // v2 = X1*(3-d*X1²)/2 = X2
+            VMULQ_F32(v0, v2, q0);      // v0 = X2*d ~ SQRT(d)
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
@@ -601,21 +598,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            #if 0
             VRSQRTEQ_F32(v0, q0);
-            //step?
-            #else
-            v2 = fpu_get_scratch_quad(dyn);
-            // more precise
-            if(v0==q0)
-                v1 = fpu_get_scratch_quad(dyn);
-            else 
-                v1 = v0;
-            VRSQRTEQ_F32(v2, q0);
-            VMULQ_F32(v1, v2, q0);
-            VRSQRTSQ_F32(v1, v1, v2);
-            VMULQ_F32(v0, v1, v2);
-            #endif
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
@@ -623,14 +606,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-            if(q0 == v0)
-                v1 = fpu_get_scratch_quad(dyn);
-            else
-                v1 = v0;
-            v2 = fpu_get_scratch_quad(dyn);
-            VRECPEQ_F32(v2, q0);
-            VRECPSQ_F32(v1, v2, q0);
-            VMULQ_F32(v0, v2, v1);
+            VRECPEQ_F32(v0, q0);
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
@@ -719,16 +695,19 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
-            GETEX(v1, 0);
-            GETGX(v0, 1);
-            q0 = fpu_get_scratch_quad(dyn);
-            q1 = fpu_get_scratch_quad(dyn);
-            VRECPEQ_F32(q0, v1);
-            VRECPSQ_F32(q1, q0, v1);
-            VMULQ_F32(q0, q0, q1);
-            VRECPSQ_F32(q1, q0, v1);
-            VMULQ_F32(q0, q0, q1);
-            VMULQ_F32(v0, v0, q0);
+            GETEX(q0, 0);
+            GETGX(q1, 1);
+            // use Gx * 1/Ex, using RECP
+            // Newton-Raphson: Xn+1 = Xn*(2-d*Xn) converge to 1/d if X0 if result of VRECPE(d)
+            // VRECPE is 2-A*B
+            v1 = fpu_get_scratch_quad(dyn);
+            v2 = fpu_get_scratch_quad(dyn);
+            VRECPEQ_F32(v2, q0);        // v2 = X0, q0 = d
+            VRECPSQ_F32(v1, q0, v2);    // v1 = 2-d*X0
+            VMULQ_F32(v2, v2, v1);      // v2 = X0*(2-d*X0) = X1
+            VRECPSQ_F32(v1, q0, v2);    // v1 = 2-d*X1
+            VMULQ_F32(v2, v2, v1);      // v2 = X1*(2-d*X1) = X2 ~ 1/d
+            VMULQ_F32(q1, q1, v2);
             break;
         case 0x5F:
             INST_NAME("MAXPS Gx, Ex");
