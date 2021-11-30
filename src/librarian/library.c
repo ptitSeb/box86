@@ -209,7 +209,7 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
             lib->getlocal = NativeLib_GetLocal;
             lib->type = 0;
             // Call librarian to load all dependant elf
-            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, (const char**)lib->priv.w.neededlibs, lib->priv.w.needed, context, NULL)) {  // probably all native, not emulated, so that's fine
+            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, 0, (const char**)lib->priv.w.neededlibs, lib->priv.w.needed, context, NULL)) {  // probably all native, not emulated, so that's fine
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
@@ -366,7 +366,7 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x86emu_t* emu)
     }
     return 0;
 }
-int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu)
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x86emu_t* emu)
 {
     if(!lib)
         return 0;
@@ -376,11 +376,11 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, x86emu_t* emu)
         lib->priv.n.finalized = 1;
         elfheader_t *elf_header = my_context->elfs[lib->priv.n.elf_index];
         // finalize relocations
-        if(RelocateElf(my_context->maplib, local_maplib, elf_header)) {
+        if(RelocateElf(my_context->maplib, local_maplib, bindnow, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(my_context->maplib, local_maplib, elf_header);
+        RelocateElfPlt(my_context->maplib, local_maplib, bindnow, elf_header);
 #ifdef HAVE_TRACE
         if(trace_func) {
             if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
@@ -434,11 +434,11 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
         }
         // can close the file now
         fclose(f);
-        if(RelocateElf(lib->context->maplib, lib->maplib, elf_header)) {
+        if(RelocateElf(lib->context->maplib, lib->maplib, 0, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(lib->context->maplib, lib->maplib, elf_header);
+        RelocateElfPlt(lib->context->maplib, lib->maplib, 0, elf_header);
         // init (will use PltRelocator... because some other libs are not yet resolved)
         RunElfInit(elf_header, emu);
     }
@@ -448,6 +448,13 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
 void InactiveLibrary(library_t* lib)
 {
     lib->active = 0;
+    #ifdef DYNAREC
+    // free Dynablocks associated with this lib
+    if(lib->type==1) {
+        elfheader_t *elf_header = lib->context->elfs[lib->priv.n.elf_index];
+        cleanDBFromAddressRange((uintptr_t)GetBaseAddress(elf_header), GetBaseSize(elf_header), 1);
+    }
+    #endif
 }
 
 void Free1Library(library_t **lib, x86emu_t* emu)

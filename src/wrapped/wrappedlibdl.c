@@ -122,7 +122,8 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         // Then open the lib
         const char* libs[] = {rfilename};
         my_context->deferedInit = 1;
-        if(AddNeededLib(NULL, NULL, NULL, is_local, libs, 1, emu->context, emu)) {
+        int bindnow = (flag&0x2)?1:0;
+        if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, emu->context, emu)) {
             printf_log(LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = malloc(129);

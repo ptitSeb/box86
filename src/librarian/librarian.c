@@ -301,7 +301,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
     return 0;
 }
 
-int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, library_t* lib, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, library_t* lib, box86context_t* box86, x86emu_t* emu)
 {
     if(!maplib)
         maplib = (local)?lib->maplib:my_context->maplib;
@@ -313,22 +313,22 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
     } else {
         // it's an emulated lib, 
         // load dependancies and launch init sequence
-        if(LoadNeededLibs(box86->elfs[mainelf], maplib, &lib->needed, lib, local, box86, emu)) {
+        if(LoadNeededLibs(box86->elfs[mainelf], maplib, &lib->needed, lib, 0, bindnow, box86, emu)) {
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
             const char* libs[] = {"libGL.so.1"};
-            AddNeededLib(maplib, &lib->needed, lib, 0, libs, 1, box86, emu);
+            AddNeededLib(maplib, &lib->needed, lib, 0, 0, libs, 1, box86, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
             const char* libs[] = {"libSDL-1.2.so.0", "libdl.so.2"};
-            AddNeededLib(maplib, &lib->needed, lib, 0, libs, 2, box86, emu);
+            AddNeededLib(maplib, &lib->needed, lib, 0, 0, libs, 2, box86, emu);
         }
 
         // finalize the lib
-        if(FinalizeLibrary(lib, local?maplib:NULL, emu)) {
+        if(FinalizeLibrary(lib, local?maplib:NULL, bindnow, emu)) {
             printf_log(LOG_DEBUG, "Failure to finalizing lib => fail\n");
             return 1;
         }
@@ -340,7 +340,7 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
 }
 
 EXPORTDYN
-int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, const char** paths, int npath, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, const char** paths, int npath, box86context_t* box86, x86emu_t* emu)
 {
     if(!neededlibs) {
         neededlibs = alloca(sizeof(needed_libs_t));
@@ -357,7 +357,7 @@ int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, in
     int idx_end = neededlibs->size;
     // add dependant libs and init them
     for (int i=idx; i<idx_end; ++i)
-        if(AddNeededLib_init(maplib, neededlibs, deplib, local, neededlibs->libs[i], box86, emu)) {
+        if(AddNeededLib_init(maplib, neededlibs, deplib, local, bindnow, neededlibs->libs[i], box86, emu)) {
             printf_log(LOG_INFO, "Error initializing needed lib %s\n", neededlibs->libs[i]->name);
             if(!allow_missing_libs) return 1;
         }
@@ -480,25 +480,6 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
             free(buff);
         }
         return 1;
-    }
-    if(version==0) {    //check if a default version has been defined
-        const char* default_ver = ExistDefault(my_context->versym, name);
-        if(default_ver) {
-            if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, 2, default_ver)) {
-                if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
-                    uintptr_t start2, end2;
-                    char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
-                    strcpy(buff, name);
-                    strcat(buff, "_END");
-                    if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, 2, default_ver)) {
-                        if(end2>*end && start2==end2)
-                            *end = end2;
-                    }
-                    free(buff);
-                }
-                return 1;
-            }
-        }
     }
     // some special case symbol, defined inside box86 itself
     if(!strcmp(name, "gdk_display")) {
