@@ -93,6 +93,19 @@ EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
     return 0;   // faking success
 }
 
+EXPORT int my_pthread_rwlock_wrlock(pthread_rwlock_t *rwlock)
+{
+    return pthread_rwlock_wrlock(rwlock);
+}
+EXPORT int my_pthread_rwlock_rdlock(pthread_rwlock_t* rwlock)
+{
+    return pthread_rwlock_rdlock(rwlock);
+}
+EXPORT int my_pthread_rwlock_unlock(pthread_rwlock_t *rwlock)
+{
+    return pthread_rwlock_unlock(rwlock);
+}
+
 EXPORT int32_t my_pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
 {
     // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my_atfork...
@@ -114,6 +127,11 @@ EXPORT void my___pthread_initialize()
 {
     // nothing, the lib initialize itself now
 }
+
+#define PRE_INIT\
+    if(1)                                                           \
+        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
 
 #include "wrappedlib_init.h"
 

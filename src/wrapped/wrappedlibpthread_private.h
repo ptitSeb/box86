@@ -158,7 +158,7 @@ GO(pthread_rwlock_destroy, iFp)
 GO(__pthread_rwlock_init, iFpp)
 GO(pthread_rwlock_init, iFpp)
 GO(__pthread_rwlock_rdlock, iFp)
-GO2(pthread_rwlock_rdlock, iFp, __pthread_rwlock_rdlock)    // not always defined
+GOM(pthread_rwlock_rdlock, iFp) //%noE
 // pthread_rwlock_timedrdlock
 // pthread_rwlock_timedwrlock
 // __pthread_rwlock_tryrdlock
@@ -166,9 +166,9 @@ GO(pthread_rwlock_tryrdlock, iFp)
 // __pthread_rwlock_trywrlock
 GO(pthread_rwlock_trywrlock, iFp)
 GO(__pthread_rwlock_unlock, iFp)
-GO2(pthread_rwlock_unlock, iFp, __pthread_rwlock_unlock)   // not always defined
+GOM(pthread_rwlock_unlock, iFp) //%noE
 GO(__pthread_rwlock_wrlock, iFp)
-GO2(pthread_rwlock_wrlock, iFp, __pthread_rwlock_wrlock)    // not always defined
+GOM(pthread_rwlock_wrlock, iFp) //%noE
 GO(pthread_self, uFv)
 GOM(pthread_setaffinity_np, iFELup)
 GO(pthread_setcancelstate, iFip)

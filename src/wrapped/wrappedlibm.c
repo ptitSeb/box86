@@ -139,6 +139,11 @@ F1D(log)
 #undef FINITE
 
 
+#define PRE_INIT\
+    if(1)                                                           \
+        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
+
 #define CUSTOM_INIT     \
     my_lib = lib;
 

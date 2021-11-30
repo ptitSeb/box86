@@ -2872,7 +2872,7 @@ EXPORT char* my_program_invocation_name = NULL;
 EXPORT char* my_program_invocation_short_name = NULL;
 
 #define PRE_INIT\
-    if(box86_tcmalloc_minimal)                                      \
+    if(1)                                                           \
         lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 

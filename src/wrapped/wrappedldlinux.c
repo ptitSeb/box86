@@ -43,6 +43,10 @@ const char* ldlinuxName = "ld-linux.so.3";
 #define ALTNAME2 "ld-2.32.so"
 #endif
 
-// define all standard library functions
+#define PRE_INIT\
+    if(1)                                                           \
+        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
+
 #include "wrappedlib_init.h"
 
