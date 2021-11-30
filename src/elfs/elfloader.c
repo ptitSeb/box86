@@ -368,41 +368,45 @@ int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t*
 {
     if(!h)
         return 0;
-    Elf32_Rel * rel = (Elf32_Rel *)(h->rel + h->delta);
     if(!h->rel)
         return 0;
-    int cnt = h->relsz / h->relent;
-    for (int i=0; i<cnt; ++i) {
-        int t = ELF32_R_TYPE(rel[i].r_info);
-        Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel[i].r_info)];
-        const char* symname = SymName(h, sym);
-        if(t==R_386_COPY && symname && !strcmp(symname, name)) {
-            int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
-            if(version2!=-1) version2 &= 0x7fff;
-            if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
-            const char* vername2 = GetSymbolVersion(h, version2);
-            if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
-                *offs = sym->st_value + h->delta;
-                *p = (uint32_t*)(rel[i].r_offset + h->delta);
-                return 1;
+    if(h->relent) {
+        Elf32_Rel * rel = (Elf32_Rel *)(h->rel + h->delta);
+        int cnt = h->relsz / h->relent;
+        for (int i=0; i<cnt; ++i) {
+            int t = ELF32_R_TYPE(rel[i].r_info);
+            Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel[i].r_info)];
+            const char* symname = SymName(h, sym);
+            if(t==R_386_COPY && symname && !strcmp(symname, name)) {
+                int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
+                if(version2!=-1) version2 &= 0x7fff;
+                if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
+                const char* vername2 = GetSymbolVersion(h, version2);
+                if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
+                    *offs = sym->st_value + h->delta;
+                    *p = (uint32_t*)(rel[i].r_offset + h->delta);
+                    return 1;
+                }
             }
         }
     }
-    Elf32_Rela * rela = (Elf32_Rela *)(h->rela + h->delta);
-    cnt = h->relasz / h->relaent;
-    for (int i=0; i<cnt; ++i) {
-        int t = ELF32_R_TYPE(rela[i].r_info);
-        Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rela[i].r_info)];
-        const char* symname = SymName(h, sym);
-        if(t==R_386_COPY && symname && !strcmp(symname, name)) {
-            int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rela[i].r_info)]:-1;
-            if(version2!=-1) version2 &= 0x7fff;
-            if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
-            const char* vername2 = GetSymbolVersion(h, version2);
-            if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
-                *offs = sym->st_value + h->delta;
-                *p = (uint32_t*)(rela[i].r_offset + h->delta + rela[i].r_addend);
-                return 1;
+    if(h->relaent) {
+        int cnt = h->relasz / h->relaent;
+        for (int i=0; i<cnt; ++i) {
+            Elf32_Rela * rela = (Elf32_Rela *)(h->rela + h->delta);
+            int t = ELF32_R_TYPE(rela[i].r_info);
+            Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rela[i].r_info)];
+            const char* symname = SymName(h, sym);
+            if(t==R_386_COPY && symname && !strcmp(symname, name)) {
+                int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rela[i].r_info)]:-1;
+                if(version2!=-1) version2 &= 0x7fff;
+                if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
+                const char* vername2 = GetSymbolVersion(h, version2);
+                if(SameVersionnedSymbol(name, version, vername, symname, version2, vername2)) {
+                    *offs = sym->st_value + h->delta;
+                    *p = (uint32_t*)(rela[i].r_offset + h->delta + rela[i].r_addend);
+                    return 1;
+                }
             }
         }
     }
