@@ -66,7 +66,7 @@ Op is 20-27
 #define c__ (0b1110<<28)    // means all
 
 //  nop
-#define NOP     EMIT(0xe1a00000)
+#define NOP     EMIT(0xe320f000)
 
 // mov dst, src
 #define MOV_REG(dst, src) EMIT(0xe1a00000 | ((dst) << 12) | (src) )
@@ -667,6 +667,10 @@ Op is 20-27
 #define VSTR_64(Dd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | ((((Dd)>>4)&1)<<22) | (0<<20) | ((Rn)<<16) | (((Dd)&15)<<12) | (0b1011<<8) | ((abs(Imm8)>>2)&255))
 // Store to memory to single  VSTR Sd, [Rn, #+/-imm8], imm8&3 ignored!
 #define VSTR_32(Sd, Rn, Imm8)    EMIT(c__ | (0b1101<<24) | (((Imm8)<0)?0:1)<<23 | (((Sd)&1)<<22) | (0<<20) | ((Rn)<<16) | ((((Sd)>>1)&15)<<12) | (0b1010<<8) | ((abs(Imm8)>>2)&255))
+
+#define VSTM_64_gen(cond, P, U, D, W, Rn, Vd, imm8)	(cond | 0b110<<25 | (P)<<24 | (U)<<23 | (D)<<22 | (W)<<21 | (Rn)<<16 | (Vd)<<12 | 0b1011<<8 | (imm8))
+// Store a sery of Dx, post imcrementing Rn
+#define VSTM_64_W(Dd, Rn)	    EMIT(VSTM_64_gen(c__, 0, 1, ((Dd)>>4)&1, 1, Rn, (Dd)&15, 2))
 
 // Convert from single Sm to double Dd
 #define VCVT_F64_F32(Dd, Sm)    EMIT(c__ | (0b1110<<24) | (1<<23) |  ((((Dd)>>4)&1)<<22) | (0b11<<20) | (0b0111<<16) | (((Dd)&15)<<12) | (0b101<<9) | (0<<8) | (0b11<<6) | (((Sm)&1)<<5) | (0<<4) | (((Sm)>>1)&15))
