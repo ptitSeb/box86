@@ -37,6 +37,8 @@ typedef struct instruction_arm_s {
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, of barrier stuff)
     int                 size;       // size of the arm emited instruction
     int                 size2;      // size of the arm emited instrucion after pass2
+    int                 pred_sz;    // size of predecessor list
+    int                 *pred;      // predecessor array
     uintptr_t           mark, mark2, mark3;
     uintptr_t           markf;
     uintptr_t           markseg;
@@ -84,6 +86,7 @@ typedef struct dynarec_arm_s {
     uintptr_t*          sons_x86;   // the x86 address of potential dynablock sons
     void**              sons_arm;   // the arm address of potential dynablock sons
     int                 sons_size;  // number of potential dynablock sons
+    int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
 } dynarec_arm_t;
 

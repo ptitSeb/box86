@@ -27,14 +27,15 @@
 typedef struct instruction_x86_s {
     uintptr_t   addr;   //address of the instruction
     int32_t     size;   // size of the instruction
-    int         barrier; // next instruction is a jump point, so no optim allowed
     uintptr_t   jmp;    // offset to jump to, even if conditionnal (0 if not), no relative offset here
-    int         jmp_cond;   // 1 of conditionnal jump
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
+    uint8_t     jmp_cond;   // 1 of conditionnal jump
+    uint8_t     has_next;   // does this opcode can continue to the next?
+    uint8_t     barrier;    // next instruction is a jump point, so no optim allowed
+    uint8_t     state_flags;// One of SF_XXX state
     uint32_t    use_flags;  // 0 or combination of X_?F
     uint32_t    set_flags;  // 0 or combination of X_?F
     uint32_t    need_flags; // calculated
-    int         state_flags; // One of SF_XXX state
 } instruction_x86_t;
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);

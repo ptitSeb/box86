@@ -440,6 +440,20 @@ int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b)
     return NEON_CACHE_ST_D;
 }
 
+int isPred(dynarec_arm_t* dyn, int ninst, int pred) {
+    for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
+        if(dyn->insts[ninst].pred[i]==pred)
+            return pred;
+    return -1;
+}
+int getNominalPred(dynarec_arm_t* dyn, int ninst) {
+    if((ninst<=0) || !dyn->insts[ninst].pred_sz)
+        return -1;
+    if(isPred(dyn, ninst, ninst-1)!=-1)
+        return ninst-1;
+    return dyn->insts[ninst].pred[0];
+}
+
 #define F8      *(uint8_t*)(addr++)
 #define F32     *(uint32_t*)(addr+=4, addr-4)
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD

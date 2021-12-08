@@ -62,6 +62,11 @@ int neoncache_get_current_st(dynarec_arm_t* dyn, int ninst, int a);
 void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a, int st);
 // Combine and propagate if needed (pass 1 only)
 int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
+
+// predecessor access
+int isPred(dynarec_arm_t* dyn, int ninst, int pred);
+int getNominalPred(dynarec_arm_t* dyn, int ninst);
+
 // Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity);
 // Do the GETED, but don't emit anything...

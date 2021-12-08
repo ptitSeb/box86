@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <string.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -267,6 +268,43 @@ instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, 
     return insts;
 }
 
+static void fillPredecessors(dynarec_arm_t* dyn)
+{
+    int pred_sz = 0;
+    // compute total size of predecessor to alocate the array
+    // first compute the jumps
+    for(int i=0; i<dyn->size; ++i) {
+        if(dyn->insts[i].x86.jmp && dyn->insts[i].x86.jmp_insts!=-1) {
+            ++pred_sz;
+            ++dyn->insts[dyn->insts[i].x86.jmp_insts].pred_sz;
+        }
+    }
+    // second the "has_next"
+    for(int i=0; i<dyn->size; ++i) {
+        if(i!=dyn->size-1 && dyn->insts[i].x86.has_next && (!i || dyn->insts[i].pred_sz)) {
+            ++pred_sz;
+            ++dyn->insts[i+1].pred_sz;
+        }
+    }
+    dyn->predecessor = (int*)malloc(pred_sz*sizeof(int));
+    // fill pred pointer
+    int* p = dyn->predecessor;
+    for(int i=0; i<dyn->size; ++i) {
+        dyn->insts[i].pred = p;
+        p += dyn->insts[i].pred_sz;
+        dyn->insts[i].pred_sz=0;  // reset size, it's reused to actually fill pred[]
+    }
+    assert(p<dyn->predecessor+pred_sz);
+    // fill pred
+    for(int i=0; i<dyn->size; ++i) {
+        if(i!=dyn->size-1 && dyn->insts[i].x86.has_next && (!i || dyn->insts[i].pred_sz))
+            dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
+        if(dyn->insts[i].x86.jmp && dyn->insts[i].x86.jmp_insts!=-1)
+            dyn->insts[dyn->insts[i].x86.jmp_insts].pred[dyn->insts[dyn->insts[i].x86.jmp_insts].pred_sz++] = i;
+    }
+
+}
+
 uintptr_t arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
@@ -282,6 +320,7 @@ void CancelBlock()
         return;
     free(helper->next);
     free(helper->insts);
+    free(helper->predecessor);
     free(helper->sons_x86);
     free(helper->sons_arm);
     if(helper->dynablock && helper->dynablock->block)
@@ -357,6 +396,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                 helper.insts[i].x86.jmp_insts = k;
             }
         }
+    // fill predecessors with the jump address
+    fillPredecessors(&helper);
     // check for the optionnal barriers now
     for(int i=helper.size-1; i>=0; --i) {
         if(helper.insts[i].barrier_maybe)
@@ -517,6 +558,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         } else
             free(sons);
     }
+    free(helper.predecessor);
+    helper.predecessor = NULL;
     free(helper.sons_x86);
     helper.sons_x86 = NULL;
     free(helper.sons_arm);

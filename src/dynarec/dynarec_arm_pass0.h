@@ -21,7 +21,8 @@
         dyn->insts[ninst].x86.addr = ip;        \
         if(ninst) {dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr;}
 
-#define INST_EPILOG         
+#define INST_EPILOG                             \
+        dyn->insts[ninst].x86.has_next = ok;
 #define INST_NAME(name) 
 #define DEFAULT                         \
         --dyn->size;                    \
