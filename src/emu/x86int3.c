@@ -141,6 +141,9 @@ void x86Int3(x86emu_t* emu)
                 } else  if(strstr(s, "pread")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %u, %d)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12), *(int32_t*)(R_ESP+16));
                     perr = 1;
+                } else  if(!strcmp(s, "read") || !strcmp(s, "my_read")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %u)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12));
+                    perr = 1;
                 } else  if(strstr(s, "ioctl")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, 0x%x, %p)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(int32_t*)(R_ESP+8), *(void**)(R_ESP+12));
                     perr = 1;
