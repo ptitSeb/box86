@@ -1,6 +1,11 @@
 #ifndef __DYNAREC_PRIVATE_H_
 #define __DYNAREC_PRIVATE_H_
 
+#define BARRIER_NONE    0
+#define BARRIER_FLAGS   1
+#define BARRIER_FLOAT   2
+#define BARRIER_FULL    3
+
 // all flags for the use_flags field
 #define X_CF    (1<<0)
 #define X_PF    (1<<1)

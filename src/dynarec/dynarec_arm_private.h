@@ -6,11 +6,7 @@
 typedef struct x86emu_s x86emu_t;
 typedef struct dynablock_s dynablock_t;
 
-#define BARRIER_NONE    0
-#define BARRIER_FULL    1
-#define BARRIER_NOFLAGS 2
-#define BARRIER_MAYBE   3
-#define BARRIER_FPU     4
+#define BARRIER_MAYBE   8
 
 #define NEON_CACHE_NONE 0
 #define NEON_CACHE_ST_D 1
@@ -49,6 +45,7 @@ typedef struct instruction_arm_s {
     uintptr_t           natcall;
     int                 retn;
     neoncache_t         n;
+    int                 barrier_maybe;
 } instruction_arm_t;
 
 typedef union sse_cache_s {

@@ -81,8 +81,9 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         INST_EPILOG;
 
         if(dyn->insts[ninst+1].x86.barrier) {
-            fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            if(dyn->insts[ninst+1].x86.barrier!=BARRIER_NOFLAGS) {
+            if(dyn->insts[ninst+1].x86.barrier&BARRIER_FLOAT)
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+            if(dyn->insts[ninst+1].x86.barrier&BARRIER_FLAGS) {
                 dyn->state_flags = 0;
                 dyn->dfnone = 0;
             }
@@ -116,7 +117,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             #if STEP == 3
             dynarec_log(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
             #endif
-            BARRIER(BARRIER_NOFLAGS);
+            BARRIER(BARRIER_FLOAT);
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             jump_to_next(dyn, addr, 0, ninst);
             ok=0; need_epilog=0;

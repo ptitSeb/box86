@@ -1565,7 +1565,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             READFLAGS(X_PEND);  // lets play safe here too
-            BARRIER(BARRIER_NOFLAGS);
+            BARRIER(BARRIER_FLOAT);
             i32 = F16;
             retn_to_epilog(dyn, ninst, i32);
             *need_epilog = 0;
@@ -1576,7 +1576,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             // ^^^ that hack break PlantsVsZombies and GOG Setup under wine....
             READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
-            BARRIER(BARRIER_NOFLAGS);
+            BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
             *ok = 0;
@@ -1624,7 +1624,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
-                BARRIER(BARRIER_NOFLAGS);
+                BARRIER(BARRIER_FLOAT);
                 INST_NAME("Special Box86 instruction");
                 if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
                 {
@@ -1684,7 +1684,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(PK(0)==0x80) {
                 INST_NAME("Syscall");
                 u8 = F8;
-                BARRIER(BARRIER_NOFLAGS);
+                BARRIER(BARRIER_FLOAT);
                 MOV32(xEIP, ip+2);
                 STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
                 CALL_S(x86Syscall, -1, 0);
@@ -1706,7 +1706,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
-            BARRIER(BARRIER_NOFLAGS);
+            BARRIER(BARRIER_FLOAT);
             iret_to_epilog(dyn, ninst);
             *need_epilog = 0;
             *ok = 0;
@@ -2336,7 +2336,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 0xC3:
                         INST_NAME("(REPZ) RET");
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                        BARRIER(BARRIER_NOFLAGS);
+                        BARRIER(BARRIER_FLOAT);
                         ret_to_epilog(dyn, ninst);
                         *need_epilog = 0;
                         *ok = 0;
