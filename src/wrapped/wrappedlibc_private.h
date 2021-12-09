@@ -612,7 +612,7 @@ GOW(getutline_r, iFppp)
 // getutxline
 // getw
 GO2(getwc, iFp, fgetwc)
-// getwchar
+GO(getwchar, iFv)
 GO(getwchar_unlocked, iFv)
 GOW(getwc_unlocked, iFp)
 GO(getwd, pFp)
@@ -1464,7 +1464,7 @@ GO(__sched_cpualloc, pFu)   //TODO: check, return cpu_set_t* : should this be al
 GO(__sched_cpucount, iFup)
 GO(__sched_cpufree, vFp)
 GO(sched_getaffinity, iFiup)
-// sched_getcpu
+GO(sched_getcpu, iFv)
 GO(__sched_getparam, iFip)
 GOW(sched_getparam, iFip)
 GO(__sched_get_priority_max, iFi)
