@@ -1225,7 +1225,7 @@ int main(int argc, const char **argv, const char **env) {
     // pre-load lib if needed
     if(ld_preload.size) {
         if(AddNeededLib(NULL, NULL, NULL, 0, 0, (const char**)ld_preload.paths, ld_preload.size, my_context, emu)) {
-            printf_log(LOG_INFO, "Warning, cannot a pre-load lib\n");
+            printf_log(LOG_INFO, "Warning, cannot pre-load a lib\n");
         }            
     }
     FreeCollection(&ld_preload);
