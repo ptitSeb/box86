@@ -83,6 +83,19 @@ EXPORT int myw_printw(x86emu_t* emu, void* fmt, void* b)
     #endif
 }
 
+EXPORT int myw_wprintw(x86emu_t* emu,void* win, void* fmt, void* b)
+{
+    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
+
+    #ifndef NOALIGN
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    return my->vw_printw(win, fmt, VARARGS);
+    #else
+    return my->vw_printw(win, fmt, b);
+    #endif
+}
+
 EXPORT int myw_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
 {
     libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;

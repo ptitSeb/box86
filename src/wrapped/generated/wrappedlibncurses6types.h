@@ -22,6 +22,7 @@ typedef int32_t (*iFpiipV_t)(void*, int32_t, int32_t, void*, ...);
 	GO(printw, iFpV_t) \
 	GO(vw_printw, iFppV_t) \
 	GO(vwprintw, iFppV_t) \
+	GO(wprintw, iFppV_t) \
 	GO(mvprintw, iFiipV_t) \
 	GO(mvwprintw, iFpiipV_t)
 
