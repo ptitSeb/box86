@@ -20,9 +20,11 @@
 #define SF_UNKNOWN  0
 #define SF_SET      1
 #define SF_PENDING  2
-#define SF_SET_PENDING 3
-#define SF_MAYSET   4
-#define SF_SUBSET   5
+#define SF_SET_PENDING (SF_SET|SF_PENDING)
+#define SF_SUB      4
+#define SF_SUBSET   (SF_SUB|SF_SET)
+#define SF_SUBSET_PENDING   (SF_SUBSET|SF_PENDING)
+#define SF_MAYSET   8
 
 typedef struct instruction_x86_s {
     uintptr_t   addr;   //address of the instruction

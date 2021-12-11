@@ -424,14 +424,14 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEDO2(x14);
                     emit_rol32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEDO2(x14);
                     emit_ror32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;

@@ -243,7 +243,7 @@
     Bcond(cond, j32)
 // Branch to next instruction if cond (use j32)
 #define B_NEXT(cond)     \
-    j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size+8)):0; \
+    j32 = dyn->insts[ninst].epilog-(dyn->arm_size+8); \
     Bcond(cond, j32)
 // Branch to MARKSEG if cond (use j32)
 #define B_MARKSEG(cond)    \
@@ -295,8 +295,9 @@
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(((A)!=X_PEND) && dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING) { \
-        if(dyn->f.pending!=SF_PENDING) {              \
+    if((dyn->f.pending!=SF_SET)                         \
+    && (dyn->f.pending!=SF_SET_PENDING)) {              \
+        if(dyn->f.pending!=SF_PENDING) {                \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM5(x3, x3, 0);               \
             j32 = (GETMARKF)-(dyn->arm_size+8);         \
@@ -304,16 +305,28 @@
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
-        dyn->f.pending = SF_SET;                      \
+        dyn->f.pending = SF_SET;                        \
         SET_DFOK();                                     \
     }
 #endif
+// SF_MAYSET doesn't change the flags status cache
+// it also doesn't consume any needed flags
 #ifndef SETFLAGS
-#define SETFLAGS(A, B)  \
-    if(dyn->f.pending!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~((A)/*|X_PEND*/)))) \
-        READFLAGS(dyn->insts[ninst].x86.need_flags&(~(A)|X_PEND));  \
-    dyn->f.pending = (B==SF_SUBSET)?SF_SET:                       \
-        ((B==SF_SET_PENDING && !(dyn->insts[ninst].x86.need_flags&X_PEND)?SF_SET:B))
+#define SETFLAGS(A, B)                                                                          \
+    if(dyn->f.pending!=SF_SET                                                                   \
+    && (B==SF_SUBSET || B==SF_SUBSET_PENDING)                                                   \
+    && (dyn->insts[ninst].x86.need_flags&(~((A)|((B==SF_SUBSET_PENDING)?X_PEND:0)))))           \
+        READFLAGS(dyn->insts[ninst].x86.need_flags&(~(A)|X_PEND));                              \
+    if(dyn->insts[ninst].x86.need_flags) switch(B) {                                            \
+        case SF_SUBSET:                                                                         \
+        case SF_SET: dyn->f.pending = SF_SET; break;                                            \
+        case SF_PENDING: dyn->f.pending = SF_PENDING; break;                                    \
+        case SF_SUBSET_PENDING:                                                                 \
+        case SF_SET_PENDING:                                                                    \
+            dyn->f.pending = (dyn->insts[ninst].x86.need_flags&X_PEND)?SF_SET_PENDING:SF_SET;   \
+            break;                                                                              \
+        case SF_MAYSET: break;                                                                  \
+    } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
 #define JUMP(A, C) 

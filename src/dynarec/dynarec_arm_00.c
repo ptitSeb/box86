@@ -548,7 +548,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x46:
         case 0x47:
             INST_NAME("INC reg");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
             gd = xEAX+(opcode&0x07);
             emit_inc32(dyn, ninst, gd, x3, x14);
             break;
@@ -561,7 +561,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC reg");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
             gd = xEAX+(opcode&0x07);
             emit_dec32(dyn, ninst, gd, x3, x14);
             break;
@@ -1377,7 +1377,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1);
                     u8 = F8;
                     emit_rol8c(dyn, ninst, x1, u8&0x1f, x2, x14);
@@ -1385,7 +1385,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Eb, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1);
                     u8 = F8;
                     emit_ror8c(dyn, ninst, x1, u8&0x1f, x2, x14);
@@ -1467,7 +1467,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED;
                     u8 = (F8)&0x1f;
                     emit_rol32c(dyn, ninst, ed, u8, x3, x14);
@@ -1475,7 +1475,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED;
                     u8 = (F8)&0x1f;
                     emit_ror32c(dyn, ninst, ed, u8, x3, x14);
@@ -1498,7 +1498,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETEDW(x14, x1);
                     u8 = F8&0x1f;
                     if(u8==1) {
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                         IFX(X_PEND) {
                             STR_IMM9(ed, xEmu, offsetof(x86emu_t, op1));
                             MOVW(x3, u8);
@@ -1718,7 +1718,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0:
                     if(opcode==0xD0) {
                         INST_NAME("ROL Eb, 1");
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                         GETEB(x1);
                         emit_rol8c(dyn, ninst, ed, 1, x2, x14);
                         EBBACK;
@@ -1736,7 +1736,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(opcode==0xD0) {
                         INST_NAME("ROR Eb, 1");
                         MOVW(x2, 1);
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                         GETEB(x1);
                         emit_ror8c(dyn, ninst, ed, 1, x2, x14);
                         EBBACK;
@@ -1826,14 +1826,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED;
                     emit_rol32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED;
                     emit_ror32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
@@ -1851,7 +1851,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ed, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETED;
                     IFX(X_PEND) {
                         STR_IMM9(ed, xEmu, offsetof(x86emu_t, op1));
@@ -2733,14 +2733,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEB(x1);
                     emit_inc8(dyn, ninst, x1, x2, x14);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETEB(x1);
                     emit_dec8(dyn, ninst, x1, x2, x14);
                     EBBACK;
@@ -2755,14 +2755,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETED;
                     emit_inc32(dyn, ninst, ed, x3, x14);
                     WBACK;
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     GETED;
                     emit_dec32(dyn, ninst, ed, x3, x14);
                     WBACK;

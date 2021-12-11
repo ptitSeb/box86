@@ -239,7 +239,7 @@ int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n)
     return (i==n)?1:0;
 }
 
-instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, int arm_size)
+static instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86_size, int arm_size)
 {
     // x86 instruction is <16 bytes
     int toadd;

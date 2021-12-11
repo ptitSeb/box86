@@ -994,7 +994,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         emit_inc32(dyn, ninst, ed, x3, x14);
@@ -1031,7 +1031,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET);
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                         emit_dec32(dyn, ninst, ed, x3, x14);

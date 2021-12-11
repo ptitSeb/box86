@@ -501,6 +501,7 @@ static void x87_reset(dynarec_arm_t* dyn)
     for (int i=0; i<8; ++i)
         dyn->n.x87cache[i] = -1;
     dyn->n.x87stack = 0;
+    dyn->n.stack = 0;
     dyn->n.stack_next = 0;
     dyn->n.stack_pop = 0;
     dyn->n.stack_push = 0;
@@ -807,7 +808,6 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
 #ifdef HAVE_TRACE
 static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-#if STEP > 0
     x87_stackcount(dyn, ninst, s1);
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
@@ -830,7 +830,6 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
                 VSTR_64(dyn->n.x87reg[i], s3, offsetof(x86emu_t, x87));    // save the value
             }
         }
-#endif
 }
 #endif
 
