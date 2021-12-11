@@ -84,10 +84,11 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // swap the cache value, not the double value itself :p
             i1 = x87_get_cache(dyn, ninst, 1, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             i2 = x87_get_cache(dyn, ninst, 1, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            i3 = dyn->x87cache[i1];
-            dyn->x87cache[i1] = dyn->x87cache[i2];
-            dyn->x87cache[i2] = i3;
+            i3 = dyn->n.x87cache[i1];
+            dyn->n.x87cache[i1] = dyn->n.x87cache[i2];
+            dyn->n.x87cache[i2] = i3;
             // swap those too
+            dyn->n.swapped = 1;
             i1 = x87_get_neoncache(dyn, ninst, x1, x2, nextop&7);
             i2 = x87_get_neoncache(dyn, ninst, x1, x2, 0);
             i3 = dyn->n.neoncache[i1].v;
@@ -137,7 +138,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 // not in cache, so check Empty status and load it
                 // x14 will be the actual top
                 LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
-                i2 = -dyn->x87stack;
+                i2 = -dyn->n.x87stack;
                 if(i2) {
                     if(i2<0) {
                         SUB_IMM8(x14, x14, -i2);
@@ -155,7 +156,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 B_MARK3(cEQ);
             } else {
                 // simply move from cache reg to r2/r3
-                v1 = dyn->x87reg[i1];
+                v1 = dyn->n.x87reg[i1];
                 VMOVfrV_D(x2, x3, v1);
             }
             // get exponant in r1

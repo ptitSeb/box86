@@ -36,6 +36,7 @@ typedef struct instruction_x86_s {
     uint32_t    use_flags;  // 0 or combination of X_?F
     uint32_t    set_flags;  // 0 or combination of X_?F
     uint32_t    need_flags; // calculated
+    uint32_t    old_use;    // calculated
 } instruction_x86_t;
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);

@@ -288,15 +288,15 @@
     }                                                                       \
 
 
-#define SET_DFNONE(S)    if(!dyn->dfnone) {MOVW(S, d_none); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->dfnone=1;}
-#define SET_DF(S, N)     if(N) {MOVW(S, N); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->dfnone=0;} else SET_DFNONE(S)
-#define SET_NODF()          dyn->dfnone = 0
-#define SET_DFOK()          dyn->dfnone = 1
+#define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOVW(S, d_none); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->f.dfnone=1;}
+#define SET_DF(S, N)     if(N) {MOVW(S, N); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_NODF()          dyn->f.dfnone = 0
+#define SET_DFOK()          dyn->f.dfnone = 1
 
 #ifndef READFLAGS
 #define READFLAGS(A) \
-    if(((A)!=X_PEND) && dyn->state_flags!=SF_SET && dyn->state_flags!=SF_SET_PENDING) { \
-        if(dyn->state_flags!=SF_PENDING) {              \
+    if(((A)!=X_PEND) && dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING) { \
+        if(dyn->f.pending!=SF_PENDING) {              \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM5(x3, x3, 0);               \
             j32 = (GETMARKF)-(dyn->arm_size+8);         \
@@ -304,15 +304,15 @@
         }                                               \
         CALL_(UpdateFlags, -1, 0);                      \
         MARKF;                                          \
-        dyn->state_flags = SF_SET;                      \
+        dyn->f.pending = SF_SET;                      \
         SET_DFOK();                                     \
     }
 #endif
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)  \
-    if(dyn->state_flags!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~((A)/*|X_PEND*/)))) \
+    if(dyn->f.pending!=SF_SET && B==SF_SUBSET && (dyn->insts[ninst].x86.need_flags&(~((A)/*|X_PEND*/)))) \
         READFLAGS(dyn->insts[ninst].x86.need_flags&(~(A)|X_PEND));  \
-    dyn->state_flags = (B==SF_SUBSET)?SF_SET:                       \
+    dyn->f.pending = (B==SF_SUBSET)?SF_SET:                       \
         ((B==SF_SET_PENDING && !(dyn->insts[ninst].x86.need_flags&X_PEND)?SF_SET:B))
 #endif
 #ifndef JUMP
@@ -664,7 +664,7 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 
 // common coproc helpers
 // reset the cache
-void fpu_reset(dynarec_arm_t* dyn, int ninst);
+void fpu_reset(dynarec_arm_t* dyn);
 // purge the FPU cache (needs 3 scratch registers) next=1 if for a conditionnal branch jumping out of block (no tracking updated)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);

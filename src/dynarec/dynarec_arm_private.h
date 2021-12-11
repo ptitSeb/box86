@@ -22,14 +22,41 @@ typedef union neon_cache_s {
         unsigned int n:4;   // reg number
     };
 } neon_cache_t;
+typedef union sse_cache_s {
+    int     v;
+    struct {
+        uint8_t reg;
+        uint8_t write;
+    };
+} sse_cache_t;
 typedef struct neoncache_s {
-    neon_cache_t neoncache[24];
-    int8_t       stack;
-    int8_t       stack_next;
-    int8_t       stack_pop;
-    uint8_t      combined1;
-    uint8_t      combined2;
+    // Neon cache
+    neon_cache_t        neoncache[24];
+    int8_t              stack;
+    int8_t              stack_next;
+    int8_t              stack_pop;
+    int8_t              stack_push;
+    uint8_t             combined1;
+    uint8_t             combined2;
+    int8_t              empty;
+    int8_t              swapped;    // the combined reg were swapped
+    // fpu cache
+    int8_t              x87cache[8];// cache status for the 8 x87 register behind the fpu stack
+    int8_t              x87reg[8];  // reg used for x87cache entry
+    int8_t              mmxcache[8];// cache status for the 8 MMX registers
+    sse_cache_t         ssecache[8];// cache status for the 8 SSE(2) registers
+    int8_t              fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
+    int8_t              x87stack;   // cache stack counter
+    int8_t              mmxcount;   // number of mmx register used (not both mmx and x87 at the same time)
+    int8_t              fpu_scratch;// scratch counter
+    int8_t              fpu_extra_qscratch; // some opcode need an extra quad scratch register
+    int8_t              fpu_reg;    // x87/sse/mmx reg counter
 } neoncache_t;
+
+typedef struct flagcache_s {
+    int                 pending;    // is there a pending flags here, or to check?
+    int                 dfnone;     // if defered flags is already set to df_none
+} flagcache_t;
 
 typedef struct instruction_arm_s {
     instruction_x86_t   x86;
@@ -46,17 +73,12 @@ typedef struct instruction_arm_s {
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
     int                 retn;
-    neoncache_t         n;
     int                 barrier_maybe;
+    flagcache_t         f_exit;     // flags status at end of intruction
+    neoncache_t         n;          // neoncache at end of intruction (but before poping)
+    flagcache_t         f_entry;    // flags status before the instruction begin
 } instruction_arm_t;
 
-typedef union sse_cache_s {
-    int     v;
-    struct {
-        uint8_t reg;
-        uint8_t write;
-    };
-} sse_cache_t;
 
 typedef struct dynarec_arm_s {
     instruction_arm_t   *insts;
@@ -67,19 +89,8 @@ typedef struct dynarec_arm_s {
     void*               block;      // memory pointer where next instruction is emited
     uintptr_t           arm_start;  // start of the arm code
     int                 arm_size;   // size of emitted arm code
-    int                 state_flags;// actual state for on-demand flags
-    int                 x87cache[8];// cache status for the 8 x87 register behind the fpu stack
-    int                 x87reg[8];  // reg used for x87cache entry
-    int                 mmxcache[8];// cache status for the 8 MMX registers
-    sse_cache_t         ssecache[8];// cache status for the 8 SSE(2) registers
-    int                 fpuused[24];// all 8..31 double reg from fpu, used by x87, sse and mmx
+    flagcache_t         f;
     neoncache_t         n;          // cache for the 8..31 double reg from fpu, plus x87 stack delta
-    int                 x87stack;   // cache stack counter
-    int                 mmxcount;   // number of mmx register used (not both mmx and x87 at the same time)
-    int                 fpu_scratch;// scratch counter
-    int                 fpu_extra_qscratch; // some opcode need an extra quad scratch register
-    int                 fpu_reg;    // x87/sse/mmx reg counter
-    int                 dfnone;     // if defered flags is already set to df_none
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;

@@ -211,36 +211,36 @@ void arm_fprem1(x86emu_t* emu)
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)
 {
-    return dyn->fpu_scratch++;  // return an Sx
+    return dyn->n.fpu_scratch++;  // return an Sx
 }
 // Get a FPU double scratch reg
 int fpu_get_scratch_double(dynarec_arm_t* dyn)
 {
-    int i = (dyn->fpu_scratch+1)&(~1);
-    dyn->fpu_scratch = i+2;
+    int i = (dyn->n.fpu_scratch+1)&(~1);
+    dyn->n.fpu_scratch = i+2;
     return i/2; // return a Dx
 }
 // Get a FPU quad scratch reg
 int fpu_get_scratch_quad(dynarec_arm_t* dyn)
 {
-    if(dyn->fpu_scratch>4) {
-        if(dyn->fpu_extra_qscratch) {
+    if(dyn->n.fpu_scratch>4) {
+        if(dyn->n.fpu_extra_qscratch) {
             dynarec_log(LOG_NONE, "Warning, Extra QScratch slot taken and need another one!\n");
         } else
-            dyn->fpu_extra_qscratch = fpu_get_reg_quad(dyn, NEON_CACHE_SCR, 0);
-        return dyn->fpu_extra_qscratch;
+            dyn->n.fpu_extra_qscratch = fpu_get_reg_quad(dyn, NEON_CACHE_SCR, 0);
+        return dyn->n.fpu_extra_qscratch;
     }
-    int i = (dyn->fpu_scratch+3)&(~3);
-    dyn->fpu_scratch = i+4;
+    int i = (dyn->n.fpu_scratch+3)&(~3);
+    dyn->n.fpu_scratch = i+4;
     return i/2; // Return a Dx, not a Qx
 }
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
-    dyn->fpu_scratch = 0;
-    if(dyn->fpu_extra_qscratch) {
-        fpu_free_reg_quad(dyn, dyn->fpu_extra_qscratch);
-        dyn->fpu_extra_qscratch = 0;
+    dyn->n.fpu_scratch = 0;
+    if(dyn->n.fpu_extra_qscratch) {
+        fpu_free_reg_quad(dyn, dyn->n.fpu_extra_qscratch);
+        dyn->n.fpu_extra_qscratch = 0;
     }
 }
 // Get a FPU double reg
@@ -248,8 +248,8 @@ int fpu_get_reg_double(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     // TODO: check upper limit?
     int i=0;
-    while (dyn->fpuused[i]) ++i;
-    dyn->fpuused[i] = 1;
+    while (dyn->n.fpuused[i]) ++i;
+    dyn->n.fpuused[i] = 1;
     dyn->n.neoncache[i].n = n;
     dyn->n.neoncache[i].t = t;
     return i+FPUFIRST; // return a Dx
@@ -259,7 +259,7 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
 {
     // TODO: check upper limit?
     int i=reg-FPUFIRST;
-    dyn->fpuused[i] = 0;
+    dyn->n.fpuused[i] = 0;
     if(dyn->n.neoncache[i].t!=NEON_CACHE_ST_F && dyn->n.neoncache[i].t!=NEON_CACHE_ST_D)
         dyn->n.neoncache[i].v = 0;
 }
@@ -267,8 +267,8 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
 int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     int i=0;
-    while (dyn->fpuused[i] || dyn->fpuused[i+1]) i+=2;
-    dyn->fpuused[i] = dyn->fpuused[i+1] = 1;
+    while (dyn->n.fpuused[i] || dyn->n.fpuused[i+1]) i+=2;
+    dyn->n.fpuused[i] = dyn->n.fpuused[i+1] = 1;
     dyn->n.neoncache[i].t = t;
     dyn->n.neoncache[i].n = n;
     dyn->n.neoncache[i+1].t = t;
@@ -279,16 +279,16 @@ int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
 {
     int i=reg-FPUFIRST;
-    dyn->fpuused[i] = dyn->fpuused[i+1] = 0;
+    dyn->n.fpuused[i] = dyn->n.fpuused[i+1] = 0;
     dyn->n.neoncache[i].v = 0;
     dyn->n.neoncache[i+1].v = 0;
 }
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn)
 {
-    dyn->fpu_reg = 0;
+    dyn->n.fpu_reg = 0;
     for (int i=0; i<24; ++i) {
-        dyn->fpuused[i]=0;
+        dyn->n.fpuused[i]=0;
         dyn->n.neoncache[i].v = 0;
     }
 }
@@ -547,3 +547,17 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 #undef PK
 }
 
+const char* getCacheName(int t, int n)
+{
+    static char buff[20];
+    switch(t) {
+        case NEON_CACHE_ST_D: sprintf(buff, "ST%d", n); break;
+        case NEON_CACHE_ST_F: sprintf(buff, "st%d", n); break;
+        case NEON_CACHE_MM: sprintf(buff, "MM%d", n); break;
+        case NEON_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
+        case NEON_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
+        case NEON_CACHE_SCR: sprintf(buff, "Scratch"); break;
+        case NEON_CACHE_NONE: buff[0]='\0'; break;
+    }
+    return buff;
+}

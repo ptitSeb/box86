@@ -82,10 +82,11 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // copy the cache value for st0 to stx
             i1 = x87_get_cache(dyn, ninst, 0, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             i2 = x87_get_cache(dyn, ninst, 1, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            i3 = dyn->x87cache[i1];
-            dyn->x87cache[i1] = dyn->x87cache[i2];
-            dyn->x87cache[i2] = i3;
+            i3 = dyn->n.x87cache[i1];
+            dyn->n.x87cache[i1] = dyn->n.x87cache[i2];
+            dyn->n.x87cache[i2] = i3;
             // swap those too
+            dyn->n.swapped = 1;
             i1 = x87_get_neoncache(dyn, ninst, x1, x2, nextop&7);
             i2 = x87_get_neoncache(dyn, ninst, x1, x2, 0);
             i3 = dyn->n.neoncache[i1].v;
@@ -231,12 +232,12 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0, 0);
                     LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
                     LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-                    if(dyn->x87stack) {
+                    if(dyn->n.x87stack) {
                         // update top
-                        if(dyn->x87stack>0) {
-                            SUB_IMM8(x2, x2, dyn->x87stack);
+                        if(dyn->n.x87stack>0) {
+                            SUB_IMM8(x2, x2, dyn->n.x87stack);
                         } else {
-                            ADD_IMM8(x2, x2, -dyn->x87stack);
+                            ADD_IMM8(x2, x2, -dyn->n.x87stack);
                         }
                         AND_IMM8(x2, x2, 7);
                     }

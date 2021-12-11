@@ -60,12 +60,12 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FNSTSW AX");
             LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            if(dyn->x87stack) {
+            if(dyn->n.x87stack) {
                 // update top
-                if(dyn->x87stack>0) {
-                    SUB_IMM8(x2, x2, dyn->x87stack);
+                if(dyn->n.x87stack>0) {
+                    SUB_IMM8(x2, x2, dyn->n.x87stack);
                 } else {
-                    ADD_IMM8(x2, x2, -dyn->x87stack);
+                    ADD_IMM8(x2, x2, -dyn->n.x87stack);
                 }
                 AND_IMM8(x2, x2, 7);
             }
@@ -286,7 +286,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         // set STll(0).ll=i64 and ref=ST(0).q later (emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top])
                         //  get TOP
                         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, top));
-                        int a = 0 - dyn->x87stack;
+                        int a = 0 - dyn->n.x87stack;
                         if(a<0) {
                             SUB_IMM8(xFlags, xFlags, -a);
                             AND_IMM8(xFlags, xFlags, 7);
@@ -351,7 +351,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         #if 1
                         //  get TOP
                         LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
-                        int a = 0 - dyn->x87stack;
+                        int a = 0 - dyn->n.x87stack;
                         if(a<0) {
                             SUB_IMM8(x14, x14, -a);
                             AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
@@ -387,7 +387,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         // check STll(0).ref==ST(0).q so emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top]
                         //  get TOP
                         LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
-                        int a = 0 - dyn->x87stack;
+                        int a = 0 - dyn->n.x87stack;
                         if(a<0) {
                             SUB_IMM8(x14, x14, -a);
                             AND_IMM8(x14, x14, 7);    // (emu->top + i)&7

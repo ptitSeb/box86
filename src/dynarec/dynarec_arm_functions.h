@@ -75,4 +75,6 @@ uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 // Is what pointed at addr a native call? And if yes, to what function?
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
 
+const char* getCacheName(int t, int n);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

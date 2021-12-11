@@ -36,9 +36,9 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     int need_epilog = 1;
     dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
-    dyn->state_flags = 0;
-    dyn->dfnone = 0;
-    fpu_reset(dyn, ninst);
+    dyn->f.pending = 0;
+    dyn->f.dfnone = 0;
+    fpu_reset(dyn);
     // ok, go now
     INIT;
     while(ok) {
@@ -58,6 +58,9 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             dyn->n.stack_pop = 0;
         }
         dyn->n.stack = dyn->n.stack_next;
+        dyn->n.empty = 0;
+        dyn->n.stack_push = 0;
+        dyn->n.swapped = 0;
         NEW_INST;
         fpu_reset_scratch(dyn);
 #ifdef HAVE_TRACE
@@ -84,8 +87,8 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             if(dyn->insts[ninst+1].x86.barrier&BARRIER_FLOAT)
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             if(dyn->insts[ninst+1].x86.barrier&BARRIER_FLAGS) {
-                dyn->state_flags = 0;
-                dyn->dfnone = 0;
+                dyn->f.pending = 0;
+                dyn->f.dfnone = 0;
             }
         }
         if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {

@@ -8,7 +8,7 @@
 #define READFLAGS(A)    dyn->insts[ninst].x86.use_flags = A
 #define SETFLAGS(A,B)   {dyn->insts[ninst].x86.set_flags = A; dyn->insts[ninst].x86.state_flags = B;}
 #define EMIT(A)     
-#define JUMP(A, C)      if((A)>addr) add_next(dyn, (uintptr_t)A); dyn->insts[ninst].x86.jmp = A; dyn->insts[ninst].x86.jmp_cond = C
+#define JUMP(A, C)      if((A)>addr) add_next(dyn, (uintptr_t)(A)); dyn->insts[ninst].x86.jmp = A; dyn->insts[ninst].x86.jmp_cond = C
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x86.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
 #define BARRIER_NEXT(A) dyn->insts[ninst+1].x86.barrier = A
 #define NEW_INST \
@@ -19,15 +19,20 @@
                 dyn->cap *= 2;                  \
         }                                       \
         dyn->insts[ninst].x86.addr = ip;        \
+        dyn->n.combined1 = dyn->n.combined2 = 0;\
+        dyn->n.swapped = 0;                     \
+        dyn->insts[ninst].f_entry = dyn->f;     \
         if(ninst) {dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr;}
 
 #define INST_EPILOG                             \
+        dyn->insts[ninst].f_exit = dyn->f;      \
+        dyn->insts[ninst].n = dyn->n;           \
         dyn->insts[ninst].x86.has_next = ok;
 #define INST_NAME(name) 
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
-        if(box86_dynarec_log>=LOG_INFO) {\
+        if(box86_dynarec_log>=LOG_INFO || box86_dynarec_dump) {\
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
         (void*)ip, PKip(0),             \
         PKip(1), PKip(2), PKip(3),      \
