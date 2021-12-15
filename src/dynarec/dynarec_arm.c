@@ -214,7 +214,7 @@ int next_instruction(dynarec_arm_t *dyn, uintptr_t addr)
             nextop = PK(1);
             switch((nextop>>3)&7) {
                 case 0: // INC Ed
-                case 1: //DEC Ed
+                case 1: // DEC Ed
                 case 2: // CALL Ed
                 case 4: // JMP Ed
                 case 6: // Push Ed
@@ -354,8 +354,10 @@ static void updateNeed(dynarec_arm_t* dyn, int ninst, uint32_t need) {
 }
 
 static void resetNeed(dynarec_arm_t* dyn) {
-    for(int i = dyn->size; i-- > 0;)
-        dyn->insts[i].x86.old_use = dyn->insts[i].x86.need_flags = 0;
+    for(int i = dyn->size; i-- > 0;) {
+        dyn->insts[i].x86.old_use = 0;
+        dyn->insts[i].x86.need_flags = dyn->insts[i].x86.default_need;
+    }
 }
 
 uintptr_t arm_pass0(dynarec_arm_t* dyn, uintptr_t addr);
@@ -414,6 +416,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // Compute flag_need, without with current barriers
+    resetNeed(&helper);
     for(int i = helper.size; i-- > 0;)
         updateNeed(&helper, i, 0);
     // calculate barriers
@@ -422,6 +425,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             uintptr_t j = helper.insts[i].x86.jmp;
             if(j<start || j>=end) {
                 helper.insts[i].x86.jmp_insts = -1;
+                helper.insts[i].x86.use_flags |= X_PEND;
             } else {
                 // find jump address instruction
                 int k=-1;
@@ -429,7 +433,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                     if(helper.insts[i2].x86.addr==j)
                         k=i2;
                 }
-                if(k!=-1)   // -1 if not found, mmm, probably wrong, exit anyway
+                if(k!=-1 && !helper.insts[i].barrier_maybe)
                     helper.insts[k].x86.barrier |= BARRIER_FULL;
                 helper.insts[i].x86.jmp_insts = k;
             }
@@ -439,17 +443,22 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     // check for the optionnal barriers now
     for(int i=helper.size-1; i>=0; --i) {
         if(helper.insts[i].barrier_maybe)
+            // out-of-block jump
             if(helper.insts[i].x86.jmp_insts == -1) {
-                if(i==helper.size-1 || helper.insts[i+1].x86.barrier)
-                    helper.insts[i].x86.barrier|=BARRIER_FLOAT;  // nope, end of block or barrier just after
-                else
-                    helper.insts[i].x86.barrier=BARRIER_NONE;  // ok, no need for a barrier here after all
+                // nothing for now
             } else {
+                // inside block jump
                 int k = helper.insts[i].x86.jmp_insts;
-                helper.insts[i].x86.barrier|=BARRIER_FLOAT;
-                if(helper.insts[i].f_exit.dfnone>helper.insts[k].f_exit.dfnone
-                || helper.insts[i].f_exit.pending>helper.insts[k].f_exit.pending)
-                    helper.insts[i].x86.barrier|=BARRIER_FLAGS;
+                if(k>i) {
+                    // jump in the future
+                    if(helper.insts[k].pred_sz>1) {
+                        // with multiple flow, put a barrier
+                        helper.insts[k].x86.barrier|=BARRIER_FLAGS;
+                    }
+                } else {
+                    // jump back
+                    helper.insts[k].x86.barrier|=BARRIER_FLAGS;
+                }
             }
     }
     // check to remove useless barrier, in case of jump when destination doesn't needs flags

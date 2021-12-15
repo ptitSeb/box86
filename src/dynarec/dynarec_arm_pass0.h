@@ -28,7 +28,7 @@
         }                                       \
         dyn->insts[ninst].x86.addr = ip;        \
         dyn->n.combined1 = dyn->n.combined2 = 0;\
-        dyn->n.swapped = 0;                     \
+        dyn->n.swapped = 0; dyn->n.barrier = 0; \
         dyn->insts[ninst].f_entry = dyn->f;     \
         if(ninst) {dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr;}
 

@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -248,10 +249,13 @@ int fpu_get_reg_double(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     // TODO: check upper limit?
     int i=0;
-    while (dyn->n.fpuused[i]) ++i;
+    while (dyn->n.fpuused[i] && (i<24)) ++i;
+    assert(i<24);
+
     dyn->n.fpuused[i] = 1;
     dyn->n.neoncache[i].n = n;
     dyn->n.neoncache[i].t = t;
+    dyn->n.news |= (1<<i);
     return i+FPUFIRST; // return a Dx
 }
 // Free a FPU double reg
@@ -267,12 +271,14 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
 int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     int i=0;
-    while (dyn->n.fpuused[i] || dyn->n.fpuused[i+1]) i+=2;
+    while (dyn->n.fpuused[i] || dyn->n.fpuused[i+1] && (i<24)) i+=2;
+    assert(i<24);
     dyn->n.fpuused[i] = dyn->n.fpuused[i+1] = 1;
     dyn->n.neoncache[i].t = t;
     dyn->n.neoncache[i].n = n;
     dyn->n.neoncache[i+1].t = t;
     dyn->n.neoncache[i+1].n = n;
+    dyn->n.news |= (3<<i);
     return i+FPUFIRST; // Return a Dx, not a Qx
 }
 // Free a FPU quad reg
@@ -295,8 +301,6 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
 
 int neoncache_get_st(dynarec_arm_t* dyn, int ninst, int a)
 {
-    if(!dyn->insts)
-        return NEON_CACHE_ST_D;
     for(int i=0; i<24; ++i)
         if((dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
          || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
@@ -322,9 +326,9 @@ int neoncache_get_current_st(dynarec_arm_t* dyn, int ninst, int a)
 
 int neoncache_get_st_f(dynarec_arm_t* dyn, int ninst, int a, int st)
 {
-    if(a+dyn->insts[ninst].n.stack_next-st<0)
+    /*if(a+dyn->insts[ninst].n.stack_next-st<0)
         // The STx has been pushed at the end of instructon, so stop going back
-        return -1;
+        return -1;*/
     for(int i=0; i<24; ++i)
         if(dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
          && dyn->insts[ninst].n.neoncache[i].n==a+dyn->insts[ninst].n.stack-st)
@@ -356,25 +360,31 @@ static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int
         //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d combined2 %d i=%d\n", ninst, dyn->insts[ninst].n.combined2 ,i);
         if(i>=0) {
             dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
-            neoncache_promote_double_internal(dyn, ninst-1, maxinst, dyn->insts[ninst].n.combined2, st);
+            if(!dyn->insts[ninst].n.barrier)
+                neoncache_promote_double_internal(dyn, ninst-1, maxinst, dyn->insts[ninst].n.combined2, st);
             // go forward is combined is not pop'd
             if(dyn->insts[ninst].n.stack_next-dyn->insts[ninst].n.stack<=dyn->insts[ninst].n.combined2)
-                neoncache_promote_double_forward(dyn, ninst+1, maxinst, dyn->insts[ninst].n.combined2, st);
+                if(!dyn->insts[ninst+1].n.barrier)
+                    neoncache_promote_double_forward(dyn, ninst+1, maxinst, dyn->insts[ninst].n.combined2, st);
         }
     } else if(a == dyn->insts[ninst].n.combined2) {
         int i = neoncache_get_st_f_noback(dyn, ninst, dyn->insts[ninst].n.combined1, st);
         //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d combined1 %d i=%d\n", ninst, dyn->insts[ninst].n.combined1 ,i);
         if(i>=0) {
             dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
-            neoncache_promote_double_internal(dyn, ninst-1, maxinst, dyn->insts[ninst].n.combined1, st);
+            if(!dyn->insts[ninst].n.barrier)
+                neoncache_promote_double_internal(dyn, ninst-1, maxinst, dyn->insts[ninst].n.combined1, st);
             // go forward is combined is not pop'd
             if(dyn->insts[ninst].n.stack_next-dyn->insts[ninst].n.stack<=dyn->insts[ninst].n.combined1)
-                neoncache_promote_double_forward(dyn, ninst+1, maxinst, dyn->insts[ninst].n.combined1, st);
+                if(!dyn->insts[ninst+1].n.barrier)
+                    neoncache_promote_double_forward(dyn, ninst+1, maxinst, dyn->insts[ninst].n.combined1, st);
         }
     }
 }
 static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st)
 {
+    if(dyn->insts[ninst+1].n.barrier)
+        return;
     while(ninst>=0) {
         int i = neoncache_get_st_f(dyn, ninst, a, st);
         //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d, a=%d st=%d:%d/%d, i=%d\n", ninst, a, st, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
@@ -388,12 +398,14 @@ static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int
             neoncache_promote_double_combined(dyn, ninst, maxinst, a, st);
         }
         --ninst;
+        if(dyn->insts[ninst].n.barrier)
+            return;
     }
 }
 
 static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st)
 {
-    while(ninst<maxinst) {
+    while((ninst!=-1) && (ninst<maxinst)) {
         int i = neoncache_get_st_f_noback(dyn, ninst, a, st);
         //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d, a=%d st=%d:%d/%d, i=%d\n", ninst, a, st, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
         if(i<0) return;
@@ -405,9 +417,13 @@ static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int 
             //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d combined %d/%d vs %d with st %d/%d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, st, dyn->insts[ninst].n.stack);
             neoncache_promote_double_combined(dyn, ninst, maxinst, a, st);
         }
-        ++ninst;
+        if(dyn->insts[ninst].x86.has_next && !dyn->insts[ninst].n.barrier)
+            ++ninst;
+        else
+            ninst=-1;
     }
-    neoncache_promote_double(dyn, ninst, a, st);
+    if(ninst==maxinst)
+        neoncache_promote_double(dyn, ninst, a, st);
 }
 
 void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a, int st)
@@ -416,6 +432,7 @@ void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a, int st)
     //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d a=%d st=%d/%d i=%d\n", ninst, a, st, dyn->n.stack, i);
     if(i<0) return;
     dyn->n.neoncache[i].t = NEON_CACHE_ST_D;
+    dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
     a+=dyn->n.stack-st;
     st = dyn->n.stack;
     // check combined propagation too
@@ -452,6 +469,141 @@ int getNominalPred(dynarec_arm_t* dyn, int ninst) {
     if(isPred(dyn, ninst, ninst-1)!=-1)
         return ninst-1;
     return dyn->insts[ninst].pred[0];
+}
+
+int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
+    int i2 = dyn->insts[ninst].x86.jmp_insts;
+    if(i2<0)
+        return 1;
+    if((dyn->insts[i2].x86.barrier&BARRIER_FLOAT))
+        return ((dyn->insts[ninst].x86.barrier&BARRIER_FLOAT))?0:1; // if the barrier as already been apply, no transform needed
+    int ret = 0;
+    if(!i2) { // just purge
+        if(dyn->n.stack_next)  {
+            return 1;
+        }
+        for(int i=0; i<24; ++i)
+            if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
+                if(dyn->insts[0].n.neoncache[i].v!=dyn->n.neoncache[i].v) {
+                    ret = 1;
+                }
+            }
+        return ret;
+    }
+    // Check if ninst can be compatible to i2
+    if(dyn->n.stack_next != dyn->insts[i2].n.stack-dyn->insts[i2].n.stack_push) {
+        return 1;
+    }
+    neoncache_t cache_i2 = dyn->insts[i2].n;
+    neoncacheUnwind(&cache_i2);
+
+    for(int i=0; i<24; ++i) {
+        if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
+            if(!cache_i2.neoncache[i].v) {    // but there is nothing at i2 for i
+                ret = 1;
+            } else if(dyn->n.neoncache[i].v!=cache_i2.neoncache[i].v) {  // there is something different
+                if(dyn->n.neoncache[i].n!=cache_i2.neoncache[i].n) {   // not the same x86 reg
+                    ret = 1;
+                }
+                else if(dyn->n.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
+                    {/* nothing */ }
+                else
+                    ret = 1;
+            }
+        } else if(cache_i2.neoncache[i].v)
+            ret = 1;
+    }
+    return ret;
+}
+
+void neoncacheUnwind(neoncache_t* cache)
+{
+    if(cache->news) {
+        // reove the newly created neoncache
+        for(int i=0; i<24; ++i)
+            if(cache->news&(1<<i))
+                cache->neoncache[i].v = 0;
+        cache->news = 0;
+    }
+    if(cache->swapped) {
+        // unswap
+        int a = -1; 
+        int b = -1;
+        for(int j=0; j<24 && ((a==-1) || (b==-1)); ++j)
+            if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F)) {
+                if(cache->neoncache[j].n == cache->combined1)
+                    a = j;
+                else if(cache->neoncache[j].n == cache->combined2)
+                    b = j;
+            }
+        if(a!=-1 && b!=-1) {
+            int tmp = cache->neoncache[a].v;
+            cache->neoncache[a].v = cache->neoncache[b].v;
+            cache->neoncache[b].v = tmp;
+        }
+    }
+    if(cache->stack_push) {
+        // unpush
+        for(int j=0; j<24; ++j) {
+            if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F)) {
+                if(cache->neoncache[j].n<cache->stack_push)
+                    cache->neoncache[j].v = 0;
+                else
+                    cache->neoncache[j].n-=cache->stack_push;
+            }
+        }
+        cache->x87stack-=cache->stack_push;
+        cache->stack-=cache->stack_push;
+        cache->stack_push = 0;
+    }
+    cache->x87stack+=cache->stack_pop;
+    cache->stack_next = cache->stack;
+    cache->stack_pop = 0;
+    cache->barrier = 0;
+    // And now, rebuild the x87cache info with neoncache
+    cache->mmxcount = 0;
+    cache->fpu_scratch = 0;
+    cache->fpu_extra_qscratch = 0;
+    cache->fpu_reg = 0;
+    for(int i=0; i<8; ++i) {
+        cache->x87cache[i] = -1;
+        cache->mmxcache[i] = -1;
+        cache->ssecache[i].v = -1;
+        cache->x87reg[i] = 0;
+    }
+    int x87reg = 0;
+    for(int i=0; i<24; ++i) {
+        if(cache->neoncache[i].v) {
+            cache->fpuused[i] = 1;
+            switch (cache->neoncache[i].t) {
+                case NEON_CACHE_MM:
+                    cache->mmxcache[cache->neoncache[i].n] = i+FPUFIRST;
+                    ++cache->mmxcount;
+                    ++cache->fpu_reg;
+                    break;
+                case NEON_CACHE_XMMR:
+                case NEON_CACHE_XMMW:
+                    cache->ssecache[cache->neoncache[i].n].reg = i+FPUFIRST;
+                    cache->ssecache[cache->neoncache[i].n].write = (cache->neoncache[i].t==NEON_CACHE_XMMW)?1:0;
+                    ++cache->fpu_reg;
+                    ++i;    // next next
+                    break;
+                case NEON_CACHE_ST_F:
+                case NEON_CACHE_ST_D:
+                    cache->x87cache[x87reg] = cache->neoncache[i].n;
+                    cache->x87reg[x87reg] = i+FPUFIRST;
+                    ++x87reg;
+                    ++cache->fpu_reg;
+                    break;
+                case NEON_CACHE_SCR:
+                    cache->fpuused[i] = 0;
+                    cache->neoncache[i].v = 0;
+                    break;
+            }
+        } else {
+            cache->fpuused[i] = 0;
+        }
+    }
 }
 
 #define F8      *(uint8_t*)(addr++)

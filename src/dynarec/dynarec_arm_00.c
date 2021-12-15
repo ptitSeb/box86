@@ -691,24 +691,29 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         #define GO(GETFLAGS, NO, YES, F)                                \
-            READFLAGS(F|(dyn->insts[ninst].x86.barrier?0:X_PEND));      \
+            READFLAGS(F);                                               \
             i8 = F8S;                                                   \
             BARRIER(BARRIER_MAYBE);                                     \
             JUMP(addr+i8, 1);                                           \
             GETFLAGS;                                                   \
-            if(dyn->insts) {                                            \
+            if(dyn->insts[ninst].x86.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
+                Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
-                    /* out of the block */                              \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);\
-                    Bcond(NO, i32);                                     \
                     if(!dyn->insts[ninst].x86.barrier)                  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    /* inside the block */                              \
-                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
-                    Bcond(YES, i32);                                    \
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
+                    Bcond(c__, i32);                                    \
                 }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
+                i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
+                Bcond(YES, i32);                                        \
             }
 
         case 0x70:
@@ -2054,22 +2059,27 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDF:
             addr = dynarecDF(dyn, addr, ip, ninst, ok, need_epilog);
             break;
-        #define GO(NO, YES)                                 \
-            BARRIER(BARRIER_MAYBE);                         \
-            JUMP(addr+i8, 1);                               \
-            if(dyn->insts) {                                \
-                if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
-                    /* out of the block */                  \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);\
-                    Bcond(NO, i32);                                     \
+        #define GO(NO, YES)                                             \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            if(dyn->insts[ninst].x86.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
+                Bcond(NO, i32);                                         \
+                if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
                     if(!dyn->insts[ninst].x86.barrier)                  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
-                } else {    \
-                    /* inside the block */  \
-                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
-                    Bcond(YES, i32);    \
-                }   \
+                } else {                                                \
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
+                    Bcond(c__, i32);                                    \
+                }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
+                i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
+                Bcond(YES, i32);                                        \
             }
         case 0xE0:
             INST_NAME("LOOPNZ");
@@ -2183,15 +2193,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(ninst && dyn->insts[ninst-1].x86.set_flags) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                        //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    BARRIER(BARRIER_FULL);
-                    BARRIER_NEXT(BARRIER_FULL);
-                    if(!dyn->insts || ninst==dyn->size-1) {
-                        *need_epilog = 0;
-                        *ok = 0;
-                    }
+                    BARRIER(BARRIER_FLOAT);
+                    //BARRIER_NEXT(BARRIER_FULL);
+                    *need_epilog = 0;
+                    *ok = 0;
                     MOV32(x2, addr);
                     PUSH1(x2);
                     if(u32==0) {   // self modifying code maybe? so use indirect address fetching
@@ -2205,7 +2213,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE9:
         case 0xEB:
-            BARRIER(BARRIER_FULL);
+            BARRIER(BARRIER_MAYBE);
             if(opcode==0xE9) {
                 INST_NAME("JMP Id");
                 i32 = F32S;
@@ -2215,11 +2223,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             JUMP(addr+i32, 0);
             if(dyn->insts) {
-                PASS2IF(dyn->insts[ninst].x86.jmp_insts==-1, 1) {
+            if(dyn->insts[ninst].x86.jmp_insts==-1) {
                     // out of the block
+                    fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
                     jump_to_next(dyn, addr+i32, 0, ninst);
                 } else {
                     // inside the block
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);
                     tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
                     if(tmp==-4) {
                         NOP;
@@ -2772,15 +2782,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     PASS2IF(ninst && dyn->insts[ninst-1].x86.set_flags, 1) {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                        //SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
                     GETEDH(xEIP);
-                    BARRIER(BARRIER_FULL);
-                    BARRIER_NEXT(BARRIER_FULL);
-                    if(!dyn->insts || ninst==dyn->size-1) {
-                        *need_epilog = 0;
-                        *ok = 0;
-                    }
+                    BARRIER(BARRIER_FLOAT);
+                    //BARRIER_NEXT(BARRIER_FULL);
+                    *need_epilog = 0;
+                    *ok = 0;
                     MOV32(x2, addr);
                     PUSH1(x2);
                     jump_to_next(dyn, 0, ed, ninst);

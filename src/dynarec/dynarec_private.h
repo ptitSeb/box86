@@ -14,7 +14,7 @@
 #define X_SF    (1<<4)
 #define X_OF    (1<<5)
 #define X_ALL   ((1<<6)-1)
-#define X_PEND  (0x1000)
+#define X_PEND  (0x80)
 
 // all state flags
 #define SF_UNKNOWN  0
@@ -35,10 +35,11 @@ typedef struct instruction_x86_s {
     uint8_t     has_next;   // does this opcode can continue to the next?
     uint8_t     barrier;    // next instruction is a jump point, so no optim allowed
     uint8_t     state_flags;// One of SF_XXX state
-    uint32_t    use_flags;  // 0 or combination of X_?F
-    uint32_t    set_flags;  // 0 or combination of X_?F
-    uint32_t    need_flags; // calculated
-    uint32_t    old_use;    // calculated
+    uint8_t     use_flags;  // 0 or combination of X_?F
+    uint8_t     set_flags;  // 0 or combination of X_?F
+    uint8_t     default_need;// 0 or X_PEND basically
+    uint8_t     need_flags; // calculated
+    uint8_t     old_use;    // calculated
 } instruction_x86_t;
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);

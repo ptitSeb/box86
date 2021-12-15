@@ -301,12 +301,8 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_REG_LSL_IMM5(xEIP, ed, x14, 0);
                     }
                     BARRIER(BARRIER_FULL);
-                    BARRIER_NEXT(BARRIER_FULL);
-                    if(!dyn->insts || ninst!=dyn->size-1) {
-                    } else {
-                        *need_epilog = 0;
-                        *ok = 0;
-                    }
+                    *need_epilog = 0;
+                    *ok = 0;
                     MOV32(x2, addr);
                     PUSH1(x2);
                     jump_to_next(dyn, 0, xEIP, ninst);

@@ -133,22 +133,27 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
             
-        #define GO(NO, YES)                                 \
-            BARRIER(BARRIER_MAYBE);                         \
-            JUMP(addr+i8, 1);                               \
-            if(dyn->insts) {                                \
-                if(dyn->insts[ninst].x86.jmp_insts==-1) {   \
-                    /* out of the block */                  \
-                    i32 = dyn->insts[ninst+1].address-(dyn->arm_size+8);\
-                    Bcond(NO, i32);                                     \
+        #define GO(NO, YES)                                             \
+            BARRIER(BARRIER_MAYBE);                                     \
+            JUMP(addr+i8, 1);                                           \
+            if(dyn->insts[ninst].x86.jmp_insts==-1 ||                   \
+                CHECK_CACHE()) {                                        \
+                /* out of the block */                                  \
+                i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
+                Bcond(NO, i32);                                         \
+                if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
                     if(!dyn->insts[ninst].x86.barrier)                  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
-                } else {    \
-                    /* inside the block */  \
-                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
-                    Bcond(YES, i32);    \
-                }   \
+                } else {                                                \
+                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
+                    Bcond(c__, i32);                                    \
+                }                                                       \
+            } else {                                                    \
+                /* inside the block */                                  \
+                i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);    \
+                Bcond(YES, i32);                                        \
             }
         case 0xE0:
             INST_NAME("LOOPNZ (16bits)");

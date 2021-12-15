@@ -511,6 +511,8 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 // put back (if needed) the single reg in place
 #define fpu_putback_single_reg  STEPNAME(fpu_putback_single_reg)
 
+#define fpuCacheTransform       STEPNAME(fpuCacheTransform)
+
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress, uint32_t absmax, uint32_t mask, int getfixonly);
 
@@ -638,6 +640,14 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+
+void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+
+#if STEP < 2
+#define CHECK_CACHE()   0
+#else
+#define CHECK_CACHE()   fpuCacheNeedsTransform(dyn, ninst)
+#endif
 
 #define neoncache_st_coherency STEPNAME(neoncache_st_coherency)
 int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b);

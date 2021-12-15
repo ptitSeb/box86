@@ -507,6 +507,7 @@ static void x87_reset(dynarec_arm_t* dyn)
     dyn->n.stack_push = 0;
     dyn->n.combined1 = dyn->n.combined2 = 0;
     dyn->n.swapped = 0;
+    dyn->n.barrier = 0;
     for(int i=0; i<24; ++i)
         if(dyn->n.neoncache[i].t == NEON_CACHE_ST_F || dyn->n.neoncache[i].t == NEON_CACHE_ST_D)
             dyn->n.neoncache[i].v = 0;
@@ -663,6 +664,11 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
         //Stack is full, so STi is just x87reg[i]
         int j=0; 
         while(dyn->n.x87cache[j]!=i) ++j; // look for STi
+        #if STEP == 1
+        if(!next) {  // don't force promotion here
+            neoncache_promote_double(dyn, ninst, dyn->n.x87cache[j], dyn->n.stack_next);
+        }
+        #endif
         if(next) {
             // need to check if a ST_F need local promotion
             if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j], dyn->n.stack_next)>=0) {
@@ -672,7 +678,13 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
                 VSTM_64_W(dyn->n.x87reg[j], s1);    // save the value
             }
         } else {
-            VSTM_64_W(dyn->n.x87reg[j], s1);    // save the value
+            // need to check if a ST_F need local promotion
+            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j], dyn->n.stack_next)>=0) {
+                VCVT_F64_F32(0, dyn->n.x87reg[j]*2);
+                VSTM_64_W(0, s1);    // save the value
+            } else {
+                VSTM_64_W(dyn->n.x87reg[j], s1);    // save the value
+            }
             fpu_free_reg_double(dyn, dyn->n.x87reg[j]);
             dyn->n.x87reg[j] = -1;
             dyn->n.x87cache[j] = -1;
@@ -681,9 +693,9 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
     }
     if(!next) {
         dyn->n.stack_next = 0;
-        #if STEP == 1
+        #if STEP < 2
         // refresh the cached valued, in case it's a purge outside a instruction
-        dyn->insts[ninst].n = dyn->n;
+        dyn->insts[ninst].n.barrier = 1;
         #endif
     }
     MESSAGE(LOG_DUMP, "\t---Purge Full x87 Cache and Synch Stackcount\n");
@@ -763,8 +775,9 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
         for (int i=0; i<8; ++i)
             if(dyn->n.x87cache[i]!=-1) {
                 #if STEP == 1
-                if(!next)   // don't force promotion here
+                if(!next) {   // don't force promotion here
                     neoncache_promote_double(dyn, ninst, dyn->n.x87cache[i], dyn->n.stack_next);
+                }
                 #endif
                 #if STEP == 3
                 if(!next && neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i], dyn->n.stack_next)>=0) {
@@ -797,9 +810,9 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     }
     if(!next) {
         dyn->n.stack_next = 0;
-        #if STEP == 1
+        #if STEP < 2
         // refresh the cached valued, in case it's a purge outside a instruction
-        dyn->insts[ninst].n = dyn->n;
+        dyn->insts[ninst].n.barrier = 1;
         #endif
     }
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
@@ -1298,6 +1311,378 @@ void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     sse_purgecache(dyn, ninst, next, s1);
     if(!next)
         fpu_reset_reg(dyn);
+}
+
+static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_t* cache)
+{
+    neon_cache_t f;
+    f.n = n; f.t = t;
+    for(int i=0; i<24; ++i) {
+        if(cache->neoncache[i].v == f.v)
+            return i;
+        if(cache->neoncache[i].n == n) {
+            switch(cache->neoncache[i].t) {
+                case NEON_CACHE_ST_F:
+                    if (t==NEON_CACHE_ST_D)
+                        return i;
+                    break;
+                case NEON_CACHE_ST_D:
+                    if (t==NEON_CACHE_ST_F)
+                        return i;
+                    break;
+                case NEON_CACHE_XMMR:
+                    if(t==NEON_CACHE_XMMW)
+                        return i;
+                    break;
+                case NEON_CACHE_XMMW:
+                    if(t==NEON_CACHE_XMMR)
+                        return i;
+                    break;
+            }
+        }
+    }
+    return -1;
+}
+
+static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *cache)
+{
+    if (i==j)
+        return;
+    int quad = 0;
+    if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW)
+        quad =1;
+    if(cache->neoncache[j].t==NEON_CACHE_XMMR || cache->neoncache[j].t==NEON_CACHE_XMMW)
+        quad =1;
+    
+    if(!cache->neoncache[i].v && ((quad && !cache->neoncache[i+1].v) || !quad)) {
+        // a mov is enough, no need to swap
+        MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
+        if(quad) {
+            VMOVQ(i+FPUFIRST, j+FPUFIRST);
+            cache->neoncache[i+1].v = cache->neoncache[j+1].v;
+            cache->neoncache[j+1].v = 0;
+        } else {
+            VMOV_64(i+FPUFIRST, j+FPUFIRST);
+        }
+        cache->neoncache[i].v = cache->neoncache[j].v;
+        cache->neoncache[j].v = 0;
+        return;
+    }
+    // SWAP
+    neon_cache_t tmp;
+    MESSAGE(LOG_DUMP, "\t  - Swaping %d <-> %d\n", i, j);
+    if(quad) {
+        VSWPQ(i+FPUFIRST, j+FPUFIRST);
+        tmp.v = cache->neoncache[i+1].v;
+        cache->neoncache[i+1].v = cache->neoncache[j+1].v;
+        cache->neoncache[j+1].v = tmp.v;
+    } else {
+        VSWP(i+FPUFIRST, j+FPUFIRST);
+    }
+    tmp.v = cache->neoncache[i].v;
+    cache->neoncache[i].v = cache->neoncache[j].v;
+    cache->neoncache[j].v = tmp.v;
+}
+
+static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int s2, int s3, int* s1_val, int* s2_val, int* s3_top, neoncache_t *cache, int i, int t, int n)
+{
+    if(cache->neoncache[i].v) {
+        int quad = 0;
+        if(t==NEON_CACHE_XMMR || t==NEON_CACHE_XMMW)
+            quad = 1;
+        if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW)
+            quad = 1;
+        int j = i+1+quad;
+        if(quad) {
+            while(cache->neoncache[j].v && cache->neoncache[j+1].v)
+                j+=2;
+            MESSAGE(LOG_DUMP, "\t  - Moving away %d/%d\n", i, i+1);
+            VMOVQ(j+FPUFIRST, i+FPUFIRST);
+            cache->neoncache[j+1].v = cache->neoncache[i+1].v;
+            cache->neoncache[i+1].v = 0;    // in case a Q was moved for a D
+        } else {
+            while(cache->neoncache[j].v)
+                ++j;
+            MESSAGE(LOG_DUMP, "\t  - Moving away %d\n", i);
+            VMOVD(j+FPUFIRST, i+FPUFIRST);
+        }
+        cache->neoncache[j].v = cache->neoncache[i].v;
+    }
+    switch(t) {
+        case NEON_CACHE_XMMR:
+        case NEON_CACHE_XMMW:
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
+            int offs = offsetof(x86emu_t, xmm[n]);
+            if(*s1_val != offs) {
+                if(!(offs&3) && (offs>>2)<256) {
+                    ADD_IMM8_ROR(s1, xEmu, (offs>>2), 0xf);
+                } else {
+                    MOV32(s1, offs);
+                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                }
+            }
+            VLD1Q_32_W(i+FPUFIRST, s1);
+            *s1_val = offs + sizeof(sse_regs_t);
+            cache->neoncache[i+1].n = n;    // Quad...
+            cache->neoncache[i+1].t = t;
+            break;
+        case NEON_CACHE_MM:
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
+            if(*s2_val!=offsetof(x86emu_t, mmx[n])) {
+                ADD_IMM8(s2, xEmu, offsetof(x86emu_t, mmx[n]));
+            }
+            VLD1_32_W(i+FPUFIRST, s2);
+            *s2_val = offsetof(x86emu_t, mmx[n]) + sizeof(mmx87_regs_t);
+            break;
+        case NEON_CACHE_ST_D:
+        case NEON_CACHE_ST_F:
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
+            if((*s3_top) == 0xffff) {
+                LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+                *s3_top = 0;
+            }
+            int a = n - stack_cnt;
+            if(a) {
+                if(a<0) {
+                    SUB_IMM8(s2, s3, -a);
+                } else {
+                    ADD_IMM8(s2, s3, a);
+                }
+                AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+            }
+            *s3_top = a;
+            *s2_val = 0;
+            ADD_REG_LSL_IMM5(s2, xEmu, (a?s2:s3), 3);
+            VLDR_64(i+FPUFIRST, s2, offsetof(x86emu_t, x87));
+            if(t==NEON_CACHE_ST_F) {
+                VCVT_F32_F64((i+FPUFIRST)*2, i+FPUFIRST);
+            }
+            break;                    
+        case NEON_CACHE_NONE:
+        case NEON_CACHE_SCR:
+        default:    /* nothing done */
+            MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
+            break; 
+    }
+    cache->neoncache[i].n = n;
+    cache->neoncache[i].t = t;
+}
+
+static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int s2, int s3, int* s1_val, int* s2_val, int* s3_top, neoncache_t *cache, int i, int t, int n)
+{
+    switch(t) {
+        case NEON_CACHE_XMMR:
+            MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
+            cache->neoncache[i+1].v = 0;    // Quad...
+            break;
+        case NEON_CACHE_XMMW:
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
+            int offs = offsetof(x86emu_t, xmm[n]);
+            if(*s1_val!=offs) {
+                if(!(offs&3) && (offs>>2)<256) {
+                    ADD_IMM8_ROR(s1, xEmu, (offs>>2), 0xf);
+                } else {
+                    MOV32(s1, offs);
+                    ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                }
+            }
+            VST1Q_32_W(i+FPUFIRST, s1);
+            *s1_val = offs+sizeof(sse_regs_t);
+            cache->neoncache[i+1].v = 0;    // Quad...
+            break;
+        case NEON_CACHE_MM:
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
+            if(*s2_val != offsetof(x86emu_t, mmx[n])) {
+                ADD_IMM8(s2, xEmu, offsetof(x86emu_t, mmx[n]));
+            }
+            VST1_32_W(i+FPUFIRST, s2);
+            *s2_val = offsetof(x86emu_t, mmx[n])+sizeof(mmx87_regs_t);
+            break;
+        case NEON_CACHE_ST_D:
+        case NEON_CACHE_ST_F:
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
+            if((*s3_top)==0xffff) {
+                LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+                *s3_top = 0;
+            }
+            int a = n - (*s3_top) - stack_cnt;
+            if(a) {
+                if(a<0) {
+                    SUB_IMM8(s2, s3, -a);
+                } else {
+                    ADD_IMM8(s2, s3, a);
+                }
+                AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+            }
+            *s3_top = a;
+            ADD_REG_LSL_IMM5(s2, xEmu, (a?s2:s3), 3);
+            *s2_val = 0;
+            if(t==NEON_CACHE_ST_F) {
+                VCVT_F64_F32(i+FPUFIRST, (i+FPUFIRST)*2);
+            }
+            VSTR_64(i+FPUFIRST, s2, offsetof(x86emu_t, x87));
+            break;                    
+        case NEON_CACHE_NONE:
+        case NEON_CACHE_SCR:
+        default:    /* nothing done */
+            MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
+            break; 
+    }
+    cache->neoncache[i].v = 0;
+}
+
+void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+#if STEP > 1
+    int i2 = dyn->insts[ninst].x86.jmp_insts;
+    if(i2<0)
+        return;
+    MESSAGE(LOG_DUMP, "\tCache Transform ---- ninst=%d -> %d\n", ninst, i2);
+    if((!i2) || (dyn->insts[i2].x86.barrier&BARRIER_FLOAT)) {
+        if(dyn->n.stack_next)  {
+            fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+            return;
+        }
+        for(int i=0; i<24; ++i)
+            if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
+                fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+                MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+                return;
+            }
+        MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+        return;
+    }
+    neoncache_t cache_i2 = dyn->insts[i2].n;
+    neoncacheUnwind(&cache_i2);
+
+    if(!cache_i2.stack) {
+        int purge = 1;
+        for (int i=0; i<24 && purge; ++i)
+            if(cache_i2.neoncache[i].v)
+                purge = 0;
+        if(purge) {
+            fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+            return;
+        }
+    }
+    int stack_cnt = dyn->n.stack_next;
+    int s3_top = 0xffff;
+    if(stack_cnt != cache_i2.stack) {
+        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
+        int a = stack_cnt - cache_i2.stack;
+        // Add x87stack to emu fpu_stack
+        LDR_IMM9(s3, xEmu, offsetof(x86emu_t, fpu_stack));
+        if(a>0) {
+            ADD_IMM8(s3, s3, a);
+        } else {
+            SUB_IMM8(s3, s3, -a);
+        }
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+        // update tags (and top at the same time)
+        if(a>0) {
+            // new tag to fulls
+            MOVW(s2, 0);
+            int offs = offsetof(x86emu_t, p_regs);
+            if(!(offs&3) && (offs>>2)<256) {
+                ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+            } else {
+                MOVW(s1, offs);
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            }
+            for (int i=0; i<a; ++i) {
+                SUB_IMM8(s3, s3, 1);
+                AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
+                STR_REG_LSL_IMM5(s2, s1, s3, 2);    // that slot is full
+            }
+        } else {
+            // empty tags
+            MOVW(s2, 0b11);
+            int offs = offsetof(x86emu_t, p_regs);
+            if(!(offs&3) && (offs>>2)<256) {
+                ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+            } else {
+                MOVW(s1, offsetof(x86emu_t, p_regs));
+                ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+            }
+            for (int i=0; i<-a; ++i) {
+                STR_REG_LSL_IMM5(s2, s1, s3, 2);    // empty slot before leaving it
+                ADD_IMM8(s3, s3, 1);
+                AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
+            }
+        }
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+        s3_top = 0;
+        stack_cnt = cache_i2.stack;
+    }
+    neoncache_t cache = dyn->n;
+    int s1_val = 0;
+    int s2_val = 0;
+    // unload every uneeded cache
+    // check SSE first, than MMX, in order, for optimisation issue
+    for(int i=0; i<8; ++i) {
+        int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
+        if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache_i2)==-1)
+            unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n);
+    }
+    for(int i=0; i<8; ++i) {
+        int j=findCacheSlot(dyn, ninst, NEON_CACHE_MM, i, &cache);
+        if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_MM, i, &cache_i2)==-1)
+            unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n);
+    }
+    for(int i=0; i<24; ++i) {
+        if(cache.neoncache[i].v)
+            if(findCacheSlot(dyn, ninst, cache.neoncache[i].t, cache.neoncache[i].n, &cache_i2)==-1)
+                unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, i, cache.neoncache[i].t, cache.neoncache[i].n);
+    }
+    // and now load/swap the missing one
+    for(int i=0; i<24; ++i) {
+        if(cache_i2.neoncache[i].v) {
+            if(cache_i2.neoncache[i].v != cache.neoncache[i].v) {
+                int j;
+                if((j=findCacheSlot(dyn, ninst, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n, &cache))==-1)
+                    loadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, i, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n);
+                else {
+                    // it's here, lets swap if needed
+                    if(j!=i)
+                        swapCache(dyn, ninst, i, j, &cache);
+                }
+            }
+            if(cache.neoncache[i].t != cache_i2.neoncache[i].t) {
+                if(cache.neoncache[i].t == NEON_CACHE_ST_D && cache_i2.neoncache[i].t == NEON_CACHE_ST_F) {
+                    MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    VCVT_F32_F64((i+8)*2, (i+8));
+                    cache.neoncache[i].t = NEON_CACHE_ST_F;
+                } else if(cache.neoncache[i].t == NEON_CACHE_ST_F && cache_i2.neoncache[i].t == NEON_CACHE_ST_D) {
+                    MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    VCVT_F64_F32((i+8), (i+8)*2);
+                    cache.neoncache[i].t = NEON_CACHE_ST_D;
+                } else if(cache.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
+                    { cache.neoncache[i].t = cache.neoncache[i+1].t = NEON_CACHE_XMMW; }
+                else if(cache.neoncache[i].t == NEON_CACHE_XMMW && cache_i2.neoncache[i].t == NEON_CACHE_XMMR) {
+                    // refresh cache...
+                    MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    int offs = offsetof(x86emu_t, xmm[cache.neoncache[i].n]);
+                    if(s1_val != offs) {
+                        if(!(offs&3) && (offs>>2)<256) {
+                            ADD_IMM8_ROR(s1, xEmu, (offs>>2), 0xf);
+                        } else {
+                            MOV32(s1, offs);
+                            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+                        }
+                    }
+                    VST1Q_32_W(i+FPUFIRST, s1);
+                    s1_val = offs + sizeof(sse_regs_t);
+                    cache.neoncache[i].t = cache.neoncache[i+1].t = NEON_CACHE_XMMR;
+                }
+            }
+        }
+    }
+    MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+#endif
 }
 
 #ifdef HAVE_TRACE

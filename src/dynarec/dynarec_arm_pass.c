@@ -39,10 +39,60 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     dyn->f.pending = 0;
     dyn->f.dfnone = 0;
     fpu_reset(dyn);
+    int reset_n = -1;
     // ok, go now
     INIT;
     while(ok) {
         ip = addr;
+        if (reset_n!=-1) {
+            if(reset_n==-2) {
+                MESSAGE(LOG_DEBUG, "Reset Caches to zero\n");
+                dyn->f.dfnone = 0;
+                dyn->f.pending = 0;
+                fpu_reset(dyn);
+            } else {
+                MESSAGE(LOG_DEBUG, "Reset Caches with %d\n",reset_n);
+                #if STEP > 1
+                // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
+                dyn->n = dyn->insts[ninst].n;
+                neoncacheUnwind(&dyn->n);
+                #ifdef HAVE_TRACE
+                if(box86_dynarec_dump)
+                    if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neon_cache_t))) {
+                        MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
+                        for(int i=0; i<24; ++i)
+                            if(dyn->insts[reset_n].n.neoncache[i].v)
+                                MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[reset_n].n.neoncache[i].t, dyn->insts[reset_n].n.neoncache[i].n));
+                        if(dyn->insts[reset_n].n.combined1 || dyn->insts[reset_n].n.combined2)
+                            MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->insts[reset_n].n.swapped?"SWP":"CMB", dyn->insts[reset_n].n.combined1, dyn->insts[reset_n].n.combined2);
+                        if(dyn->insts[reset_n].n.stack_push || dyn->insts[reset_n].n.stack_pop)
+                            MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[reset_n].n.stack_push, -dyn->insts[reset_n].n.stack_pop);
+                        MESSAGE(LOG_DEBUG, " ==> ");
+                        for(int i=0; i<24; ++i)
+                            if(dyn->insts[ninst].n.neoncache[i].v)
+                                MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[ninst].n.neoncache[i].t, dyn->insts[ninst].n.neoncache[i].n));
+                        if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
+                            MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);
+                        if(dyn->insts[ninst].n.stack_push || dyn->insts[ninst].n.stack_pop)
+                            MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
+                        MESSAGE(LOG_DEBUG, " -> ");
+                        for(int i=0; i<24; ++i)
+                            if(dyn->n.neoncache[i].v)
+                                MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->n.neoncache[i].t, dyn->n.neoncache[i].n));
+                        if(dyn->n.combined1 || dyn->n.combined2)
+                            MESSAGE(LOG_DEBUG, " %s:%02d/%02d", dyn->n.swapped?"SWP":"CMB", dyn->n.combined1, dyn->n.combined2);
+                        if(dyn->n.stack_push || dyn->n.stack_pop)
+                            MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->n.stack_push, -dyn->n.stack_pop);
+                        MESSAGE(LOG_DEBUG, "\n");
+                    }
+                #endif //HAVE_TRACE
+                #else
+                dyn->n = dyn->insts[reset_n].n;
+                #endif
+                dyn->f = dyn->insts[reset_n].f_exit;
+            }
+            reset_n = -1;
+        }
         if((dyn->insts[ninst].x86.barrier==BARRIER_FULL)) {
             NEW_BARRIER_INST;
         }
@@ -58,7 +108,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             dyn->n.stack_pop = 0;
         }
         dyn->n.stack = dyn->n.stack_next;
-        dyn->n.empty = 0;
+        dyn->n.news = 0;
         dyn->n.stack_push = 0;
         dyn->n.swapped = 0;
         NEW_INST;
@@ -83,29 +133,55 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 
         INST_EPILOG;
 
-        if(dyn->insts[ninst+1].x86.barrier) {
-            if(dyn->insts[ninst+1].x86.barrier&BARRIER_FLOAT)
+        int next = ninst+1;
+        #if STEP > 0
+        if(!dyn->insts[ninst].x86.has_next && dyn->insts[ninst].x86.jmp && dyn->insts[ninst].x86.jmp_insts!=-1)
+            next = dyn->insts[ninst].x86.jmp_insts;
+        #endif
+        if(dyn->insts[ninst].x86.has_next && dyn->insts[next].x86.barrier) {
+            if(dyn->insts[next].x86.barrier&BARRIER_FLOAT)
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            if(dyn->insts[ninst+1].x86.barrier&BARRIER_FLAGS) {
+            if(dyn->insts[next].x86.barrier&BARRIER_FLAGS) {
                 dyn->f.pending = 0;
                 dyn->f.dfnone = 0;
             }
         }
+        #if STEP != 0
         if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {
             ok = 1;
+            // we use the 1st predecessor here
+            int ii = ninst+1;
+            while(ii<dyn->size && !dyn->insts[ii].pred_sz) 
+                ++ii;
+            if((dyn->insts[ii].x86.barrier&BARRIER_FULL)==BARRIER_FULL)
+                reset_n = -2;    // hack to say Barrier!
+            else {
+                reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are availble
+                if(reset_n==-1) {
+                    reset_n = -2;
+                    MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");
+                }
+            }
         }
-        #if STEP == 0
+        #else
         if(!ok && !need_epilog && box86_dynarec_bigblock && getProtection(addr+3))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
                     (((next-addr)<15) && is_nops(dyn, addr, next-addr)) 
-                    ||(((next-addr)<30) && is_instructions(dyn, addr, next-addr)) ))
+                    /*||(((next-addr)<30) && is_instructions(dyn, addr, next-addr))*/ ))
                 {
-                    dynarec_log(LOG_DEBUG, "Extend block %p, %p -> %p (ninst=%d)\n", dyn, (void*)addr, (void*)next, ninst);
                     ok = 1;
+                    // need to find back that instruction to copy the caches, as previous version cannot be used anymore
+                    reset_n = -2;
+                    for(int ii=0; ii<ninst; ++ii)
+                        if(dyn->insts[ii].x86.jmp == next) {
+                            reset_n = ii;
+                            ii=ninst;
+                        }
+                    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
                 } else if(next && (next-addr)<30) {
-                    dynarec_log(LOG_DEBUG, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
+                    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
                 }
             }
         #endif
@@ -117,10 +193,20 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(ok && (ninst==dyn->size))
         #endif
         {
-            #if STEP == 3
-            dynarec_log(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
+            int j32;
+            MAYUSE(j32);
+            MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size); 
+            --ninst;
+            if(!dyn->insts[ninst].x86.barrier) {
+                BARRIER(BARRIER_FLOAT);
+            }
+            #if STEP == 0
+            if(dyn->insts[ninst].x86.set_flags)
+                dyn->insts[ninst].x86.default_need |= X_PEND;
+            else
+                dyn->insts[ninst].x86.use_flags |= X_PEND;
             #endif
-            BARRIER(BARRIER_FLOAT);
+            ++ninst;
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             jump_to_next(dyn, addr, 0, ninst);
             ok=0; need_epilog=0;
