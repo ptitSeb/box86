@@ -271,7 +271,7 @@ void fpu_free_reg_double(dynarec_arm_t* dyn, int reg)
 int fpu_get_reg_quad(dynarec_arm_t* dyn, unsigned int t, unsigned int n)
 {
     int i=0;
-    while (dyn->n.fpuused[i] || dyn->n.fpuused[i+1] && (i<24)) i+=2;
+    while ((dyn->n.fpuused[i] || dyn->n.fpuused[i+1]) && (i<24)) i+=2;
     assert(i<24);
     dyn->n.fpuused[i] = dyn->n.fpuused[i+1] = 1;
     dyn->n.neoncache[i].t = t;

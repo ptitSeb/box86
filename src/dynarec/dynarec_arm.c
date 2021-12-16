@@ -442,7 +442,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     fillPredecessors(&helper);
     // check for the optionnal barriers now
     for(int i=helper.size-1; i>=0; --i) {
-        if(helper.insts[i].barrier_maybe)
+        if(helper.insts[i].barrier_maybe) {
             // out-of-block jump
             if(helper.insts[i].x86.jmp_insts == -1) {
                 // nothing for now
@@ -460,6 +460,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                     helper.insts[k].x86.barrier|=BARRIER_FLAGS;
                 }
             }
+	}
     }
     // check to remove useless barrier, in case of jump when destination doesn't needs flags
     /*for(int i=helper.size-1; i>=0; --i) {
