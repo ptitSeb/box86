@@ -518,13 +518,6 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
 
 void neoncacheUnwind(neoncache_t* cache)
 {
-    if(cache->news) {
-        // reove the newly created neoncache
-        for(int i=0; i<24; ++i)
-            if(cache->news&(1<<i))
-                cache->neoncache[i].v = 0;
-        cache->news = 0;
-    }
     if(cache->swapped) {
         // unswap
         int a = -1; 
@@ -541,6 +534,13 @@ void neoncacheUnwind(neoncache_t* cache)
             cache->neoncache[a].v = cache->neoncache[b].v;
             cache->neoncache[b].v = tmp;
         }
+    }
+    if(cache->news) {
+        // reove the newly created neoncache
+        for(int i=0; i<24; ++i)
+            if(cache->news&(1<<i))
+                cache->neoncache[i].v = 0;
+        cache->news = 0;
     }
     if(cache->stack_push) {
         // unpush

@@ -488,7 +488,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                 // jumpto barrier
                 helper.insts[i].x86.use_flags |= X_PEND;
             if(helper.insts[i].x86.barrier&BARRIER_FLAGS && (helper.insts[k].x86.need_flags | helper.insts[k].x86.use_flags))
-                helper.insts[k].x86.barrier|=BARRIER_FULL;//BARRIER_FLAGS;
+                helper.insts[k].x86.barrier|=BARRIER_FLAGS;
             else
                 helper.insts[i].x86.use_flags |= (helper.insts[k].x86.need_flags | helper.insts[k].x86.use_flags);
         }
