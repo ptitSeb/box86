@@ -1388,12 +1388,15 @@ EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* 
     jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
     is_jmpbuf = 1;
     my62_jpegcb_emu = emu;
-    unwrapCommonStruct(cinfo, 1);
+    int unwrapped = 0;
     if(setjmp(&jmpbuf)) {
-        wrapCommonStruct(cinfo, 1); // error, so re-wrap
+        if(unwrapped)
+            wrapCommonStruct(cinfo, 1); // error, so re-wrap
         is_jmpbuf = 0;
         return;
     }
+    unwrapCommonStruct(cinfo, 1);
+    unwrapped = 1;
     my->jpeg_destroy_decompress(cinfo);
     is_jmpbuf = 0;
 }
