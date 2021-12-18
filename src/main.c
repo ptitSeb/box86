@@ -994,7 +994,10 @@ int main(int argc, const char **argv, const char **env) {
     }
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
-    my_context->argv[0] = ResolveFile(prog, &my_context->box86_path);
+    if(strchr(prog, '/'))
+        my_context->argv[0] = strdup(prog);
+    else
+        my_context->argv[0] = ResolveFile(prog, &my_context->box86_path);
 
     const char* prgname = strrchr(prog, '/');
     if(!prgname)
