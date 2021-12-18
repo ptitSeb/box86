@@ -213,6 +213,9 @@ Op is 20-27
 // add dst, src1, src2, lsl #imm
 #define ADD_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
+// add.c dst, src1, src2, lsl #imm
+#define ADD_REG_LSL_IMM5_COND(cond, dst, src1, src2, imm5) \
+    EMIT((cond) | 0x00800000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
 // add.s dst, src1, src2, lsl #imm
 #define ADDS_REG_LSL_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe0900000 | ((dst) << 12) | ((src1) << 16) | brLSL(imm5, src2) )
