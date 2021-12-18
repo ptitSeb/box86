@@ -609,14 +609,14 @@ GO(gtk_combo_box_set_model, vFpp)
 GO(gtk_combo_box_set_row_span_column, vFpi)
 GO(gtk_combo_box_set_title, vFpp)
 GO(gtk_combo_box_set_wrap_width, vFpi)
-//GO(gtk_combo_box_text_append_text, 
-//GO(gtk_combo_box_text_get_active_text, 
+GO(gtk_combo_box_text_append_text, vFpp)
+GO(gtk_combo_box_text_get_active_text, pFp)
 GO(gtk_combo_box_text_get_type, iFv)
-//GO(gtk_combo_box_text_insert_text, 
-//GO(gtk_combo_box_text_new, 
-//GO(gtk_combo_box_text_new_with_entry, 
-//GO(gtk_combo_box_text_prepend_text, 
-//GO(gtk_combo_box_text_remove, 
+GO(gtk_combo_box_text_insert_text, vFpip)
+GO(gtk_combo_box_text_new, pFv)
+GO(gtk_combo_box_text_new_with_entry, pFv)
+GO(gtk_combo_box_text_prepend_text, vFpp)
+GO(gtk_combo_box_text_remove, vFpi)
 GO(gtk_combo_disable_activate, vFp)
 GO(gtk_combo_get_type, iFv)
 GO(gtk_combo_new, pFv)
