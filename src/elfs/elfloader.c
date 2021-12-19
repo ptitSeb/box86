@@ -207,7 +207,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         head->multiblock_n = n; // might be less in fact
         for (int i=0; i<head->multiblock_n; ++i) {
             
-            printf_log(LOG_DEBUG, "Allocating 0x%x memory %p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
+            printf_dump(LOG_NEVER, "Allocating 0x%x memory %p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
             void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
                 , PROT_READ | PROT_WRITE | PROT_EXEC
                 , MAP_PRIVATE | MAP_ANONYMOUS /*| ((wine_preloaded)?MAP_FIXED:0)*/
@@ -240,7 +240,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         }
     } else {
         // vaddr is 0, load everything has a One block
-        printf_log(LOG_DEBUG, "Allocating 0x%zx memory %p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
+        printf_dump(LOG_NEVER, "Allocating 0x%zx memory %p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
         void* p = mmap((void*)offs, head->memsz
             , PROT_READ | PROT_WRITE | PROT_EXEC
             , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
@@ -257,7 +257,7 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         head->memory = p;
         memset(p, 0, head->memsz);
         head->delta = (intptr_t)p - (intptr_t)head->vaddr;
-        printf_log(LOG_DEBUG, "Got %p (delta=%p)\n", p, (void*)head->delta);
+        printf_dump(LOG_NEVER, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
         head->multiblock_n = 1;
         head->multiblock_size = (uint32_t*)calloc(head->multiblock_n, sizeof(uint32_t));
@@ -292,11 +292,11 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             char* dest = (char*)e->p_paddr + head->delta;
             void* p = (void*)-1;
             if(e->p_memsz==e->p_filesz && !(e->p_align&0xfff)) {
-                printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx, flags:0x%x)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz, e->p_flags);
+                printf_dump(LOG_NEVER, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx, flags:0x%x)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz, e->p_flags);
                 p = mmap(dest, e->p_filesz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE, fileno(f), e->p_offset);
             }
             if(p!=dest) {
-                printf_log(LOG_DEBUG, "Loading block #%d %p (0x%zx/0x%zx)\n",i, dest, e->p_filesz, e->p_memsz);
+                printf_dump(LOG_NEVER, "Loading block #%d %p (0x%zx/0x%zx)\n",i, dest, e->p_filesz, e->p_memsz);
                 fseeko64(f, e->p_offset, SEEK_SET);
                 if(e->p_filesz) {
                     if(fread(dest, e->p_filesz, 1, f)!=1) {
@@ -307,7 +307,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
             }
 #ifdef DYNAREC
             if(box86_dynarec && (e->p_flags & PF_X)) {
-                dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
+                printf_dump(LOG_NEVER, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
                 addDBFromAddressRange((uintptr_t)dest, e->p_memsz);
             }
 #endif
@@ -319,7 +319,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
         if(head->PHEntries[i].p_type == PT_TLS) {
             Elf32_Phdr * e = &head->PHEntries[i];
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
-            printf_log(LOG_DEBUG, "Loading TLS block #%i %p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
+            printf_dump(LOG_NEVER, "Loading TLS block #%i %p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
                 fseeko64(f, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, f)!=1) {
@@ -1036,8 +1036,8 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
     printf_dump(LOG_NEVER, "Will look for Symbol to add in SymTable(%zu)\n", h->numSymTab);
     for (size_t i=0; i<h->numSymTab; ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
-        int bind = ELF64_ST_BIND(h->SymTab[i].st_info);
-        int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
+        int bind = ELF32_ST_BIND(h->SymTab[i].st_info);
+        int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
         int vis = h->SymTab[i].st_other&0x3;
         size_t sz = h->SymTab[i].st_size;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
@@ -1045,7 +1045,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             if(sz && strstr(symname, "@@")) {
                 char symnameversionned[strlen(symname)+1];
                 strcpy(symnameversionned, symname);
-                // extact symname@@vername
+                // extract symname@@vername
                 char* p = strchr(symnameversionned, '@');
                 *p=0;
                 p+=2;
@@ -1056,12 +1056,12 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
                 printf_dump(LOG_NEVER, "Adding Default Versionned Symbol(bind=%s) \"%s@%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, vername, (void*)offs, sz);
                 if(bind==STB_LOCAL)
-                    AddSymbol(localsymbols, symname, offs, sz, 2, vername);
+                    AddSymbol(localsymbols, symname, offs, sz, 0, vername);
                 else    // add in local and global map 
                     if(bind==STB_WEAK) {
-                        AddSymbol(weaksymbols, symname, offs, sz, 2, vername);
+                        AddSymbol(weaksymbols, symname, offs, sz, 0, vername);
                     } else {
-                        AddSymbol(mapsymbols, symname, offs, sz, 2, vername);
+                        AddSymbol(mapsymbols, symname, offs, sz, 0, vername);
                     }
             } else {
                 int to_add = 1;
@@ -1091,14 +1091,14 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
     printf_dump(LOG_NEVER, "Will look for Symbol to add in DynSym (%zu)\n", h->numDynSym);
     for (size_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
-        int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
-        int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
+        int bind = ELF32_ST_BIND(h->DynSym[i].st_info);
+        int type = ELF32_ST_TYPE(h->DynSym[i].st_info);
         int vis = h->DynSym[i].st_other&0x3;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             size_t sz = h->DynSym[i].st_size;
-            int version = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
+            int version = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
             if(version!=-1) version &= 0x7fff;
             const char* vername = GetSymbolVersion(h, version);
             int to_add = 1;
@@ -1118,7 +1118,8 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 if(bind==STB_WEAK) {
                     AddSymbol(weaksymbols, symname, offs, sz, version, vername);
                 } else {
-                    AddSymbol(mapsymbols, symname, offs, sz, version, vername);
+                    // Binding is Global, the symbol "local" vsibility is ignored (fixes Unreal)
+                    AddWeakSymbol(mapsymbols, symname, offs, sz, version?version:1, vername);
                 }
         }
     }
