@@ -323,14 +323,14 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     }
     // start with FPU regs...
     if(emu->fpu_stack) {
-        if(emu->fpu_stack<8)
+        if(emu->fpu_stack<9)
             for (int i=0; i<emu->fpu_stack; i++) {
+                //if(i==4) strcat(buff, "\n");
                 sprintf(tmp, "ST%d=%f", i, emu->x87[(emu->top+i)&7].d);
                 strcat(buff, tmp);
                 int c = 10-strlen(tmp);
                 if(c<1) c=1;
                 while(c--) strcat(buff, " ");
-                if(i==3) strcat(buff, "\n");
             }
         else {
             sprintf(tmp, "Warning, incoherent fpu_stack=%d", emu->fpu_stack);
