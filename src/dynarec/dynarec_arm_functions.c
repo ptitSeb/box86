@@ -479,33 +479,34 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
         return ((dyn->insts[ninst].x86.barrier&BARRIER_FLOAT))?0:1; // if the barrier as already been apply, no transform needed
     int ret = 0;
     if(!i2) { // just purge
-        if(dyn->n.stack_next)  {
+        if(dyn->insts[ninst].n.stack_next)  {
             return 1;
         }
-        for(int i=0; i<24; ++i)
-            if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
-                if(dyn->insts[0].n.neoncache[i].v!=dyn->n.neoncache[i].v) {
+        for(int i=0; i<24 && !ret; ++i)
+            if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
+                if(!(
+                (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
+                && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
                     ret = 1;
-                }
             }
         return ret;
     }
     // Check if ninst can be compatible to i2
-    if(dyn->n.stack_next != dyn->insts[i2].n.stack-dyn->insts[i2].n.stack_push) {
+    if(dyn->insts[ninst].n.stack_next != dyn->insts[i2].n.stack-dyn->insts[i2].n.stack_push) {
         return 1;
     }
     neoncache_t cache_i2 = dyn->insts[i2].n;
     neoncacheUnwind(&cache_i2);
 
     for(int i=0; i<24; ++i) {
-        if(dyn->n.neoncache[i].v) {       // there is something at ninst for i
+        if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
             if(!cache_i2.neoncache[i].v) {    // but there is nothing at i2 for i
                 ret = 1;
-            } else if(dyn->n.neoncache[i].v!=cache_i2.neoncache[i].v) {  // there is something different
-                if(dyn->n.neoncache[i].n!=cache_i2.neoncache[i].n) {   // not the same x86 reg
+            } else if(dyn->insts[ninst].n.neoncache[i].v!=cache_i2.neoncache[i].v) {  // there is something different
+                if(dyn->insts[ninst].n.neoncache[i].n!=cache_i2.neoncache[i].n) {   // not the same x86 reg
                     ret = 1;
                 }
-                else if(dyn->n.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
+                else if(dyn->insts[ninst].n.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
                     {/* nothing */ }
                 else
                     ret = 1;
