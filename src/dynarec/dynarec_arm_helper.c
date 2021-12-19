@@ -1510,14 +1510,14 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
             int a = n - (*s3_top) - stack_cnt;
             if(a) {
                 if(a<0) {
-                    SUB_IMM8(s2, s3, -a);
+                    SUB_IMM8(s3, s3, -a);
                 } else {
-                    ADD_IMM8(s2, s3, a);
+                    ADD_IMM8(s3, s3, a);
                 }
-                AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+                AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             }
             *s3_top = a;
-            ADD_REG_LSL_IMM5(s2, xEmu, (a?s2:s3), 3);
+            ADD_REG_LSL_IMM5(s2, xEmu, s3, 3);
             *s2_val = 0;
             if(t==NEON_CACHE_ST_F) {
                 VCVT_F64_F32(i+FPUFIRST, (i+FPUFIRST)*2);
