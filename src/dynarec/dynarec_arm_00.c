@@ -2683,31 +2683,29 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         GETED;
                         SDIV(x2, xEAX, ed); // x1 = xEAX / ed
                         MLS(xEDX, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x1*ed)
-                        TSTS_IMM8_ROR(xEDX, 0b10, 1);   // test if reminder is negative
-                        ADD_REG_LSL_IMM5_COND(cNE, xEDX, xEDX, ed, 0); // add ed if negative
                         MOV_REG(xEAX, x2);
                     } else {
                         GETEDH(x1);
-                        // disabling the use of SDIV for now. It breaks X3Reunion
-                        // seems to be an issue with large number
-                        // for example EDX=0xffffffff EAX=0xe7f30000 and div ecx=0x186a0
-                        // gives wrong modulo
-                        if(arm_div && 0) {
+                        if(arm_div) {
+                            // check if a 32bits division is enough
                             CMPS_IMM8(xEDX, 0); // compare to 0
-                            CMNS_IMM8_COND(cNE, xEDX, 1); // compare to FFFFFFFF if not 0
+                            TSTS_IMM8_ROR_COND(cEQ, xEAX, 0b10, 1);   // also test that xEAX is not signed!
                             B_MARK(cEQ);
+                            CMNS_IMM8(xEDX, 1); // compare to FFFFFFFF if not 0
+                            B_MARK2(cNE);
+                            TSTS_IMM8_ROR(xEAX, 0b10, 1);   // also test that xEAX is signed!
+                            B_MARK(cNE);
+                            MARK2;
                         }
                         if(ed!=x1) {MOV_REG(x1, ed);}
                         STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                         CALL(idiv32, -1, 0);
                         LDM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
-                        if(arm_div && 0) {
+                        if(arm_div) {
                             B_NEXT(c__);
                             MARK;
                             SDIV(x2, xEAX, ed); // x2 = xEAX / ed
                             MLS(xEDX, x2, ed, xEAX);  // x14 = xEAX mod ed (i.e. xEAX - x2*ed)
-                            TSTS_IMM8_ROR(xEDX, 0b10, 1);   // test if reminder is negative
-                            ADD_REG_LSL_IMM5_COND(cNE, xEDX, xEDX, ed, 0); // add ed if negative
                             MOV_REG(xEAX, x2);
                             SET_DFNONE(x2); // flags are undefined
                         }
