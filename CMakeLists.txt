@@ -220,6 +220,7 @@ set_source_files_properties(
 
 set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/main.c"
+    "${BOX86_ROOT}/src/config.c"    
     "${BOX86_ROOT}/src/box86context.c"
     "${BOX86_ROOT}/src/build_info.c"
     "${BOX86_ROOT}/src/custommem.c"
