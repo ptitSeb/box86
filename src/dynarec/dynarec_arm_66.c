@@ -175,6 +175,12 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_sbb16c(dyn, ninst, x1, i16, x3, x14);
             BFI(xEAX, x1, 0, 16);
             break;
+        case 0x1E:
+            INST_NAME("PUSH DS");
+            MOVW(x1, offsetof(x86emu_t, segs[_DS]));
+            LDRH_REG(x2, xEmu, x1);
+            PUSH16(x2, xESP);
+            break;
 
         case 0x21:
             INST_NAME("AND Ew, Gw");

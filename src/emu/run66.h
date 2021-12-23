@@ -55,6 +55,9 @@
         STEP
         NEXT;
 
+    _66_0x1E:                      /* PUSH DS */
+        Push16(emu, emu->segs[_DS]);
+        NEXT;
     _66_0x1F:                      /* POP DS */
         emu->segs[_DS] = Pop16(emu);    // no check, no use....
         emu->segs_serial[_DS] = 0;
