@@ -1443,7 +1443,7 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
                 LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
                 *s3_top = 0;
             }
-            int a = n - stack_cnt;
+            int a = n  - (*s3_top) - stack_cnt;
             if(a) {
                 if(a<0) {
                     SUB_IMM8(s3, s3, -a);
@@ -1452,7 +1452,7 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
                 }
                 AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             }
-            *s3_top = a;
+            *s3_top += a;
             *s2_val = 0;
             ADD_REG_LSL_IMM5(s2, xEmu, s3, 3);
             VLDR_64(i+FPUFIRST, s2, offsetof(x86emu_t, x87));
@@ -1516,7 +1516,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
                 }
                 AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             }
-            *s3_top = a;
+            *s3_top += a;
             ADD_REG_LSL_IMM5(s2, xEmu, s3, 3);
             *s2_val = 0;
             if(t==NEON_CACHE_ST_F) {
