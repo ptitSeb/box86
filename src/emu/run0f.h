@@ -60,6 +60,18 @@
             if(emu->quit) goto fini;
             STEP;
             NEXT;
+        
+        _0f_0x0D:                   /* PREFETCH group */
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                    GET_ED; //nothing for now. Could maybe use some builtin prefetch instruction
+                    break;
+                default:
+                    goto _default;
+            }
+            NEXT;
+
         _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
             GET_EX;

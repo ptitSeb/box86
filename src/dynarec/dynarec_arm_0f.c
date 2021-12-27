@@ -87,6 +87,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             //CALL(arm_ud, -1, 0);
             UDF(0);
             break;
+
+        case 0x0D:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                    INST_NAME("PREFETCHW");
+                    //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                    addr = fakeed(dyn,addr, ninst, nextop);
+                    // should use PLDW, but it's not available on cortex-a8 for example
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;
