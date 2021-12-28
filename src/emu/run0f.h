@@ -64,7 +64,7 @@
         _0f_0x0D:                   /* PREFETCH group */
             nextop = F8;
             switch((nextop>>3)&7) {
-                case 1:
+                case 1: /* PREFETCHW */
                     GET_ED; //nothing for now. Could maybe use some builtin prefetch instruction
                     break;
                 default:
