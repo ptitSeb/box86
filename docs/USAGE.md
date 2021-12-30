@@ -119,6 +119,7 @@ Forbid dynablock creation in the interval specified (helpfull for debugging beha
 Enables/Disables Box86's Dynarec building BigBlock.
  * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
  * 1 : Build Dynarec block as big as possible (Default.)
+ * 2 : Build Dynarec block bigger (don't stop when block overlaps)
 
 #### BOX86_DYNAREC_STRONGMEM
 Enable/Disable simulation of Strong Memory model

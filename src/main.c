@@ -296,11 +296,13 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_BIGBLOCK");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box86_dynarec_bigblock = p[0]-'0';
         }
         if(!box86_dynarec_bigblock)
-        printf_log(LOG_INFO, "Dynarec will not try to make big block\n");
+            printf_log(LOG_INFO, "Dynarec will not try to make big blocks\n");
+        else if (box86_dynarec_bigblock>1)
+            printf_log(LOG_INFO, "Dynarec will try to make bigger blocks\n");
     }
     p = getenv("BOX86_DYNAREC_STRONGMEM");
     if(p) {
