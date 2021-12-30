@@ -515,6 +515,7 @@ static void x87_reset(dynarec_arm_t* dyn)
 
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
+    #if STEP > 1
     if(!dyn->n.x87stack)
         return;
     if(dyn->n.mmxcount)
@@ -541,6 +542,7 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     // reset x87stack, but not the stack count of neoncache
     dyn->n.x87stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
+    #endif
 }
 
 int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b)
@@ -666,12 +668,12 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
         while(dyn->n.x87cache[j]!=i) ++j; // look for STi
         #if STEP == 1
         if(!next) {  // don't force promotion here
-            neoncache_promote_double(dyn, ninst, dyn->n.x87cache[j], dyn->n.stack_next);
+            neoncache_promote_double(dyn, ninst, dyn->n.x87cache[j]);
         }
         #endif
         if(next) {
             // need to check if a ST_F need local promotion
-            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j], dyn->n.stack_next)>=0) {
+            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j])>=0) {
                 VCVT_F64_F32(0, dyn->n.x87reg[j]*2);
                 VSTM_64_W(0, s1);    // save the value
             } else {
@@ -679,7 +681,7 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
             }
         } else {
             // need to check if a ST_F need local promotion
-            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j], dyn->n.stack_next)>=0) {
+            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j])>=0) {
                 VCVT_F64_F32(0, dyn->n.x87reg[j]*2);
                 VSTM_64_W(0, s1);    // save the value
             } else {
@@ -776,11 +778,11 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
             if(dyn->n.x87cache[i]!=-1) {
                 #if STEP == 1
                 if(!next) {   // don't force promotion here
-                    neoncache_promote_double(dyn, ninst, dyn->n.x87cache[i], dyn->n.stack_next);
+                    neoncache_promote_double(dyn, ninst, dyn->n.x87cache[i]);
                 }
                 #endif
                 #if STEP == 3
-                if(!next && neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i], dyn->n.stack_next)>=0) {
+                if(!next && neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
                     MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", dyn->n.x87cache[i]);
                 }
                 #endif
@@ -793,7 +795,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
                 }
                 if(next) {
                     // need to check if a ST_F need local promotion
-                    if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i], dyn->n.stack_next)>=0) {
+                    if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
                         VCVT_F64_F32(0, dyn->n.x87reg[i]*2);
                         VSTR_64(0, s3, offsetof(x86emu_t, x87));    // save the value
                     } else {
@@ -853,7 +855,7 @@ int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
         if(dyn->n.x87cache[i]==st) {
             #if STEP == 1
             if(t==NEON_CACHE_ST_D && (dyn->n.neoncache[dyn->n.x87reg[i]-FPUFIRST].t==NEON_CACHE_ST_F))
-                neoncache_promote_double(dyn, ninst, st, dyn->n.stack);
+                neoncache_promote_double(dyn, ninst, st);
             #endif
             return i;
         }
@@ -956,7 +958,7 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
     #if STEP == 1
-    neoncache_promote_double(dyn, ninst, st, dyn->n.stack);
+    neoncache_promote_double(dyn, ninst, st);
     #endif
     // prepare offset to fpu => s1
     ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
@@ -985,7 +987,7 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     for (int i=0; i<8; ++i)
         if(dyn->n.x87cache[i]==st) {
             #if STEP == 1
-            neoncache_promote_double(dyn, ninst, st, dyn->n.stack);
+            neoncache_promote_double(dyn, ninst, st);
             #endif
             // refresh the value
             MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
@@ -1042,6 +1044,26 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     BFI(s1, s2, 22, 2);     // inject new round
     VMSR(s1);               // put new fpscr
     return s3;
+}
+
+void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b)
+{
+    int i1, i2, i3;
+    i1 = x87_get_cache(dyn, ninst, 1, s1, s2, b, X87_ST(b));
+    i2 = x87_get_cache(dyn, ninst, 1, s1, s2, a, X87_ST(a));
+    i3 = dyn->n.x87cache[i1];
+    dyn->n.x87cache[i1] = dyn->n.x87cache[i2];
+    dyn->n.x87cache[i2] = i3;
+    // swap those too
+    int j1, j2, j3;
+    j1 = x87_get_neoncache(dyn, ninst, s1, s2, b);
+    j2 = x87_get_neoncache(dyn, ninst, s1, s2, a);
+    j3 = dyn->n.neoncache[j1].n;
+    dyn->n.neoncache[j1].n = dyn->n.neoncache[j2].n;
+    dyn->n.neoncache[j2].n = j3;
+    // mark as swapped
+    dyn->n.swapped = 1;
+    dyn->n.combined1= a; dyn->n.combined2=b;
 }
 
 // Set rounding according to mxcsr flags, return reg to restore flags

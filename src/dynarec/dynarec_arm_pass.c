@@ -90,11 +90,17 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 dyn->n = dyn->insts[reset_n].n;
                 #endif
                 dyn->f = dyn->insts[reset_n].f_exit;
+                if(dyn->insts[ninst].x86.barrier&BARRIER_FLOAT) {
+                    MESSAGE(LOG_DEBUG, "Apply Barrier Float\n");
+                    fpu_reset(dyn);
+                }
+                if(dyn->insts[ninst].x86.barrier&BARRIER_FLAGS) {
+                    MESSAGE(LOG_DEBUG, "Apply Barrier Flags\n");
+                    dyn->f.dfnone = 0;
+                    dyn->f.pending = 0;
+                }
             }
             reset_n = -1;
-        }
-        if((dyn->insts[ninst].x86.barrier==BARRIER_FULL)) {
-            NEW_BARRIER_INST;
         }
         // propagate ST stack state, especial stack pop that are defered
         if(dyn->n.stack_pop) {

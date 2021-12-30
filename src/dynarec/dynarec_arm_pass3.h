@@ -7,7 +7,14 @@
     dyn->insts[ninst].size2 += 4
 
 #define MESSAGE(A, ...)  if(box86_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
-#define NEW_INST        
+#define NEW_INST        \
+    if((dyn->insts[ninst].x86.barrier==BARRIER_FULL) && ninst) {\
+        dyn->sons_x86[dyn->sons_size] = (uintptr_t)ip;          \
+        dyn->sons_arm[dyn->sons_size] = dyn->block;             \
+        MESSAGE(LOG_DUMP, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);  \
+        ++dyn->sons_size;                                       \
+    }
+
 #define INST_EPILOG     
 #define INST_NAME(name) \
     if(box86_dynarec_dump) {\
@@ -45,18 +52,10 @@
                 default:    break;              \
             }                                   \
         }                                       \
-        if(dyn->n.stack || dyn->insts[ninst].n.stack_next)                                     \
-            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop); \
+        if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)     \
+            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack); \
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)                     \
             dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);   \
         dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");                       \
-    }
-
-#define NEW_BARRIER_INST                            \
-    if(ninst) {                                     \
-    dyn->sons_x86[dyn->sons_size] = (uintptr_t)ip;  \
-    dyn->sons_arm[dyn->sons_size] = dyn->block;     \
-    MESSAGE(LOG_DUMP, "----> potential Son here\n");\
-    ++dyn->sons_size;                               \
     }
 

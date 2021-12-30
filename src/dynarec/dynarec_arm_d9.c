@@ -73,6 +73,8 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xC8:
+            INST_NAME("FXCH ST0");
+            break;
         case 0xC9:
         case 0xCA:
         case 0xCB:
@@ -82,18 +84,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xCF:
             INST_NAME("FXCH STx");
             // swap the cache value, not the double value itself :p
-            i1 = x87_get_cache(dyn, ninst, 1, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            i2 = x87_get_cache(dyn, ninst, 1, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            i3 = dyn->n.x87cache[i1];
-            dyn->n.x87cache[i1] = dyn->n.x87cache[i2];
-            dyn->n.x87cache[i2] = i3;
-            // swap those too
-            dyn->n.swapped = 1;
-            i1 = x87_get_neoncache(dyn, ninst, x1, x2, nextop&7);
-            i2 = x87_get_neoncache(dyn, ninst, x1, x2, 0);
-            i3 = dyn->n.neoncache[i1].v;
-            dyn->n.neoncache[i1].v = dyn->n.neoncache[i2].v;
-            dyn->n.neoncache[i2].v = i3;
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
             break;
 
         case 0xD0:
@@ -310,8 +301,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF2:
-            INST_NAME("FTAN");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            INST_NAME("FPTAN");
+            v2 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             VMOV_64(0, v1);    // prepare call to tan
             CALL_1D(tan, 0);
             VMOV_64(v1, 0);
@@ -319,13 +311,16 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 10, 1); //C2 = 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            v2 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
             // so here: F64: Imm8 = abcd efgh that gives => aBbbbbbb bbcdefgh 0000000 00000000 00000000...
             // and want 1.0 = 0x3ff0000000000000
             // so 00111111 11110000 00000000 00000000....
             // a = 0, b = 1, c = 1, d = 1, efgh=0
             // 0b01110000
-            VMOV_i_64(v2, 0b01110000);
+            if(ST_IS_F(0)) {
+                VMOV_i_32(v2, 0b01110000);
+            } else {
+                VMOV_i_64(v2, 0b01110000);
+            }
             break;
         case 0xF3:
             INST_NAME("FPATAN");
@@ -386,8 +381,8 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             VMOV_64(0, v1);
             CALL_1D(sin, 0);
             VSWP(v1, 0);

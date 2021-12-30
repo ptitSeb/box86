@@ -80,18 +80,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
             // copy the cache value for st0 to stx
-            i1 = x87_get_cache(dyn, ninst, 0, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            i2 = x87_get_cache(dyn, ninst, 1, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            i3 = dyn->n.x87cache[i1];
-            dyn->n.x87cache[i1] = dyn->n.x87cache[i2];
-            dyn->n.x87cache[i2] = i3;
-            // swap those too
-            dyn->n.swapped = 1;
-            i1 = x87_get_neoncache(dyn, ninst, x1, x2, nextop&7);
-            i2 = x87_get_neoncache(dyn, ninst, x1, x2, 0);
-            i3 = dyn->n.neoncache[i1].v;
-            dyn->n.neoncache[i1].v = dyn->n.neoncache[i2].v;
-            dyn->n.neoncache[i2].v = i3;
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
             x87_do_pop(dyn, ninst, x3);
             break;
 

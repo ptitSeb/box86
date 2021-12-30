@@ -346,9 +346,6 @@
 #ifndef DEFAULT
 #define DEFAULT      *ok = -1; BARRIER(BARRIER_NOFLAGS)
 #endif
-#ifndef NEW_BARRIER_INST
-#define NEW_BARRIER_INST
-#endif
 
 #if STEP < 2
 #define PASS2IF(A, B) if(A)
@@ -490,6 +487,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
+#define x87_swapreg     STEPNAME(x87_swapreg)
 #define sse_setround    STEPNAME(sse_setround)
 #define mmx_get_reg     STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
@@ -638,6 +636,8 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
+// swap 2 x87 regs
+void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 

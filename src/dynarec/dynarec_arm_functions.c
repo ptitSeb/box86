@@ -301,6 +301,12 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
 
 int neoncache_get_st(dynarec_arm_t* dyn, int ninst, int a)
 {
+    if (dyn->insts[ninst].n.swapped) {
+        if(dyn->insts[ninst].n.combined1 == a)
+            a = dyn->insts[ninst].n.combined2;
+        else if(dyn->insts[ninst].n.combined2 == a)
+            a = dyn->insts[ninst].n.combined1;
+    }
     for(int i=0; i<24; ++i)
         if((dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
          || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D)
@@ -324,127 +330,141 @@ int neoncache_get_current_st(dynarec_arm_t* dyn, int ninst, int a)
     return NEON_CACHE_ST_D;
 }
 
-int neoncache_get_st_f(dynarec_arm_t* dyn, int ninst, int a, int st)
+int neoncache_get_st_f(dynarec_arm_t* dyn, int ninst, int a)
 {
     /*if(a+dyn->insts[ninst].n.stack_next-st<0)
         // The STx has been pushed at the end of instructon, so stop going back
         return -1;*/
     for(int i=0; i<24; ++i)
         if(dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
-         && dyn->insts[ninst].n.neoncache[i].n==a+dyn->insts[ninst].n.stack-st)
+         && dyn->insts[ninst].n.neoncache[i].n==a)
             return i;
     return -1;
 } 
-int neoncache_get_st_f_noback(dynarec_arm_t* dyn, int ninst, int a, int st)
+int neoncache_get_st_f_noback(dynarec_arm_t* dyn, int ninst, int a)
 {
     for(int i=0; i<24; ++i)
         if(dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
-         && dyn->insts[ninst].n.neoncache[i].n==a+dyn->insts[ninst].n.stack-st)
+         && dyn->insts[ninst].n.neoncache[i].n==a)
             return i;
     return -1;
 } 
-int neoncache_get_current_st_f(dynarec_arm_t* dyn, int a, int st)
+int neoncache_get_current_st_f(dynarec_arm_t* dyn, int a)
 {
     for(int i=0; i<24; ++i)
         if(dyn->n.neoncache[i].t==NEON_CACHE_ST_F
-         && dyn->n.neoncache[i].n==a+dyn->n.stack-st)
+         && dyn->n.neoncache[i].n==a)
             return i;
     return -1;
 } 
-static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st);
-static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st);
-static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st)
+static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int maxinst, int a);
+static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a);
+static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int maxinst, int a)
 {
-    if(a == dyn->insts[ninst].n.combined1) {
-        int i = neoncache_get_st_f_noback(dyn, ninst, dyn->insts[ninst].n.combined2, st);
-        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d combined2 %d i=%d\n", ninst, dyn->insts[ninst].n.combined2 ,i);
+    if(a == dyn->insts[ninst].n.combined1 || a == dyn->insts[ninst].n.combined2) {
+        if(a == dyn->insts[ninst].n.combined1) {
+            a = dyn->insts[ninst].n.combined2;
+        } else 
+            a = dyn->insts[ninst].n.combined1;
+        int i = neoncache_get_st_f_noback(dyn, ninst, a);
+        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_combined, ninst=%d combined%c %d i=%d (stack:%d/%d)\n", ninst, (a == dyn->insts[ninst].n.combined2)?'2':'1', a ,i, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
         if(i>=0) {
             dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
             if(!dyn->insts[ninst].n.barrier)
-                neoncache_promote_double_internal(dyn, ninst-1, maxinst, dyn->insts[ninst].n.combined2, st);
+                neoncache_promote_double_internal(dyn, ninst-1, maxinst, a-dyn->insts[ninst].n.stack_push);
             // go forward is combined is not pop'd
-            if(dyn->insts[ninst].n.stack_next-dyn->insts[ninst].n.stack<=dyn->insts[ninst].n.combined2)
+            if(a-dyn->insts[ninst].n.stack_pop>=0)
                 if(!dyn->insts[ninst+1].n.barrier)
-                    neoncache_promote_double_forward(dyn, ninst+1, maxinst, dyn->insts[ninst].n.combined2, st);
-        }
-    } else if(a == dyn->insts[ninst].n.combined2) {
-        int i = neoncache_get_st_f_noback(dyn, ninst, dyn->insts[ninst].n.combined1, st);
-        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d combined1 %d i=%d\n", ninst, dyn->insts[ninst].n.combined1 ,i);
-        if(i>=0) {
-            dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
-            if(!dyn->insts[ninst].n.barrier)
-                neoncache_promote_double_internal(dyn, ninst-1, maxinst, dyn->insts[ninst].n.combined1, st);
-            // go forward is combined is not pop'd
-            if(dyn->insts[ninst].n.stack_next-dyn->insts[ninst].n.stack<=dyn->insts[ninst].n.combined1)
-                if(!dyn->insts[ninst+1].n.barrier)
-                    neoncache_promote_double_forward(dyn, ninst+1, maxinst, dyn->insts[ninst].n.combined1, st);
+                    neoncache_promote_double_forward(dyn, ninst+1, maxinst, a-dyn->insts[ninst].n.stack_pop);
         }
     }
 }
-static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st)
+static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a)
 {
     if(dyn->insts[ninst+1].n.barrier)
         return;
     while(ninst>=0) {
-        int i = neoncache_get_st_f(dyn, ninst, a, st);
-        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d, a=%d st=%d:%d/%d, i=%d\n", ninst, a, st, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
+        a+=dyn->insts[ninst].n.stack_pop;    // adjust Stack depth: add pop'd ST (going backward)
+        int i = neoncache_get_st_f(dyn, ninst, a);
+        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d, a=%d st=%d:%d, i=%d\n", ninst, a, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
         if(i<0) return;
         dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
-        a+=dyn->insts[ninst].n.stack-st;    // adjust STx
-        st = dyn->insts[ninst].n.stack;     // new stack depth
         // check combined propagation too
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2) {
-            //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d combined %d/%d vs %d with st %d/%d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, st, dyn->insts[ninst].n.stack);
-            neoncache_promote_double_combined(dyn, ninst, maxinst, a, st);
+            if(dyn->insts[ninst].n.swapped) {
+                //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d swapped %d/%d vs %d with st %d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, dyn->insts[ninst].n.stack);
+                if (a==dyn->insts[ninst].n.combined1)
+                    a = dyn->insts[ninst].n.combined2;
+                else if (a==dyn->insts[ninst].n.combined2)
+                    a = dyn->insts[ninst].n.combined1;
+            } else {
+                //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_internal, ninst=%d combined %d/%d vs %d with st %d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, dyn->insts[ninst].n.stack);
+                neoncache_promote_double_combined(dyn, ninst, maxinst, a);
+            }
         }
+        a-=dyn->insts[ninst].n.stack_push;  // // adjust Stack depth: remove push'd ST (going backward)
         --ninst;
-        if(dyn->insts[ninst].n.barrier)
+        if(ninst<0 || a<0 || dyn->insts[ninst].n.barrier)
             return;
     }
 }
 
-static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int maxinst, int a, int st)
+static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int maxinst, int a)
 {
-    while((ninst!=-1) && (ninst<maxinst)) {
-        int i = neoncache_get_st_f_noback(dyn, ninst, a, st);
-        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d, a=%d st=%d:%d/%d, i=%d\n", ninst, a, st, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, i);
+    while((ninst!=-1) && (ninst<maxinst) && (a>=0)) {
+        a+=dyn->insts[ninst].n.stack_push;  // // adjust Stack depth: add push'd ST (going forward)
+        if((dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2) && dyn->insts[ninst].n.swapped) {
+            //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d swapped %d/%d vs %d with st %d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, dyn->insts[ninst].n.stack);
+            if (a==dyn->insts[ninst].n.combined1)
+                a = dyn->insts[ninst].n.combined2;
+            else if (a==dyn->insts[ninst].n.combined2)
+                a = dyn->insts[ninst].n.combined1;
+        }
+        int i = neoncache_get_st_f_noback(dyn, ninst, a);
+        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d, a=%d st=%d:%d(%d/%d), i=%d\n", ninst, a, dyn->insts[ninst].n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop, i);
         if(i<0) return;
         dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
-        a+=dyn->insts[ninst].n.stack-st;    // adjust STx
-        st = dyn->insts[ninst].n.stack;     // new stack depth
         // check combined propagation too
-        if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2) {
-            //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d combined %d/%d vs %d with st %d/%d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, st, dyn->insts[ninst].n.stack);
-            neoncache_promote_double_combined(dyn, ninst, maxinst, a, st);
+        if((dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2) && !dyn->insts[ninst].n.swapped) {
+            //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_forward, ninst=%d combined %d/%d vs %d with st %d\n", ninst, dyn->insts[ninst].n.combined1 ,dyn->insts[ninst].n.combined2, a, dyn->insts[ninst].n.stack);
+            neoncache_promote_double_combined(dyn, ninst, maxinst, a);
         }
+        a-=dyn->insts[ninst].n.stack_pop;    // adjust Stack depth: remove pop'd ST (going forward)
         if(dyn->insts[ninst].x86.has_next && !dyn->insts[ninst].n.barrier)
             ++ninst;
         else
             ninst=-1;
     }
     if(ninst==maxinst)
-        neoncache_promote_double(dyn, ninst, a, st);
+        neoncache_promote_double(dyn, ninst, a);
 }
 
-void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a, int st)
+void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a)
 {
-    int i = neoncache_get_current_st_f(dyn, a, st);
-    //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d a=%d st=%d/%d i=%d\n", ninst, a, st, dyn->n.stack, i);
+    int i = neoncache_get_current_st_f(dyn, a);
+    //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d a=%d st=%d i=%d\n", ninst, a, dyn->n.stack, i);
     if(i<0) return;
     dyn->n.neoncache[i].t = NEON_CACHE_ST_D;
     dyn->insts[ninst].n.neoncache[i].t = NEON_CACHE_ST_D;
-    a+=dyn->n.stack-st;
-    st = dyn->n.stack;
     // check combined propagation too
     if(dyn->n.combined1 || dyn->n.combined2) {
-        //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d combined! %d/%d vs %d\n", ninst, dyn->n.combined1 ,dyn->n.combined2, a);
-        if(dyn->n.combined1 == a)
-            neoncache_promote_double(dyn, ninst, dyn->n.combined2, st);
-        else if(dyn->n.combined2 == a)
-            neoncache_promote_double(dyn, ninst, dyn->n.combined1, st);
+        if(dyn->n.swapped) {
+            //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d swapped! %d/%d vs %d\n", ninst, dyn->n.combined1 ,dyn->n.combined2, a);
+            if(dyn->n.combined1 == a)
+                a = dyn->n.combined2;
+            else if(dyn->n.combined2 == a)
+                a = dyn->n.combined1;
+        } else {
+            //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double, ninst=%d combined! %d/%d vs %d\n", ninst, dyn->n.combined1 ,dyn->n.combined2, a);
+            if(dyn->n.combined1 == a)
+                neoncache_promote_double(dyn, ninst, dyn->n.combined2);
+            else if(dyn->n.combined2 == a)
+                neoncache_promote_double(dyn, ninst, dyn->n.combined1);
+        }
     }
-    if(!ninst) return;
-    neoncache_promote_double_internal(dyn, ninst-1, ninst, a, st);
+    a-=dyn->insts[ninst].n.stack_push;  // // adjust Stack depth: remove push'd ST (going backward)
+    if(!ninst || a<0) return;
+    neoncache_promote_double_internal(dyn, ninst-1, ninst, a);
 }
 
 int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b)
@@ -531,10 +551,12 @@ void neoncacheUnwind(neoncache_t* cache)
                     b = j;
             }
         if(a!=-1 && b!=-1) {
-            int tmp = cache->neoncache[a].v;
-            cache->neoncache[a].v = cache->neoncache[b].v;
-            cache->neoncache[b].v = tmp;
+            int tmp = cache->neoncache[a].n;
+            cache->neoncache[a].n = cache->neoncache[b].n;
+            cache->neoncache[b].n = tmp;
         }
+        cache->swapped = 0;
+        cache->combined1 = cache->combined2 = 0;
     }
     if(cache->news) {
         // reove the newly created neoncache
