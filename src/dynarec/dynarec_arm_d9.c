@@ -70,6 +70,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VMOV_64(v2, v1);
             }
+            // should set C1 to 0
             break;
 
         case 0xC8:
@@ -85,6 +86,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FXCH STx");
             // swap the cache value, not the double value itself :p
             x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
+            // should set C1 to 0
             break;
 
         case 0xD0:
@@ -99,6 +101,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VNEG_F64(v1, v1);
             }
+            // should set C1 to 0
             break;
         case 0xE1:
             INST_NAME("FABS");
@@ -108,6 +111,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VABS_F64(v1, v1);
             }
+            // should set C1 to 0
             break;
 
         case 0xE4:
@@ -192,6 +196,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VMOV_i_64(v1, 0b01110000);
             }
+            // should set C1 to 0
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
@@ -203,6 +208,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, (&d_l2t));
                 VLDR_64(v1, x2, 0);
             }
+            // should set C1 to 0
             break;
         case 0xEA:     
             INST_NAME("FLDL2E");
@@ -214,6 +220,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, (&d_l2e));
                 VLDR_64(v1, x2, 0);
             }
+            // should set C1 to 0
             break;
         case 0xEB:
             INST_NAME("FLDPI");
@@ -225,6 +232,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, (&d_pi));
                 VLDR_64(v1, x2, 0);
             }
+            // should set C1 to 0
             break;
         case 0xEC:
             INST_NAME("FLDLG2");
@@ -236,6 +244,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, (&d_lg2));
                 VLDR_64(v1, x2, 0);
             }
+            // should set C1 to 0
             break;
         case 0xED:
             INST_NAME("FLDLN2");
@@ -247,6 +256,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, (&d_ln2));
                 VLDR_64(v1, x2, 0);
             }
+            // should set C1 to 0
             break;
         case 0xEE:
             INST_NAME("FLDZ");
@@ -256,40 +266,15 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VMOV_8(v1, 0);  // cannot use VMOV_i_F64
             }
+            // should set C1 to 0
             break;
 
-        case 0xFA:
-            INST_NAME("FSQRT");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-            if(ST_IS_F(0)) {
-                VSQRT_F32(v1, v1);
-            } else {
-                VSQRT_F64(v1, v1);
-            }
-            break;
-
-        case 0xFC:
-            INST_NAME("FRNDINT");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-            // check if finite first
-            VCMP_F64_0(v1);
-            VMRS_APSR();
-            B_NEXT(cVS);    // Unordered, skip
-            B_NEXT(cEQ);    // Zero, skip
-            // load round mode
-            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
-            UBFX(x2, x1, 10, 2);    // extract round...
-            MOV32(x1, round_map);
-            LDR_REG_LSL_IMM5(x2, x1, x2, 2);
-            VMOV_64(0, v1);    // prepare call to log2
-            CALL_1DR(x2, x3, 0);
-            VMOV_64(v1, 0);
-            break;
         case 0xF0:
             INST_NAME("F2XM1");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_f2xm1, -1, 0);
+            // should set C1 to 0
             break;
         case 0xF1:
             INST_NAME("FYL2X");
@@ -299,6 +284,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CALL_1D(log2, 0);
             VMUL_F64(v2, v2, 0);    //ST(1).d = log2(ST0.d)*ST(1).d
             x87_do_pop(dyn, ninst, x3);
+            // should set C1 to 0
             break;
         case 0xF2:
             INST_NAME("FPTAN");
@@ -307,9 +293,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to tan
             CALL_1D(tan, 0);
             VMOV_64(v1, 0);
-            //emu->sw.f.F87_C2 = 0;
+            //emu->sw.f.F87_C2 = 0; 
+            //emu->sw.f.F87_C1 = 0; 
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            BFC(x1, 10, 1); //C2 = 0
+            BFC(x1, 9, 2); //C1 C2 = 0 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             // so here: F64: Imm8 = abcd efgh that gives => aBbbbbbb bbcdefgh 0000000 00000000 00000000...
             // and want 1.0 = 0x3ff0000000000000
@@ -331,6 +318,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CALL_2D(atan2, 0);
             VMOV_64(v2, 0);    //ST(1).d = atan2(ST1.d, ST0.d);
             x87_do_pop(dyn, ninst, x3);
+            // should set C1 to 0
             break;
         case 0xF4:
             INST_NAME("FXTRACT");
@@ -338,6 +326,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             x87_do_push_empty(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fxtract, -1, 0);
+            // C1 set only if stack under/overflow occurs
             break;
         case 0xF5:
             INST_NAME("FPREM1");
@@ -353,6 +342,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SUB_IMM8(x2, x2, 1);
             AND_IMM8(x2, x2, 7);
             STR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            // should set C1 to 0
             break;
         case 0xF7:
             INST_NAME("FINCSTP");
@@ -361,6 +351,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             ADD_IMM8(x2, x2, 1);
             AND_IMM8(x2, x2, 7);
             STR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            // should set C1 to 0
             break;
         case 0xF8:
             INST_NAME("FPREM");
@@ -378,6 +369,17 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CALL_1D(log2, 0);
             VMUL_F64(v2, v2, 0);    //ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
             x87_do_pop(dyn, ninst, x3);
+            // should set C1 to 0
+            break;
+        case 0xFA:
+            INST_NAME("FSQRT");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            if(ST_IS_F(0)) {
+                VSQRT_F32(v1, v1);
+            } else {
+                VSQRT_F64(v1, v1);
+            }
+            // should set C1 to 0
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
@@ -388,10 +390,28 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VSWP(v1, 0);
             CALL_1D(cos, 0);
             VMOV_64(v2, 0);
-            //emu->sw.f.F87_C2 = 0;
+            //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            BFC(x1, 10, 1); //C2 = 0
+            BFC(x1, 9, 2); //C2 C1 = 0 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
+            break;
+        case 0xFC:
+            INST_NAME("FRNDINT");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            // check if finite first
+            VCMP_F64_0(v1);
+            VMRS_APSR();
+            B_NEXT(cVS);    // Unordered, skip
+            B_NEXT(cEQ);    // Zero, skip
+            // load round mode
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+            UBFX(x2, x1, 10, 2);    // extract round...
+            MOV32(x1, round_map);
+            LDR_REG_LSL_IMM5(x2, x1, x2, 2);
+            VMOV_64(0, v1);    // prepare call to fpu_round
+            CALL_1DR(x2, x3, 0);
+            VMOV_64(v1, 0);
+            // should set C1 to 0
             break;
         case 0xFD:
             INST_NAME("FSCALE");
@@ -405,6 +425,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v2);
             CALL_1DD(trunc, exp2, 0);
             VMUL_F64(v1, v1, 0);
+            // should set C1 to 0
             break;
         case 0xFE:
             INST_NAME("FSIN");
@@ -412,9 +433,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to sin
             CALL_1D(sin, 0);
             VMOV_64(v1, 0);
-            //emu->sw.f.F87_C2 = 0;
+            //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            BFC(x1, 10, 1); //C2 = 0
+            BFC(x1, 9, 2); //C2 C1 = 0 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             break;
         case 0xFF:
@@ -423,9 +444,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to cos
             CALL_1D(cos, 0);
             VMOV_64(v1, 0);
-            //emu->sw.f.F87_C2 = 0;
+            //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            BFC(x1, 10, 1); //C2 = 0
+            BFC(x1, 9, 2); //C2 C1 = 0 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             break;
 
@@ -472,6 +493,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(!ST_IS_F(0)) {
                         VCVT_F64_F32(v1, s0);
                     }
+                    // should set C1 to 0
                     break;
                 case 2:
                     INST_NAME("FST float[ED], ST0");

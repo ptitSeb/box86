@@ -34,7 +34,12 @@ static inline void fpu_do_push(x86emu_t* emu)
         return;
     }*/
     if(emu->fpu_stack<8)
-        ++emu->fpu_stack; 
+        ++emu->fpu_stack;
+    else {
+        emu->sw.f.F87_C1 = 1;
+        return;
+    }
+    emu->sw.f.F87_C1 = 0;
     emu->p_regs[newtop].tag = 0;    // full
     emu->top = newtop;
 }
@@ -136,7 +141,7 @@ void fpu_fxam(x86emu_t* emu);
 
 static inline void fpu_ftst(x86emu_t* emu) {
     emu->sw.f.F87_C1 = 0;
-    if(isinf(ST0.d) || isnan(ST0.d)) 
+    if(isnan(ST0.d)) 
     {  // TODO: Unsuported and denormal not analysed...
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 1;

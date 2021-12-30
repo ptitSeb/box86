@@ -23,6 +23,7 @@
             ll = ST(nextop&7).sq;
             ST(nextop&7).sq = ST0.sq;
             ST0.sq = ll;
+            emu->sw.f.F87_C1 = 0;
             break;
 
         case 0xD0:  /* FNOP */
@@ -30,9 +31,11 @@
 
         case 0xE0:  /* FCHS */
             ST0.d = -ST0.d;
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xE1:  /* FABS */
             ST0.d = fabs(ST0.d);
+            emu->sw.f.F87_C1 = 0;
             break;
         
         case 0xE4:  /* FTST */
@@ -73,25 +76,30 @@
 
         case 0xF0:  /* F2XM1 */
             ST0.d = exp2(ST0.d) - 1.0;
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xF1:  /* FYL2X */
             ST(1).d *= log2(ST0.d);
             fpu_do_pop(emu);
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xF2:  /* FPTAN */
             ST0.d = tan(ST0.d);
             fpu_do_push(emu);
             ST0.d = 1.0;
             emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xF3:  /* FPATAN */
             ST1.d = atan2(ST1.d, ST0.d);
             fpu_do_pop(emu);
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xF4:  /* FXTRACT */
             ST0.d = frexp(ST0.d, &tmp32s);
             fpu_do_push(emu);
             ST0.d = tmp32s;
+            // C1 set only if stack under/overflow occurs
             break;
 
         case 0xF8:  /* FPREM */
@@ -146,30 +154,37 @@
         case 0xF9:  /* FYL2XP1 */
             ST(1).d *= log2(ST0.d + 1.0);
             fpu_do_pop(emu);
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xFA:  /* FSQRT */
             ST0.d = sqrt(ST0.d);
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xFB:  /* FSINCOS */
             fpu_do_push(emu);
             sincos(ST1.d, &ST1.d, &ST0.d);
             emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xFC:  /* FRNDINT */
             ST0.d = fpu_round(emu, ST0.d);
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xFD:  /* FSCALE */
             // this could probably be done by just altering the exponant part of the float...
             if(ST0.d!=0.0)
                 ST0.d *= exp2(trunc(ST1.d));
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xFE:  /* FSIN */
             ST0.d = sin(ST0.d);
             emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C1 = 0;
             break;
         case 0xFF:  /* FCOS */
             ST0.d = cos(ST0.d);
             emu->sw.f.F87_C2 = 0;
+            emu->sw.f.F87_C1 = 0;
             break;
 
 
