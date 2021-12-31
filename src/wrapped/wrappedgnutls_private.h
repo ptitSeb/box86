@@ -1077,7 +1077,7 @@ GO(gnutls_x509_privkey_get_pk_algorithm2, iFpp)
 GO(gnutls_x509_privkey_import_pkcs8, iFppipu)
 GO(gnutls_x509_privkey_import_rsa_raw, iFp)
 //GO(gnutls_x509_privkey_import_rsa_raw2, 
-//GO(gnutls_x509_privkey_init, 
+GO(gnutls_x509_privkey_init, iFp)
 //GO(gnutls_x509_privkey_sec_param, 
 //GO(gnutls_x509_privkey_set_flags, 
 //GO(gnutls_x509_privkey_set_pin_function, 
