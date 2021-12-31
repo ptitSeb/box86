@@ -63,7 +63,7 @@ GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigSetRescanInverval, 
 GO(FcConfigSubstitute, iFppi)
 //GO(FcConfigSubstituteWithPat, 
-//GO(FcConfigUptoDate, 
+GO(FcConfigUptoDate, iFp)
 GO(FcDefaultSubstitute, vFp)
 //GO(FcDirCacheLoad, 
 //GO(FcDirCacheLoadFile, 
@@ -113,7 +113,7 @@ GO(FcLangSetDestroy, vFp)
 GO(FcLangSetHasLang, iFpp)
 //GO(FcMatrixCopy, 
 //GO(FcMatrixEqual, 
-//GO(FcMatrixMultiply, 
+GO(FcMatrixMultiply, vFppp)
 //GO(FcMatrixRotate, 
 //GO(FcMatrixScale, 
 //GO(FcMatrixShear, 
