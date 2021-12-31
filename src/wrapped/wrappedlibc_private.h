@@ -232,7 +232,7 @@ GOW(endmntent, iFp)
 GO(endprotoent, vFv)
 GO(endpwent, vFv)
 // endrpcent
-// endservent
+GO(endservent, vFv)
 GO(endspent, vFv)
 // endttyent
 // endusershell
