@@ -1304,9 +1304,6 @@ EXPORT void my_g_set_error(x86emu_t *emu, void* err, void* domain, int code, voi
 #define CUSTOM_INIT \
     libname = lib->name;\
     my_lib = lib;       \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libresolv.so.2");\
     lib->priv.w.p2 = getGlib2My(lib);
 
 #define CUSTOM_FINI \

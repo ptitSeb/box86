@@ -20,4 +20,9 @@
 const char* libresolvName = "libresolv.so.2";
 #define LIBNAME libresolv
 
+#define PRE_INIT\
+    if(1)                                                           \
+        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
+
 #include "wrappedlib_init.h"
