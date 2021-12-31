@@ -380,7 +380,7 @@ GO(XFreeStringList, vFp)
 GO(XGContextFromGC, pFp)
 GO(XGeometry, iFpippuuuiipppp)
 GO(_XGetAsyncData, vFpppiiii)
-// _XGetAsyncReply
+GO(_XGetAsyncReply, pFppppiii)
 GO(XGetAtomName, pFpp)
 GO(XGetAtomNames, iFppip)
 // _XGetBitsPerPixel
@@ -537,7 +537,7 @@ DATAB(_XIOErrorFunction, 4)
 //GO(XkbAllocServerMap
 //GO(XkbApplyCompatMapToKey
 //GO(XkbApplyVirtualModChanges
-//GO(XkbBell
+GO(XkbBell, iFppip)
 //GO(XkbBellEvent
 //GO(XkbChangeDeviceInfo
 //GO(XkbChangeEnabledControls
@@ -587,7 +587,7 @@ DATA(_XkbGetAtomNameFunc, 4)
 //GO(XkbGetAutoResetControls
 // _XkbGetCharset
 //GO(XkbGetCompatMap
-//GO(XkbGetControls
+GO(XkbGetControls, iFpup)
 // _XkbGetConverters
 //GO(XkbGetDetectableAutoRepeat
 //GO(XkbGetDeviceButtonActions
