@@ -75,8 +75,18 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_C_COMPILER=${{ env.BOX86_COMPILER }} ${{ env.BOX86_PLATFORM_MARCRO }} -DCMAKE_BUILD_TYPE=${{ env.BOX86_BUILD_TYPE }} -DHAVE_TRACE=${{ env.BOX86_HAVE_TRACE }} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+          cmake .. -DCMAKE_C_COMPILER=${{ env.BOX86_COMPILER }}\
+                   ${{ env.BOX86_PLATFORM_MARCRO }}\
+                   -DCMAKE_BUILD_TYPE=${{ env.BOX86_BUILD_TYPE }}\
+                   -DHAVE_TRACE=${{ env.BOX86_HAVE_TRACE }}\
+                   -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
           make -j$(nproc) VERBOSE=1
+
+      - name: "Test Box86"
+        if: ${{ matrix.platform == 'I386' }}
+        run: |
+          cd build
+          ctest -j$(nproc)
       
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
