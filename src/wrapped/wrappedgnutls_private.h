@@ -472,7 +472,7 @@ GO(gnutls_pkcs12_init, iFp)
 //GO(gnutls_pkcs12_set_bag, 
 GO(gnutls_pkcs12_simple_parse, iFppppppppu)
 //GO(_gnutls_pkcs12_string_to_key, 
-//GO(gnutls_pkcs12_verify_mac, 
+GO(gnutls_pkcs12_verify_mac, iFpp)
 //GO(gnutls_pkcs7_add_attr, 
 //GO(gnutls_pkcs7_attrs_deinit, 
 //GO(gnutls_pkcs7_deinit, 
@@ -718,7 +718,7 @@ GO(gnutls_session_channel_binding, iFppp)
 //GO(gnutls_srtp_set_profile_direct, 
 //GO(gnutls_store_commitment, 
 //GO(gnutls_store_pubkey, 
-//GO(gnutls_strerror, 
+GO(gnutls_strerror, pFi)
 //GO(gnutls_strerror_name, 
 //GO(gnutls_subject_alt_names_deinit, 
 //GO(gnutls_subject_alt_names_get, 
@@ -1074,8 +1074,8 @@ GO(gnutls_x509_privkey_get_pk_algorithm2, iFpp)
 //GO(gnutls_x509_privkey_import_dsa_raw, 
 //GO(gnutls_x509_privkey_import_ecc_raw, 
 //GO(gnutls_x509_privkey_import_openssl, 
-//GO(gnutls_x509_privkey_import_pkcs8, 
-//GO(gnutls_x509_privkey_import_rsa_raw, 
+GO(gnutls_x509_privkey_import_pkcs8, iFppipu)
+GO(gnutls_x509_privkey_import_rsa_raw, iFp)
 //GO(gnutls_x509_privkey_import_rsa_raw2, 
 //GO(gnutls_x509_privkey_init, 
 //GO(gnutls_x509_privkey_sec_param, 
