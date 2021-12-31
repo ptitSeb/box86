@@ -516,6 +516,7 @@
 #() pFpuG
 #() pFpUp
 #() pFpdu
+#() pFpdd
 #() pFplC
 #() pFplu
 #() pFpll
@@ -1846,6 +1847,7 @@
 #() iFiiiiiiiiip
 #() iFpuipuppppp
 #() iFpuupiuiipp
+#() iFpddpippppp
 #() iFppipiippii
 #() iFppuuiiiiii
 #() iFppuuiiuupi
@@ -2057,7 +2059,11 @@ wrappedbz2:
   - BZ2_bzCompressInit
 wrappedcairo:
 - iFpppp:
+  - cairo_font_face_set_user_data
+  - cairo_pattern_set_user_data
+  - cairo_scaled_font_set_user_data
   - cairo_set_user_data
+  - cairo_surface_set_user_data
 wrappedcrashhandler:
 wrappedcrypto:
 - vFv:

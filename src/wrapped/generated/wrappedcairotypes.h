@@ -14,6 +14,10 @@
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(cairo_set_user_data, iFpppp_t)
+	GO(cairo_font_face_set_user_data, iFpppp_t) \
+	GO(cairo_pattern_set_user_data, iFpppp_t) \
+	GO(cairo_scaled_font_set_user_data, iFpppp_t) \
+	GO(cairo_set_user_data, iFpppp_t) \
+	GO(cairo_surface_set_user_data, iFpppp_t)
 
 #endif // __wrappedcairoTYPES_H_

@@ -76,12 +76,20 @@ static void* find_cairo_destroy_Fct(void* fct)
 
 #undef SUPER
 
-EXPORT int my_cairo_set_user_data(x86emu_t* emu, void* cr, void* key, void* data, void* destroy)
-{
-    cairo_my_t *my = (cairo_my_t*)my_lib->priv.w.p2;
-
-    return my->cairo_set_user_data(cr, key, data, find_cairo_destroy_Fct(destroy));
+#define SET_USERDATA(A)                                                                 \
+EXPORT int my_##A (x86emu_t* emu, void* cr, void* key, void* data, void* destroy)   \
+{                                                                                   \
+    cairo_my_t *my = (cairo_my_t*)my_lib->priv.w.p2;                                \
+    return my->A(cr, key, data, find_cairo_destroy_Fct(destroy));                   \
 }
+
+SET_USERDATA(cairo_set_user_data)
+SET_USERDATA(cairo_pattern_set_user_data)
+SET_USERDATA(cairo_scaled_font_set_user_data)
+SET_USERDATA(cairo_surface_set_user_data)
+SET_USERDATA(cairo_font_face_set_user_data)
+
+#undef SET_USERDATA
 
 #define CUSTOM_INIT \
     lib->priv.w.p2 = getCairoMy(lib);
