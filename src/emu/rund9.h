@@ -146,10 +146,10 @@
             }
             break;
         case 0xF6:  /* FDECSTP */
-            emu->top=(emu->top-1)&7;    // this will probably break a few things
+            emu->top8--;    // this will probably break a few things
             break;
         case 0xF7:  /* FINCSTP */
-            emu->top=(emu->top+1)&7;    // this will probably break a few things
+            emu->top8++;    // this will probably break a few things
             break;
         case 0xF9:  /* FYL2XP1 */
             ST(1).d *= log2(ST0.d + 1.0);

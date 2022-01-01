@@ -219,7 +219,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("FNSTSW m2byte");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x14, &fixedaddress, 0, 0, 0);
-                    LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+                    LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top8));
                     LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
                     if(dyn->n.x87stack) {
                         // update top

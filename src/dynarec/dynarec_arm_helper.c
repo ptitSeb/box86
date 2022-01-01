@@ -515,7 +515,6 @@ static void x87_reset(dynarec_arm_t* dyn)
 
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
-    #if STEP > 1
     if(!dyn->n.x87stack)
         return;
     if(dyn->n.mmxcount)
@@ -531,18 +530,18 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     }
     STR_IMM9(scratch, xEmu, offsetof(x86emu_t, fpu_stack));
     // Sub x87stack to top, with and 7
-    LDR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
+    LDR_IMM9(scratch, xEmu, offsetof(x86emu_t, top8));
     if(a>0) {
         SUB_IMM8(scratch, scratch, a);
     } else {
         ADD_IMM8(scratch, scratch, -a);
     }
-    AND_IMM8(scratch, scratch, 7);
-    STR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
+    STR_IMM9(scratch, xEmu, offsetof(x86emu_t, top8));
     // reset x87stack, but not the stack count of neoncache
     dyn->n.x87stack = 0;
+    dyn->n.stack_next -= dyn->n.stack;
+    dyn->n.stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
-    #endif
 }
 
 int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b)
@@ -653,8 +652,9 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
     for (int i=0; i<8; ++i) {
         STRAI_IMM9_W(s3, s1, sizeof(fpu_p_reg_t));
     }
-    // setup TOP => full stack so = 0
-    STR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+    // setup TOP => full stack
+    MOVW(s3, 0);
+    STR_IMM9(s3, xEmu, offsetof(x86emu_t, top8));
     offs = offsetof(x86emu_t, x87);
     if(!(offs&3) && (offs>>2)<256) {
         ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
@@ -733,7 +733,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
         }
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
-        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
         // update tags (and top at the same time)
         if(a>0) {
             // new tag to fulls
@@ -747,7 +747,6 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
             }
             for (int i=0; i<a; ++i) {
                 SUB_IMM8(s2, s2, 1);
-                AND_IMM8(s2, s2, 7);    // (emu->top + st)&7
                 STR_REG_LSL_IMM5(s3, s1, s2, 2);    // that slot is full
             }
         } else {
@@ -763,12 +762,11 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
             for (int i=0; i<-a; ++i) {
                 STR_REG_LSL_IMM5(s3, s1, s2, 2);    // empty slot before leaving it
                 ADD_IMM8(s2, s2, 1);
-                AND_IMM8(s2, s2, 7);    // (emu->top + st)&7
             }
         }
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
     } else {
-        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
     }
     if(ret!=0) {
         // --- set values
@@ -788,10 +786,9 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
                 #endif
                 if(dyn->n.x87cache[i]) {
                     ADD_IMM8(s3, s2, dyn->n.x87cache[i]);
-                    AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
-                    ADD_REG_LSL_IMM5(s3, xEmu, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+                    ADD_REG_LSL_IMM5(s3, xEmu, s3, 3);    // fpu[(emu->top+i)] lsl 3 because fpu are double, so 8 bytes
                 } else {
-                    ADD_REG_LSL_IMM5(s3, xEmu, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+                    ADD_REG_LSL_IMM5(s3, xEmu, s2, 3);    // fpu[(emu->top+i)] lsl 3 because fpu are double, so 8 bytes
                 }
                 if(next) {
                     // need to check if a ST_F need local promotion
@@ -831,13 +828,12 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     if(!ret)    // nothing to do
         return;
     // Get top
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
     // loop all cache entries
     for (int i=0; i<8; ++i)
         if(dyn->n.x87cache[i]!=-1) {
             ADD_IMM8(s3, s2, dyn->n.x87cache[i]);
-            AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
-            ADD_REG_LSL_IMM5(s3, xEmu, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+            ADD_REG_LSL_IMM5(s3, xEmu, s3, 3);    // fpu[(emu->top+i)] lsl 3 because fpu are double, so 8 bytes
             if(ST_IS_F(dyn->n.x87cache[i])) {
                 VCVT_F64_F32(0, dyn->n.x87reg[i]*2);    // use D0 as scratch...
                 VSTR_64(0, s3, offsetof(x86emu_t, x87));
@@ -880,7 +876,7 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, i
     dyn->n.x87cache[ret] = st;
     dyn->n.x87reg[ret] = fpu_get_reg_double(dyn, NEON_CACHE_ST_D, st);
     if(populate) {
-        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
         int a = st - dyn->n.x87stack;
         if(a) {
             if(a<0) {
@@ -888,7 +884,6 @@ int x87_get_cache(dynarec_arm_t* dyn, int ninst, int populate, int s1, int s2, i
             } else {
                 ADD_IMM8(s2, s2, a);
             }
-            AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
         }
         ADD_REG_LSL_IMM5(s2, xEmu, s2, 3);
         VLDR_64(dyn->n.x87reg[ret], s2, offsetof(x86emu_t, x87));
@@ -931,11 +926,12 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // prepare offset to fpu => s1
     ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     // Get top
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
-    // Update
-    if(st) {
-        ADD_IMM8(s2, s2, st);
-        AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
+    int a = st - dyn->n.x87stack;
+    if(a<0) {
+        SUB_IMM8(s2, s2, -a);
+    } else {
+        ADD_IMM8(s2, s2, a);
     }
     ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
     if(ST_IS_F(dyn->n.x87cache[ret])) {
@@ -963,13 +959,15 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // prepare offset to fpu => s1
     ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
     // Get top
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
     // Update
-    if(st) {
-        ADD_IMM8(s2, s2, st);
-        AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
+    int a = st - dyn->n.x87stack;
+    if(a<0) {
+        SUB_IMM8(s2, s2, -a);
+    } else {
+        ADD_IMM8(s2, s2, a);
     }
-    ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+    ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)] lsl 3 because fpu are double, so 8 bytes
     VSTR_64(dyn->n.x87reg[ret], s2, 0);    // save the value
     MESSAGE(LOG_DUMP, "\t--------Forget x87 Cache for ST%d\n", st);
     // and forget that cache
@@ -992,14 +990,13 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
             // refresh the value
             MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
             ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
-            LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+            LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
             int a = st - dyn->n.x87stack;
             if(a<0) {
                 SUB_IMM8(s2, s2, -a);
             } else {
                 ADD_IMM8(s2, s2, a);
             }
-            AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
             ADD_REG_LSL_IMM5(s2, s1, s2, 3);
             VLDR_64(dyn->n.x87reg[i], s2, 0);
             MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
@@ -1017,14 +1014,13 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     dyn->n.x87cache[ret] = st;
     dyn->n.x87reg[ret] = fpu_get_reg_double(dyn, NEON_CACHE_ST_D, st);
     ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top8));
     int a = st - dyn->n.x87stack;
     if(a<0) {
         SUB_IMM8(s2, s2, -a);
     } else {
         ADD_IMM8(s2, s2, a);
     }
-    AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     ADD_REG_LSL_IMM5(s2, s1, s2, 3);
     VLDR_64(dyn->n.x87reg[ret], s2, 0);
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
@@ -1462,7 +1458,7 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
         case NEON_CACHE_ST_F:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));                    
             if((*s3_top) == 0xffff) {
-                LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+                LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top8));
                 *s3_top = 0;
             }
             int a = n  - (*s3_top) - stack_cnt;
@@ -1472,7 +1468,6 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
                 } else {
                     ADD_IMM8(s3, s3, a);
                 }
-                AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             }
             *s3_top += a;
             *s2_val = 0;
@@ -1526,7 +1521,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
         case NEON_CACHE_ST_F:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));                    
             if((*s3_top)==0xffff) {
-                LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+                LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top8));
                 *s3_top = 0;
             }
             int a = n - (*s3_top) - stack_cnt;
@@ -1536,7 +1531,6 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
                 } else {
                     ADD_IMM8(s3, s3, a);
                 }
-                AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
             }
             *s3_top += a;
             ADD_REG_LSL_IMM5(s2, xEmu, s3, 3);
@@ -1605,7 +1599,7 @@ void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
         }
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
-        LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+        LDR_IMM9(s3, xEmu, offsetof(x86emu_t, top8));
         // update tags (and top at the same time)
         if(a>0) {
             // new tag to fulls
@@ -1619,7 +1613,6 @@ void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             }
             for (int i=0; i<a; ++i) {
                 SUB_IMM8(s3, s3, 1);
-                AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
                 STR_REG_LSL_IMM5(s2, s1, s3, 2);    // that slot is full
             }
         } else {
@@ -1635,10 +1628,9 @@ void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
             for (int i=0; i<-a; ++i) {
                 STR_REG_LSL_IMM5(s2, s1, s3, 2);    // empty slot before leaving it
                 ADD_IMM8(s3, s3, 1);
-                AND_IMM8(s3, s3, 7);    // (emu->top + st)&7
             }
         }
-        STR_IMM9(s3, xEmu, offsetof(x86emu_t, top));
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, top8));
         s3_top = 0;
         stack_cnt = cache_i2.stack;
     }

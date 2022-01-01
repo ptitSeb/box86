@@ -58,7 +58,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xE0:
             INST_NAME("FNSTSW AX");
-            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top8));
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             if(dyn->n.x87stack) {
                 // update top
@@ -67,7 +67,6 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 } else {
                     ADD_IMM8(x2, x2, -dyn->n.x87stack);
                 }
-                AND_IMM8(x2, x2, 7);
             }
             BFI(x1, x2, 11, 3); // inject top
             BFI(xEAX, x1, 0, 16);
@@ -285,14 +284,12 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
                         // set STll(0).ll=i64 and ref=ST(0).q later (emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top])
                         //  get TOP
-                        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, top));
+                        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, top8));
                         int a = 0 - dyn->n.x87stack;
                         if(a<0) {
                             SUB_IMM8(xFlags, xFlags, -a);
-                            AND_IMM8(xFlags, xFlags, 7);
                         } else if(a>0) {
                             ADD_IMM8(xFlags, xFlags, a);
-                            AND_IMM8(xFlags, xFlags, 7);
                         }
                         ADD_REG_LSL_IMM5(xFlags, xEmu, xFlags, 4);  // each fpu_ll is 2 int64: ref than ll
                         ADD_IMM8_ROR(xFlags, xFlags, offsetof(x86emu_t, fpu_ll)>>2, 15);
@@ -350,14 +347,12 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         v2 = fpu_get_scratch_double(dyn);
                         #if 1
                         //  get TOP
-                        LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
+                        LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top8));
                         int a = 0 - dyn->n.x87stack;
                         if(a<0) {
                             SUB_IMM8(x14, x14, -a);
-                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
                         } else if(a>0) {
                             ADD_IMM8(x14, x14, a);
-                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
                         }
                         ADD_REG_LSL_IMM5(x14, xEmu, x14, 4);  // each fpu_ll is 2 int64: ref than ll
                         MOVW(x2, offsetof(x86emu_t, fpu_ll));   //can be optimized?

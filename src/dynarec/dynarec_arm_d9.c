@@ -132,7 +132,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(i1==-1) {
                 // not in cache, so check Empty status and load it
                 // x14 will be the actual top
-                LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
+                LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top8));
                 i2 = -dyn->n.x87stack;
                 if(i2) {
                     if(i2<0) {
@@ -140,8 +140,10 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         ADD_IMM8(x14, x14, i2);
                     }
-                    AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
                 }
+                CMPS_IMM8(x14, 8);    // (emu->top + i)
+                MOVW_COND(cEQ, x14, 0b100000100000000); // empty: C3,C2,C0 = 101
+                B_MARK3(cEQ);
                 ADD_REG_LSL_IMM5(x1, xEmu, x14, 3);
                 LDRD_IMM8(x2, x1, offsetof(x86emu_t, x87)); // load r2/r3 with ST0 anyway, for sign extraction
                 ADD_REG_LSL_IMM5(x1, xEmu, x14, 2);
@@ -338,19 +340,17 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xF6:
             INST_NAME("FDECSTP");
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top8));
             SUB_IMM8(x2, x2, 1);
-            AND_IMM8(x2, x2, 7);
-            STR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            STR_IMM9(x2, xEmu, offsetof(x86emu_t, top8));
             // should set C1 to 0
             break;
         case 0xF7:
             INST_NAME("FINCSTP");
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            LDR_IMM9(x2, xEmu, offsetof(x86emu_t, top8));
             ADD_IMM8(x2, x2, 1);
-            AND_IMM8(x2, x2, 7);
-            STR_IMM9(x2, xEmu, offsetof(x86emu_t, top));
+            STR_IMM9(x2, xEmu, offsetof(x86emu_t, top8));
             // should set C1 to 0
             break;
         case 0xF8:
