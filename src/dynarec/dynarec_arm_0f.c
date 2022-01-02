@@ -850,9 +850,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGM(v0);
             GETEM(v1);
-            q0 = fpu_get_scratch_quad(dyn);
-            VMOVD(q0+0, v0);
-            VMOVD(q0+1, v1);
+            if(!(v0&1) && (v1==(v0+1))) {
+                q0 = v0;    // no need to move the regs...
+            } else {
+                q0 = fpu_get_scratch_quad(dyn);
+                VMOVD(q0+0, v0);
+                VMOVD(q0+1, v1);
+            }
             VQMOVN_S32(v0, q0);
             break;
 
