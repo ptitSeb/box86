@@ -83,7 +83,7 @@ INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=10 0 0 <4> 0 0 0 <2>/11 <2> 0 <4>
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=10 0 0 <4> 0 0 0 <2>/01 <2> 0 <4>
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=01 0 0 <4> 0 0 0 <2>/11 <2> 0 <4>
 INVALIDATE 1 1 1 1 0 0 1 1 1 <1> 1 1 <2>/=00 0 0 <4> 0 0 0 <2>/=11 <2> 0 <4>
-NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 0 0 @<2> Q M 0 Vm VREV\%d16 &l&l param\<c>.\%d8 &l&l size\ <Qd>, <Qm>
+NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 0 0 @<2> Q M 0 Vm VREV\%d64 &g&g param\<c>.\%d8 &l&l size\ <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 0 1 0 U Q M 0 Vm VPADDL<c>.<dt> <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 0 0 0 Q M 0 Vm VCLS<c>.<dt> <Qd>, <Qm>
 NEON 1 1 1 1 0 0 1 1 1 D 1 1 size 0 0 Vd 0 1 0 0 1 Q M 0 Vm VCLZ<c>.<dt> <Qd>, <Qm>

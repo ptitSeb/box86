@@ -1967,45 +1967,154 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
             i32 = -1;
+            j32 = 0;
             GETGX(v0, 1);
-            q0 = fpu_get_scratch_quad(dyn); // temporary storage
-            // use stack as temporary storage
-            SUB_IMM8(xSP, xSP, 4);
             if((nextop&0xC0)!=0xC0)
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
-            u8 = F8;
-            // first two elements from Gx
-            for (int i=0; i<2; ++i) {
-                int32_t idx = (u8>>(i*2))&3;
-                if(idx!=i32) {
-                    VST1LANE_32(v0+(idx/2), xSP, idx&1);
-                    i32 = idx;
-                }
-                VLD1LANE_32(q0+(i/2), xSP, i&1);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, 0);
+            else {
+                wback = 0; ed = nextop&7;
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
             }
-            i32 = -1;
-            // next two from Ex
-            if((nextop&0xC0)==0xC0) {
-                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
-                for (int i=2; i<4; ++i) {
-                    int32_t idx = (u8>>(i*2))&3;
-                    if(idx!=i32) {
-                        VST1LANE_32(v1+(idx/2), xSP, idx&1);
-                        i32 = idx;
+            u8 = F8;
+            q0 = fpu_get_scratch_quad(dyn); // temporary storage
+            v2 = fpu_get_scratch_double(dyn);
+            if(!wback) {
+                // from register
+                if((v0==v1) && ((u8==0) || (u8==0b01010101) || (u8==0b10101010) || (u8==0b11111111))) {
+                    // same value duplicated all along
+                    q0 = v0;
+                    VDUPQ_32(v0, v0+((u8>>1)&1), u8&1);
+                } else if ((v0==v1) && (u8==0b01000100)) {
+                    q0 = v0;
+                    VMOVD(v0+1, v0);
+                } else if ((v0==v1) && (u8==0b11101110)) {
+                    q0 = v0;
+                    VMOVD(v0, v0+1);
+                } else if ((v0==v1) && (u8==0b10110001)) {
+                    q0 = v0;
+                    VREV64Q_32(v0, v0);
+                } else if ((v0==v1) && (u8==0b01001110)) {
+                    q0 = v0;
+                    VSWP(v0, v0+1);
+                } else if ((v0==v1) && (u8==0b11011000)) {
+                    q0 = v0;
+                    //VTRN_32(Dd, Dm) swap Dd[1] with Dm[0]
+                    VTRN_32(v0, v0+1);
+                } else if ((v0==v1) && (u8==0b00100111)) {
+                    q0 = v0;
+                    //VTRN_32(Dd, Dm) swap Dd[1] with Dm[0]
+                    VTRN_32(v0+1, v0);
+                } else if ((v0==v1) && (u8==0b01110010)) {
+                    q0 = v0;
+                    //VTRN_32(Dd, Dm) swap Dd[1] with Dm[0]
+                    VTRN_32(v0, v0+1);
+                    VREV64Q_32(v0, v0);
+                } else if ((v0==v1) && (u8==0b10001101)) {
+                    q0 = v0;
+                    //VTRN_32(Dd, Dm) swap Dd[1] with Dm[0]
+                    VTRN_32(v0+1, v0);
+                    VREV64Q_32(v0, v0);
+                } else {
+                    if(v1!=v0)
+                        q0 = v0;    // no need for temp storage
+                    else if((u8&0b10100000)==0b10100000)
+                        q0 = v0;    // no need for temp if only low/low and high/high are shuffled
+                    // Low part
+                    switch (u8&0xf) {
+                        case 0b0000: VDUP_32(q0, v0, 0);        break;
+                        case 0b0001: VREV64_32(q0, v0);         break;  // reverse low part
+                        case 0b0010: VREV64_32(v2, v0+1);
+                                     VEXT_8(q0, v2, v0, 4);     break;
+                        case 0b0011: VEXT_8(q0, v0+1, v0, 4);   break;
+                        case 0b0100: VMOVD(q0, v0);             break; // same
+                        case 0b0101: VDUP_32(q0, v0, 1);        break;
+                        case 0b0110: VREV64_32(v2, v0+1);
+                                     VEXT_8(q0, v2, v0, 4);     break;
+                        case 0b0111: VREV64_32(v2, v0);
+                                     VEXT_8(q0, v0+1, v2, 4);   break;
+                        case 0b1000: VREV64_32(v2, v0);
+                                     VEXT_8(q0, v2, v0+1, 4);   break;
+                        case 0b1001: VEXT_8(q0, v0, v0+1, 4);   break;
+                        case 0b1010: VDUP_32(q0, v0+1, 0);      break;
+                        case 0b1011: VREV64_32(q0, v0+1);       break;
+                        case 0b1100: VEXT_8(q0, v0+1, v0, 4);
+                                     VREV64_32(q0, q0);         break;
+                        case 0b1101: VREV64_32(v2, v0+1);
+                                     VEXT_8(q0, v0, v2, 4);     break;
+                        case 0b1110: VMOVD(q0, v0+1);           break;
+                        case 0b1111: VDUP_32(q0, v0+1, 1);      break;
                     }
-                    VLD1LANE_32(q0+(i/2), xSP, i&1);
+                    // High part
+                    switch ((u8>>4)&0xf) {
+                        case 0b0000: VDUP_32(q0+1, v1, 0);        break;
+                        case 0b0001: VREV64_32(q0+1, v1);         break;  // reverse low part
+                        case 0b0010: VREV64_32(v2, v1+1);
+                                     VEXT_8(q0+1, v2, v1, 4);     break;
+                        case 0b0011: VEXT_8(q0+1, v1+1, v1, 4);   break;
+                        case 0b0100: VMOVD(q0+1, v1);             break; // same
+                        case 0b0101: VDUP_32(q0+1, v1, 1);        break;
+                        case 0b0110: VREV64_32(v2, v1+1);
+                                     VEXT_8(q0+1, v2, v1, 4);     break;
+                        case 0b0111: VREV64_32(v2, v1);
+                                     VEXT_8(q0+1, v1+1, v2, 4);   break;
+                        case 0b1000: VREV64_32(v2, v1);
+                                     VEXT_8(q0+1, v2, v1+1, 4);   break;
+                        case 0b1001: VEXT_8(q0+1, v1, v1+1, 4);   break;
+                        case 0b1010: VDUP_32(q0+1, v1+1, 0);      break;
+                        case 0b1011: VREV64_32(q0+1, v1+1);       break;
+                        case 0b1100: VEXT_8(q0+1, v1+1, v1, 4);
+                                     VREV64_32(q0+1, q0+1);       break;
+                        case 0b1101: VREV64_32(v2, v1+1);
+                                     VEXT_8(q0+1, v1, v2, 4);     break;
+                        case 0b1110: VMOVD(q0+1, v1+1);           break;
+                        case 0b1111: VDUP_32(q0+1, v1+1, 1);      break;
+                    }
                 }
             } else {
-                for (int i=2; i<4; ++i) {
-                    int32_t idx = (u8>>(i*2))&3;
-                    if(idx!=i32) {
-                        ADD_IMM8(x2, ed, idx*4);
-                        i32 = idx;
+                // memory
+                q0 = v0;
+                // Low part
+                switch (u8&0xf) {
+                    case 0b0000: VDUP_32(q0, v0, 0);        break;
+                    case 0b0001: VREV64_32(q0, v0);         break;  // reverse low part
+                    case 0b0010: VREV64_32(v2, v0+1);
+                                 VEXT_8(q0, v2, v0, 4);     break;
+                    case 0b0011: VEXT_8(q0, v0+1, v0, 4);   break;
+                    case 0b0100:                            break; // same
+                    case 0b0101: VDUP_32(q0, v0, 1);        break;
+                    case 0b0110: VREV64_32(v2, v0+1);
+                                 VEXT_8(q0, v2, v0, 4);     break;
+                    case 0b0111: VREV64_32(v2, v0);
+                                 VEXT_8(q0, v0+1, v2, 4);   break;
+                    case 0b1000: VREV64_32(v2, v0);
+                                 VEXT_8(q0, v2, v0+1, 4);   break;
+                    case 0b1001: VEXT_8(q0, v0, v0+1, 4);   break;
+                    case 0b1010: VDUP_32(q0, v0+1, 0);      break;
+                    case 0b1011: VREV64_32(q0, v0+1);       break;
+                    case 0b1100: VEXT_8(q0, v0+1, v0, 4);
+                                 VREV64_32(q0, q0);         break;
+                    case 0b1101: VREV64_32(v2, v0+1);
+                                 VEXT_8(q0, v0, v2, 4);     break;
+                    case 0b1110: VMOVD(q0, v0+1);           break;
+                    case 0b1111: VDUP_32(q0, v0+1, 1);      break;
+                }
+                // High part
+                if(((u8>>4)&3) == ((u8>>6)&3)) {
+                    if((u8>>4)&3) {
+                        ADD_IMM8(x3, wback, ((u8>>4)&3)*4);
                     }
-                    VLD1LANE_32(q0+(i/2), x2, i&1);
+                    VLD1ALL_32(q0+1, ((u8>>4)&3)?x3:wback);
+                } else {
+                    if((u8>>4)&3) {
+                        ADD_IMM8(x3, wback, ((u8>>4)&3)*4);
+                    }
+                    VLD1LANE_32(q0+1, ((u8>>4)&3)?x3:wback, 0);
+                    if((u8>>6)&3) {
+                        ADD_IMM8(x3, wback, ((u8>>6)&3)*4);
+                    }
+                    VLD1LANE_32(q0+1, ((u8>>6)&3)?x3:wback, 1);
                 }
             }
-            ADD_IMM8(xSP, xSP, 4);
             VMOVQ(v0, q0);
             break;
         case 0xC7:

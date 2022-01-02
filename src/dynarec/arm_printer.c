@@ -1164,7 +1164,7 @@ const char* arm_print(uint32_t opcode) {
 		int m = ((opcode >> 5) & 1) << 4 | ((opcode >> 0) & 0xF);
 		int param = (opcode >> 7) & 0x3;
 		
-		sprintf(ret, "VREV%d.%d %s, %s", 16 << param, 8 << size, vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + m]);
+		sprintf(ret, "VREV%d.%d %s, %s", 64 >> param, 8 << size, vecname[(q << 5) + 0x20 + d], vecname[(q << 5) + 0x20 + m]);
 	} else if ((opcode & 0xFFB30F10) == 0xF3B00200) {
 		int u = (opcode >> 7) & 1;
 		int size = (opcode >> 18) & 0x3;

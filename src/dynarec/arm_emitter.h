@@ -841,19 +841,19 @@ Op is 20-27
 #define VMOVQ_H16(Dd, imm8) EMIT(VMOV_igen(((imm8)>>7)&1, ((Dd)>>4)&1, ((imm8)>>4)&7, (Dd)&15, 0b1010, 1, 0, (imm8)&15))
 
 #define VLD1LANE_gen(D, Rn, Vd, size, index_align, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b10<<20 | (Rn)<<16 | (Vd)<<12 | (size)<<10 | (index_align)<<4 | (Rm))
-#define VLD1LANE_8(Dd, Rn, index)    EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 0, (index)<<1, 15))
-#define VLD1LANE_16(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
-#define VLD1LANE_32(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
+#define VLD1LANE_8(Dd, Rn, index)    EMIT(VLD1LANE_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 0, (index)<<1, 15))
+#define VLD1LANE_16(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 1, (index)<<2, 15))
+#define VLD1LANE_32(Dd, Rn, index)   EMIT(VLD1LANE_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 2, (index)<<3, 15))
 
 #define VLD1ALL_gen(D, Rn, Vd, size, T, a, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b10<<20 | (Rn)<<16 | (Vd)<<12 | 0b11<<10| (size)<<6 | (T)<<5 | (a)<<4 | (Rm))
-#define VLD1ALL_16(Dd, Rn)      EMIT(VLD1ALL_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, 0, 0, 15))
-#define VLD1ALL_32(Dd, Rn)      EMIT(VLD1ALL_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, 0, 0, 15))
-#define VLD1QALL_32(Dd, Rn)     EMIT(VLD1ALL_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, 1, 0, 15))
+#define VLD1ALL_16(Dd, Rn)      EMIT(VLD1ALL_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 1, 0, 0, 15))
+#define VLD1ALL_32(Dd, Rn)      EMIT(VLD1ALL_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 2, 0, 0, 15))
+#define VLD1QALL_32(Dd, Rn)     EMIT(VLD1ALL_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 2, 1, 0, 15))
 
 #define VST1LANE_gen(D, Rn, Vd, size, index_align, Rm) (0b1111<<28 | 0b0100<<24 | 1<<23 | (D)<<22 | 0b00<<20 | (Rn)<<16 | (Vd)<<12 | (size)<<10 | (index_align)<<4 | (Rm))
-#define VST1LANE_8(Dd, Rn, index)    EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 0, (index)<<1, 15))
-#define VST1LANE_16(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 1, (index)<<2, 15))
-#define VST1LANE_32(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, Rn, (Dd)&15, 2, (index)<<3, 15))
+#define VST1LANE_8(Dd, Rn, index)    EMIT(VST1LANE_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 0, (index)<<1, 15))
+#define VST1LANE_16(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 1, (index)<<2, 15))
+#define VST1LANE_32(Dd, Rn, index)   EMIT(VST1LANE_gen(((Dd)>>4)&1, (Rn), (Dd)&15, 2, (index)<<3, 15))
 
 #define VADD_gen(size, D, Vn, Vd, N, Q, M, Vm) (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1000<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
 #define VADD_8(Dd, Dn, Dm)     EMIT(VADD_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
@@ -1316,6 +1316,11 @@ Op is 20-27
 #define VDUP_sgen(D, imm4, Vd, Q, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (imm4)<<16 | (Vd)<<12 | 0b1100<<8 | (Q)<<6 | (M)<<5 | (Vm))
 // Dd <= Dup(Dm[x])
 #define VDUP_32(Dd, Dm, x)      EMIT(VDUP_sgen(((Dd)>>4)&1, (((x)<<3)|0b100), (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VDUPQ_32(Dd, Dm, x)     EMIT(VDUP_sgen(((Dd)>>4)&1, (((x)<<3)|0b100), (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
+
+#define VREV64_gen(D, size, Vd, Q, M, Vm)   (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | (Q)<<6 | (M)<<5 | (Vm))
+#define VREV64_32(Dd, Dm)       EMIT(VREV64_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0, ((Dm)>>4)&1, (Dm)&15))
+#define VREV64Q_32(Dd, Dm)      EMIT(VREV64_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VABS_vgen(D, size, Vd, F, Q, M, Vm) (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | 0b01<<16 | (Vd)<<12 | (F)<<10 | 0b110<<7 | (Q)<<6 | (M)<<5 | (Vm))
 #define VABS_S32(Dd, Dm)        EMIT(VABS_vgen(((Dd)>>4)&1, 2, (Dd)&15, 0, 0, ((Dm)>>4)&1, (Dm)&15))
