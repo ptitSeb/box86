@@ -25,7 +25,7 @@
         break;
 
     case 0xE0:  /* FNSTSW AX */
-        emu->sw.f.F87_TOP = emu->top8&7;
+        emu->sw.f.F87_TOP = emu->top&7;
         R_AX = emu->sw.x16;
         break;
 

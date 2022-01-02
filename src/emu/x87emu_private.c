@@ -15,7 +15,7 @@ void reset_fpu(x86emu_t* emu)
     memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
     emu->cw = 0x37F;
     emu->sw.x16 = 0x0000;
-    emu->top8 = 8;
+    emu->top = 0;
     emu->fpu_stack = 0;
     for(int i=0; i<8; ++i)
         emu->p_regs[i].tag = 0b11;  // STx is empty
@@ -216,18 +216,13 @@ void fpu_loadenv(x86emu_t* emu, char* p, int b16)
     emu->cw = *(uint16_t*)p;
     p+=(b16)?2:4;
     emu->sw.x16 = *(uint16_t*)p;
-    emu->top8 = emu->sw.f.F87_TOP;
+    emu->top = emu->sw.f.F87_TOP;
     p+=(b16)?2:4;
     // tagword: 2bits*8
     // tags... (only full = 0b11 / free = 0b00)
     uint16_t tags = *(uint16_t*)p;
     for(int i=0; i<8; ++i)
         emu->p_regs[i].tag = (tags>>(i*2))&0b11;
-    if(!emu->top8) {
-        // check if stack is full or empty
-        if(emu->p_regs[7].tag)
-            emu->top8 = 8;   // empty
-    }
     // intruction pointer: 16bits
     // data (operand) pointer: 16bits
     // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
@@ -235,7 +230,7 @@ void fpu_loadenv(x86emu_t* emu, char* p, int b16)
 
 void fpu_savenv(x86emu_t* emu, char* p, int b16)
 {
-    emu->sw.f.F87_TOP = emu->top8&7;
+    emu->sw.f.F87_TOP = emu->top&7;
     *(uint16_t*)p = emu->cw;
     p+=2;
     if(!b16) {*(uint16_t*)p = 0; p+=2;}
@@ -274,7 +269,7 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
 {
     xsave_t *p = (xsave_t*)ed;
     // should save flags & all
-    int top = emu->top8&7;
+    int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
         stack = (emu->p_regs[0].tag)?8:0;
@@ -304,17 +299,15 @@ void fpu_fxrstor(x86emu_t* emu, void* ed)
     xsave_t *p = (xsave_t*)ed;
     emu->cw = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
-    emu->top8 = emu->sw.f.F87_TOP;
+    emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
     for(int i=0; i<8; ++i)
         emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
     // copy back MMX regs...
-    int top = emu->top8;
+    int top = emu->top&7;
     int stack = 8-top;
-    if(top==0) { // check if stack is full or empty, based on tag[0]
+    if(top==0)  // check if stack is full or empty, based on tag[0]
         stack = (emu->p_regs[0].tag)?8:0;
-        emu->top8 = stack;
-    }
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
@@ -323,7 +316,7 @@ void fpu_fxrstor(x86emu_t* emu, void* ed)
 
 void fpu_fxam(x86emu_t* emu) {
     emu->sw.f.F87_C1 = (ST0.ud[1]&0x80000000)?1:0;
-    if(emu->top8==8 || emu->p_regs[emu->top8].tag == 0b11) {
+    if(emu->p_regs[emu->top].tag == 0b11) {
         //Empty
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 0;

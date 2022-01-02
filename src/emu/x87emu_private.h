@@ -18,16 +18,21 @@ void Run66D9(x86emu_t *emu);
 void Run66DD(x86emu_t *emu);
 void RunDF(x86emu_t *emu);
 
-#define ST0 emu->x87[emu->top8]
-#define ST1 emu->x87[(emu->top8+1)]
-#define ST(a) emu->x87[(emu->top8+(a))]
+#define ST0 emu->x87[emu->top]
+#define ST1 emu->x87[(emu->top+1)&7]
+#define ST(a) emu->x87[(emu->top+(a))&7]
 
-#define STld(a)  emu->fpu_ld[(emu->top8+(a))]
-#define STll(a)  emu->fpu_ll[(emu->top8+(a))]
+#define STld(a)  emu->fpu_ld[(emu->top+(a))&7]
+#define STll(a)  emu->fpu_ll[(emu->top+(a))&7]
 
 static inline void fpu_do_push(x86emu_t* emu)
 {
-    int newtop = (emu->top8-1);
+    int newtop = (emu->top-1)&7;
+    /*if(emu->p_regs[newtop].tag!=0b11) {// not empty, overflow!
+        printf_log(LOG_NONE, "Warning: %p: FPU Stack overflow\n", (void*)emu->old_ip);    // probably better to raise something
+        //emu->quit = 1;
+        return;
+    }*/
     if(emu->fpu_stack<8)
         ++emu->fpu_stack;
     else {
@@ -36,22 +41,27 @@ static inline void fpu_do_push(x86emu_t* emu)
     }
     emu->sw.f.F87_C1 = 0;
     emu->p_regs[newtop].tag = 0;    // full
-    emu->top8 = newtop;
+    emu->top = newtop;
 }
 
 static inline void fpu_do_pop(x86emu_t* emu)
 {
-    int curtop = emu->top8;
+    int curtop = (emu->top)&7;
+    /*if(emu->p_regs[(emu->top)&7].tag==0b11) {// underflow
+        printf_log(LOG_NONE, "Warning: %p: FPU Stack underflow\n", (void*)emu->old_ip);    // probably better to raise something
+        //emu->quit = 1;
+        return;
+    }*/
     if(emu->fpu_stack>0)
         --emu->fpu_stack;
     
     emu->p_regs[curtop].tag = 0b11;    // empty
-    emu->top8 = emu->top8+1;
+    emu->top = (emu->top+1)&7;
 }
 
 static inline void fpu_do_free(x86emu_t* emu, int i)
 {
-    emu->p_regs[emu->top8+i].tag = 0b11;    // empty
+    emu->p_regs[(emu->top+i)&7].tag = 0b11;    // empty
     // check if all empty
     for(int i=0; i<8; ++i)
         if(emu->p_regs[i].tag != 0b11)

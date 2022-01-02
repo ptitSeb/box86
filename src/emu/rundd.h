@@ -150,7 +150,7 @@
                 break;
             case 7: /* FNSTSW m2byte */
                 GET_ED;
-                emu->sw.f.F87_TOP = emu->top8&7;
+                emu->sw.f.F87_TOP = emu->top&7;
                 *(uint16_t*)ED = emu->sw.x16;
                 break;
             default:

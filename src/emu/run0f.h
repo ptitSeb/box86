@@ -764,7 +764,7 @@
             NEXT;
         _0f_0x77:                      /* EMMS */
             // empty MMX, FPU now usable
-            emu->top8 = 8;
+            emu->top = 0;
             emu->fpu_stack = 0;
             NEXT;
 

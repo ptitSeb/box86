@@ -33,7 +33,7 @@ typedef struct x86emu_s {
 	mmx87_regs_t mmx[8];
 	uint16_t    cw;
 	x87flags_t  sw;
-	uint32_t    top8;        // top is part of sw, but it's faster to have it separatly. Also this enable to have top starting at 8 and decreasing
+	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
 	fpu_round_t round;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst

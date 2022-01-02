@@ -218,7 +218,7 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
 	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
 	newemu->cw = emu->cw;
 	memcpy(&newemu->sw, &emu->sw, sizeof(emu->sw));
-	newemu->top8 = emu->top8;
+	newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
 	memcpy(&newemu->round, &emu->round, sizeof(emu->round));
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
@@ -326,7 +326,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
         if(emu->fpu_stack<9)
             for (int i=0; i<emu->fpu_stack; i++) {
                 //if(i==4) strcat(buff, "\n");
-                sprintf(tmp, "ST%d=%f", i, emu->x87[(emu->top8+i)&7].d);
+                sprintf(tmp, "ST%d=%f", i, emu->x87[(emu->top+i)&7].d);
                 strcat(buff, tmp);
                 int c = 10-strlen(tmp);
                 if(c<1) c=1;
