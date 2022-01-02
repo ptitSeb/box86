@@ -1638,17 +1638,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(v0, 1);
             GETEX(v1, 0);
             u8 = F8;
-            if(v0==v1 && u8==0) {
-                VMOVD(v0+1, v0);
+            if(v0==v1) {
+                switch (u8&3) {
+                    case 0b00: VMOVD(v0+1, v0); break;
+                    case 0b01: VSWP(v0, v0+1);  break;
+                    case 0b10:                  break;
+                    case 0b11: VMOVD(v0, v0+1); break;
+                }
             } else {
-                if(v0==v1)
-                    q0 = fpu_get_scratch_quad(dyn);
-                else
-                    q0 = v0;
-                VMOVD(q0, v0+(u8&1));
-                VMOVD(q0+1, v1+((u8>>1)&1));
-                if(v0==v1) {
-                    VMOVQ(v0, q0);
+                switch(u8&1) {
+                    case 0:                     break;
+                    case 1: VMOVD(v0, v0+1);    break;
+                }
+                switch((u8>>1)&1) {
+                    case 0: VMOVD(v0+1, v1);    break;
+                    case 1: VMOVD(v0+1, v1+1);  break;
                 }
             }
             break;
