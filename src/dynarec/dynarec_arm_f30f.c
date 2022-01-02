@@ -98,10 +98,17 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 }
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
-                LDR_IMM9(x2, ed, fixedaddress);   // to avoid bus errors
-                VEORQ(v0, v0, v0);
-                VMOVtoDx_32(v0, 0, x2);
+                parity = getedparity(dyn, ninst, addr, nextop, 2);
+                if(parity && (v0<16)) {
+                    VEORQ(v0, v0, v0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 0, 0);
+                    VLDR_32(v0*2, ed, fixedaddress);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
+                    LDR_IMM9(x2, ed, fixedaddress);   // to avoid bus errors
+                    VEORQ(v0, v0, v0);
+                    VMOVtoDx_32(v0, 0, x2);
+                }
             }
             break;
         case 0x11:
@@ -128,9 +135,15 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVD(q0, d1);
                 }
             } else {
-                VMOVfrDx_32(x2, v0, 0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
-                STR_IMM9(x2, ed, fixedaddress);
+                parity = getedparity(dyn, ninst, addr, nextop, 2);
+                if(parity && (v0<16)) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 0, 0);
+                    VSTR_32(v0*2, ed, fixedaddress);
+                } else {
+                    VMOVfrDx_32(x2, v0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0);
+                    STR_IMM9(x2, ed, fixedaddress);
+                }
             }
             break;
         case 0x12:
