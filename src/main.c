@@ -60,6 +60,7 @@ uintptr_t box86_nodynarec_end = 0;
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
 int arm_div = 0;
+int arm_v8 = 0;
 #endif
 #else   //DYNAREC
 int box86_dynarec = 0;
@@ -195,11 +196,15 @@ void GatherDynarecExtensions()
         arm_swap = 1;
     if(hwcap&HWCAP_IDIVA)
         arm_div = 1;
-    printf_log(LOG_INFO, "Dynarec for ARM, with extension: HALF FAST_MULT EDSP NEON VFPv%d", arm_vfp);
+    unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
+    if((hwcap2&HWCAP2_AES) || (hwcap2&HWCAP2_CRC32))
+        arm_v8 = 1;
+    printf_log(LOG_INFO, "Dynarec for ARMv%d, with extension: HALF FAST_MULT EDSP NEON VFPv%d", 7+arm_v8, arm_vfp);
     if(arm_swap)
         printf_log(LOG_INFO, " SWP");
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
+
     printf_log(LOG_INFO, " PageSize:%d\n", box86_pagesize);
 #endif
 }
