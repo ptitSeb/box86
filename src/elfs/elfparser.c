@@ -241,6 +241,10 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->initarray_sz = val / sizeof(Elf32_Addr);
                     printf_log(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %d\n", h->initarray_sz);
                     break;
+                case DT_PREINIT_ARRAYSZ:
+                    if(val)
+                        printf_log(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
+                    break;
                 case DT_FINI: // Exit hook
                     h->finientry = ptr;
                     printf_log(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
