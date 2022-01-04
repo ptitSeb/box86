@@ -67,12 +67,12 @@ void arm_fxtract(x86emu_t* emu)
 }
 void arm_fprem(x86emu_t* emu)
 {
-    int32_t tmp32s = ST0.d / ST1.d;
-    ST0.d -= ST1.d * tmp32s;
+    int64_t tmp64s = ST0.d / ST1.d;
+    ST0.d -= ST1.d * tmp64s;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C0 = (tmp32s&1);
-    emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
-    emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+    emu->sw.f.F87_C1 = (tmp64s&1);
+    emu->sw.f.F87_C3 = ((tmp64s>>1)&1);
+    emu->sw.f.F87_C0 = ((tmp64s>>2)&1);
 }
 void arm_frndint(x86emu_t* emu)
 {
@@ -180,7 +180,7 @@ void arm_fsave(x86emu_t* emu, uint8_t* ed)
     uint8_t* p = ed;
     p += 28;
     for (int i=0; i<8; ++i) {
-        LD2D(p, &ST(i).d);
+        D2LD(&ST(i).d, p);
         p+=10;
     }
 }
@@ -191,7 +191,7 @@ void arm_frstor(x86emu_t* emu, uint8_t* ed)
     uint8_t* p = ed;
     p += 28;
     for (int i=0; i<8; ++i) {
-        D2LD(&ST(i).d, p);
+        LD2D(p, &ST(i).d);
         p+=10;
     }
 
@@ -200,12 +200,12 @@ void arm_frstor(x86emu_t* emu, uint8_t* ed)
 void arm_fprem1(x86emu_t* emu)
 {
     // simplified version
-    int32_t tmp32s = round(ST0.d / ST1.d);
-    ST0.d -= ST1.d*tmp32s;
+    int64_t tmp64s = lrint(ST0.d / ST1.d);
+    ST0.d -= ST1.d*tmp64s;
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C0 = (tmp32s&1);
-    emu->sw.f.F87_C3 = ((tmp32s>>1)&1);
-    emu->sw.f.F87_C1 = ((tmp32s>>2)&1);
+    emu->sw.f.F87_C1 = (tmp64s&1);
+    emu->sw.f.F87_C3 = ((tmp64s>>1)&1);
+    emu->sw.f.F87_C0 = ((tmp64s>>2)&1);
 }
 
 
