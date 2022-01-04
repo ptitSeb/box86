@@ -229,7 +229,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         wback = 0;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0);
-                        ed = x1;
+                        ed = x1; // will not be writen immediatly, so x1 is safe for now
                     }
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
@@ -288,16 +288,49 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(x3, ed, 4);
                         STRH_IMM8(x14, ed, 8);
                     } else {
+                        #if 0
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         if(ed!=x1) {
                             MOV_REG(x1, ed);
                         }
                         x87_do_push_empty(dyn, ninst, x3);
                         CALL(arm_fld, -1, 0);
+                        #else
+                        v1 = x87_do_push(dyn, ninst, x2, NEON_CACHE_ST_D);
+                        // copy 10bytes of *ED to STld(0)
+                        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, top));
+                        int a = -dyn->n.x87stack;
+                        if(a) {
+                            if(a<0) {
+                                SUB_IMM8(x3, x3, -a);
+                            } else {
+                                ADD_IMM8(x3, x3, a);
+                            }
+                            AND_IMM8(x3, x3, 7);
+                        }
+                        ADD_IMM8(x2, xEmu, offsetof(x86emu_t, fpu_ld)+offsetof(fpu_ld_t, ld));
+                        MOVW(x14, sizeof(fpu_ld_t));
+                        MLA(x2, x3, x14, x2);
+                        LDR_IMM9(x14, ed, 0);
+                        STR_IMM9(x14, x2, 0);
+                        LDR_IMM9(x14, ed, 4);
+                        STR_IMM9(x14, x2, 4);
+                        LDRH_IMM8(x14, ed, 8);
+                        STRH_IMM8(x14, x2, 8);
+                        // convert 10bytes -> double
+                        CALL_1RD(FromLD, ed, x2, (1<<x3)|(1<<xFlags)|(1<<x2));
+                        // store ref to STld(0).uref, but can be unaligned...
+                        VMOVfrV_D(x3, x14, 0);
+                        // also, store result to ST0
+                        VMOVD(v1, 0);
+                        STR_IMM9(x3, x2, offsetof(fpu_ld_t, uref)-offsetof(fpu_ld_t, ld));
+                        STR_IMM9(x14, x2, offsetof(fpu_ld_t, uref)-offsetof(fpu_ld_t, ld)+4);
+                        #endif
                     }
                     break;
                 case 7:
                     INST_NAME("FSTP tbyte");
+                    #if 0
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_forget(dyn, ninst, x1, x3, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
@@ -305,6 +338,55 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MOV_REG(x1, ed);
                     }
                     CALL(arm_fstp, -1, 0);
+                    #else
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                    v2 = fpu_get_scratch_double(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                    // get top in x3
+                    LDR_IMM9(x3, xEmu, offsetof(x86emu_t, top));
+                    int a = -dyn->n.x87stack;
+                    if(a) {
+                        if(a<0) {
+                            SUB_IMM8(x3, x3, -a);
+                        } else {
+                            ADD_IMM8(x3, x3, a);
+                        }
+                        AND_IMM8(x3, x3, 7);
+                    }
+                    // get STld(0)
+                    ADD_IMM8(x2, xEmu, offsetof(x86emu_t, fpu_ld)+offsetof(fpu_ld_t, ld));
+                    MOVW(x14, sizeof(fpu_ld_t));
+                    MLA(x2, x3, x14, x2);
+                    // compare uref with actual value, top is not used anymore, so x3 is free
+                    LDR_IMM9(x14, x2, offsetof(fpu_ld_t, uref)-offsetof(fpu_ld_t, ld));
+                    LDR_IMM9(x3, x2, offsetof(fpu_ld_t, uref)-offsetof(fpu_ld_t, ld)+4);
+                    VMOVtoV_D(v2, x14, x3);
+                    VCEQ_32(v2, v2, v1);    // same?
+                    VMOVfrV_D(x14, x3, v2);
+                    TSTS_REG_LSL_IMM5(x14, x3, 0);
+                    B_MARK(cEQ);    // different, do the conversion
+                    // same... copy STld(0).ld
+                    LDR_IMM9(x14, x2, 0);
+                    LDR_IMM9(x3, x2, 4);
+                    STR_IMM9(x14, ed, 0);
+                    STR_IMM9(x3, ed, 4);
+                    LDRH_IMM8(x14, x2, 8);
+                    STRH_IMM8(x14, ed, 8);
+                    B_MARK2(c__);
+                    MARK;
+                    // different, call D2LD
+                    SUB_IMM8(xSP, xSP, 8);
+                    VSTR_64(v1, xSP, 0);
+                    PUSH(xSP, (1<<xEmu)|(1<<xFlags));
+                    ADD_IMM8(0, xSP, 8);    //1st arg is &d
+                    if(ed!=x1) {
+                        MOV_REG_LSR_IMM5(x1, ed, 0);    //2nd arg is ed
+                    }
+                    CALL_S(D2LD, -2, 0);
+                    POP(xSP, (1<<xEmu)|(1<<xFlags));
+                    ADD_IMM8(xSP, xSP, 8);
+                    MARK2;
+                    #endif
                     x87_do_pop(dyn, ninst, x3);
                     break;
                 default:

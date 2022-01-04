@@ -487,6 +487,7 @@ Op is 20-27
 // Mul and MulA
 #define MULMULA(Cond, A, S, Rd, Rn, Rs, Rm)     (Cond | 0b000000<<22 | (A)<<21 | (S)<<20 | (Rd)<<16 | (Rn)<<12 | (Rs)<<8 | 0b1001<<4 | (Rm))
 #define MUL(Rd, Rm, Rn)     EMIT(MULMULA(c__, 0, 0, (Rd), 0, (Rm), (Rn)))
+#define MLA(Rd, Rn, Rm, Ra) EMIT(MULMULA(c__, 1, 0, (Rd), (Ra), (Rm), (Rn)))
 
 #define MLS_gen(Cond, Rd, Ra, Rm, Rn)     (Cond | 0b00000110<<20 | (Rd)<<16 | (Ra)<<12 | (Rm)<<8 | 0b1001<<4 | (Rn))
 //MLS : Rd = Ra - Rm*Rn
@@ -707,6 +708,42 @@ Op is 20-27
 // Inplace convert from F64 to S16. Rounding is not selectable
 #define VCVT_S16_F64(Dd)    EMIT(VCVT_FP_gen(c__, ((Dd)>>4)&1, 1, 0, (Dd)&15, 1, 0, 16&1, (16>>1)&15))
 
+#define VRINT_FP_gen(D, RM, Vd, size, M, Vm)    (0b111111101<<23 | (D)<<22 | 0b111<<19 | (RM)<<16 | (Vd)<<12 | 0b10<<10 | (size)<<8 | 1<<6 | (M)<<4 | (Vm))
+// Round floating-point to integer to Nearest with Ties to Away
+#define VRINTA_F32(Sd, Sm)  EMIT(VRINT_FP_gen(((Sd)&1), 0b00, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer to Nearest with Ties to Away
+#define VRINTA_F64(Dd, Dm)  EMIT(VRINT_FP_gen(((Dd)>>4)&1, 0b00, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+// Round floating-point to integer towards -Infinity
+#define VRINTM_F32(Sd, Sm)  EMIT(VRINT_FP_gen(((Sd)&1), 0b11, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer towards -Infinity
+#define VRINTM_F64(Dd, Dm)  EMIT(VRINT_FP_gen(((Dd)>>4)&1, 0b11, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+// Round floating-point to integer to Nearest
+#define VRINTN_F32(Sd, Sm)  EMIT(VRINT_FP_gen(((Sd)&1), 0b01, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer to Nearest
+#define VRINTN_F64(Dd, Dm)  EMIT(VRINT_FP_gen(((Dd)>>4)&1, 0b01, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+// Round floating-point to integer towards +Infinity
+#define VRINTP_F32(Sd, Sm)  EMIT(VRINT_FP_gen(((Sd)&1), 0b10, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer towards +Infinity
+#define VRINTP_F64(Dd, Dm)  EMIT(VRINT_FP_gen(((Dd)>>4)&1, 0b10, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+
+#define VRINTR_gen(cond, D, Vd, size, M, Vm)    (cond | 0b11101<<23 | (D)<<22 | 0b11<<20 | 0b110<<16 | (Vd)<<12 | 0b10<<10 | (size)<<8 | 1<<6 | (M)<<5 | (Vm))
+// Round floating-point to integer rounds a floating-point value to an integral floating-point value of the same size using the rounding mode specified in the FPSCR
+#define VRINTR_F32(Sd, Sm)  EMIT(VRINTR_gen(c__, (Sd)&1, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer rounds a floating-point value to an integral floating-point value of the same size using the rounding mode specified in the FPSCR
+#define VRINTR_F64(Dd, Dm)  EMIT(VRINTR_gen(c__, ((Dd)>>4)&1, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+
+#define VRINTX_gen(cond, D, Vd, size, M, Vm)    (cond | 0b11101<<23 | (D)<<22 | 0b11<<20 | 0b111<<16 | (Vd)<<12 | 0b10<<10 | (size)<<8 | 1<<6 | (M)<<5 | (Vm))
+// Round floating-point to integer rounds a floating-point value to an integral floating-point value of the same size using the rounding mode specified in the FPSCR with eXecptions if inexact
+#define VRINTX_F32(Sd, Sm)  EMIT(VRINTX_gen(c__, (Sd)&1, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer rounds a floating-point value to an integral floating-point value of the same size using the rounding mode specified in the FPSCR with eXecptions if inexact
+#define VRINTX_F64(Dd, Dm)  EMIT(VRINTX_gen(c__, ((Dd)>>4)&1, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+
+#define VRINTZ_gen(cond, D, Vd, size, M, Vm)    (cond | 0b11101<<23 | (D)<<22 | 0b11<<20 | 0b110<<16 | (Vd)<<12 | 0b10<<10 | (size)<<8 | 1<<7 | 1<<6 | (M)<<5 | (Vm))
+// Round floating-point to integer towards Zero
+#define VRINTZ_F32(Sd, Sm)  EMIT(VRINTZ_gen(c__, (Sd)&1, ((Sd)>>1)&15, 0b10, (Sm)&1, ((Sm)>>1)&15))
+// Round floating-point to integer towards Zero
+#define VRINTZ_F64(Dd, Dm)  EMIT(VRINTZ_gen(c__, ((Dd)>>4)&1, (Dd)&15, 0b11, ((Dm)>>4)&1, (Dm)&15))
+
 // Mutiply F64 Dd = Dn*Dm
 #define VMUL_F64(Dd, Dn, Dm)    EMIT(c__ | (0b1110<<24) | (0<<23) | ((((Dd)>>4)&1)<<22) | (0b10<<20) | (((Dn)&15)<<16) | (((Dd)&15)<<12) | (0b101<<9) | (1<<8) | ((((Dn)>>4)&1)<<7) | ((((Dm)>>4)&1)<<5) | ((Dm)&15) )
 
@@ -897,7 +934,7 @@ Op is 20-27
 #define VCEQQ_16(Dd, Dn, Dm)   EMIT(VCEQ_I_gen(1, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQ_32(Dd, Dn, Dm)    EMIT(VCEQ_I_gen(2, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQQ_32(Dd, Dn, Dm)   EMIT(VCEQ_I_gen(2, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
-#define VCEQ_64(Dd, Dn, Dm)    EMIT(VCEQ_I_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))
+//#define VCEQ_64(Dd, Dn, Dm)    EMIT(VCEQ_I_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))   // doesn't exist
 #define VCEQQ_64(Dd, Dn, Dm)   EMIT(VCEQ_I_gen(3, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VCEQ_F_gen(sz, D, Vn, Vd, N, Q, M, Vm)  (0b1111<<28 | 0b0010<<24 | 0<<23 | (D)<<22 | (sz)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1110<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 0<<4 | (Vm))
 #define VCEQ_F32(Dd, Dn, Dm)    EMIT(VCEQ_F_gen(0, ((Dd)>>4)&1, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 0, ((Dm)>>4)&1, (Dm)&15))

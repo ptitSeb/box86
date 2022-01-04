@@ -281,41 +281,39 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     {
                         MESSAGE(LOG_DUMP, "Hack for FILD/FISTP i64");
                     } else {
-                        // Save xFlags to use it as scratch...
-                        STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
                         // set STll(0).ll=i64 and ref=ST(0).q later (emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top])
                         //  get TOP
-                        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, top));
+                        LDR_IMM9(x1, xEmu, offsetof(x86emu_t, top));
                         int a = 0 - dyn->n.x87stack;
                         if(a<0) {
-                            SUB_IMM8(xFlags, xFlags, -a);
-                            AND_IMM8(xFlags, xFlags, 7);
+                            SUB_IMM8(x1, x1, -a);
+                            AND_IMM8(x1, x1, 7);
                         } else if(a>0) {
-                            ADD_IMM8(xFlags, xFlags, a);
-                            AND_IMM8(xFlags, xFlags, 7);
+                            ADD_IMM8(x1, x1, a);
+                            AND_IMM8(x1, x1, 7);
                         }
-                        ADD_REG_LSL_IMM5(xFlags, xEmu, xFlags, 4);  // each fpu_ll is 2 int64: ref than ll
-                        ADD_IMM8_ROR(xFlags, xFlags, offsetof(x86emu_t, fpu_ll)>>2, 15);
-                        STRD_IMM8(x2, xFlags, 8);  // save ll
+                        // ed (and so x1) is not use anymore.
+                        ADD_REG_LSL_IMM5(x1, xEmu, x1, 4);  // each fpu_ll is 2 int64: ref than ll
+                        ADD_IMM8_ROR(x1, x1, offsetof(x86emu_t, fpu_ll)>>2, 15);
+                        STRD_IMM8(x2, x1, 8);  // save ll
                         // continue with conversion
                         MOVS_REG_LSR_IMM5(x14, x3, 31);    // x14 is sign bit
                         B_MARK(cEQ);    // no NEG is no sign bit
                         RSBS_IMM8(x2, x2, 0);
                         RSC_IMM8(x3, x3, 0);
                         MARK;
-                        VMOVtoV(s0, x3);
+                        VMOVtoV(s0, x3);    // last time x3 is used
                         VCVT_F64_U32(v1, s0);
                         VEOR(v2, v2, v2);
-                        MOVW(x1, 0x41F0);
-                        VMOVtoDx_16(v2, 3, x1);
+                        MOVW(x3, 0x41F0);
+                        VMOVtoDx_16(v2, 3, x3);
                         VMUL_F64(v1, v1, v2); // v1 = double high part of i64
                         VMOVtoV(s0, x2);
                         VCVT_F64_U32(v2, s0);
                         VADD_F64(v1, v1, v2);
                         TSTS_IMM8(x14, 1);
                         VNEG_F64_cond(cNE, v1, v1);
-                        VST1_64(v1, xFlags);    // Store STll(0).ref
-                        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+                        VST1_64(v1, x1);    // Store STll(0).ref
                     }
                     break;
                 case 6:

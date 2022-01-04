@@ -462,6 +462,33 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
     }
     SET_NODF();
 }
+// call a function with 1 arg, (taking care of the SOFTFP / HARD call) that return a double, using s1 as scratch
+void call_rd(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int s1, uint32_t mask, int saveflags)
+{
+    if(!mask) {
+        // ARM ABI require the stack to be 8-bytes aligned!
+        // so, if no mask asked, add one to stay 8-bytes aligned
+        if(s1!=xFlags) mask=1<<xFlags; else mask=1<<x3;
+    }
+    PUSH(xSP, (1<<xEmu) | mask);
+    fpu_pushcache(dyn, ninst, reg);
+    if(saveflags) {
+        STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
+    if(reg!=0) {
+        MOV_REG(0, reg);
+    }
+    MOV32(s1, (uintptr_t)fnc);
+    BLX(s1);
+    #ifdef ARM_SOFTFP
+    VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
+    #endif
+    fpu_popcache(dyn, ninst, reg);
+    POP(xSP, (1<<xEmu) | mask);
+    if(saveflags) {
+        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
+}
 
 void grab_tlsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 {

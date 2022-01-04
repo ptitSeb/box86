@@ -164,7 +164,7 @@ void arm_fistt64(x86emu_t* emu, int64_t* ed)
 void arm_fld(x86emu_t* emu, uint8_t* ed)
 {
     memcpy(&STld(0).ld, ed, 10);
-    LD2D(&STld(0), &ST(0).d);
+    LD2D(&STld(0).ld, &ST(0).d);
     STld(0).uref = ST0.q;
 }
 

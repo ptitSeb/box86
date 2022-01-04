@@ -40,6 +40,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t nextop = F8;
     uint8_t ed;
     uint8_t wback, wb1;
+    uint8_t u8;
     int fixedaddress;
     int v1, v2;
     int s0;
@@ -51,6 +52,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(v2);
     MAYUSE(v1);
     MAYUSE(j32);
+    (void)u8;
 
     switch(nextop) {
 
@@ -271,9 +273,26 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xF0:
             INST_NAME("F2XM1");
+            #if 0
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(arm_f2xm1, -1, 0);
+            #else
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            //if(ST0.d!=0.0)
+            //    ST0.d = exp2(ST0.d)-1.0;
+            VMOV_64(0, v1);
+            CALL_1D(exp2, 0);   // return is d0
+            if((PK(0)==0xD9 && PK(1)==0xE8) && // next inst is FLD1
+            (PK(2)==0xDE && PK(3)==0xC1)) {
+                MESSAGE(LOG_DUMP, "Hack for fld1 / faddp st1, st0\n");
+                VMOV_64(v1, 0);
+                addr+=4;
+            } else {
+                VMOV_i_64(v1, 0b01110000);  // 1.0
+                VSUB_F64(v1, 0, v1);
+            }
+            #endif
             // should set C1 to 0
             break;
         case 0xF1:
@@ -330,10 +349,44 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF5:
             INST_NAME("FPREM1");
+            #if 0
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fprem1, -1, 0);
+            #else
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+            s0 = fpu_get_scratch_double(dyn);
+            VDIV_F64(s0, v1, v2);
+            // set rounding to Nearest
+                MOVW(x2, 1);    // Nearest
+                VMRS(x1);               // get fpscr
+                MOV_REG(x14, x1);
+                BFI(x1, x2, 22, 2);     // inject new round
+                VMSR(x1);               // put new fpscr
+            VCVTR_S32_F64(s0*2, s0); // => Q
+            // set back rounding
+                VMSR(x14);
+            // get Q
+            VMOVfrV(x14, s0*2);
+            // Put back Q in a double
+            VCVT_F64_S32(s0, s0*2);
+            VMUL_F64(s0, s0, v2);
+            VSUB_F64(v1, v1, s0);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, sw));
+            // set C2 = 0
+            BFC(x1, 10, 1);
+            // set C1 = Q0
+            BFI(x1, x14, 9, 1);
+            // set C3 = Q1
+            MOV_REG_LSR_IMM5(x14, x14, 1);
+            BFI(x1, x14, 14, 1);
+            // Set C0 = Q2
+            MOV_REG_LSR_IMM5(x14, x14, 1);
+            BFI(x1, x14, 8, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, sw));
+            #endif
             break;
         case 0xF6:
             INST_NAME("FDECSTP");
@@ -355,10 +408,36 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF8:
             INST_NAME("FPREM");
+            #if 0
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
             CALL(arm_fprem, -1, 0);
+            #else
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+            s0 = fpu_get_scratch_double(dyn);
+            VDIV_F64(s0, v1, v2);
+            VCVT_S32_F64(s0*2, s0); // => Q
+            // get Q
+            VMOVfrV(x14, s0*2);
+            // Put back Q in a double
+            VCVT_F64_S32(s0, s0*2);
+            VMUL_F64(s0, s0, v2);
+            VSUB_F64(v1, v1, s0);
+            LDR_IMM9(x1, xEmu, offsetof(x86emu_t, sw));
+            // set C2 = 0
+            BFC(x1, 10, 1);
+            // set C1 = Q0
+            BFI(x1, x14, 9, 1);
+            // set C3 = Q1
+            MOV_REG_LSR_IMM5(x14, x14, 1);
+            BFI(x1, x14, 14, 1);
+            // Set C0 = Q2
+            MOV_REG_LSR_IMM5(x14, x14, 1);
+            BFI(x1, x14, 8, 1);
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, sw));
+            #endif
             break;
         case 0xF9:
             INST_NAME("FYL2XP1");
@@ -388,7 +467,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);
             CALL_1D(sin, 0);
             VSWP(v1, 0);
-            CALL_1D(cos, 0);
+            CALL_1D(cos, 0);    // would it be faster to do sqrt(1-sin()²) ???
             VMOV_64(v2, 0);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
@@ -398,6 +477,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFC:
             INST_NAME("FRNDINT");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            #if 0
             // check if finite first
             VCMP_F64_0(v1);
             VMRS_APSR();
@@ -411,6 +491,11 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to fpu_round
             CALL_1DR(x2, x3, 0);
             VMOV_64(v1, 0);
+            #else
+            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            VRINTR_F64(v1, v1);
+            x87_restoreround(dyn, ninst, u8);
+            #endif
             // should set C1 to 0
             break;
         case 0xFD:
@@ -422,8 +507,8 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VCMP_F64_0(v1);
             VMRS_APSR();
             B_NEXT(cEQ);
-            VMOV_64(0, v2);
-            CALL_1DD(trunc, exp2, 0);
+            VRINTZ_F64(0, v2);
+            CALL_1D(exp2, 0);
             VMUL_F64(v1, v1, 0);
             // should set C1 to 0
             break;
