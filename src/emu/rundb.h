@@ -132,7 +132,7 @@
                 GET_ED;
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
-                LD2D(&STld(0), &ST(0).d);
+                LD2D(&STld(0).ld, &ST(0).d);
                 STld(0).uref = ST0.q;
                 break;
             case 7: /* FSTP tbyte */
