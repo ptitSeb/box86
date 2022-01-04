@@ -138,34 +138,6 @@ F1D(log)
 #undef F1F
 #undef FINITE
 
-// Some libm have no default version for some symbols (like pow10/pow10f)
-// it make dlsym not find that symbol (only dlvsym with the exact version works)
-// so use some tricker to still resolve it
-EXPORT float my_pow10f(float a) {
-    static int check = 0;
-    static fFf_t f = NULL;
-    if(!check) { 
-        f = (fFf_t)dlsym(my_lib->priv.w.lib, "pow10f"); 
-        ++check;
-    }
-    if(f)
-        return f(a);
-    else
-        return powf(a, 10.0f);
-}
-EXPORT double my_pow10(double a) {
-    static int check = 0;
-    static dFd_t f = NULL;
-    if(!check) { 
-        f = (dFd_t)dlsym(my_lib->priv.w.lib, "pow10"); 
-        ++check;
-    }
-    if(f)
-        return f(a);
-    else
-        return pow(a, 10.);
-}
-
 #define PRE_INIT\
     if(1)                                                           \
         lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \

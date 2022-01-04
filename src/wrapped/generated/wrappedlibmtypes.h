@@ -52,7 +52,6 @@ typedef void* (*pFpsvvvvs_t)(void*, void*, void, void, void, void, void*);
 	GO(__logf_finite, fFf_t) \
 	GO(__sinhf_finite, fFf_t) \
 	GO(__sqrtf_finite, fFf_t) \
-	GO(pow10f, fFf_t) \
 	GO(__acos_finite, dFd_t) \
 	GO(__acosh_finite, dFd_t) \
 	GO(__asin_finite, dFd_t) \
@@ -64,7 +63,6 @@ typedef void* (*pFpsvvvvs_t)(void*, void*, void, void, void, void, void*);
 	GO(__log_finite, dFd_t) \
 	GO(__sinh_finite, dFd_t) \
 	GO(__sqrt_finite, dFd_t) \
-	GO(pow10, dFd_t) \
 	GO(pow10l, DFD_t) \
 	GO(acoshl, KFK_t) \
 	GO(acosl, KFK_t) \

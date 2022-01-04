@@ -351,8 +351,8 @@ GOW(nexttoward, dFdD)
 GOW(nexttowardf, fFfD)
 // nexttowardl  // Weak
 GOW(pow, dFdd)
-GOWM(pow10, dFd)    //%noE
-GOWM(pow10f, fFf)   //%noE
+GOW(pow10, dFd)
+GOW(pow10f, fFf)
 #ifdef HAVE_LD80BITS
 GOWM(pow10l, DFD)   //%noE
 #else

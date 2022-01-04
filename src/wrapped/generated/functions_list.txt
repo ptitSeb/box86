@@ -2901,7 +2901,6 @@ wrappedlibm:
   - __logf_finite
   - __sinhf_finite
   - __sqrtf_finite
-  - pow10f
 - dFd:
   - __acos_finite
   - __acosh_finite
@@ -2914,7 +2913,6 @@ wrappedlibm:
   - __log_finite
   - __sinh_finite
   - __sqrt_finite
-  - pow10
 - DFD:
   - pow10l
 - KFK:
