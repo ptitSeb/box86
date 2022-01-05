@@ -214,6 +214,7 @@ EXPORTDYN
 void LoadLogEnv()
 {
     ftrace = stdout;
+    box86_nobanner = isatty(fileno(stdout))?0:1;
     const char *p = getenv("BOX86_NOBANNER");
     if(p) {
         if(strlen(p)==1) {
@@ -221,6 +222,9 @@ void LoadLogEnv()
                 box86_nobanner = p[0]-'0';
         }
     }
+    // grab BOX86_TRACE_FILE envvar, and change %pid to actual pid is present in the name
+    openFTrace();
+    box86_log = isatty(fileno(ftrace))?LOG_INFO:LOG_NONE; //default LOG value different if stdout is redirected or not
     p = getenv("BOX86_LOG");
     if(p) {
         if(strlen(p)==1) {
@@ -287,7 +291,7 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='1')
                 box86_dynarec = p[0]-'0';
         }
-        printf_log(LOG_INFO, "Dynarec is %s\n", box86_dynarec?"On":"Off");
+        printf_log(LOG_INFO, "Dynarec is %s\n", box86_dynarec?"on":"off");
     }
     p = getenv("BOX86_DYNAREC_FORCED");
     if(p) {
@@ -296,7 +300,7 @@ void LoadLogEnv()
                 box86_dynarec_forced = p[0]-'0';
         }
         if(box86_dynarec_forced)
-        printf_log(LOG_INFO, "Dynarec is Forced on all addresses\n");
+            printf_log(LOG_INFO, "Dynarec is forced on all addresses\n");
     }
     p = getenv("BOX86_DYNAREC_BIGBLOCK");
     if(p) {
@@ -316,7 +320,7 @@ void LoadLogEnv()
                 box86_dynarec_strongmem = p[0]-'0';
         }
         if(box86_dynarec_strongmem)
-        printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box86_dynarec_strongmem==1)?" with limited performace loss":"");
+            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box86_dynarec_strongmem==1)?" with limited performace loss":"");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {
@@ -363,8 +367,6 @@ void LoadLogEnv()
     }
 #endif
 #endif
-    // grab BOX86_TRACE_FILE envvar, and change %pid to actual pid is present in the name
-    openFTrace();
     // Other BOX86 env. var.
     p = getenv("BOX86_DLSYM_ERROR");
     if(p) {
