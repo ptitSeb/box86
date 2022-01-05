@@ -25,6 +25,5 @@ build() {
 }
 
 package() {
-	cd "$srcdir/${pkgname%-rk3399-git}/build"
-	make DESTDIR="${pkgdir}/" install
+	make -C build DESTDIR="${pkgdir}/" install
 }
