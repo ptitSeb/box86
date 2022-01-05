@@ -888,7 +888,15 @@ int main(int argc, const char **argv, const char **env) {
     }
     if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb"))
         exit(0);
-
+    // uname -m is redirected to box86 -m
+    if(argc==2 && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i")))
+    {
+        // try box64 first
+        execlp("box64", "box64", argv[1], (char*)NULL);
+        // fallthru if box64 is not installed
+        printf("i686\n");
+        exit(0);
+    }
     // init random seed
     srandom(time(NULL));
 
