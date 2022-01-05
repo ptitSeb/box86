@@ -51,7 +51,13 @@ else()
     set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE} CACHE INTERNAL "The Python3 executable" FORCE)
 endif()
 
-if(RK3399 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64)
+cmake_host_system_information(RESULT CMAKE_HOST_SYSTEM_PROCESSOR QUERY OS_PLATFORM)
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "x86_64"  _x86_64)
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "aarch64"  _aarch64)
+string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "armhf"  _armhf)
+
+if(_aarch64 AND (RK3399 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64))
     set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
     #set(CMAKE_ASM_COMPILER arm-linux-gnueabihf-as) #will use gcc in fact
     set(CMAKE_C_COMPILER_TARGET arm-linux-gnueabihf)
@@ -592,11 +598,6 @@ else()
         target_link_options(${BOX86} PUBLIC -Wl,-Ttext-segment,${BOX86_ELF_ADDRESS})
     endif()
 endif()
-
-string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "i686"  _x86)
-string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "x86_64"  _x86_64)
-string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "aarch64"  _aarch64)
-string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "armhf"  _armhf)
 
 if(NOT _x86 AND NOT _x86_64)
   install(TARGETS ${BOX86}
