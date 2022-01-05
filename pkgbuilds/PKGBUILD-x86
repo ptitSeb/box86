@@ -18,26 +18,11 @@ pkgver() {
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
-prepare() {
-	cd "${srcdir}/${pkgname%-x86-git}"
-	if [[ ! -d ./build ]]; then
-		mkdir build && cd build
-		cmake .. -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
-	fi
-}
-
 build() {
-	cd "$srcdir/${pkgname%-x86-git}/build"
-	make -j$(nproc)
+	cmake -B build -S "${pkgname%-x86-git}" -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+	make -C build
 }
 
 package() {
-	cd "$srcdir/${pkgname%-x86-git}/build"
-	make DESTDIR="${pkgdir}/" install
-	# /usr/local/bin isn't in PATH by the default,
-	# we should move it to /usr/bin
-	cd ${pkgdir}
-	mv usr/local/bin/ usr/bin/
-	# cleanup when dir is empty
-	rmdir usr/local || exit 0
+	make -C build DESTDIR="${pkgdir}/" install
 }
