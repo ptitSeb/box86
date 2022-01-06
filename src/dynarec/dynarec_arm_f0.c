@@ -352,6 +352,10 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             DMB_ISH();
             break;
+        
+        case 0x66:
+            return dynarec66F0(dyn, addr, ip, ninst, ok, need_epilog);
+            break;
 
         case 0x81:
         case 0x83:

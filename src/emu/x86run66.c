@@ -798,6 +798,59 @@ void RunLock66(x86emu_t *emu)
             pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;
+        
+        case 0xFF:
+            nextop = F8;
+            GET_EW;
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Ed */
+#ifdef DYNAREC
+                    if((uintptr_t)ED&1) { 
+                        //meh.
+                        do {
+                            tmp16u = ED->dword[0];
+                            tmp16u &=~0xff;
+                            tmp16u |= arm_lock_read_b(ED);
+                            tmp16u = inc16(emu, tmp16u);
+                        } while(arm_lock_write_b(ED, tmp16u&0xff));
+                        ED->dword[0] = tmp16u;
+                    } else
+                        do {
+                            tmp16u = arm_lock_read_h(ED);
+                        } while(arm_lock_write_h(ED, inc16(emu, tmp16u)));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    ED->dword[0] = inc32(emu, ED->dword[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                case 1:                 /* DEC Ed */
+#ifdef DYNAREC
+                    if((uintptr_t)ED&1) { 
+                        //meh.
+                        do {
+                            tmp16u = ED->dword[0];
+                            tmp16u &=~0xff;
+                            tmp16u |= arm_lock_read_b(ED);
+                            tmp16u = dec16(emu, tmp16u);
+                        } while(arm_lock_write_b(ED, tmp16u&0xff));
+                        ED->dword[0] = tmp16u;
+                    } else
+                        do {
+                            tmp16u = arm_lock_read_h(ED);
+                        } while(arm_lock_write_h(ED, dec16(emu, tmp16u)));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    ED->dword[0] = dec32(emu, ED->dword[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                default:
+                    ip=R_EIP;
+                    UnimpOpcode(emu);
+                    break;
+            }
+            break;
         default:
             ip-=3;    // unfetch nextop, F0  & 66
             UnimpOpcode(emu);

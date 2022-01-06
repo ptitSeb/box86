@@ -384,6 +384,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define dynarecDF       STEPNAME(dynarecDF)
 #define dynarecF0       STEPNAME(dynarecF0)
 #define dynarec660F     STEPNAME(dynarec660F)
+#define dynarec66F0     STEPNAME(dynarec66F0)
 #define dynarecF20F     STEPNAME(dynarecF20F)
 #define dynarecF30F     STEPNAME(dynarecF30F)
 
@@ -723,6 +724,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
+uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog);
 

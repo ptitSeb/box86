@@ -578,6 +578,16 @@ Op is 20-27
 #define STREXB(Rd, Rt, Rn)  EMIT(STREXB_gen(c__, Rd, Rn, Rt))
 #define STREXB_COND(cond, Rd, Rt, Rn)  EMIT(STREXB_gen(cond, Rd, Rn, Rt))
 
+#define LDREXH_gen(cond, Rn, Rt)        (cond | 0b0001111<<21 | 1<<20 | (Rn)<<16 | (Rt)<<12 | 0b1111<<8 | 0b1001<<4 | 0b1111)
+// Load Exclusive Half-Word Rt from Rn (tagging the memory)
+#define LDREXH(Rt, Rn)                  EMIT(LDREXH_gen(c__, Rn, Rt))
+#define LDREXH_COND(cond, Rt, Rn)       EMIT(LDREXH_gen(cond, Rn, Rt))
+
+#define STREXH_gen(cond, Rd, Rn, Rt)    (cond | 0b0001111<<21 | 0<<20 | (Rn)<<16 | (Rd)<<12 | 0b1111<<8 | 0b1001<<4 | (Rt))
+// Store Exclusive Half-Word Rt to Rn, with result in Rd=0 if tag is ok, Rd==1 if store failed (Rd!=Rn && Rd!=Rt)
+#define STREXH(Rd, Rt, Rn)              EMIT(STREXH_gen(c__, Rd, Rn, Rt))
+#define STREXH_COND(cond, Rd, Rt, Rn)   EMIT(STREXH_gen(cond, Rd, Rn, Rt))
+
 // Count leading 0 bit of Rm, store result in Rd
 #define CLZ(Rd, Rm)  EMIT(c__ | 0b00010110<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0001<<4 | (Rm))
 // Reverse bits of Rm, store result in Rd

@@ -501,6 +501,7 @@ if(ARM_DYNAREC)
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_df.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_f0.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_660f.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec_arm_66f0.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_f20f.c"
     "${BOX86_ROOT}/src/dynarec/dynarec_arm_f30f.c"
     )

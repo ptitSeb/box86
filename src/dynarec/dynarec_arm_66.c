@@ -905,6 +905,10 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xF0:
+            return dynarec66F0(dyn, addr, ip, ninst, ok, need_epilog);
+            break;
+
         case 0xF2:
         case 0xF3:
             nextop = F8;
