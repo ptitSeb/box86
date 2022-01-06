@@ -224,7 +224,7 @@ void LoadLogEnv()
     }
     // grab BOX86_TRACE_FILE envvar, and change %pid to actual pid is present in the name
     openFTrace();
-    box86_log = isatty(fileno(ftrace))?LOG_INFO:LOG_NONE; //default LOG value different if stdout is redirected or not
+    //box86_log = isatty(fileno(ftrace))?LOG_INFO:LOG_NONE; //default LOG value different if stdout is redirected or not
     p = getenv("BOX86_LOG");
     if(p) {
         if(strlen(p)==1) {
