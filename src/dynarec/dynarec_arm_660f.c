@@ -1744,13 +1744,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETGX(q0, 1);
             GETEX(q1, 0);
             v0 = fpu_get_scratch_quad(dyn);
-            VMOVD(v0, q1);
-            VMOVD(v0+1, q1);
-            VQMOVN_S64(v0, v0); // 2*q1 in 32bits now
-            VMOVD(v0+1, v0);
-            VQMOVN_S32(v0, v0); // 4*q1 in 16bits now
-            VNEGN_16(v0, v0);   // because we want SHR and not SHL
-            VMOVD(v0+1, v0);
+            VDUPQ_16(v0, q1, 0);
+            VNEGNQ_16(v0, v0);   // because we want SHR and not SHL
             VSHLQ_U16(q0, q0, v0);
             break;
         case 0xD2:
