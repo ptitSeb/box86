@@ -639,7 +639,7 @@ GO(XkbLookupKeySym, iFpuupp)
 //GO(XkbNoteDeviceChanges
 //GO(XkbNoteMapChanges
 //GO(XkbNoteNameChanges
-//GO(XkbOpenDisplay
+GO(XkbOpenDisplay, pFpppppp)
 // _XkbPeekAtReadBuffer
 GO(XkbQueryExtension, iFpppppp)
 // _XkbReadBufferCopyKeySyms
