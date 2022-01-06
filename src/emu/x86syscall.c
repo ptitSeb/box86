@@ -718,9 +718,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)my_memfd_create(emu, (void*)R_EBX, R_ECX);
 #endif
         default:
-            printf_log(LOG_INFO, "Error: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
-            emu->quit = 1;
-            emu->error |= ERR_UNIMPL;
+            printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+            return -1;
     }
     return 0;
 }
