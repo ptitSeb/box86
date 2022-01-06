@@ -2122,26 +2122,32 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOVQ(v0, q0);
             break;
         case 0xC7:
-            INST_NAME("CMPXCHG8B Gq, Eq");
-            SETFLAGS(X_ZF, SF_SUBSET);
             nextop = F8;
-            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-4, 0, 0);
-            LDR_IMM9(x1, wback, fixedaddress+0);
-            LDR_IMM9(x2, wback, fixedaddress+4);
-            CMPS_REG_LSL_IMM5(xEAX, x1, 0);
-            B_MARK(cNE);    // EAX != Ed[0]
-            CMPS_REG_LSL_IMM5(xEDX, x2, 0);
-            B_MARK(cNE);    // EDX != Ed[1]
-            STR_IMM9(xEBX, wback, fixedaddress+0);
-            STR_IMM9(xECX, wback, fixedaddress+4);
-            MOVW(x1, 1);
-            B_MARK3(c__);
-            MARK;
-            MOV_REG(xEAX, x1);
-            MOV_REG(xEDX, x2);
-            MOVW(x1, 0);
-            MARK3;
-            BFI(xFlags, x1, F_ZF, 1);
+            switch((nextop>>3)&7) {
+                case 1:
+                    INST_NAME("CMPXCHG8B Gq, Eq");
+                    SETFLAGS(X_ZF, SF_SUBSET);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095-4, 0, 0);
+                    LDR_IMM9(x1, wback, fixedaddress+0);
+                    LDR_IMM9(x2, wback, fixedaddress+4);
+                    CMPS_REG_LSL_IMM5(xEAX, x1, 0);
+                    B_MARK(cNE);    // EAX != Ed[0]
+                    CMPS_REG_LSL_IMM5(xEDX, x2, 0);
+                    B_MARK(cNE);    // EDX != Ed[1]
+                    STR_IMM9(xEBX, wback, fixedaddress+0);
+                    STR_IMM9(xECX, wback, fixedaddress+4);
+                    MOVW(x1, 1);
+                    B_MARK3(c__);
+                    MARK;
+                    MOV_REG(xEAX, x1);
+                    MOV_REG(xEDX, x2);
+                    MOVW(x1, 0);
+                    MARK3;
+                    BFI(xFlags, x1, F_ZF, 1);
+                    break;
+                default:
+                    DEFAULT;
+            }
             break;
         case 0xC8:
         case 0xC9:

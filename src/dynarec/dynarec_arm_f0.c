@@ -941,48 +941,54 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
 
                 case 0xC7:
-                    INST_NAME("LOCK CMPXCHG8B Gq, Eq");
-                    SETFLAGS(X_ZF, SF_SUBSET);
-                    DMB_ISH();
                     nextop = F8;
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, 1);
-                    MARKLOCK;
-                    if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
-                        TSTS_IMM8(wback, 7);
-                        LDREXD_COND(cEQ, x2, wback);
-                        LDREX_COND(cNE, x2, wback);
-                        LDR_IMM9_COND(cNE, x3, wback, 4);
-                    } else {
-                        LDREXD(x2, wback);
+                    switch((nextop>>3)&7) {
+                        case 1:
+                            INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                            SETFLAGS(X_ZF, SF_SUBSET);
+                            DMB_ISH();
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 0, 0, 1);
+                            MARKLOCK;
+                            if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
+                                TSTS_IMM8(wback, 7);
+                                LDREXD_COND(cEQ, x2, wback);
+                                LDREX_COND(cNE, x2, wback);
+                                LDR_IMM9_COND(cNE, x3, wback, 4);
+                            } else {
+                                LDREXD(x2, wback);
+                            }
+                            CMPS_REG_LSL_IMM5(xEAX, x2, 0);
+                            B_MARK(cNE);    // EAX != Ed[0]
+                            CMPS_REG_LSL_IMM5(xEDX, x3, 0);
+                            B_MARK(cNE);    // EDX != Ed[1]
+                            MOV_REG(x2, xEBX);
+                            MOV_REG(x3, xECX);
+                            if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
+                                TSTS_IMM8(wback, 7);
+                                STREXD_COND(cEQ, x14, x2, wback);
+                                STREX_COND(cNE, x14, x2, wback);
+                            } else {
+                                STREXD(x14, x2, wback);
+                            }
+                            CMPS_IMM8(x14, 0);
+                            B_MARKLOCK(cNE);
+                            if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
+                                TSTS_IMM8(wback, 7);
+                                STR_IMM9_COND(cNE, x3, wback, 4);
+                            }
+                            MOVW(x1, 1);
+                            B_MARK3(c__);
+                            MARK;
+                            MOV_REG(xEAX, x2);
+                            MOV_REG(xEDX, x3);
+                            MOVW(x1, 0);
+                            MARK3;
+                            DMB_ISH();
+                            BFI(xFlags, x1, F_ZF, 1);
+                            break;
+                        default:
+                            DEFAULT;
                     }
-                    CMPS_REG_LSL_IMM5(xEAX, x2, 0);
-                    B_MARK(cNE);    // EAX != Ed[0]
-                    CMPS_REG_LSL_IMM5(xEDX, x3, 0);
-                    B_MARK(cNE);    // EDX != Ed[1]
-                    MOV_REG(x2, xEBX);
-                    MOV_REG(x3, xECX);
-                    if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
-                        TSTS_IMM8(wback, 7);
-                        STREXD_COND(cEQ, x14, x2, wback);
-                        STREX_COND(cNE, x14, x2, wback);
-                    } else {
-                        STREXD(x14, x2, wback);
-                    }
-                    CMPS_IMM8(x14, 0);
-                    B_MARKLOCK(cNE);
-                    if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
-                        TSTS_IMM8(wback, 7);
-                        STR_IMM9_COND(cNE, x3, wback, 4);
-                    }
-                    MOVW(x1, 1);
-                    B_MARK3(c__);
-                    MARK;
-                    MOV_REG(xEAX, x2);
-                    MOV_REG(xEDX, x3);
-                    MOVW(x1, 0);
-                    MARK3;
-                    DMB_ISH();
-                    BFI(xFlags, x1, F_ZF, 1);
                     break;
 
                 default:

@@ -1105,19 +1105,25 @@
             GX.q[1] = eax1.q[1];
             NEXT;
         _0f_0xC7:                      /* CMPXCHG8B Gq */
-            CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
-            tmp32u = ED->dword[0];
-            tmp32u2= ED->dword[1];
-            if(R_EAX == tmp32u && R_EDX == tmp32u2) {
-                SET_FLAG(F_ZF);
-                ED->dword[0] = R_EBX;
-                ED->dword[1] = R_ECX;
-            } else {
-                CLEAR_FLAG(F_ZF);
-                R_EAX = tmp32u;
-                R_EDX = tmp32u2;
+            switch((nextop>>3)&7) {
+                case 1:
+                    CHECK_FLAGS(emu);
+                    tmp32u = ED->dword[0];
+                    tmp32u2= ED->dword[1];
+                    if(R_EAX == tmp32u && R_EDX == tmp32u2) {
+                        SET_FLAG(F_ZF);
+                        ED->dword[0] = R_EBX;
+                        ED->dword[1] = R_ECX;
+                    } else {
+                        CLEAR_FLAG(F_ZF);
+                        R_EAX = tmp32u;
+                        R_EDX = tmp32u2;
+                    }
+                    break;
+                default:
+                    goto _default;
             }
             NEXT;
         _0f_0xC8:
