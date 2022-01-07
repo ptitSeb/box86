@@ -1,7 +1,7 @@
 ### Auto build Box86 and release its binary with Github Action
 name: Build and Release Box86
 
-on: 
+on:
   workflow_dispatch:
   release:
   push:
@@ -12,7 +12,7 @@ on:
       - "**/*.py"
       - "CMakeLists.txt"
       - "**/*.yml"
-  pull_request: 
+  pull_request:
     types: [assigned, opened, synchronize, reopened]
     paths:
       - "**/*.c"
@@ -48,7 +48,6 @@ jobs:
               echo "BOX86_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
               echo "BOX86_COMPILER=/bin/i686-linux-gnu-gcc-10" >> $GITHUB_ENV
               sudo apt-get -y install git libc6-dev-i386-amd64-cross gcc-10-i686-linux-gnu cmake make python3
-              ls /bin/*gcc*
             else
               echo BOX86_PLATFORM_MARCRO="-DARM_DYNAREC=ON -DCMAKE_C_FLAGS=-marm" >> $GITHUB_ENV
               echo "BOX86_COMPILER=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
@@ -63,14 +62,14 @@ jobs:
             echo BOX86_BUILD_TYPE=RelWithDebInfo >> $GITHUB_ENV
             echo BOX86_HAVE_TRACE=1 >> $GITHUB_ENV
           fi
-            
+
       - name: "Display Build info"
         run: |
           echo "CMake Platform Macro: ${{ env.BOX86_PLATFORM_MARCRO }}"
           echo "CMake C Compiler: ${{ env.BOX86_COMPILER }}"
           echo "Build type: ${{ env.BOX86_BUILD_TYPE }}"
           echo "Trace Enabled: ${{ env.BOX86_HAVE_TRACE }}"
-          
+
       - name: "Build Box86"
         run: |
           mkdir build
@@ -87,12 +86,12 @@ jobs:
         run: |
           cd build
           ctest -j$(nproc)
-      
+
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
           name: box86-${{ matrix.platform }}-${{ matrix.type }}
           path: build/box86
 
-          
+
 
