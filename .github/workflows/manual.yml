@@ -1,7 +1,7 @@
-### Auto build Box86 and release its binary with Github Action
+### Manual build Box86 with Github Action
 name: Custom build Box86
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       platform:
@@ -64,14 +64,13 @@ jobs:
               echo "BOX86_PLATFORM_MARCRO=-DLD80BITS=1 -DNOALIGN=1" >> $GITHUB_ENV
               echo "BOX86_COMPILER=/bin/i686-linux-gnu-gcc-10" >> $GITHUB_ENV
               sudo apt-get -y install git libc6-dev-i386-amd64-cross gcc-10-i686-linux-gnu cmake make python3
-              ls /bin/*gcc*
             else
               echo "BOX86_PLATFORM_MARCRO=-DCMAKE_C_FLAGS=-marm" >> $GITHUB_ENV
               echo "BOX86_COMPILER=arm-linux-gnueabihf-gcc" >> $GITHUB_ENV
               sudo apt-get -y install git gcc-arm-linux-gnueabihf cmake make python3
             fi
           fi
-            
+
       - name: "Display Build info"
         run: |
           echo "CMake Platform Macro: ${{ env.BOX86_PLATFORM_MARCRO }}"
@@ -79,23 +78,23 @@ jobs:
           echo "Build type: ${{ github.event.inputs.build_type }}"
           echo "Dynarec Enabled: ${{ github.event.inputs.dynarec }}"
           echo "Trace Enabled: ${{ github.event.inputs.trace }}"
-          
+
       - name: "Build Box86"
         run: |
           mkdir build
           cd build
           cmake .. -DCMAKE_C_COMPILER=${{ env.BOX86_COMPILER }} ${{ env.BOX86_PLATFORM_MARCRO }}\
                    -DCMAKE_BUILD_TYPE=${{ github.event.inputs.build_type }}\
-                   -DARM_DYNAREC=${{ fromJSON('["0", "1"]')[github.event.inputs.dynarec == 'true'] }}\
-                   -DHAVE_TRACE=${{ fromJSON('["0", "1"]')[github.event.inputs.trace == 'true'] }}\
+                   -DARM_DYNAREC:BOOL=${{ github.event.inputs.dynarec }}\
+                   -DHAVE_TRACE:BOOL=${{ github.event.inputs.trace }}\
                    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
           make -j$(nproc) VERBOSE=1
-          
+
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v2
         with:
           name: box86-${{ github.event.inputs.platform }}-${{ github.event.inputs.build_type }}
           path: build/box86
 
-          
+
 
