@@ -52,5 +52,10 @@ if( TEST_RESULT )
   message( FATAL_ERROR "Failed: The output of ${TEST_PROGRAM} did not match ${TEST_REFERENCE}")
 endif( TEST_RESULT )
 
+# remove the temporary files if they exist
+if( EXISTS ${TEST_OUTPUT} )
+  file(REMOVE "${TEST_OUTPUT}")
+endif()
+
 # everything went fine...
 message( "Passed: The output of ${TEST_PROGRAM} matches ${TEST_REFERENCE}" )
