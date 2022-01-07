@@ -15,4 +15,8 @@
 const char* atkName = "libatk-1.0.so.0";
 #define LIBNAME atk
 
+#define PRE_INIT    \
+    if(box86_nogtk) \
+        return -1;
+
 #include "wrappedlib_init.h"
