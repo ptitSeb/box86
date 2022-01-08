@@ -967,7 +967,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
                 u8 = F8;
-                if ((u8==0) || (u8==0b01010101) || (u8=0b10101010) || (u8==0b11111111)) {
+                if ((u8==0) || (u8==0b01010101) || (u8==0b10101010) || (u8==0b11111111)) {
                     if(u8&3) {
                         ADD_IMM8(x3, ed, (u8&3)*4);
                     }
