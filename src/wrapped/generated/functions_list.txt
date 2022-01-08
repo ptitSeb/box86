@@ -3951,6 +3951,7 @@ wrappedsdl2ttf:
 - pFpiii:
   - TTF_OpenFontIndexRW
 wrappedsecret1:
+wrappedselinux:
 wrappedsmime3:
 - iFpp:
   - SEC_PKCS12DecoderValidateBags
