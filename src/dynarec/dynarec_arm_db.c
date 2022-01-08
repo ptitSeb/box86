@@ -380,7 +380,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     PUSH(xSP, (1<<xEmu)|(1<<xFlags));
                     ADD_IMM8(0, xSP, 8);    //1st arg is &d
                     if(ed!=x1) {
-                        MOV_REG_LSR_IMM5(x1, ed, 0);    //2nd arg is ed
+                        MOV_REG_LSL_IMM5(x1, ed, 0);    //2nd arg is ed
                     }
                     CALL_S(D2LD, -2, 0);
                     POP(xSP, (1<<xEmu)|(1<<xFlags));
