@@ -37,9 +37,9 @@ lib_t *NewLibrarian(box86context_t* context, int ownlibs)
 static void freeLibraryRecurse(lib_t *maplib, x86emu_t *emu, int idx, char *freed, library_t* owner) {
     if (freed[idx]) return; // Already freed
     
-    freed[idx] = 1; // Avoid infinite loops
     library_t *lib = maplib->libraries[idx];
     if(lib==owner) return;  // don't free owner of maplib
+    freed[idx] = 1; // Avoid infinite loops
     printf_log(LOG_DEBUG, "Unloading %s\n", lib->name);
     for (int i = lib->dependedby.size - 1; i >= 0; --i) {
         int j;
@@ -47,8 +47,8 @@ static void freeLibraryRecurse(lib_t *maplib, x86emu_t *emu, int idx, char *free
             if (lib->dependedby.libs[i] == maplib->libraries[j]) break;
         }
         if (j == maplib->libsz) {
-            // We cannot access the 'name' field, since we can't be sure it hasn't been freed somewhere else...
-            printf_log(LOG_INFO, "Library %s (%p) needs %p, but it was not found. Ignoring.\n", lib->name, lib, lib->dependedby.libs[i]);
+            // dependant lib already freed
+            // library as been freed already
             continue;
         }
         if (freed[j] == 1) {

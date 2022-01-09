@@ -695,7 +695,8 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
         while(dyn->n.x87cache[j]!=i) ++j; // look for STi
         #if STEP == 1
         if(!next) {  // don't force promotion here
-            neoncache_promote_double(dyn, ninst, dyn->n.x87cache[j]);
+            // pre-apply pop, because purge happens in-between
+            neoncache_promote_double(dyn, ninst, dyn->n.x87cache[j]+dyn->n.stack_pop);
         }
         #endif
         if(next) {
@@ -805,7 +806,8 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
             if(dyn->n.x87cache[i]!=-1) {
                 #if STEP == 1
                 if(!next) {   // don't force promotion here
-                    neoncache_promote_double(dyn, ninst, dyn->n.x87cache[i]);
+                    // pre-apply pop, because purge happens in-between
+                    neoncache_promote_double(dyn, ninst, dyn->n.x87cache[i]+dyn->n.stack_pop);
                 }
                 #endif
                 #if STEP == 3
