@@ -2874,10 +2874,12 @@ EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun 
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
 }
 
+#ifndef ANDROID
 EXPORT int my_on_exit(x86emu_t* emu, void* f, void* args)
 {
     return on_exit(findon_exitFct(f), args);
 }
+#endif
 
 
 EXPORT char** my_environ = NULL;

@@ -133,6 +133,8 @@ elseif(PHYTIUM)
     add_definitions(-DPHYTIUM)
     add_definitions(-pipe -march=armv8.1-a+simd+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.1-a+simd+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard")
+elseif(ANDROID)
+    add_definitions(-DANDROID)
 elseif(ARM_DYNAREC)
     #if DYNAREC is selected alone, without any arch
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv7-a+simd -mfpu=neon")
