@@ -718,7 +718,7 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
             fpu_free_reg_double(dyn, dyn->n.x87reg[j]);
             dyn->n.x87reg[j] = -1;
             dyn->n.x87cache[j] = -1;
-            dyn->n.stack_pop+=1;
+            //dyn->n.stack_pop+=1;
         }
     }
     if(!next) {
