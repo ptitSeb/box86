@@ -3053,10 +3053,6 @@ wrappedlibpthread:
 - iFpppp:
   - pthread_create
 wrappedlibresolv:
-- iFpiipi:
-  - __res_query
-- iFppppi:
-  - __dn_expand
 wrappedlibrt:
 - iFupp:
   - timer_create
