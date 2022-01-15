@@ -835,7 +835,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
                     fpu_free_reg_double(dyn, dyn->n.x87reg[i]);
                     dyn->n.x87reg[i] = -1;
                     dyn->n.x87cache[i] = -1;
-                    dyn->n.stack_pop+=1;
+                    //dyn->n.stack_pop+=1; //no pop, but the purge because of barrier will have the n.barrier flags set
                 }
             }
     }
