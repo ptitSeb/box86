@@ -642,7 +642,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MARK3;
                     DMB_ISH();
                     // done, do the cmp now
-                    emit_cmp8(dyn, ninst, x1, x2, x3, x14);
+                    UFLAG_IF {emit_cmp8(dyn, ninst, x1, x2, x3, x14);}
                     break;
                 case 0xB1:
                     INST_NAME("LOCK CMPXCHG Ed, Gd");
@@ -683,16 +683,16 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             TSTS_IMM8(wback, 3);    // anoying, all those test
                             STR_IMM9_COND(cNE, gd, wback, 0);
                         }
-                        emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);
+                        UFLAG_IF {emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);}
                     } else {
-                        emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);
+                        UFLAG_IF {emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);}
                         MOV_REG(ed, gd);
                     }
                     // done
                     B_MARK3(c__);   // not next, in case its called with a LOCK prefix
                     MARK;
                     // EAX != Ed
-                    emit_cmp32(dyn, ninst, xEAX, ed, x3, x14);
+                    UFLAG_IF {emit_cmp32(dyn, ninst, xEAX, ed, x3, x14);}
                     MOV_REG(xEAX, ed);
                     MARK3
                     DMB_ISH();
@@ -952,8 +952,8 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             if(!fixedaddress || (fixedaddress && (fixedaddress&7))) {
                                 TSTS_IMM8(wback, 7);
                                 LDREXD_COND(cEQ, x2, wback);
-                                LDREX_COND(cNE, x2, wback);
                                 LDR_IMM9_COND(cNE, x3, wback, 4);
+                                LDREX_COND(cNE, x2, wback);
                             } else {
                                 LDREXD(x2, wback);
                             }
