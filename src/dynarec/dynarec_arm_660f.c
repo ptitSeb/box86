@@ -918,8 +918,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         case 0b0011: VEXT_8(q0, v1+1, v1, 4);   break;
                         case 0b0100: VMOVD(q0, v1);             break; // same
                         case 0b0101: VDUP_32(q0, v1, 1);        break;
-                        case 0b0110: VREV64_32(d0, v1+1);
-                                     VEXT_8(q0, d0, v1, 4);     break;
+                        case 0b0110: VEXT_8(q0, v1, v1+1, 8);
+                                     VREV64_32(q0, q0);         break;
                         case 0b0111: VREV64_32(d0, v1);
                                      VEXT_8(q0, v1+1, d0, 4);   break;
                         case 0b1000: VREV64_32(d0, v1);
@@ -945,8 +945,8 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         case 0b0011: VEXT_8(q0+1, v1+1, v1, 4);   break;
                         case 0b0100: VMOVD(q0+1, v1);             break; // same
                         case 0b0101: VDUP_32(q0+1, v1, 1);        break;
-                        case 0b0110: VREV64_32(d0, v1+1);
-                                     VEXT_8(q0+1, d0, v1, 4);     break;
+                        case 0b0110: VEXT_8(q0+1, v1, v1+1, 4);
+                                     VREV64_32(q0+1, q0+1);       break;
                         case 0b0111: VREV64_32(d0, v1);
                                      VEXT_8(q0+1, v1+1, d0, 4);   break;
                         case 0b1000: VREV64_32(d0, v1);
