@@ -20,5 +20,4 @@ box86 (0.2.4) unstable; urgency=low
   * Added a mecanism to cancel a Dynarec block construction if it triggers a segfault (instead of a crash)
   * Improvment to the handling of longjmp inside signal handlers
 
-
- -- Sebastien Chevalier <ptitseb@box86.org> Tue, 18 Jan 2022 11:20:33 -0500
+ -- Sebastien Chevalier <ptitseb@box86.org>  Tue, 18 Jan 2022 11:20:33 -0500
