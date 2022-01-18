@@ -123,5 +123,5 @@ Nvidia don't provide armhf libraries for their GPU drivers at this moment so the
 
 Debian Packaging
 ----
-Box86 can also be packaged into a .deb file with `dpkg-buildpackage -us -uc -nc`.
+Box86 can also be packaged into a .deb file with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`.
 
