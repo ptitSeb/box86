@@ -71,6 +71,7 @@ typedef void* (*pFpLL_t)(void*, uintptr_t, uintptr_t);
 typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFivpV_t)(int32_t, void, void*, ...);
 typedef int32_t (*iFiiip_t)(int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFiiiN_t)(int32_t, int32_t, int32_t, ...);
 typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
@@ -134,6 +135,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(__vwprintf_chk, iFvpp_t) \
 	GO(modify_ldt, iFipL_t) \
 	GO(getopt, iFipp_t) \
+	GO(dprintf, iFipV_t) \
 	GO(_IO_vfscanf, iFppp_t) \
 	GO(__isoc99_fscanf, iFppV_t) \
 	GO(__isoc99_sscanf, iFppV_t) \

@@ -2001,6 +2001,7 @@
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) IFpi
 #defined(NOALIGN) iFipV
+#defined(NOALIGN) iFiipV
 #defined(NOALIGN) iFppiiiip
 #!defined(NOALIGN) iFEi
 #!defined(NOALIGN) iFEO
@@ -2043,6 +2044,7 @@
 #() pFpsvvvvs -> pFpss
 #() iFEpuvvppp -> iFEpuppp
 #defined(NOALIGN) iFpvpV -> iFppV
+#!defined(NOALIGN) iFEivpV -> iFEipV
 wrappedalure:
 wrappedalut:
 wrappedappindicator:
@@ -2709,6 +2711,7 @@ wrappedlibc:
 - iFipp:
   - getopt
 - iFipV:
+  - dprintf
 - iFpuu:
 - iFpLi:
 - iFppi:
@@ -2738,6 +2741,7 @@ wrappedlibc:
 - vFpLLp:
 - vFpppp:
   - __libc_init
+- iFivpV:
 - iFiiip:
 - iFiiiN:
 - iFiiII:

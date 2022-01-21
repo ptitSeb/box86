@@ -2075,6 +2075,7 @@ typedef int32_t (*iFpppppppppppppppppppppppppppppppppp_t)(void*, void*, void*, v
 #if defined(NOALIGN)
 typedef int64_t (*IFpi_t)(void*, int32_t);
 typedef int32_t (*iFipV_t)(int32_t, void*, void*);
+typedef int32_t (*iFiipV_t)(int32_t, int32_t, void*, void*);
 typedef int32_t (*iFppiiiip_t)(void*, void*, int32_t, int32_t, int32_t, int32_t, void*);
 #endif
 
@@ -4130,6 +4131,7 @@ void iFpppppppppppppppppppppppppppppppppp(x86emu_t *emu, uintptr_t fcn) { iFpppp
 #if defined(NOALIGN)
 void IFpi(x86emu_t *emu, uintptr_t fcn) { IFpi_t fn = (IFpi_t)fcn; ui64_t r; r.i=fn(*(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void iFipV(x86emu_t *emu, uintptr_t fcn) { iFipV_t fn = (iFipV_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), (void*)(R_ESP + 12)); }
+void iFiipV(x86emu_t *emu, uintptr_t fcn) { iFiipV_t fn = (iFiipV_t)fcn; R_EAX=fn(*(int32_t*)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
 void iFppiiiip(x86emu_t *emu, uintptr_t fcn) { iFppiiiip_t fn = (iFppiiiip_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(int32_t*)(R_ESP + 24), *(void**)(R_ESP + 28)); }
 #endif
 
@@ -4191,4 +4193,8 @@ void iFEpuvvppp(x86emu_t *emu, uintptr_t fcn) { iFEpuppp_t fn = (iFEpuppp_t)fcn;
 
 #if defined(NOALIGN)
 void iFpvpV(x86emu_t *emu, uintptr_t fcn) { iFppV_t fn = (iFppV_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
+#endif
+
+#if !defined(NOALIGN)
+void iFEivpV(x86emu_t *emu, uintptr_t fcn) { iFEipV_t fn = (iFEipV_t)fcn; R_EAX=fn(emu, *(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
 #endif

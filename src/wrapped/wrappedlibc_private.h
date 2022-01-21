@@ -206,8 +206,13 @@ GOM(dl_iterate_phdr, iFEpp) //%%
 // _dl_sym
 // _dl_vsym
 GOW(dngettext, pFpppu)
-// dprintf
-// __dprintf_chk
+#ifdef NOALIGN
+GO(dprintf, iFipV)
+GO(__dprintf_chk, iFiipV)
+#else
+GOM(dprintf, iFEipV)
+GOM(__dprintf_chk, iFEivpV)	//%%
+#endif
 GO(drand48, dFv)
 // drand48_r
 GOW(dup, iFi)

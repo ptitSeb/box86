@@ -2035,6 +2035,7 @@ void iFpppppppppppppppppppppppppppppppppp(x86emu_t *emu, uintptr_t fnc);
 #if defined(NOALIGN)
 void IFpi(x86emu_t *emu, uintptr_t fnc);
 void iFipV(x86emu_t *emu, uintptr_t fnc);
+void iFiipV(x86emu_t *emu, uintptr_t fnc);
 void iFppiiiip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
@@ -2096,5 +2097,9 @@ void iFEpuvvppp(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(NOALIGN)
 void iFpvpV(x86emu_t *emu, uintptr_t fnc);
+#endif
+
+#if !defined(NOALIGN)
+void iFEivpV(x86emu_t *emu, uintptr_t fnc);
 #endif
 #endif // __WRAPPER_H_
