@@ -136,6 +136,7 @@ typedef my_xcb_cookie_t (*xFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t,
 	GO(xcb_grab_button, xFpCuWCCuuCW_t) \
 	GO(xcb_grab_button_checked, xFpCuWCCuuCW_t) \
 	GO(xcb_copy_area, xFpuuuwwwwWW_t) \
+	GO(xcb_copy_area_checked, xFpuuuwwwwWW_t) \
 	GO(xcb_put_image, xFpCuuWWwwCCup_t) \
 	GO(xcb_create_cursor, xFpuuuWWWWWWWW_t) \
 	GO(xcb_create_glyph_cursor, xFpuuuWWWWWWWW_t) \

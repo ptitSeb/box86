@@ -84,6 +84,7 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_configure_window, XFpuWp_t)              \
     GO(xcb_convert_selection, XFpuuuuu_t)           \
     GO(xcb_copy_area, XFpuuuwwwwWW_t)               \
+    GO(xcb_copy_area_checked, XFpuuuwwwwWW_t)       \
     GO(xcb_create_cursor, XFpuuuWWWWWWWW_t)         \
     GO(xcb_create_gc, XFpuuup_t)                    \
     GO(xcb_create_gc_checked, XFpuuup_t)            \
@@ -208,6 +209,7 @@ SUPER(xcb_close_font_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uin
 SUPER(xcb_configure_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t win, uint16_t mask, void* list), c, win, mask, list)
 SUPER(xcb_convert_selection, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t r, uint32_t s, uint32_t t, uint32_t p, uint32_t time), c, r, s, t, p, time)
 SUPER(xcb_copy_area, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t src, uint32_t dst, uint32_t gc, int16_t sx, int16_t sy, int16_t dx, int16_t dy, uint16_t w, uint16_t h), c, src, dst, gc, sx, sy, dx, dy, w, h)
+SUPER(xcb_copy_area_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t src, uint32_t dst, uint32_t gc, int16_t sx, int16_t sy, int16_t dx, int16_t dy, uint16_t w, uint16_t h), c, src, dst, gc, sx, sy, dx, dy, w, h)
 SUPER(xcb_create_cursor, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cid, uint32_t s, uint32_t mask, uint16_t fr, uint16_t fg, uint16_t fb, uint16_t br, uint16_t bg, uint16_t bb, uint16_t x, uint16_t y), c, cid, s, mask, fr, fg, fb, br, bg, bb, x, y)
 SUPER(xcb_create_gc, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cid, uint32_t d, uint32_t mask, void* list), c, cid, d, mask, list)
 SUPER(xcb_create_gc_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cid, uint32_t d, uint32_t mask, void* list), c, cid, d, mask, list)

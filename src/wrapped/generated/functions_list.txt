@@ -3311,6 +3311,7 @@ wrappedlibxcb:
   - xcb_grab_button_checked
 - xFpuuuwwwwWW:
   - xcb_copy_area
+  - xcb_copy_area_checked
 - xFpCuuWWwwCCup:
   - xcb_put_image
 - xFpuuuWWWWWWWW:
