@@ -1336,11 +1336,11 @@ typedef struct my_GOptionEntry_s {
   void*     arg_description;
 } my_GOptionEntry_t;
 
-EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, my_GOptionEntry_t* entries, void* domain)
+EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, my_GOptionEntry_t entries[], void* domain)
 {
     glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
     my_GOptionEntry_t* p = entries;
-    while (p) {
+    while (p->long_name) {
         // wrap Callbacks
         if (p->arg == 3)
             p->arg_data = findGOptionArgFct(p->arg_data);
@@ -1348,7 +1348,7 @@ EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, m
     }
     my->g_option_context_add_main_entries(context, entries, domain);
     p = entries;
-    while (p) {
+    while (p->long_name) {
         // unwrap Callbacks
         if (p->arg == 3)
             p->arg_data = reverseGOptionArgFct(p->arg_data);
