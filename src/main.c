@@ -84,6 +84,7 @@ int box86_zoom = 0;
 int x11threads = 0;
 int x11glx = 1;
 int allow_missing_libs = 0;
+int allow_missing_symbols = 0;
 int fix_64bit_inodes = 0;
 int box86_steam = 0;
 int box86_nopulse = 0;
@@ -418,14 +419,25 @@ void LoadLogEnv()
     if(libGL) {
         printf_log(LOG_INFO, "BOX86 using \"%s\" as libGL.so.1\n", p);
     }
-    p = getenv("BOX86_ALLOWMISSINGLIBS");
-        if(p) {
+    p = getenv("BOX86_ALLOWMISSING_LIBS");
+    if(!p) 
+        p = getenv("BOX86_ALLOWMISSINGLIBS");
+    if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='0'+1)
                 allow_missing_libs = p[0]-'0';
         }
         if(allow_missing_libs)
             printf_log(LOG_INFO, "Allow missing needed libs\n");
+    }
+    p = getenv("BOX86_ALLOWMISSING_SYMBOLS");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                allow_missing_symbols = p[0]-'0';
+        }
+        if(allow_missing_symbols)
+            printf_log(LOG_INFO, "Allow missing needed symbols\n");
     }
     p = getenv("BOX86_NOPULSE");
         if(p) {
@@ -1066,6 +1078,11 @@ int main(int argc, const char **argv, const char **env) {
     if(strstr(prgname, "X3R_main")) {
         printf_log(LOG_INFO, "X3Reunion detected, forcing emulated libjpeg\n");
         AddPath("libjpeg.so.62", &my_context->box86_emulated_libs, 0);
+    }
+    // special case for hl_linux
+    if(strstr(prgname, "hl_linux")==prgname) {
+        printf_log(LOG_INFO, "HalfLife Linux detected, allowing missing symbols\n");
+        allow_missing_symbols = 1;
     }
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");

@@ -141,10 +141,15 @@ Enable/Disable simulation of Strong Memory model
 Some games uses an old version of some libraries, with an ABI incompatible with native version.
 Note that LittleInferno for example is auto detected, and libvorbis.so.0 is automatical added to emulated libs, and same for Don't Starve (and Together / Server variant) that use an old SDL2 too
 
-#### BOX86_ALLOWMISSINGLIBS
-Allow Box86 to continue even if a library is missing.
+#### BOX86_ALLOWMISSING_LIBS
+Allow Box86 to continue even if a library is missing (renamed from BOX86_ALLOWMISSINGLIBS). 
  * 0 : Box86 will stop if a library cannot be loaded. (Default.)
  * 1 : Continue even if a needed library cannot be loaded. Unadvised, this will, in most cases, crash later on.
+
+#### BOX86_ALLOWMISSING_SYMBOLS
+Allow dlopen with RTLD_NOW flag to not resolve all symbols. 
+ * 0 : Box86 will stop if a library have unresolved symbols. (Default.)
+ * 1 : Continue even if a needed library have unresolved symbols (like symbols not yet wrapped).
 
 #### BOX86_NOPULSE
 Disables the load of pulseaudio libraries.
