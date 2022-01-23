@@ -176,6 +176,7 @@ box86context_t *NewBox86Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->versym = NewDictionnary();
     context->system = NewBridge();
+    context->defver = NewDefaultVersion();
     // create vsyscall
     context->vsyscall = AddBridge(context->system, iFEv, x86Syscall, 0, NULL);
     addAlternate((void*)0xffffe400, (void*)context->vsyscall);
@@ -304,6 +305,7 @@ void FreeBox86Context(box86context_t** context)
 
     if(ctx->emu_sig)
         FreeX86Emu(&ctx->emu_sig);
+    FreeDefaultVersion(&ctx->defver);
 
     finiAllHelpers(ctx);
 

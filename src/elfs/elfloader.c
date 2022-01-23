@@ -441,10 +441,17 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
             }*/
             // so weak symbol are the one left
             if(!offs && !end) {
-                GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
-                if(!offs && !end && local_maplib) {
-                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                if(!offs && !end && (version>1)) {
+                    const char* defver = GetDefaultVersion(my_context->defver, symname);
+                    if(defver && !strcmp(defver, vername)) {
+                        printf_dump(LOG_NEVER, "Try global first, as a global unversionned symbol %s might exist\n", symname);
+                        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, -2, vername);
+                    }
                 }
+                if(!offs && !end && local_maplib)
+                    GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                if(!offs && !end)
+                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
             }
         }
         uintptr_t globoffs, globend;
@@ -554,7 +561,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 break;
             case R_386_32:
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_32 %p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                    printf_log(LOG_NONE, "Error: Symbol sym=%s(%s%s%s/version %d) not found, cannot apply R_386_32 %p (%p) in %s\n", symname, symname, vername?"@":"", vername?vername:"", version, p, *(void**)p, head->name);
                     ret_ok = 1;
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_386_32 %p with sym=%s (ver=%d/%s) (%p -> %p)\n", (bind==STB_LOCAL)?"Local":"Global", p, symname, version, vername?vername:"(none)", *(void**)p, (void*)(offs+*(uint32_t*)p));
@@ -1040,9 +1047,22 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
         int vis = h->SymTab[i].st_other&0x3;
         size_t sz = h->SymTab[i].st_size;
+        // check "@@" default version symbol to add that information, regardless of size or type
+        if(symname && strstr(symname, "@@")) {
+            char symnameversionned[strlen(symname)+1];
+            strcpy(symnameversionned, symname);
+            // extract symname@@vername
+            char* p = strchr(symnameversionned, '@');
+            *p=0;
+            p+=2;
+            symname = AddDictionnary(my_context->versym, symnameversionned);
+            const char* vername = AddDictionnary(my_context->versym, p);
+            AddDefaultVersion(my_context->defver, symname, vername);
+            printf_dump(LOG_NEVER, "Adding Default Version \"%s\" for Symbol\"%s\"\n", vername, symname);
+        }
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
-            if(sz && strstr(symname, "@@")) {
+            if(strstr(symname, "@@")) {
                 char symnameversionned[strlen(symname)+1];
                 strcpy(symnameversionned, symname);
                 // extract symname@@vername
@@ -1051,7 +1071,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 p+=2;
                 symname = AddDictionnary(my_context->versym, symnameversionned);
                 const char* vername = AddDictionnary(my_context->versym, p);
-                if((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, 2, p))
+                if(!sz || ((bind==STB_GNU_UNIQUE /*|| (bind==STB_GLOBAL && type==STT_FUNC)*/) && FindGlobalSymbol(maplib, symname, 2, p)))
                     continue;
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
                 printf_dump(LOG_NEVER, "Adding Default Versionned Symbol(bind=%s) \"%s@%s\" with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, vername, (void*)offs, sz);
@@ -1099,8 +1119,13 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             size_t sz = h->DynSym[i].st_size;
             int version = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
+            int add_default = (version!=-1 && (version&0x7fff)>1 && !(version&0x8000) && !GetDefaultVersion(my_context->defver, symname))?1:0;
             if(version!=-1) version &= 0x7fff;
             const char* vername = GetSymbolVersion(h, version);
+            if(add_default) {
+                AddDefaultVersion(my_context->defver, symname, vername);
+                printf_dump(LOG_NEVER, "Adding Default Version \"%s\" for Symbol\"%s\"\n", vername, symname);
+            }
             int to_add = 1;
             if(libcef) {
                 if(strstr(symname, "_Zn")==symname || strstr(symname, "_Zd")==symname)
@@ -1408,7 +1433,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
 
 const char* VersionnedName(const char* name, int ver, const char* vername)
 {
-    if(ver==-1)
+    if(ver<0)
         return name;
     const char *v=NULL;
     if(ver==0)
@@ -1430,7 +1455,7 @@ int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, cons
 {
     if(strcmp(name1, name2))    //name are different, no need to go further
         return 0;
-    if(ver1==-1 || ver2==-1)    // don't check version, so ok
+    if((ver1<0) || (ver2<0))    // don't check version, so ok
         return 1;
     if(ver1==ver2 && ver1<2)    // same ver (local or global), ok
         return 1;

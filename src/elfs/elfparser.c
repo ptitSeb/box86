@@ -354,6 +354,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 
 const char* GetSymbolVersion(elfheader_t* h, int version)
 {
+    version&=0x7fff;    // remove bit15 that switch between hidden/public
     if(!h->VerNeed || (version<2))
         return NULL;
     /*if(version==1)
