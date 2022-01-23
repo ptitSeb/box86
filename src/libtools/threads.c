@@ -293,6 +293,8 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		size_t stsize;
 		if(pthread_attr_getstacksize(attr, &stsize)==0)
 			stacksize = stsize;
+		if(stsize<512*1024)	// emu and all needs some stack space, don't go too low
+			pthread_attr_setstacksize(attr, 512*1024);
 	}
 	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
 	{
