@@ -611,6 +611,7 @@ if(NOT _x86 AND NOT _x86_64)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
+  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libpng12.so.0 DESTINATION /usr/lib/i386-linux-gnu/)
 endif()
 
 if(NOT TARGET uninstall)
