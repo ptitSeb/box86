@@ -667,6 +667,36 @@ static void* reverseGPrintFuncFct(void* fct)
     return NULL;
 }
 
+// GOptionArg ...
+#define GO(A)   \
+static uintptr_t my_GOptionArg_fct_##A = 0;                                     \
+static int my_GOptionArg_##A(void* a, void* b, void* c, void* d)                \
+{                                                                               \
+    return (int)RunFunction(my_context, my_GOptionArg_fct_##A, 4, a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* findGOptionArgFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GOptionArg_fct_##A == (uintptr_t)fct) return my_GOptionArg_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GOptionArg_fct_##A == 0) {my_GOptionArg_fct_##A = (uintptr_t)fct; return my_GOptionArg_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GOptionArg callback\n");
+    return NULL;
+}
+static void* reverseGOptionArgFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
+    SUPER()
+    #undef GO
+    return NULL;
+}
 #undef SUPER
 
 EXPORT void my_g_list_free_full(x86emu_t* emu, void* list, void* free_func)
@@ -1294,6 +1324,36 @@ EXPORT void my_g_set_error(x86emu_t *emu, void* err, void* domain, int code, voi
     void* f = vsnprintf;
     ((iFpLpp_t)f)(buf, sizeof(buf), fmt, emu->scratch);
     my->g_set_error_literal(err, domain, code, buf);
+}
+
+typedef struct my_GOptionEntry_s {
+  void*     long_name;
+  char      short_name;
+  int       flags;
+  int       arg;
+  void*     arg_data;
+  void*     description;
+  void*     arg_description;
+} my_GOptionEntry_t;
+
+EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, my_GOptionEntry_t* entries, void* domain)
+{
+    glib2_my_t *my = (glib2_my_t*)my_lib->priv.w.p2;
+    my_GOptionEntry_t* p = entries;
+    while (p) {
+        // wrap Callbacks
+        if (p->arg == 3)
+            p->arg_data = findGOptionArgFct(p->arg_data);
+        ++p;
+    }
+    my->g_option_context_add_main_entries(context, entries, domain);
+    p = entries;
+    while (p) {
+        // unwrap Callbacks
+        if (p->arg == 3)
+            p->arg_data = reverseGOptionArgFct(p->arg_data);
+        ++p;
+    }
 }
 
 

@@ -95,6 +95,7 @@ typedef int32_t (*iFpppippppppp_t)(void*, void*, void*, int32_t, void*, void*, v
 	GO(g_variant_new_parsed, pFpV_t) \
 	GO(g_array_sort_with_data, vFppp_t) \
 	GO(g_hash_table_foreach, vFppp_t) \
+	GO(g_option_context_add_main_entries, vFppp_t) \
 	GO(g_ptr_array_foreach, vFppp_t) \
 	GO(g_ptr_array_sort_with_data, vFppp_t) \
 	GO(g_static_private_set, vFppp_t) \
