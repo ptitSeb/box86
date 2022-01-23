@@ -1080,8 +1080,8 @@ int main(int argc, const char **argv, const char **env) {
         AddPath("libjpeg.so.62", &my_context->box86_emulated_libs, 0);
     }
     // special case for hl_linux
-    if(strstr(prgname, "hl_linux")==prgname) {
-        printf_log(LOG_INFO, "HalfLife Linux detected, allowing missing symbols\n");
+    if(strstr(prgname, "hl_linux")==prgname || strstr(prgname, "hl2_linux")==prgname) {
+        printf_log(LOG_INFO, "HalfLife (1 or 2) Linux engine detected, allowing missing symbols\n");
         allow_missing_symbols = 1;
     }
     /*if(strstr(prgname, "awesomium_process")==prgname) {
