@@ -860,6 +860,7 @@
 #() pFlfff
 #() pFLiip
 #() pFpiii
+#() pFpiiu
 #() pFpiip
 #() pFpiuu
 #() pFpiLL
@@ -1153,6 +1154,7 @@
 #() pFEpppp
 #() pFiiiii
 #() pFipipL
+#() pFipppi
 #() pFipppu
 #() pFipppp
 #() pFuiiiu
@@ -1374,6 +1376,7 @@
 #() iFpppupu
 #() iFpppupp
 #() iFppppii
+#() iFppppiu
 #() iFppppip
 #() iFppppup
 #() iFpppppi
@@ -3533,6 +3536,10 @@ wrappedmpg123:
   - mpg123_replace_reader_handle_64
 wrappednsl:
 wrappednspr4:
+- pFpp:
+  - PR_FindFunctionSymbol
+- iFppp:
+  - PR_CallOnceWithArg
 wrappednss3:
 - vFp:
   - PK11_SetPasswordFunc

@@ -26,7 +26,7 @@
 //GO(CERT_CacheOCSPResponseFromSideChannel, 
 //GO(CERT_CertChainFromCert, 
 //DATA(CERT_CertificateRequestTemplate, 
-//DATA(CERT_CertificateTemplate, 
+DATA(CERT_CertificateTemplate, 240)
 //GO(CERT_CertListFromCert, 
 //GO(CERT_CertTimesValid, 
 GO(CERT_ChangeCertTrust, iFppp)
@@ -230,7 +230,7 @@ DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_SetSlopTime, 
 //GO(CERT_SetUsePKIXForValidation, 
 //DATA(CERT_SignedCrlTemplate, 
-//DATA(CERT_SignedDataTemplate, 
+DATA(CERT_SignedDataTemplate, 80)
 //GO(CERT_StartCertExtensions, 
 //GO(CERT_StartCertificateRequestAttributes, 
 //GO(CERT_StartCRLEntryExtensions, 
