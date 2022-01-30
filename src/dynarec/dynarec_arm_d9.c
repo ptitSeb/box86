@@ -568,7 +568,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
-                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+                    v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                     if(ST_IS_F(0))
                         s0 = v1;
                     else

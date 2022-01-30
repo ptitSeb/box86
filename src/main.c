@@ -54,6 +54,7 @@ int box86_dynarec_forced = 0;
 int box86_dynarec_largest = 0;
 int box86_dynarec_bigblock = 1;
 int box86_dynarec_strongmem = 0;
+int box86_dynarec_x87double = 0;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -325,6 +326,15 @@ void LoadLogEnv()
         if(box86_dynarec_strongmem)
             printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box86_dynarec_strongmem==1)?" with limited performace loss":"");
     }
+    p = getenv("BOX86_DYNAREC_X87DOUBLE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_x87double = p[0]-'0';
+        }
+        if(box86_dynarec_x87double)
+            printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
+    }
     p = getenv("BOX86_NODYNAREC");
     if(p) {
         if (strchr(p,'-')) {
@@ -592,6 +602,9 @@ void PrintHelp() {
     printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
     printf(" BOX86_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
     printf(" BOX86_NODYNAREC with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified\n");
+    printf(" BOX86_DYNAREC_BIGBLOCK 0/1/2 to control Dynarec building BigBlock or not\n");
+    printf(" BOX86_DYNAREC_STRONGMEM 0/1/2 to control Dynarec emulation attempt of Stong memory model\n");
+    printf(" BOX86_DYNAREC_X87DOUBLE 0/1 to force Dynarec to use Double for x87 emulation\n");
 #endif
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
@@ -965,6 +978,12 @@ int main(int argc, const char **argv, const char **env) {
             printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
             exit(0);    // exiting, it doesn't work anyway
         }
+        #ifdef DYNAREC
+        if(argv[nextarg+1] && strstr(argv[nextarg+1], "Crysis")) {
+            printf_log(LOG_NONE, "Crysis detected, forcing use of Double for x87 emulation\n");
+            box86_dynarec_x87double = 1;
+        }
+        #endif
     }
     // Create a new context
     my_context = NewBox86Context(argc - nextarg);

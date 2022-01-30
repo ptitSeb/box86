@@ -15,6 +15,7 @@ extern int box86_dynarec_forced;
 extern int box86_dynarec_largest;
 extern int box86_dynarec_bigblock;
 extern int box86_dynarec_strongmem;
+extern int box86_dynarec_x87double;
 extern uintptr_t box86_nodynarec_start, box86_nodynarec_end;
 #ifdef ARM
 extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
