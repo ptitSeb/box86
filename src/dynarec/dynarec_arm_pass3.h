@@ -8,7 +8,7 @@
 
 #define MESSAGE(A, ...)  if(box86_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
-    if((dyn->insts[ninst].x86.barrier==BARRIER_FULL) && ninst) {\
+    if(ninst && isInstClean(dyn, ninst)) {                      \
         dyn->sons_x86[dyn->sons_size] = (uintptr_t)ip;          \
         dyn->sons_arm[dyn->sons_size] = dyn->block;             \
         MESSAGE(LOG_DUMP, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);  \
