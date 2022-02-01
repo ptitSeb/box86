@@ -1,2 +1,4 @@
 #!/bin/sh
-systemctl restart systemd-binfmt
+if [ -d '/run/systemd/system' ]; then
+    systemctl restart systemd-binfmt || :
+fi
