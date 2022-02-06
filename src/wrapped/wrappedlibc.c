@@ -1253,6 +1253,21 @@ EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
     return r;
 }
 
+EXPORT int my_stat64(x86emu_t* emu, void* path, void* buf)
+{
+    struct stat64 st;
+    int r = stat64(path, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+EXPORT int my_lstat64(x86emu_t* emu, void* path, void* buf)
+{
+    struct stat64 st;
+    int r = lstat64(path, &st);
+    UnalignStat64(&st, buf);
+    return r;
+}
+
 EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
 {
     if (v == 1)
