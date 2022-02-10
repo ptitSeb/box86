@@ -3,7 +3,7 @@ _TwisterOS users: Wine, winetricks, and Box86 are already installed in TwisterOS
 
 _Raspberry Pi users: Wine requires a 3G/1G split memory kernel. Raspberry Pi OS for the Pi 4 already has a 3G/1G split kernel and works with Wine, but **the Pi 3B+ and earlier models have a 2G/2G kernel and require a custom-compiled 3G/1G kernel to get Wine working.**_
 
-Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (x64 is not yet implemented).  
+Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (for x64, use [box64](https://github.com/ptitSeb/box64) & wine-amd64 with an `aarch64` processor).  
 See installation steps below (in the [Examples](#examples) section).
 
 Box86 needs `wine-i386` to be installed **manually** on ARM devices.  Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work. The "twist" in Box86 is that Box86 "wraps" many of Wine's core Linux i386 libraries (.so files) so that their calls are interpretable by your ARM devices other armhf Linux system libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
