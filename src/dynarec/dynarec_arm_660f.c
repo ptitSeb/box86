@@ -1614,6 +1614,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             BFI(gd, x1, 0, 16);
             break;
+        case 0xBF:
+            INST_NAME("MOVSX Gw, Ew");
+            nextop = F8;
+            GETGD;
+            GETEW(x1);
+            BFI(gd, x1, 0, 16);
+            break;
 
         case 0xC1:
             INST_NAME("XADD Gw, Ew");

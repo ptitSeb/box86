@@ -1059,6 +1059,11 @@ void Run660F(x86emu_t *emu)
         GET_EB;
         GW.sword[0] = EB->sbyte[0];
         break;
+    case 0xBF:                      /* MOVSX Gw,Ew */
+        nextop = F8;
+        GET_EW;
+        GW.sword[0] = EW->sword[0];
+        break;
 
     case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
         nextop = F8;
