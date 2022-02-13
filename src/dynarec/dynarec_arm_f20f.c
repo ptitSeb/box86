@@ -40,6 +40,10 @@
         }                                           \
     }
 
+#define GETGM(a)    \
+    gd = (nextop&0x38)>>3;  \
+    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
+
 uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop = F8;
@@ -309,6 +313,14 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 7: MVN_COND_REG_LSL_IMM5(cVC, x2, x2, 0); break;   // not NaN
             }
             VMOVtoV_D(v0, x2, x2);
+            break;
+
+        case 0xD6:
+            INST_NAME("MOVDQ2Q Gm, Ex");
+            nextop = F8;
+            GETGM(v0);
+            GETEX(v1, 0);
+            VMOV_64(v0, v1);
             break;
 
         case 0xF0:
