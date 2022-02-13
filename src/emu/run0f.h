@@ -300,7 +300,7 @@
         _0f_0x3A:
             opcode = F8;
             switch(opcode) {
-                case 0xF:  /* palignr */
+                case 0x0F:  /* palignr */
                     nextop = F8;
                     GET_EM;
                     tmp8u = F8;
@@ -309,8 +309,10 @@
                     } else if (tmp8u > 8) {
                         tmp8u -= 8;
                         GM.q >>= tmp8u*8;
-                    } else if (tmp8u == 8 || tmp8u == 0) {
-
+                    } else if (tmp8u == 8) {
+                        // nothing
+                    } else if (tmp8u == 0) {
+                        GM.q = EM->q;
                     } else {
                         GM.q <<= (8-tmp8u)*8;
                         GM.q |= (EM->q >> tmp8u*8);
