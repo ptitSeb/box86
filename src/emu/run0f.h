@@ -239,7 +239,7 @@
                         if(EM->ub[i]&128)
                             GM.ub[i] = 0;
                         else
-                            GM.ub[i] = eax1.ub[EM->ub[i]&7];
+                            GM.ub[i] = eam1.ub[EM->ub[i]&7];
                     }
                     break;
                 case 0x04:  /* PMADDUBSW Gm,Em */
