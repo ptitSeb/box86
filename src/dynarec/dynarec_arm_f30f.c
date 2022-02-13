@@ -50,6 +50,9 @@
     gd = (nextop&0x38)>>3;                  \
     a = sse_get_reg(dyn, ninst, x1, gd, w)
 
+#define GETGX_empty(a)  gd = ((nextop&0x38)>>3);    \
+                        a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
 
 uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -627,6 +630,28 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOVtoDx_32(v0, 0, x2);
             break;
         
+        case 0xD6:
+            INST_NAME("MOVQ2DQ Gx, Em");
+            nextop = F8;
+            GETGX_empty(v0);
+            if((nextop&0xC0)==0xC0) {
+                v1 = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop&7));
+                VEORQ(v0, v0, v0);  // usefull?
+                VMOV_64(v0, v1);
+            } else {
+                parity = getedparity(dyn, ninst, addr, nextop, 3);
+                if(parity) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0);
+                    VLDR_64(v0, ed, fixedaddress);    // vfpu opcode here
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-8, 0, 0);
+                    LDR_IMM9(x2, ed, fixedaddress);
+                    LDR_IMM9(x3, ed, fixedaddress+4);
+                    VMOVtoV_D(v0, x2, x3);
+                }
+            }
+            break;
+
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
