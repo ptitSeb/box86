@@ -139,6 +139,16 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_xor32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x39:
+            INST_NAME("CMP GS:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_tlsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            GETGD;
+            GETEDO(x14);
+            emit_cmp32(dyn, ninst, ed, gd, x3, x14);
+            break;
+
         case 0x3B:
             INST_NAME("CMP Gd, GS:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);

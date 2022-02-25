@@ -952,6 +952,18 @@ void RunGS(x86emu_t *emu)
             GET_ED_OFFS(tlsdata);
             GD.dword[0] = xor32(emu, GD.dword[0], ED->dword[0]);
             break;
+
+        case 0x39:              /* CMP Ed,Gd */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            cmp32(emu, ED->dword[0], GD.dword[0]);
+            break;
+
+        case 0x3B:              /* CMP Gd,Ed */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            cmp32(emu, GD.dword[0], ED->dword[0]);
+            break;
         
         case 0x40:
         case 0x41:
