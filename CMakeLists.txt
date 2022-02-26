@@ -419,6 +419,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedssl3.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsecret1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedtbbmalloc.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedmimalloc.c"
     "${BOX86_ROOT}/src/wrapped/wrappedselinux.c"
 )
 if(ANDROID)

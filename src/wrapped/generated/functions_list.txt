@@ -3530,6 +3530,7 @@ wrappedlibz:
   - inflateBackInit_
 - iFpiiiiipi:
   - deflateInit2_
+wrappedmimalloc:
 wrappedmpg123:
 - iFpppp:
   - mpg123_replace_reader_handle

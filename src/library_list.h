@@ -147,6 +147,7 @@ GO("libplc4.so", plc4)
 GO("libssl3.so", ssl3)
 GO("libsecret-1.so.0", secret1)
 GO("libtbbmalloc.so.2", tbbmalloc)
+GO("libmimalloc.so", mimalloc)
 
 #ifdef ANDROID
 GO("libc.so", libc)
