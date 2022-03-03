@@ -164,7 +164,7 @@ Disables the load of pulseaudio libraries.
 #### BOX86_NOGTK
 Disables the loading of wrapped GTK libraries.
  * 0 : Load wrapped GTK libraries if found. (Default.)
- * 1 : Disables loading wrapped GTK libraries (can be used with Steam, along with STEAM_RUNTIME=1 to use the i386 version of GTK).
+ * 1 : Disables loading wrapped GTK libraries.
 
 #### BOX86_NOVULKAN
 Disables the load of vulkan libraries.
