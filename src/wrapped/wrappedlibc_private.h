@@ -2184,6 +2184,8 @@ GOM(__fdelt_chk, LFL) //%%,noE
 GOM(getauxval, uFEu)  //%% implemented since glibc 2.16
 
 GOM(prlimit64, lFpupp)       //%%,noE
+GO(process_vm_readv, lFipLpLL)
+GO(process_vm_writev, lFipLpLL)
 GOM(reallocarray, pFpLL)     //%%,noE
 GOM(__open_nocancel, iFEpOV) //%%
 GO2(__read_nocancel, lFipL, read)
