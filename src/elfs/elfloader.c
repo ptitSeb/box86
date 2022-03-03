@@ -466,6 +466,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
             case R_386_PC32:
                     if (!offs) {
                         printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_PC32 %p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        ret_ok = 1;
                     }
                     if(offs)
                         printf_dump(LOG_NEVER, "Apply [%d] %s R_386_PC32 %p with sym=%s (%p -> %p/%p)\n", i, (bind==STB_LOCAL)?"Local":"Global", p, symname, *(void**)p, (void*)(*(uintptr_t*)p+(offs-(uintptr_t)p)), (void*)offs);
@@ -1396,7 +1397,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     if(!h)
         return ret;
 
-    for (int i=0; i<h->numSymTab && distance!=0; ++i) {   
+    for (int i=0; (i<h->numSymTab) && (distance!=0); ++i) {   
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         uintptr_t offs = h->SymTab[i].st_value + h->delta;
 
@@ -1409,7 +1410,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
             }
         }
     }
-    for (int i=0; i<h->numDynSym && distance!=0; ++i) {   
+    for (int i=0; (i<h->numDynSym) && (distance!=0); ++i) {   
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         uintptr_t offs = h->DynSym[i].st_value + h->delta;
 
