@@ -998,6 +998,7 @@
 #() vFppipp
 #() vFppWui
 #() vFppuui
+#() vFppudd
 #() vFppupi
 #() vFppupp
 #() vFpppii
@@ -1257,6 +1258,7 @@
 #() vFpiiiii
 #() vFpiiipp
 #() vFpiiuuu
+#() vFpiippi
 #() vFpiippp
 #() vFpipiiu
 #() vFpipipV
@@ -1333,6 +1335,7 @@
 #() iFpiiiip
 #() iFpiiipp
 #() iFpiiuii
+#() iFpiipip
 #() iFpiippu
 #() iFpiippp
 #() iFpiuuup
@@ -1538,6 +1541,8 @@
 #() iFpiipppp
 #() iFpiuiipp
 #() iFpiupiii
+#() iFpiupppp
+#() iFpipipip
 #() iFpippupp
 #() iFpippppp
 #() iFpIIpppp
@@ -1670,6 +1675,7 @@
 #() vFppipppui
 #() vFppippppi
 #() vFppippppp
+#() vFppdddddd
 #() vFpplppppi
 #() vFpplppppp
 #() vFppppiipi
@@ -1853,6 +1859,7 @@
 #() iFEpuuuuiipp
 #() iFEppppppipp
 #() iFiiiiiiiiip
+#() iFpiipiiipip
 #() iFpuipuppppp
 #() iFpuupiuiipp
 #() iFpddpippppp
@@ -1904,6 +1911,7 @@
 #() iFEpppipppppp
 #() iFEppppiiiiuu
 #() iFiiiiiiiiiip
+#() iFpiippiiipip
 #() iFppippipppip
 #() iFppppiiuuiiu
 #() uFEpiiupppiuV
@@ -3561,7 +3569,15 @@ wrappedopenal:
 wrappedpango:
 - vFpp:
   - pango_attribute_init
+- pFppp:
+  - pango_attr_list_filter
+- pFppppp:
+  - pango_attr_shape_new_with_data
 wrappedpangocairo:
+- pFpp:
+  - pango_cairo_context_get_shape_renderer
+- vFpppp:
+  - pango_cairo_context_set_shape_renderer
 wrappedpangoft2:
 wrappedplc4:
 wrappedplds4:

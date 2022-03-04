@@ -11,7 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFpp_t)(void*, void*);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(pango_cairo_context_get_shape_renderer, pFpp_t) \
+	GO(pango_cairo_context_set_shape_renderer, vFpppp_t)
 
 #endif // __wrappedpangocairoTYPES_H_
