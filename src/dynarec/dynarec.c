@@ -30,6 +30,7 @@ void arm_epilog_fast() EXPORTDYN;
 
 #ifdef DYNAREC
 #ifdef HAVE_TRACE
+#include "elfloader.h"
 uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr);
 #endif
 void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
@@ -38,7 +39,9 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
     if(!addr) {
         x2-=8;  // actual PC is 2 instructions ahead
         dynablock_t* db = FindDynablockFromNativeAddress(x2);
-        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p)\n", x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
+        void* x86addr = db?(void*)getX86Address(db, (uintptr_t)x2):NULL;
+        const char* pcname = getAddrFunctionName((uintptr_t)x86addr);
+        printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p/%s)\n", x2, db, x86addr, pcname);
     }
     #endif
     dynablock_t* current = NULL;
