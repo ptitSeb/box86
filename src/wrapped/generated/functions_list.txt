@@ -469,6 +469,7 @@
 #() LFLLl
 #() LFLpu
 #() LFLpL
+#() LFpii
 #() LFpip
 #() LFpLi
 #() LFpLp
@@ -720,6 +721,7 @@
 #() iFpiii
 #() iFpiiu
 #() iFpiid
+#() iFpiiL
 #() iFpiip
 #() iFpiuu
 #() iFpiuL
@@ -3166,7 +3168,7 @@ wrappedlibx11:
   - XSetIOErrorHandler
 - vFpp:
   - _XDeqAsyncHandler
-- iFpi:
+- pFpi:
   - XSynchronize
 - pFpp:
   - XLoadQueryFont
