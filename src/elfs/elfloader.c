@@ -1497,6 +1497,13 @@ void* GetTLSPointer(box86context_t* context, elfheader_t* h)
     return ptr->tlsdata+(ptr->tlssize+h->tlsbase);
 }
 
+void* GetDynamicSection(elfheader_t* h)
+{
+    if(!h)
+        return NULL;
+    return h->Dynamic;
+}
+
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
 {

@@ -36,7 +36,7 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
 elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, const char* vername);
 int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername);
 
-const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base);
+const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base, library_t** lib);
 
 void AddOffsetSymbol(lib_t *maplib, void* offs, const char* name);
 const char* GetNameOffset(lib_t *maplib, void* offs);

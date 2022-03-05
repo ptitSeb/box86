@@ -42,6 +42,7 @@ char* my_dlerror(x86emu_t* emu) EXPORT;
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol) EXPORT;
 int my_dlclose(x86emu_t* emu, void *handle) EXPORT;
 int my_dladdr(x86emu_t* emu, void *addr, void *info) EXPORT;
+int my_dladdr1(x86emu_t* emu, void *addr, void *info, void** extra_info, int flags) EXPORT;
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername) EXPORT;
 int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info) EXPORT;
 
@@ -72,7 +73,8 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for other libs
     CLEARERR
     if(filename) {
-        char* rfilename = (char*)filename;
+        char* rfilename = (char*)alloca(MAX_PATH);
+        strcpy(rfilename, (char*)filename);
         if(box86_zoom && strstr(rfilename, "/libturbojpeg.so")) {
             void* sys = my_dlopen(emu, "libturbojpeg.so.0", flag);
             if(sys)
@@ -85,6 +87,20 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         }
         if(dlsym_error || box86_log>=LOG_DEBUG) {
             printf_log(LOG_NONE, "BOX86: Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        }
+        // Transform any ${...} that maight be present
+        while(strstr(rfilename, "${ORIGIN}")) {
+            char* origin = strdup(my_context->fullpath);
+            char* p = strrchr(origin, '/');
+            if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+            char* tmp = (char*)calloc(1, strlen(rfilename)-strlen("${ORIGIN}")+strlen(origin)+1);
+            p = strstr(rfilename, "${ORIGIN}");
+            memcpy(tmp, rfilename, p-rfilename);
+            strcat(tmp, origin);
+            strcat(tmp, p+strlen("${ORIGIN}"));
+            strcpy(rfilename, tmp);
+            free(tmp);
+            free(origin);
         }
         // check if alread dlopenned...
         for (int i=0; i<dl->lib_sz; ++i) {
@@ -359,20 +375,31 @@ int my_dlclose(x86emu_t* emu, void *handle)
     }
     return 0;
 }
-int my_dladdr(x86emu_t* emu, void *addr, void *i)
+int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 {
     //int dladdr(void *addr, Dl_info *info);
     dlprivate_t *dl = emu->context->dlprivate;
     CLEARERR
     Dl_info *info = (Dl_info*)i;
-    printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr(%p, %p)\n", addr, info);
+    printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr/dladdr1(%p, %p, %p, %d)\n", addr, info, extra_info, flags);
     
     //emu->quit = 1;
+    library_t* lib = NULL;
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
-    info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase);
+    info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase, &lib);
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", info->dli_saddr, info->dli_sname?info->dli_sname:"", info->dli_fname?info->dli_fname:"");
+    if(flags==RTLD_DL_SYMENT) {
+        printf_log(LOG_INFO, "Warning, unimplement call to dladdr1 with RTLD_DL_SYMENT flags\n");
+    } else if (flags==RTLD_DL_LINKMAP) {
+        printf_log(LOG_INFO, "Warning, partially unimplemented call to dladdr1 with RTLD_DL_LINKMAP flags\n");
+        *(linkmap_t**)extra_info = getLinkMapLib(lib);
+    }
     return (info->dli_sname)?1:0;   // success is non-null here...
+}
+int my_dladdr(x86emu_t* emu, void *addr, void *i)
+{
+    return my_dladdr1(emu, addr, i, NULL, 0);
 }
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
 {

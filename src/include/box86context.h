@@ -15,6 +15,7 @@ typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct kh_defaultversion_s kh_defaultversion_t;
 typedef struct library_s library_t;
+typedef struct linkmap_s linkmap_t;
 typedef struct kh_fts_s kh_fts_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
 typedef struct zydis_dec_s zydis_dec_t;
@@ -152,6 +153,7 @@ typedef struct box86context_s {
     library_t           *asound;
     library_t           *pulse;
     library_t           *d3dadapter9;
+    linkmap_t           *linkmap;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

@@ -52,6 +52,7 @@ dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
 #endif
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box86context_t* context, int fd);
+void* GetDynamicSection(elfheader_t* h);
 
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
 
@@ -61,5 +62,7 @@ const char* VersionnedName(const char* name, int ver, const char* vername);
 int SameVersionnedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2);
 
 void* GetNativeSymbolUnversionned(void* lib, const char* name);
+
+void AddMainElfToLinkmap(elfheader_t* lib);
 
 #endif //__ELF_LOADER_H_

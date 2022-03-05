@@ -1030,6 +1030,7 @@
 #() iFEppip
 #() iFEppiV
 #() iFEpplp
+#() iFEpppi
 #() iFEpppp
 #() iFEpppV
 #() iFEpPpp
@@ -2029,7 +2030,6 @@
 #!defined(NOALIGN) iFEipV
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
-#!defined(NOALIGN) iFEpppi
 #!defined(NOALIGN) iFEppiiiip
 #!defined(NOALIGN) iFEppplpppp
 #defined(POWERPCLE) iFEiiiN
@@ -2824,6 +2824,8 @@ wrappedlibdl:
   - dlmopen
 - pFppp:
   - dlvsym
+- iFpppi:
+  - dladdr1
 wrappedlibdrm:
 wrappedlibformw:
 wrappedlibgl:
