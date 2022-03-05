@@ -388,6 +388,12 @@ int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
     info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase, &lib);
+    #ifndef RTLD_DL_SYMENT
+    #define RTLD_DL_SYMENT 1
+    #endif
+    #ifndef RTLD_DL_LINKMAP
+    #define RTLD_DL_LINKMAP 2
+    #endif
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", info->dli_saddr, info->dli_sname?info->dli_sname:"", info->dli_fname?info->dli_fname:"");
     if(flags==RTLD_DL_SYMENT) {
         printf_log(LOG_INFO, "Warning, unimplement call to dladdr1 with RTLD_DL_SYMENT flags\n");
