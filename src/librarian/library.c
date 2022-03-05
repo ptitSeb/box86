@@ -224,6 +224,9 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
                 break;
             }
             struct link_map real_lm;
+            #ifndef RTLD_DI_LINKMAP
+            #define RTLD_DI_LINKMAP 2
+            #endif
             if(dlinfo(lib->priv.w.lib, RTLD_DI_LINKMAP, &real_lm)) {
                 printf_log(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
             }
