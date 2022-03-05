@@ -161,7 +161,7 @@ GO(FcPatternGetMatrix, iFppip)
 GO(FcPatternGetString, iFppip)
 GO(FcPatternHash, iFp)
 //GO(FcPatternPrint, 
-//GO(FcPatternReference, 
+GO(FcPatternReference, vFp)
 //GO(FcPatternRemove, 
 GO(FcPatternVaBuild, pFpp)
 GO(FcStrBasename, pFp)
