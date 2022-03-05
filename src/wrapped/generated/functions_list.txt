@@ -1014,6 +1014,7 @@
 #() iFEiipV
 #() iFEipuu
 #() iFEippi
+#() iFEippL
 #() iFEippp
 #() iFEuuuu
 #() iFEpiii
@@ -2765,6 +2766,8 @@ wrappedlibc:
 - iFipii:
 - iFipuu:
 - iFippi:
+- iFippL:
+  - readlinkat
 - iFpvpp:
   - __vfwprintf_chk
 - iFpvpV:

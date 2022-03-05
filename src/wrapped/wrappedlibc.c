@@ -2554,6 +2554,17 @@ EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
         return realpath(path, resolved_path);
 }
 
+EXPORT int my_readlinkat(x86emu_t* emu, int fd, void* path, void* buf, size_t bufsize)
+{
+    if(isProcSelf(path, "exe")) {
+        strncpy(buf, emu->context->fullpath, bufsize);
+        size_t l = strlen(emu->context->fullpath);
+        return (l>bufsize)?bufsize:(l+1);
+    }
+    return readlinkat(fd, path, buf, bufsize);
+}
+
+
 EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
     if(prot&PROT_WRITE) 

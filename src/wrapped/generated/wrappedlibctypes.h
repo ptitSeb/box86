@@ -78,6 +78,7 @@ typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
 typedef int32_t (*iFipii_t)(int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
+typedef int32_t (*iFippL_t)(int32_t, void*, void*, uintptr_t);
 typedef int32_t (*iFpvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFpvpV_t)(void*, void, void*, ...);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
@@ -148,6 +149,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(__read_nocancel, lFipL_t) \
 	GO(__syslog_chk, vFiipV_t) \
 	GO(__libc_init, vFpppp_t) \
+	GO(readlinkat, iFippL_t) \
 	GO(__vfwprintf_chk, iFpvpp_t) \
 	GO(_IO_vfprintf, iFpppp_t) \
 	GO(__strtold_l, KFppip_t) \

@@ -1381,7 +1381,7 @@ GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 GOM(readdir_r, iFEppp)  //%% should also be weak
 GOM(readlink, iFEppL) //%%
-GO(readlinkat, iFippL)
+GOM(readlinkat, iFEippL)
 // __readlinkat_chk
 // __readlink_chk
 GO(readv, lFipi)
