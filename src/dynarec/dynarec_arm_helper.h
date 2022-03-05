@@ -76,7 +76,8 @@
                     wback = 0;                          \
                 } else {                                \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0); \
-                    ADD_REG_LSL_IMM5(wback, wback, O, 0);\
+                    ADD_REG_LSL_IMM5(x2, wback, O, 0);  \
+                    if(wback != x2) wback = x2;         \
                     LDR_IMM9(x1, wback, 0);             \
                     ed = x1;                            \
                 }
@@ -153,8 +154,9 @@
                     ed = i;                 \
                 } else {                    \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0); \
-                    ADD_REG_LSL_IMM5(wback, wback, i, 0);   \
-                    LDRB_IMM9(i, wback, fixedaddress);      \
+                    ADD_REG_LSL_IMM5(x3, wback, i, 0);  \
+                    if(wback!=x3) wback = x3;           \
+                    LDRB_IMM9(i, wback, fixedaddress);  \
                     wb1 = 1;                \
                     ed = i;                 \
                 }
