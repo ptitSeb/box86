@@ -217,6 +217,9 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
                 return;
             }
 
+            #ifdef ANDROID
+            printf_log(LOG_DEBUG, "No dlinfo on Android %s\n", lib->name);
+            #else
             linkmap_t *lm = addLinkMapLib(lib);
             if(!lm) {
                 // Crashed already
@@ -233,6 +236,7 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
             lm->l_addr = real_lm.l_addr;
             lm->l_name = real_lm.l_name;
             lm->l_ld = real_lm.l_ld;
+            #endif
             break;
         }
     }
