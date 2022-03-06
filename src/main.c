@@ -88,6 +88,7 @@ int allow_missing_libs = 0;
 int allow_missing_symbols = 0;
 int fix_64bit_inodes = 0;
 int box86_steam = 0;
+int box86_wine = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
@@ -966,6 +967,7 @@ int main(int argc, const char **argv, const char **env) {
             printf_log(LOG_INFO, "BOX86: Wine preloader detected, loading \"%s\" directly\n", prog);
             //wine_preloaded = 1;
         }
+        box86_wine = 1;
     }
     // check if this is wine
     if(!strcmp(prog, "wine") || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))) {
@@ -984,6 +986,11 @@ int main(int argc, const char **argv, const char **env) {
             box86_dynarec_x87double = 1;
         }
         #endif
+        box86_wine = 1;
+    }
+    // check if this is wineserver
+    if(!strcmp(prog, "wineserver") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
+        box86_wine = 1;
     }
     // Create a new context
     my_context = NewBox86Context(argc - nextarg);
@@ -1054,6 +1061,9 @@ int main(int argc, const char **argv, const char **env) {
         prgname = prog;
     else
         ++prgname;
+    if(box86_wine) {
+        AddPath("libdl.so.2", &ld_preload, 0);
+    }
     // special case for LittleInferno that use an old libvorbis
     if(strstr(prgname, "LittleInferno.bin.x86")==prgname) {
         printf_log(LOG_INFO, "LittleInferno detected, forcing emulated libvorbis\n");
