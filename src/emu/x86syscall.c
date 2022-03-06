@@ -317,6 +317,7 @@ int clone_fn(void* arg)
     DynaRun(emu);
     int ret = R_EAX;
     FreeX86Emu(&emu);
+    my_context->stack_clone_used = 0;
     return ret;
 }
 
@@ -481,42 +482,46 @@ void EXPORT x86Syscall(x86emu_t *emu)
             emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
             break;
         case 120:   // clone
+            // x86 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, unsigned long tls, int *child_tid);
+            // so flags=R_EBX, stack=R_ECX, parent_tid=R_EDX, tls=R_ESI, child_tid=R_EDI
+            if(R_ECX)
             {
-                // should wrap that using a thread...
-                //struct x86_pt_regs *regs = (struct x86_pt_regs *)R_EDI;
-                // lets duplicate the emu
                 void* stack_base = (void*)R_ECX;
                 int stack_size = 0;
                 if(!R_ECX) {
                     // allocate a new stack...
-                    stack_size = 1024*1024;
-                    //stack_base = malloc(stack_size); // why not 1M... (normal operation do copy on write, simpler to just copy)
+                    int currstack = 0;
+                    if((R_ESP>=(uintptr_t)emu->init_stack) && (R_ESP<=((uintptr_t)emu->init_stack+emu->size_stack)))
+                        currstack = 1;
+                    stack_size = (currstack)?emu->size_stack:(1024*1024);
                     stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
                     // copy value from old stack to new stack
-                    int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_ESP);
-                    memcpy(stack_base-size_to_copy, (void*)R_ESP, size_to_copy);
+                    if(currstack)
+                        memcpy(stack_base, emu->init_stack, stack_size);
+                    else {
+                        int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_ESP);
+                        memcpy(stack_base+stack_size-size_to_copy, (void*)R_ESP, size_to_copy);
+                    }
                 }
                 x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, (R_ECX)?0:1);
                 SetupX86Emu(newemu);
                 CloneEmu(newemu, emu);
-                SetESP(newemu, (uintptr_t)stack_base);
-                // setup registers
-                /*if(regs) {
-                    SetEAX(newemu, regs->eax);
-                    SetEBX(newemu, regs->ebx);
-                    SetECX(newemu, regs->ecx);
-                    SetEDX(newemu, regs->edx);
-                    SetEDI(newemu, regs->edi);
-                    SetESI(newemu, regs->esi);
-                    SetEBP(newemu, regs->ebp);
-                    SetESP(newemu, (uintptr_t)stack_base - size_to_copy);
+                Push32(newemu, 0);
+                PushExit(newemu);
+                void* mystack = NULL;
+                if(my_context->stack_clone_used) {
+                    mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                } else {
+                    if(!my_context->stack_clone)
+                        my_context->stack_clone = malloc(1024*1024);
+                    mystack = my_context->stack_clone;
+                    my_context->stack_clone_used = 1;
                 }
-                SetESP(newemu, (uintptr_t)stack_base - size_to_copy);*/
-                void* mystack = (R_EBX&CLONE_VM)?malloc(1024*1024):NULL;  // stack for own process... memory leak, but no practical way to remove it
-                int ret = clone(clone_fn, (void*)((R_EBX&CLONE_VM)?((uintptr_t)mystack+1024*1024):0), R_EBX, newemu, R_ESI, R_EDI, R_EBP);
-                //int r = syscall(__NR_clone, R_EBX, (R_EBX&CLONE_VM)?((uintptr_t)mystack):0, R_EDX, R_ESI, NULL);  // cannot use that syscall in C: how to setup the stack?!
-                R_EAX = ret;
+                long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_EBX, newemu, R_EDX, R_ESI, R_EDI);
+                R_EAX = (uint32_t)ret;
             }
+            else
+                R_EAX = (uint32_t)syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
             break;
         case 122:   // uname
             {
@@ -677,6 +682,49 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)my_execve(emu, p(4), p(8), p(12));
         case 91:   // munmap
             return (uint32_t)my_munmap(emu, p(4), u32(8));
+        case 120:   // clone
+            // x86 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, unsigned long tls, int *child_tid);
+            // so flags=u(4), stack=p(8), parent_tid=p(12), tls=p(16), child_tid=p(20)
+            if(p(8))
+            {
+                void* stack_base = p(8);
+                int stack_size = 0;
+                if(!stack_base) {
+                    // allocate a new stack...
+                    int currstack = 0;
+                    if((R_ESP>=(uintptr_t)emu->init_stack) && (R_ESP<=((uintptr_t)emu->init_stack+emu->size_stack)))
+                        currstack = 1;
+                    stack_size = (currstack)?emu->size_stack:(1024*1024);
+                    stack_base = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+                    // copy value from old stack to new stack
+                    if(currstack)
+                        memcpy(stack_base, emu->init_stack, stack_size);
+                    else {
+                        int size_to_copy = (uintptr_t)emu->init_stack + emu->size_stack - (R_ESP);
+                        memcpy(stack_base+stack_size-size_to_copy, (void*)R_ESP, size_to_copy);
+                    }
+                }
+                x86emu_t * newemu = NewX86Emu(emu->context, R_EIP, (uintptr_t)stack_base, stack_size, (p(8))?0:1);
+                SetupX86Emu(newemu);
+                CloneEmu(newemu, emu);
+                Push32(newemu, 0);
+                PushExit(newemu);
+                void* mystack = NULL;
+                if(my_context->stack_clone_used) {
+                    mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                } else {
+                    if(!my_context->stack_clone)
+                        my_context->stack_clone = malloc(1024*1024);
+                    mystack = my_context->stack_clone;
+                    my_context->stack_clone_used = 1;
+                }
+                // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
+                long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), u32(4), newemu, p(12), p(16), p(20));
+                return (uint32_t)ret;
+            }
+            else
+                return (uint32_t)syscall(__NR_clone, u32(4), p(8), p(12), p(16), p(20));
+            break;
         case 123:   // SYS_modify_ldt
             return my_modify_ldt(emu, i32(4), (thread_area_t*)p(8), i32(12));
         case 125:   // mprotect

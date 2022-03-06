@@ -190,9 +190,8 @@ typedef struct box86context_s {
     x86emu_t            *emu_sig;       // the emu with stack used for signal handling (must be separated from main ones)
     int                 no_sigsegv;
     int                 no_sigill;
-#ifdef BUILD_DYNAMIC
-    int                 count;      // number of instances
-#endif
+    void*               stack_clone;
+    int                 stack_clone_used;
 } box86context_t;
 
 extern box86context_t *my_context; // global context
