@@ -724,6 +724,8 @@ void allocProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void loadProtectionFromMap()
 {
+    if(box86_mapclean)
+        return;
     char buf[500];
     FILE *f = fopen("/proc/self/maps", "r");
     if(!f)
@@ -739,6 +741,7 @@ void loadProtectionFromMap()
         }
     }
     fclose(f);
+    box86_mapclean = 1;
 }
 
 #define LOWEST (void*)0x10000

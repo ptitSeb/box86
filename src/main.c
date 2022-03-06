@@ -81,6 +81,7 @@ int x11color16 = 0;
 #if defined(RPI) || defined(RK3399) || defined(RK3288) || defined(GOA_CLONE) || defined(PYRA) || defined(PANDORA)
 int box86_tokitori2 = 0;
 #endif
+int box86_mapclean = 0;
 int box86_zoom = 0;
 int x11threads = 0;
 int x11glx = 1;
