@@ -2570,7 +2570,20 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);}
-    void* ret = mmap(addr, length, prot, flags, fd, offset);
+    #ifdef NOALIGN
+    void* new_addr = addr;
+    #else
+    void* new_addr = addr?addr:find32bitBlock(length);
+    #endif
+    void* ret = mmap(new_addr, length, prot, flags, fd, offset);
+    #ifndef NOALIGN
+    if(!addr && ret!=new_addr && ret!=(void*)-1) {
+        munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        new_addr = findBlockNearHint(addr, length); // is this the best way?
+        ret = mmap(new_addr, length, prot, flags, fd, offset);
+    }
+    #endif
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
@@ -2596,7 +2609,33 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);}
-    void* ret = mmap64(addr, length, prot, flags, fd, offset);
+    #ifdef NOALIGN
+    void* new_addr = addr;
+    #else
+    void* new_addr = addr?addr:find32bitBlock(length);
+    #endif
+    void* ret = mmap64(new_addr, length, prot, flags, fd, offset);
+    #ifndef NOALIGN
+    if(!addr && ret!=new_addr && ret!=(void*)-1) {
+        munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        new_addr = findBlockNearHint(addr, length); // is this the best way?
+        ret = mmap64(new_addr, length, prot, flags, fd, offset);
+    } else
+    if(addr && ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&~0xffff)!=(uintptr_t)ret && box86_wine) {
+        munmap(ret, length);
+        loadProtectionFromMap();    // reload map, because something went wrong previously
+        new_addr = findBlockNearHint(addr, length); // is this the best way?
+        ret = mmap64(new_addr, length, prot, flags, fd, offset);
+        if(ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&~0xffff)!=(uintptr_t)ret && box86_wine) {
+            // addr is probably too high, start again with a low address
+            munmap(ret, length);
+            loadProtectionFromMap();    // reload map, because something went wrong previously
+            new_addr = findBlockNearHint(NULL, length); // is this the best way?
+            ret = mmap64(new_addr, length, prot, flags, fd, offset);
+        }
+    }
+    #endif
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
     if(box86_dynarec && ret!=(void*)-1) {
@@ -2624,7 +2663,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "%p\n", ret);
     if(ret==(void*)-1)
         return ret; // failed...
-    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_DYNAREC;
+    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
     if(ret==old_addr) {
         if(old_size && old_size<new_size) {
             setProtection((uintptr_t)ret+old_size, new_size-old_size, prot);

@@ -712,6 +712,86 @@ uint32_t getProtection(uintptr_t addr)
     return ret;
 }
 
+void allocProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
+{
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        if(!memprot[i])
+            memprot[i] = prot;
+    }
+}
+
+void loadProtectionFromMap()
+{
+    char buf[500];
+    FILE *f = fopen("/proc/self/maps", "r");
+    if(!f)
+        return;
+    while(!feof(f)) {
+        char* ret = fgets(buf, sizeof(buf), f);
+        (void)ret;
+        char r, w, x;
+        uintptr_t s, e;
+        if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
+            int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
+            allocProtection(s, e-s, prot|PROT_ALLOC);
+        }
+    }
+    fclose(f);
+}
+
+#define LOWEST (void*)0x10000
+static uintptr_t nextFree(uintptr_t addr, uintptr_t increment)
+{
+    do {
+        uintptr_t idx = (addr>>MEMPROT_SHIFT);
+        if(!memprot[idx]) {
+            return addr;
+        }
+        addr += increment?increment:(1LL<<(16));
+        addr &= ~((1LL<<(16)-1LL));
+    } while(1);
+}
+static uintptr_t maxFree(uintptr_t addr, uintptr_t sz)
+{
+    uintptr_t mfree = 0;
+    do {
+        uintptr_t idx = (addr>>MEMPROT_SHIFT);
+        if(!memprot[idx]) {
+            mfree+=(1LL<<(MEMPROT_SHIFT));
+            if(mfree>sz) {
+                return addr;
+            }
+        } else
+            return mfree;
+        addr += (1LL<<(MEMPROT_SHIFT));
+        addr &= ~((1LL<<(MEMPROT_SHIFT))-1LL);
+    } while(1);
+}
+void* findBlockNearHint(void* hint, size_t size)
+{
+    // slow iterative search... Would need something better one day
+    uintptr_t addr = (uintptr_t)hint;
+    uintptr_t oldaddr;
+    do {
+        oldaddr = addr;
+        addr = nextFree(addr, 0x10000);
+        uintptr_t sz = maxFree(addr, size);
+        if(sz>=size) {
+            return (void*)addr;
+        }
+        addr += sz;
+    } while(addr>oldaddr);
+    printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
+    return hint;
+}
+void* find32bitBlock(size_t size)
+{
+    return findBlockNearHint(LOWEST, size);
+}
+#undef LOWEST
+
 int unlockCustommemMutex()
 {
     int ret = 0;

@@ -35,14 +35,20 @@ uintptr_t getJumpTableAddress(uintptr_t addr);
 #endif
 
 #define PROT_DYNAREC 0x80
+#define PROT_ALLOC      0x40
+#define PROT_CUSTOM     (PROT_DYNAREC|PROT_ALLOC)
+
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 uint32_t getProtection(uintptr_t addr);
 void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
+void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size);
 #endif
+void* find32bitBlock(size_t size);
+void* findBlockNearHint(void* hint, size_t size);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
 int unlockCustommemMutex();
