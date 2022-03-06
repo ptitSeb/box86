@@ -664,7 +664,7 @@ extern __thread void* current_helper;
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
-    int log_minimum = LOG_INFO;//(my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_INFO:LOG_NONE;
+    int log_minimum = (box86_showsegv)?LOG_NONE:((my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO);
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     uintptr_t x86pc = (uintptr_t)-1;

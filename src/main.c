@@ -93,6 +93,7 @@ int box86_wine = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
+int box86_showsegv = 0;
 char* libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
 char* trace_func = NULL;
@@ -496,6 +497,15 @@ void LoadLogEnv()
         if(jit_gdb)
             printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":"gdb");
     }
+    p = getenv("BOX86_SHOWSEGV");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box86_showsegv = p[0]-'0';
+        }
+        if(box86_showsegv)
+            printf_log(LOG_INFO, "Show Segfault signal even if a signal handler is present\n");
+    }
     box86_pagesize = sysconf(_SC_PAGESIZE);
     if(!box86_pagesize)
         box86_pagesize = 4096;
@@ -624,6 +634,7 @@ void PrintHelp() {
     printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX86_NOSIGSEGV=1 to disable handling of SigSEGV\n");
     printf(" BOX86_NOSIGILL=1  to disable handling of SigILL\n");
+    printf(" BOX86_SHOWSEGV=1 to show Segfault signal even if a signal handler is present\n");
 #ifdef PANDORA
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
 #endif
