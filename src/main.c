@@ -1150,16 +1150,19 @@ int main(int argc, const char **argv, const char **env) {
         free_contextargv();
         FreeCollection(&ld_preload);
         if(x64) {
-            // duplicate the array to change 1st arg as box64
-            const char** newargv = (const char**)calloc(argc+1, sizeof(char*));
+           // duplicate the array and insert 1st arg as box86
+            const char** newargv = (const char**)calloc(my_context->argc+2, sizeof(char*));
             newargv[0] = my_context->box64path;
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i+1] = my_context->argv[i];
             FreeBox86Context(&my_context);
-            for(int i=1; i<argc; ++i)
-                newargv[i] = argv[i];
             return execvp(newargv[0], (char * const*)newargv);
         } else {
+            const char** newargv = (const char**)calloc(my_context->argc+1, sizeof(char*));
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i] = my_context->argv[i];
             FreeBox86Context(&my_context);
-            return execvp(argv[1], (char * const*)(argv+1));
+            return execvp(newargv[0], (char * const*)newargv);
         }
         printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
     }
