@@ -19,6 +19,7 @@ typedef int32_t (*iFpUp_t)(void*, uint64_t, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFPpp_t)(void*, void*, void*);
 typedef int32_t (*iFpUup_t)(void*, uint64_t, uint32_t, void*);
+typedef int32_t (*iFpUpP_t)(void*, uint64_t, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpPpp_t)(void*, void*, void*, void*);
 typedef void (*vFpupup_t)(void*, uint32_t, void*, uint32_t, void*);
@@ -58,12 +59,14 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroyShaderModule, vFpUp_t) \
 	GO(vkDestroySurfaceKHR, vFpUp_t) \
 	GO(vkDestroySwapchainKHR, vFpUp_t) \
+	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
 	GO(vkFreeMemory, iFpUp_t) \
 	GO(vkDestroyDebugReportCallbackEXT, iFppp_t) \
 	GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t) \
 	GO(vkCreateInstance, iFPpp_t) \
 	GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t) \
+	GO(vkGetPastPresentationTimingGOOGLE, iFpUpP_t) \
 	GO(vkCreateDebugReportCallbackEXT, iFpppp_t) \
 	GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t) \
 	GO(vkCreateWaylandSurfaceKHR, iFpppp_t) \
@@ -95,11 +98,14 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateSemaphore, iFpPpp_t) \
 	GO(vkCreateShaderModule, iFpPpp_t) \
 	GO(vkCreateSwapchainKHR, iFpPpp_t) \
+	GO(vkCreateValidationCacheEXT, iFpPpp_t) \
 	GO(vkCreateXcbSurfaceKHR, iFpPpp_t) \
 	GO(vkCreateXlibSurfaceKHR, iFpPpp_t) \
+	GO(vkRegisterDeviceEventEXT, iFpPpp_t) \
 	GO(vkUpdateDescriptorSets, vFpupup_t) \
 	GO(vkCreateSharedSwapchainsKHR, iFpuppp_t) \
 	GO(vkCreateDisplayModeKHR, iFpUPpp_t) \
+	GO(vkRegisterDisplayEventEXT, iFpUPpp_t) \
 	GO(vkCreateComputePipelines, iFpUuppp_t) \
 	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
 	GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiiipp_t) \

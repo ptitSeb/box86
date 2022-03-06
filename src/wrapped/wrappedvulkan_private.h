@@ -441,3 +441,58 @@ GO(vkCmdDrawIndirectCountKHR, vFpUUUUuu)
 // VK_AMD_draw_indirect_count
 GO(vkCmdDrawIndexedIndirectCountAMD, vFpUUUUuu)
 GO(vkCmdDrawIndirectCountAMD, vFpUUUUuu)
+
+// VK_AMD_buffer_marker
+GO(vkCmdWriteBufferMarkerAMD, vFpuUUu)
+
+// VK_AMD_shader_info
+GO(vkGetShaderInfoAMD, iFpUuupp)
+
+// VK_EXT_debug_marker
+GO(vkCmdDebugMarkerBeginEXT, vFpP)
+GO(vkCmdDebugMarkerEndEXT, vFp)
+GO(vkCmdDebugMarkerInsertEXT, vFpP)
+GO(vkDebugMarkerSetObjectNameEXT, iFpP)
+GO(vkDebugMarkerSetObjectTagEXT, iFpP)
+
+// VK_EXT_discard_rectangles
+GO(vkCmdSetDiscardRectangleEXT, vFpuup)
+
+// VK_EXT_display_control
+GO(vkDisplayPowerControlEXT, iFpUP)
+GO(vkGetSwapchainCounterEXT, iFpUup)
+GOM(vkRegisterDeviceEventEXT, iFEpPpp)
+GOM(vkRegisterDisplayEventEXT, iFEpUPpp)
+
+// VK_EXT_external_memory_host
+GO(vkGetMemoryHostPointerPropertiesEXT, iFpupP)
+
+// VK_EXT_hdr_metadata
+GO(vkSetHdrMetadataEXT, vFpupp)
+
+// VK_EXT_validation_cache
+GOM(vkCreateValidationCacheEXT, iFEpPpp)
+GOM(vkDestroyValidationCacheEXT, vFEpUp)
+GO(vkGetValidationCacheDataEXT, iFpUpp)
+GO(vkMergeValidationCachesEXT, iFpUup)
+
+// VK_GOOGLE_display_timing
+GOM(vkGetPastPresentationTimingGOOGLE, iFEpUpP)
+GO(vkGetRefreshCycleDurationGOOGLE, iFpUp)
+
+// VK_KHR_external_fence_fd
+GO(vkGetFenceFdKHR, iFpPp)
+GO(vkImportFenceFdKHR, iFpP)
+
+// VK_KHR_external_semaphore_fd
+GO(vkGetSemaphoreFdKHR, iFpPp)
+GO(vkImportSemaphoreFdKHR, iFpP)
+
+// VK_KHR_push_descriptor
+GO(vkCmdPushDescriptorSetKHR, vFpiUuup) // Array of P at the end, but base structure doesn't seems to need aligning...
+
+// VK_KHR_shared_presentable_image
+GO(vkGetSwapchainStatusKHR, iFpU)
+
+// VK_NV_clip_space_w_scaling
+GO(vkCmdSetViewportWScalingNV, vFpuup)  // Array of P at the end, but base structure doesn't seems to need aligning...

@@ -489,6 +489,21 @@ CREATE(vkCreateXlibSurfaceKHR)
 CREATE(vkCreateRenderPass2)
 CREATE(vkCreateRenderPass2KHR)
 
+EXPORT int my_vkRegisterDeviceEventEXT(x86emu_t* emu, void* device, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkRegisterDeviceEventEXT(device, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
+}
+EXPORT int my_vkRegisterDisplayEventEXT(x86emu_t* emu, void* device, uint64_t disp, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    my_VkAllocationCallbacks_t my_alloc;
+    return my->vkRegisterDisplayEventEXT(device, disp, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
+}
+
+CREATE(vkCreateValidationCacheEXT)
+
 DESTROY64(vkDestroyBuffer)
 DESTROY64(vkDestroyBufferView)
 DESTROY64(vkDestroyCommandPool)
@@ -536,6 +551,8 @@ DESTROY(vkDestroyDebugUtilsMessengerEXT)
 DESTROY64(vkDestroySurfaceKHR)
 
 DESTROY64(vkDestroySamplerYcbcrConversionKHR)
+
+DESTROY64(vkDestroyValidationCacheEXT)
 
 EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
 {
@@ -655,3 +672,14 @@ EXPORT int my_vkDestroyDebugReportCallbackEXT(x86emu_t* emu, void* instance, voi
 }
 
 CREATE(vkCreateHeadlessSurfaceEXT)
+
+EXPORT int my_vkGetPastPresentationTimingGOOGLE(x86emu_t* emu, void* device, uint64_t swapchain, uint32_t* count, void* timings)
+{
+    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
+    static const char* desc = "uUUUU";
+
+    void* aligned = (timings)?vkalignStruct(timings, desc, *count):NULL;
+    int ret = my->vkGetPastPresentationTimingGOOGLE(device, swapchain, count, aligned);
+    if(timings) vkunalignStruct(timings, aligned, desc, *count);
+    return ret;
+}

@@ -750,6 +750,7 @@
 #() iFpupu
 #() iFpupp
 #() iFpupV
+#() iFpupP
 #() iFpuPU
 #() iFpUup
 #() iFpUUU
@@ -979,6 +980,7 @@
 #() vFpuuuu
 #() vFpuuup
 #() vFpuupp
+#() vFpuUUu
 #() vFpuddd
 #() vFpupup
 #() vFpUuiu
@@ -1025,6 +1027,7 @@
 #() iFEpupp
 #() iFEpupV
 #() iFEpUup
+#() iFEpUpP
 #() iFEpLpp
 #() iFEpLpV
 #() iFEppii
@@ -1264,6 +1267,7 @@
 #() vFpiiuuu
 #() vFpiippi
 #() vFpiippp
+#() vFpiUuup
 #() vFpipiiu
 #() vFpipipV
 #() vFpipppi
@@ -1352,6 +1356,7 @@
 #() iFpuiiii
 #() iFpupipi
 #() iFpupuui
+#() iFpUuupp
 #() iFpUUUip
 #() iFpUUUUp
 #() iFppiiip
@@ -4146,6 +4151,7 @@ wrappedvulkan:
   - vkDestroyShaderModule
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
+  - vkDestroyValidationCacheEXT
 - vFppp:
   - vkDestroyDebugUtilsMessengerEXT
 - iFpUp:
@@ -4157,6 +4163,8 @@ wrappedvulkan:
   - vkCreateInstance
 - iFpUup:
   - vkGetDisplayPlaneCapabilitiesKHR
+- iFpUpP:
+  - vkGetPastPresentationTimingGOOGLE
 - iFpppp:
   - vkCreateDebugReportCallbackEXT
   - vkCreateDebugUtilsMessengerEXT
@@ -4190,14 +4198,17 @@ wrappedvulkan:
   - vkCreateSemaphore
   - vkCreateShaderModule
   - vkCreateSwapchainKHR
+  - vkCreateValidationCacheEXT
   - vkCreateXcbSurfaceKHR
   - vkCreateXlibSurfaceKHR
+  - vkRegisterDeviceEventEXT
 - vFpupup:
   - vkUpdateDescriptorSets
 - iFpuppp:
   - vkCreateSharedSwapchainsKHR
 - iFpUPpp:
   - vkCreateDisplayModeKHR
+  - vkRegisterDisplayEventEXT
 - iFpUuppp:
   - vkCreateComputePipelines
   - vkCreateGraphicsPipelines
