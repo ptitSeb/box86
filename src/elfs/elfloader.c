@@ -1645,13 +1645,13 @@ void CreateMemorymapFile(box86context_t* context, int fd)
     (void)dummy;
 
     elfheader_t *h = context->elfs[0];
-
     if (stat(h->path, &st)) {
         printf_log(LOG_INFO, "Failed to stat file %s (creating memory maps \"file\")!", h->path);
         // Some constants, to have "valid" values
         st.st_dev = makedev(0x03, 0x00);
         st.st_ino = 0;
     }
+    // TODO: create heap entry?
 
     for (int i=0; i<h->numPHEntries; ++i) {
         if (h->PHEntries[i].p_memsz == 0) continue;
@@ -1665,6 +1665,11 @@ void CreateMemorymapFile(box86context_t* context, int fd)
         
         dummy = write(fd, buff, strlen(buff));
     }
+    // create stack entry
+    sprintf(buff, "%08x-%08x %c%c%c%c %08x %02x:%02x %ld %s\n", 
+        (uintptr_t)context->stack, (uintptr_t)context->stack+context->stacksz,
+        'r','w','-','p', 0, 0, 0, 0, "[stack]");
+    dummy = write(fd, buff, strlen(buff));
 }
 
 void ElfAttachLib(elfheader_t* head, library_t* lib)
