@@ -2813,6 +2813,7 @@ wrappedlibc:
 - pFpppppp:
 - iFpippppp:
 - iFpuvvppp:
+wrappedlibcairogobject:
 wrappedlibcrypt:
 wrappedlibcups:
 wrappedlibdl:
@@ -2853,6 +2854,7 @@ wrappedlibglu:
   - gluNurbsCallback
   - gluQuadricCallback
   - gluTessCallback
+wrappedlibharfbuzz:
 wrappedlibice:
 wrappedlibjpeg:
 - iFv:
