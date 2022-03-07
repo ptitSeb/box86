@@ -148,6 +148,8 @@ GO("libssl3.so", ssl3)
 GO("libsecret-1.so.0", secret1)
 GO("libtbbmalloc.so.2", tbbmalloc)
 GO("libmimalloc.so", mimalloc)
+GO("libharfbuzz.so.0", libharfbuzz)
+GO("libcairo-gobject.so.2", libcairogobject)
 
 #ifdef ANDROID
 GO("libc.so", libc)

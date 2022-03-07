@@ -426,6 +426,8 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedtbbmalloc.c"
     "${BOX86_ROOT}/src/wrapped/wrappedmimalloc.c"
     "${BOX86_ROOT}/src/wrapped/wrappedselinux.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibharfbuzz.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibcairogobject.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS
