@@ -2074,7 +2074,11 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = my_context->box64path?FileIsX64ELF(path):0;
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p) is x86=%d\n", path, argv, x86);
+    // hack to update the environ var if needed
+    if(envp == my_context->envv && environ) {
+        envp = environ;
+    }
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x86=%d\n", path, argv, envp, x86);
     if (x86 || x64 || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)

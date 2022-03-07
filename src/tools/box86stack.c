@@ -154,7 +154,7 @@ void SetupInitialStack(x86emu_t *emu)
     Push(emu, p_random); Push(emu, 25);                    //AT_RANDOM(25)=p_random
     Push(emu, 0); Push(emu, 26);                           //AT_HWCAP2(26)=0
     Push(emu, p_arg0); Push(emu, 31);                      //AT_EXECFN(31)=p_arg0
-    Push(emu, 0/*emu->context->vsyscall*/); Push(emu, 32); //AT_SYSINFO(32)=vsyscall
+    Push(emu, emu->context->vsyscall); Push(emu, 32); //AT_SYSINFO(32)=vsyscall
     //Push(emu, ); Push(emu, 33);                            //AT_SYSINFO_EHDR(33)=address of vDSO
     if(!emu->context->auxval_start) // store auxval start if needed
         emu->context->auxval_start = (uintptr_t*)R_ESP;

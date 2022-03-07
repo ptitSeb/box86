@@ -532,12 +532,12 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
 }
 
 EXPORTDYN
-int CountEnv(const char** env)
+int CountEnv(char** env)
 {
     // count, but remove all BOX86_* environnement
     // also remove PATH and LD_LIBRARY_PATH
     // but add 2 for default BOX86_PATH and BOX86_LD_LIBRARY_PATH
-    const char** p = env;
+    char** p = env;
     int c = 0;
     while(*p) {
         if(strncmp(*p, "BOX86_", 6)!=0)
@@ -548,21 +548,23 @@ int CountEnv(const char** env)
     return c+2;
 }
 EXPORTDYN
-int GatherEnv(char*** dest, const char** env, const char* prog)
+int GatherEnv(char*** dest, char** env, const char* prog)
 {
     // Add all but BOX86_* environnement
     // but add 2 for default BOX86_PATH and BOX86_LD_LIBRARY_PATH
-    const char** p = env;    
+    char** p = env;    
     int idx = 0;
-    int path = 0;
-    int ld_path = 0;
+    int box86_path = 0;
+    int box86_ld_path = 0;
+    char* path = NULL;
+    char* ld_path = NULL;
     while(*p) {
         if(strncmp(*p, "BOX86_PATH=", 11)==0) {
-            (*dest)[idx++] = strdup(*p+6);
-            path = 1;
+            (*dest)[idx++] = strdup(*p);
+            box86_path = 1;
         } else if(strncmp(*p, "BOX86_LD_LIBRARY_PATH=", 22)==0) {
-            (*dest)[idx++] = strdup(*p+6);
-            ld_path = 1;
+            (*dest)[idx++] = strdup(*p);
+            box86_ld_path = 1;
         } else if(strncmp(*p, "_=", 2)==0) {
             /*int l = strlen(prog);
             char tmp[l+3];
@@ -577,10 +579,10 @@ int GatherEnv(char*** dest, const char** env, const char* prog)
         ++p;
     }
     // update the calloc of envv when adding new variables here
-    if(!path) {
+    if(!box86_path) {
         (*dest)[idx++] = strdup("BOX86_PATH=.:bin");
     }
-    if(!ld_path) {
+    if(!box86_ld_path) {
         (*dest)[idx++] = strdup("BOX86_LD_LIBRARY_PATH=.:lib");
     }
     // add "_=prog" at the end...
@@ -913,11 +915,9 @@ static void free_contextargv()
         free(my_context->argv[i]);
 }
 
-#ifndef ANDROID
-const char **environ __attribute__((weak)) = NULL;
-#endif
+extern char **environ;
 
-int main(int argc, const char **argv, const char **env) {
+int main(int argc, const char **argv, char **env) {
 
     init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
