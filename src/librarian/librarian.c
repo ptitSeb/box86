@@ -355,6 +355,7 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
 EXPORTDYN
 int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, const char** paths, int npath, box86context_t* box86, x86emu_t* emu)
 {
+    box86_mapclean = 0;
     if(!neededlibs) {
         neededlibs = alloca(sizeof(needed_libs_t));
         memset(neededlibs, 0, sizeof(needed_libs_t));

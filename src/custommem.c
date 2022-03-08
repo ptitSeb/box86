@@ -775,7 +775,7 @@ static uintptr_t maxFree(uintptr_t addr, uintptr_t sz)
 void* findBlockNearHint(void* hint, size_t size)
 {
     // slow iterative search... Would need something better one day
-    uintptr_t addr = (uintptr_t)hint;
+    uintptr_t addr = (uintptr_t)(hint?hint:LOWEST);
     uintptr_t oldaddr;
     do {
         oldaddr = addr;
