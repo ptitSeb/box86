@@ -428,6 +428,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedselinux.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibharfbuzz.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibcairogobject.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibvkd3d.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS
