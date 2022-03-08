@@ -3142,6 +3142,9 @@ wrappedlibv4l2:
   - v4l2_munmap
 - pFpLiiii:
   - v4l2_mmap
+wrappedlibvkd3d:
+- iFpp:
+  - vkd3d_create_instance
 wrappedlibvorbis:
 - vFp:
   - vorbis_dsp_clear
