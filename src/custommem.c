@@ -786,7 +786,7 @@ void* findBlockNearHint(void* hint, size_t size)
         }
         addr += sz;
     } while(addr>oldaddr);
-    printf_log(LOG_NONE, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
+    printf_log(LOG_DEBUG, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
     return hint;
 }
 void* find32bitBlock(size_t size)
