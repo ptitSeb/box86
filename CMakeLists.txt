@@ -728,10 +728,12 @@ add_test(NAME contexts COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_D
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref13.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-add_test(NAME conditionalThreads COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
-    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile14.txt 
-    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
-    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+if(NOT LD80BITS)
+    add_test(NAME conditionalThreads COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test14 -D TEST_OUTPUT=tmpfile14.txt 
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref14.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+endif()
 
 add_test(NAME linkingIndirectNoversion COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test15 -D TEST_OUTPUT=tmpfile15.txt 
