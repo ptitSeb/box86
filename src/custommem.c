@@ -44,6 +44,13 @@ static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
 static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags by 4K block
 static int inited = 0;
 
+typedef struct mapmem_s {
+    uintptr_t begin, end;
+    struct mapmem_s *prev, *next;
+} mapmem_t;
+
+static mapmem_t *mapmem = NULL;
+
 typedef struct blocklist_s {
     void*               block;
     int                 maxfree;
@@ -674,8 +681,106 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
 
 #endif
 
+void addMapMem(uintptr_t begin, uintptr_t end)
+{
+    // granularity is 0x10000, like on x86
+    begin &=~0xffff;
+    end = (end&~0xffff)+0xffff; // full granulirity
+    // sanitize values
+    if(end==0xffff) return;
+    if(!begin) begin = 0x1000;
+    // find attach point (cannot be the 1st one by construction)
+    mapmem_t* m = mapmem;
+    while(m->next && m->next->begin<begin) {
+        m = m->next;
+    }
+    // attach at the end of m
+    if(m->end>end) {
+        return; // included... nothing to do
+    }
+    if(m->end+1>=begin) {
+        m->end = end;   // enlarge block
+        return;
+    }
+    mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+    newm->prev = m;
+    newm->next = m->next;
+    newm->begin = begin;
+    newm->end = end;
+    m->next = newm;
+    while(newm->next && newm->next->begin<newm->end) {
+        // fuse with next
+        if(newm->next->end>newm->end)
+            newm->end = newm->next->end;
+        mapmem_t* tmp = newm->next;
+        newm->next = tmp->next;
+        tmp->prev = newm;
+        free(tmp);
+    }
+    // all done!
+}
+void removeMapMem(uintptr_t begin, uintptr_t end)
+{
+    // granularity is 0x10000, like on x86
+    begin &=~0xffff;
+    end = (end&~0xffff)+0xffff; // full granulirity
+    // sanitize values
+    if(end==0xffff) return;
+    if(!begin) begin = 0x1000;
+    mapmem_t* m = mapmem;
+    while(begin<end) {
+        // find attach point (cannot be the 1st one by construction)
+        while(m && m->end<begin) {
+            m = m->next;
+        }
+        if(!m) {
+            return;
+        }
+        if(m->begin<end)
+            return; // block is not there
+        else if(m->begin <= begin) {
+            if(m->end>end) {
+                // whole zone to free if now free, nothing more to do, bye
+                m->begin = end + 1;
+                return;
+            } else {
+                begin = m->end + 1;
+                mapmem_t* tmp = m;
+                m = m->next;
+                m->prev = tmp->prev;
+                tmp->prev->next = m;
+                free(tmp);
+            }
+        } else {
+            if(m->end>end) {
+                // split the block!
+                mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+                newm->begin = end+1;
+                newm->end = m->end;
+                m->end = begin - 1;
+                newm->next = m->next;
+                newm->prev = m;
+                m->next = newm;
+            } else if(m->end == end) {
+                m->end = begin - 1;
+                return;
+            } else {
+                //free the block
+                begin = m->end + 1;
+                mapmem_t* tmp = m;
+                m = m->next;
+                tmp->prev->next = m;
+                if(m)
+                    m->prev = tmp->prev;
+                free(tmp);
+            }
+        }
+    }
+}
+
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    addMapMem(addr, addr+size);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -688,6 +793,7 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    addMapMem(addr, addr+size);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -698,10 +804,21 @@ void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    addMapMem(addr, addr+size);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         memprot[i] = prot;
+    }
+}
+
+void freeProtection(uintptr_t addr, uintptr_t size)
+{
+    removeMapMem(addr, addr+size);
+    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+    for (uintptr_t i=idx; i<=end; ++i) {
+        memprot[i] = 0;
     }
 }
 
@@ -714,6 +831,7 @@ uint32_t getProtection(uintptr_t addr)
 
 void allocProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    addMapMem(addr, addr+size);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -745,55 +863,20 @@ void loadProtectionFromMap()
 }
 
 #define LOWEST (void*)0x10000
-static uintptr_t nextFree(uintptr_t addr, uintptr_t increment)
-{
-    do {
-        uintptr_t idx = (addr>>MEMPROT_SHIFT);
-        if(!memprot[idx]) {
-            return addr;
-        }
-        addr += increment?increment:(1LL<<(16));
-        addr &= ~((1LL<<(16)-1LL));
-    } while(1);
-}
-static uintptr_t maxFree(uintptr_t addr, uintptr_t sz)
-{
-    uintptr_t mfree = 0;
-    do {
-        uintptr_t idx = (addr>>MEMPROT_SHIFT);
-        if(!memprot[idx]) {
-            mfree+=(1LL<<(MEMPROT_SHIFT));
-            if(mfree>sz) {
-                return addr;
-            }
-        } else
-            return mfree;
-        addr += (1LL<<(MEMPROT_SHIFT));
-        addr &= ~((1LL<<(MEMPROT_SHIFT))-1LL);
-    } while(1);
-}
 void* findBlockNearHint(void* hint, size_t size)
 {
-    // slow iterative search... Would need something better one day
-    uintptr_t addr = (uintptr_t)(hint?hint:LOWEST);
-    uintptr_t oldaddr;
-    do {
-        oldaddr = addr;
-        addr = nextFree(addr, 0x10000);
-        uintptr_t sz = maxFree(addr, size);
-        if(sz>=size) {
-            return (void*)addr;
-        }
-        addr += sz;
-    } while(addr>oldaddr);
-    printf_log(LOG_DEBUG, "Warning: cannot find a 0x%zx block in 32bits address space\n", size);
-    return hint;
+    mapmem_t* m = mapmem;
+    while(m) {
+        if((m->end>(uintptr_t)hint) && (!m->next || (m->next->begin-(m->end+1)>=size)))
+            return (void*)(m->end + 1);
+        m = m->next;
+    }
+    return NULL;
 }
 void* find32bitBlock(size_t size)
 {
     return findBlockNearHint(LOWEST, size);
 }
-#undef LOWEST
 
 int unlockCustommemMutex()
 {
@@ -852,6 +935,11 @@ void init_custommem_helper(box86context_t* ctx)
 #endif
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
+    // init mapmem list
+    mapmem = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+    mapmem->begin = 0x0;
+    mapmem->end = (uintptr_t)LOWEST - 1;
+    loadProtectionFromMap();
 }
 
 void fini_custommem_helper(box86context_t *ctx)
@@ -904,4 +992,9 @@ void fini_custommem_helper(box86context_t *ctx)
         #endif
     free(p_blocks);
     pthread_mutex_destroy(&mutex_blocks);
+    while(mapmem) {
+        mapmem_t *tmp = mapmem;
+        mapmem = mapmem->next;
+        free(tmp);
+    }
 }

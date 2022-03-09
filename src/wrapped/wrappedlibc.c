@@ -2677,7 +2677,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
                 addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
             #endif
         } else if(old_size && new_size<old_size) {
-            setProtection((uintptr_t)ret+new_size, old_size-new_size, 0);
+            freeProtection((uintptr_t)ret+new_size, old_size-new_size);
             #ifdef DYNAREC
             if(box86_dynarec)
                 cleanDBFromAddressRange((uintptr_t)ret+new_size, new_size-old_size, 1);
@@ -2695,7 +2695,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
         && !(flags&MREMAP_DONTUNMAP)
         #endif
         ) {
-            setProtection((uintptr_t)old_addr, old_size, 0);
+            freeProtection((uintptr_t)old_addr, old_size);
             #ifdef DYNAREC
             if(box86_dynarec)
                 cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
@@ -2720,7 +2720,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
     #endif
     int ret = munmap(addr, length);
     if(!ret)
-        setProtection((uintptr_t)addr, length, 0);
+        freeProtection((uintptr_t)addr, length);
     return ret;
 }
 
