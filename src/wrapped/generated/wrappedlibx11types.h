@@ -14,8 +14,10 @@
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
+typedef void* (*pFiV_t)(int32_t, ...);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
+typedef void* (*pFpV_t)(void*, ...);
 typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
@@ -36,9 +38,13 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint3
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(_XDeqAsyncHandler, vFpp_t) \
+	GO(XVaCreateNestedList, pFiV_t) \
 	GO(XSynchronize, pFpi_t) \
 	GO(XLoadQueryFont, pFpp_t) \
 	GO(XSetAfterFunction, pFpp_t) \
+	GO(XCreateIC, pFpV_t) \
+	GO(XSetICValues, pFpV_t) \
+	GO(XSetIMValues, pFpV_t) \
 	GO(XSetBackground, iFppu_t) \
 	GO(XSetForeground, iFppu_t) \
 	GO(XAddConnectionWatch, iFppp_t) \
