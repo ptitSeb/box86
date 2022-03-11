@@ -478,6 +478,7 @@
 #() LFppp
 #() LFSpL
 #() pFEip
+#() pFEiV
 #() pFEup
 #() pFEpi
 #() pFEpu
@@ -2002,7 +2003,6 @@
 #() pFppppppppppppppp
 #() vFpppppppppppppppp
 #() iFpppppppppppppppp
-#() uFpppppppppppppppp
 #() pFppipipipipipipip
 #() vFppiiiiddddiiiiiuu
 #() iFppipipppppppppppp
@@ -2020,7 +2020,6 @@
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
 #() iFpppppppppppppppppppppp
-#() pFipppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) IFpi
 #defined(NOALIGN) iFipV
@@ -3183,11 +3182,17 @@ wrappedlibx11:
   - XSetIOErrorHandler
 - vFpp:
   - _XDeqAsyncHandler
+- pFiV:
+  - XVaCreateNestedList
 - pFpi:
   - XSynchronize
 - pFpp:
   - XLoadQueryFont
   - XSetAfterFunction
+- pFpV:
+  - XCreateIC
+  - XSetICValues
+  - XSetIMValues
 - iFppu:
   - XSetBackground
   - XSetForeground
