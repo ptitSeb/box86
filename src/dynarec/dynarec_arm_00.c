@@ -2222,20 +2222,18 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = F8S;
             }
             JUMP(addr+i32, 0);
-            if(dyn->insts) {
             if(dyn->insts[ninst].x86.jmp_insts==-1) {
-                    // out of the block
-                    fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
-                    jump_to_next(dyn, addr+i32, 0, ninst);
+                // out of the block
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+                jump_to_next(dyn, addr+i32, 0, ninst);
+            } else {
+                // inside the block
+                fpuCacheTransform(dyn, ninst, x1, x2, x3);
+                tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
+                if(tmp==-4) {
+                    NOP;
                 } else {
-                    // inside the block
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);
-                    tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
-                    if(tmp==-4) {
-                        NOP;
-                    } else {
-                        Bcond(c__, tmp);
-                    }
+                    Bcond(c__, tmp);
                 }
             }
             *need_epilog = 0;
