@@ -858,7 +858,7 @@ void* findBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
     while(m) {
-        if((m->end<(uintptr_t)hint) && ((!m->next && 0xffffffff-m->end>=size) || ((m->next && m->next->begin-m->end)-1>=size)))
+        if((m->end+1>=(uintptr_t)hint) && ((!m->next && 0xffffffff-m->end>=size) || ((m->next && m->next->begin-m->end)-1>=size)))
             return (void*)(m->end + 1);
         m = m->next;
     }
