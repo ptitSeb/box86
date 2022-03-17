@@ -4,7 +4,7 @@
 typedef struct x86emu_s x86emu_t;
 
 #ifndef BUILD_LIB
-int init_auxval(int argc, const char **argv, const char **env);
+int init_auxval(int argc, const char **argv, char **env);
 #endif
 
 unsigned long real_getauxval(unsigned long type);
