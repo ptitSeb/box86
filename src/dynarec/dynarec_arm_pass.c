@@ -194,7 +194,8 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
         #if STEP == 0
-        if(ok && !isJumpTableDefault((void*)addr) && (box86_dynarec_bigblock<2))
+        if((ok && !isJumpTableDefault((void*)addr) && (box86_dynarec_bigblock<2)) ||
+            (ok && dyn->size >= 2000))
         #else
         if(ok && (ninst==dyn->size))
         #endif
