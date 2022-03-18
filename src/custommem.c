@@ -839,6 +839,7 @@ void loadProtectionFromMap()
         return;
     char buf[500];
     FILE *f = fopen("/proc/self/maps", "r");
+    uintptr_t current = 0x0;
     if(!f)
         return;
     while(!feof(f)) {
@@ -847,6 +848,10 @@ void loadProtectionFromMap()
         char r, w, x;
         uintptr_t s, e;
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
+            if(current<s) {
+                removeMapMem(current, s-1);
+                current = e;
+            }
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
             allocProtection(s, e-s, prot);
         }
@@ -859,12 +864,15 @@ void loadProtectionFromMap()
 void* findBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
+    uintptr_t h = (uintptr_t)hint;
     while(m) {
         // granularity 0x10000
         uintptr_t addr = (m->end+1+0xffff)&~0xffff;
         uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
-        // check hint and availble saize
-        if(addr>=(uintptr_t)hint && end-addr+1>=size)
+        // check hint and available size
+        if(addr<=h && end>=h && end-h+1>=size)
+            return hint;
+        if(addr>=h && end-addr+1>=size)
             return (void*)addr;
         m = m->next;
     }
