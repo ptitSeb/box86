@@ -1044,7 +1044,20 @@ EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     #endif
 }
 EXPORT int my___vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
-EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
+EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, size_t s, int flags, size_t m, void * fmt, void * b, va_list V) {
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
+    PREPARE_VALIST;
+    void* f = vswprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
+    return r;
+    #else
+    void* f = vswprintf;
+    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
+    return r;
+    #endif
+}
 
 EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN

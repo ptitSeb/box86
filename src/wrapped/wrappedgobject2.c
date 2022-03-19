@@ -212,12 +212,22 @@ EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* d
     uintptr_t ret = 0;
     #define GO(A, B) if(strcmp((const char*)detailed, A)==0) ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped_##B):((void*)signal_cb_##B), sig, signal_delete, flags);
     GO("query-tooltip", 6)  // GtkWidget
+    else GO("query_tooltip", 6)
     else GO("selection-get", 5) //GtkWidget
+    else GO("selection_get", 5)
     else GO("drag-data-get", 5) //GtkWidget
     else GO("drag-data-received", 8)    //GtkWidget
+    else GO("drag_data_received", 8)
     else GO("drag-drop", 6) //GtkWidget
+    else GO("drag_drop", 6)
     else GO("drag-motion", 6)   //GtkWidget
+    else GO("drag_motion", 6)
     else GO("expand-collapse-cursor-row", 5)    //GtkTreeView
+    else GO("expand_collapse_cursor_row", 5)
+    else GO("insert-text", 5)   // GtkEditable
+    else GO("insert_text", 5)
+    else GO("move-cursor", 5)   // GtkEntry
+    else GO("move_cursor", 5)
     else
         ret = my->g_signal_connect_data(instance, detailed, (flags&2)?((void*)signal_cb_swapped):((void*)signal_cb), sig, signal_delete, flags);
     #undef GO

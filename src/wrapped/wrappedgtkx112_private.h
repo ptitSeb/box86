@@ -1173,7 +1173,7 @@ GO(gtk_hbutton_box_new, pFv)
 GO(gtk_hbutton_box_set_layout_default, vFi)
 GO(gtk_hbutton_box_set_spacing_default, vFi)
 GO(gtk_hpaned_get_type, iFv)
-//GO(gtk_hpaned_new, 
+GO(gtk_hpaned_new, pFv)
 GO(gtk_hruler_get_type, iFv)
 //GO(gtk_hruler_new, 
 GO(gtk_hscale_get_type, iFv)
@@ -1529,13 +1529,13 @@ GO(gtk_layout_new, pFpp)
 //GO(gtk_layout_set_vadjustment, 
 //GO(gtk_layout_thaw, 
 GO(gtk_link_button_get_type, iFv)
-//GO(gtk_link_button_get_uri, 
-//GO(gtk_link_button_get_visited, 
-//GO(gtk_link_button_new, 
-//GO(gtk_link_button_new_with_label, 
-//GO(gtk_link_button_set_uri, 
-//GO(gtk_link_button_set_uri_hook, 
-//GO(gtk_link_button_set_visited, 
+GO(gtk_link_button_get_uri, pFp)
+GO(gtk_link_button_get_visited, iFp)
+GO(gtk_link_button_new, pFp)
+GO(gtk_link_button_new_with_label, pFpp)
+GO(gtk_link_button_set_uri, vFpp)
+GOM(gtk_link_button_set_uri_hook, pFEppp)
+GO(gtk_link_button_set_visited, vFpi)
 GO(gtk_list_append_items, vFpp)
 GO(gtk_list_child_position, iFpp)
 GO(gtk_list_clear_items, vFpii)
@@ -1566,7 +1566,7 @@ GO(gtk_list_store_get_type, iFv)
 GO(gtk_list_store_insert, vFppi)
 GO(gtk_list_store_insert_after, vFppp)
 GO(gtk_list_store_insert_before, vFppp)
-//GOM(gtk_list_store_insert_with_values, vFppiV)    // cannot wrap with gtk_list_store_insert_with_valuesv!
+GOM(gtk_list_store_insert_with_values, vFEppiV)
 GO(gtk_list_store_insert_with_valuesv, vFppippi)    //TODO: GValues need alignement!
 GO(gtk_list_store_iter_is_valid, iFpp)
 GO(gtk_list_store_move_after, vFppp)
@@ -2468,7 +2468,7 @@ GO(gtk_scale_button_get_type, iFv)
 GO(gtk_scale_get_type, iFv)
 //GO(gtk_scale_get_value_pos, 
 //GO(gtk_scale_set_digits, 
-//GO(gtk_scale_set_draw_value, 
+GO(gtk_scale_set_draw_value, vFpi)
 //GO(gtk_scale_set_value_pos, 
 GO(gtk_scrollbar_get_type, iFv)
 GO(gtk_scrolled_window_add_with_viewport, vFpp)
@@ -3928,6 +3928,10 @@ GO(gtk_window_unfullscreen, vFp)
 GO(gtk_window_unmaximize, vFp)
 GO(gtk_window_unstick, vFp)
 GO(gtk_wrap_mode_get_type, iFv)
+
+DATA(gtk_major_version, 4)
+DATA(gtk_minor_version, 4)
+DATA(gtk_micro_version, 4)
 
 // from gtk-1.2
 GOM(gtk_signal_connect, LFEpppp)

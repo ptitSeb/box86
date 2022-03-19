@@ -114,6 +114,7 @@ typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t
 typedef void* (*pFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*);
+typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__close_nocancel, iFi_t) \

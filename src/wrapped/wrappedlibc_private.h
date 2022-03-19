@@ -1956,7 +1956,7 @@ GO(vsscanf, iFppp)
 #endif
 // __vsscanf    // Weak
 GOWM(vswprintf, iFEpuppp)         //%%
-GOWM(__vswprintf_chk, iFEpuvvppp) //%%
+GOWM(__vswprintf_chk, iFEpLiLppp) //%%
 GO(vswscanf, iFppp)
 GO(vsyslog, vFipp)
 GO(__vsyslog_chk, vFiipp)
