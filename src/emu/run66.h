@@ -485,6 +485,11 @@
         R_ECX = tmp32u;
         NEXT;
 
+    _66_0xF5:                      /* CMC */
+        CHECK_FLAGS(emu);
+        CONDITIONAL_SET_FLAG(!ACCESS_FLAG(F_CF), F_CF);
+        NEXT;
+
     _66_0xF7:                      /* GRP3 Ew(,Iw) */
         nextop = F8;
         GET_EW;
