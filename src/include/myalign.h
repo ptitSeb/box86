@@ -329,3 +329,19 @@ void AlignFlock64(void* dest, void* source);   // x86 -> Arm
 // defined in wrapperlibc.c
 int of_convert(int);    // x86->arm
 int of_unconvert(int);  // arm->x86
+
+typedef struct my_GValue_s
+{
+  int         g_type;
+  union {
+    int        v_int;
+    int64_t    v_int64;
+    uint64_t   v_uint64;
+    float      v_float;
+    double     v_double;
+    void*      v_pointer;
+  } data[2];
+} my_GValue_t;
+
+void alignNGValue(my_GValue_t* v, void* value, int n);
+void unalignNGValue(void* value, my_GValue_t* v, int n);

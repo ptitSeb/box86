@@ -17,6 +17,7 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "gtkclass.h"
+#include "myalign.h"
 #include "libtools/vkalign.h"    // TODO: move those utilities function to something not Vk tagged
 
 const char* gobject2Name = "libgobject-2.0.so.0";
@@ -774,7 +775,9 @@ EXPORT void my_g_value_register_transform_func(x86emu_t* emu, int src, int dst, 
 static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, my_signal_t* sig)
 {
     printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 4, ihint, n, values, sig->data);
+    my_GValue_t my_values[n];
+    alignNGValue(my_values, values, n);
+    return (int)RunFunction(my_context, sig->c_handler, 4, ihint, n, my_values, sig->data);
 }
 EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
 {
@@ -862,37 +865,13 @@ EXPORT void* my_g_type_class_peek_parent(x86emu_t* emu, void* object)
     return wrapCopyGTKClass(klass, type);
 }
 
-typedef struct my_GValue_s
-{
-  int         g_type;
-  union {
-    int        v_int;
-    int64_t    v_int64;
-    uint64_t   v_uint64;
-    float      v_float;
-    double     v_double;
-    void*      v_pointer;
-  } data[2];
-} my_GValue_t;
-
-static void alignGValue(my_GValue_t* v, void* value)
-{
-    v->g_type = *(int*)value;
-    memcpy(v->data, value+4, 2*sizeof(double));
-}
-static void unalignGValue(void* value, my_GValue_t* v)
-{
-    *(int*)value = v->g_type;
-    memcpy(value+4, v->data, 2*sizeof(double));
-}
-
 EXPORT void* my_g_value_init(void* value, int type)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my_GValue_t v;
-    alignGValue(&v, value);
+    alignNGValue(&v, value, 1);
     my->g_value_init(&v, type);
-    unalignGValue(value, &v);
+    unalignNGValue(value, &v, 1);
     return value;
 }
 
@@ -900,9 +879,9 @@ EXPORT void* my_g_value_reset(void* value)
 {
     gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my_GValue_t v;
-    alignGValue(&v, value);
+    alignNGValue(&v, value, 1);
     my->g_value_reset(&v);
-    unalignGValue(value, &v);
+    unalignNGValue(value, &v, 1);
     return value;
 }
 
@@ -913,7 +892,7 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
     static int cnt = 0;
     if(cnt==4) cnt=0;
     static my_GValue_t value[4];
-    unalignGValue(&value[cnt], &v);
+    unalignNGValue(&value[cnt], &v, 1);
     return &value[cnt++];
 }
 

@@ -888,3 +888,23 @@ void AlignFTSENT(void* dest, void* source)
 }
 #undef TRANSFERT
 
+void alignNGValue(my_GValue_t* v, void* value, int n)
+{
+    while(n) {
+        v->g_type = *(int*)value;
+        memcpy(v->data, value+4, 2*sizeof(double));
+        ++v;
+        value+=4*2*sizeof(double);
+        --n;
+    }
+}
+void unalignNGValue(void* value, my_GValue_t* v, int n)
+{
+    while(n) {
+        *(int*)value = v->g_type;
+        memcpy(value+4, v->data, 2*sizeof(double));
+        ++v;
+        value+=4*2*sizeof(double);
+        --n;
+    }
+}
