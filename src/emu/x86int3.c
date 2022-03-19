@@ -230,9 +230,13 @@ void x86Int3(x86emu_t* emu)
                         pu32 = *(uint32_t**)(R_ESP+8);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%S\"...)", tid, *(void**)(R_ESP), s, pu32?((wchar_t*)(pu32)):L"nil");
                 } else  if(strstr(s, "__vswprintf")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%S\", %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(wchar_t**)(R_ESP+12), *(void**)(R_ESP+16));
-                    pu32 = *(uint32_t**)(R_ESP+4);
-                    post = 6;
+                    if(*(size_t*)(R_ESP+12)<2) {
+                        snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %p, %p, %p, %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(void**)(R_ESP+12), *(void**)(R_ESP+16), *(void**)(R_ESP+20));
+                    } else {
+                        snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%S\", %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(size_t*)(R_ESP+8), *(wchar_t**)(R_ESP+12), *(void**)(R_ESP+16));
+                        pu32 = *(uint32_t**)(R_ESP+4);
+                        post = 6;
+                    }
                 } else  if(strstr(s, "puts")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\"...)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4));
                 } else  if(strstr(s, "fputs")==s) {
