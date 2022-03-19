@@ -94,7 +94,7 @@ EXPORT int my_PR_CallOnceWithArg(x86emu_t* emu, void* once, void* f, void* arg)
 {
     nspr4_my_t* my = (nspr4_my_t*)my_lib->priv.w.p2;
 
-    my->PR_CallOnceWithArg(once, find_PRCallOnceWithArg_Fct(f), arg);
+    return my->PR_CallOnceWithArg(once, find_PRCallOnceWithArg_Fct(f), arg);
 }
 
 EXPORT void* my_PR_FindFunctionSymbol(x86emu_t* emu, void* symbol, void* name)
