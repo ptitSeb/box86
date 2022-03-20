@@ -371,6 +371,8 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibpanel.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibncurses6.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibtinfo6.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgmp.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgcrypt.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgtkx112.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgdkx112.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgtk3.c"

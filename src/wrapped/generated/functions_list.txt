@@ -227,6 +227,7 @@
 #() lFpp
 #() LFii
 #() LFLi
+#() LFpi
 #() LFpL
 #() LFpp
 #() pFEv
@@ -1556,6 +1557,7 @@
 #() vFpUUUUuu
 #() vFpddiidd
 #() vFpdddddd
+#() vFpLiLiLp
 #() vFppiiiii
 #() vFppiiiip
 #() vFppiiipi
@@ -1563,6 +1565,7 @@
 #() vFppiipuu
 #() vFppiippp
 #() vFppilppi
+#() vFppiLiLp
 #() vFppipiip
 #() vFppipipp
 #() vFppipppp
@@ -2243,6 +2246,7 @@ wrappedfreetype:
 - iFpuuLppp:
   - FTC_Manager_New
 wrappedgconf2:
+wrappedgcrypt:
 wrappedgdk3:
 - vFpp:
   - gdk_init
@@ -2482,6 +2486,7 @@ wrappedglib2:
 - iFpppippppppp:
   - g_spawn_async_with_pipes
 wrappedgmodule2:
+wrappedgmp:
 wrappedgnutls:
 - vFp:
   - gnutls_global_set_log_function
