@@ -748,9 +748,12 @@ def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions,
 							 or match("sdl1ttf",     "sdl2ttf")     \
 							 or match("smpeg",       "smpeg2")      \
 							 or match("udev0",       "udev1")       \
+							 or match("gstinterfaces010","gstvideo")\
+							 or match("gstinterfaces010","gstaudio")\
+							 or match("gstreamer010","gstreamer")	\
 							 \
 							 or match("libc",        "tcmallocminimal") \
-							 or match("libc",        "ldlinux") \
+							 or match("libc",        "ldlinux") 	\
 							:
 								# libc and ldlinux have some "__libc_" data symbols in common... TODO check if ok
 								continue

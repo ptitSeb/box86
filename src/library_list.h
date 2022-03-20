@@ -150,6 +150,12 @@ GO("libtbbmalloc.so.2", tbbmalloc)
 GO("libmimalloc.so", mimalloc)
 GO("libharfbuzz.so.0", libharfbuzz)
 GO("libcairo-gobject.so.2", libcairogobject)
+GO("libgstapp-1.0.so.0", gstapp)
+GO("libgstaudio-1.0.so.0", gstaudio)
+GO("libgstbase-1.0.so.0", gstbase)
+GO("libgstreamer-1.0.so.0", gstreamer)
+GO("libgsttag-1.0.so.0", gsttag)
+GO("libgstvideo-1.0.so.0", gstvideo)
 
 #ifdef ANDROID
 GO("libc.so", libc)
