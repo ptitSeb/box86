@@ -1004,6 +1004,10 @@ int main(int argc, const char **argv, char **env) {
     if(!strcmp(prog, "wineserver") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
         box86_wine = 1;
     }
+    if(box86_wine) {
+        // disabling the use of futex_waitv for now
+        setenv("WINEFSYNC", "0", 1);
+    }
     // Create a new context
     my_context = NewBox86Context(argc - nextarg);
 
@@ -1047,6 +1051,8 @@ int main(int argc, const char **argv, char **env) {
         if(getenv("LD_PRELOAD")) {
             char* p = getenv("LD_PRELOAD");
             if(strstr(p, "libtcmalloc_minimal.so.4"))
+                box86_tcmalloc_minimal = 1;
+            if(strstr(p, "libtcmalloc_minimal.so.0"))
                 box86_tcmalloc_minimal = 1;
             if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
                 box86_tcmalloc_minimal = 1;

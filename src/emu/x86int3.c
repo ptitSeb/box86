@@ -119,6 +119,10 @@ void x86Int3(x86emu_t* emu)
                     tmp = *(char**)(R_ESP+4);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8), *(int*)(R_ESP+12));
                     perr = 1;
+                } else  if(!strcmp(s, "shm_open")) {
+                    tmp = *(char**)(R_ESP+4);
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d, %d)", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8), *(int*)(R_ESP+12));
+                    perr = 1;
                 } else  if(strcmp(s, "mkdir")==0) {
                     tmp = *(char**)(R_ESP+4);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_ESP), s, (tmp)?tmp:"(nil)", *(int*)(R_ESP+8));

@@ -39,7 +39,7 @@ GO(mq_getattr, iFip)
 // mq_timedreceive
 // mq_timedsend
 // mq_unlink
-GO(shm_open, iFpiu)
+GO(shm_open, iFpOu)
 GO(shm_unlink, iFp)
 GOM(timer_create, iFEupp)
 GO(timer_delete, iFu)

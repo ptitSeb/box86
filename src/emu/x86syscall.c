@@ -246,6 +246,9 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_memfd_create
     { 356, __NR_memfd_create, 2},
 #endif
+#ifdef __NR_futex_waitv
+    { 449, __NR_futex_waitv, 5},
+#endif
 };
 
 struct mmap_arg_struct {
@@ -644,6 +647,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
 
 uint32_t EXPORT my_syscall(x86emu_t *emu)
 {
+    static uint32_t warned = 0;
     uint32_t s = u32(0);
     printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)u32(4), (void*)u32(8), (void*)u32(12), (void*)u32(16), (void*)u32(20)); 
     // check wrapper first
@@ -766,7 +770,11 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)my_memfd_create(emu, (void*)R_EBX, R_ECX);
 #endif
         default:
-            printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+            if(!(warned&(1<<s))) {
+                printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+                warned|=(1<<s);
+            }
+            errno = ENOSYS;
             return -1;
     }
     return 0;

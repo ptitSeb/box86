@@ -462,10 +462,13 @@ static void* findMarshalFct(void* fct)
 
 // GValueTransform
 #define GO(A)   \
-static uintptr_t my_valuetransform_fct_##A = 0;                     \
-static void my_valuetransform_##A(void* src, void* dst)            \
-{                                                                   \
-    RunFunction(my_context, my_valuetransform_fct_##A, 2, src, dst);\
+static uintptr_t my_valuetransform_fct_##A = 0;                             \
+static void my_valuetransform_##A(void* src, void* dst)                     \
+{                                                                           \
+    my_GValue_t asrc, adst;                                                 \
+    alignNGValue(&asrc, src, 1);                                            \
+    RunFunction(my_context, my_valuetransform_fct_##A, 2, &asrc, &adst);    \
+    unalignNGValue(dst, &adst, 1);                                          \
 }
 SUPER()
 #undef GO
