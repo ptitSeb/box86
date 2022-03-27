@@ -583,7 +583,7 @@ int IsSameLib(library_t* lib, const char* path)
 }
 int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local)
 {
-    if(!name[0] || !lib->active)
+    if(!name[0] || !lib || !lib->active)
         return 0;
     khint_t k;
     // check first if already in the map
@@ -609,7 +609,7 @@ int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uin
 }
 int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local)
 {
-    if(!name[0] || !lib->active)
+    if(!name[0] || !lib || !lib->active)
         return 0;
     khint_t k;
     // get a new symbol
@@ -635,7 +635,7 @@ int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
 }
 int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local)
 {
-    if(!name[0] || !lib->active)
+    if(!name[0] || !lib || !lib->active)
         return 0;
     khint_t k;
     // check first if already in the map

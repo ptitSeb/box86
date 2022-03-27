@@ -743,7 +743,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECKEY_ECParamsToBasePointOrderLen, 
 //GO(SECKEY_ECParamsToKeySize, 
 //GO(SECKEY_EncodeDERSubjectPublicKeyInfo, 
-//DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 
+DATA(SECKEY_EncryptedPrivateKeyInfoTemplate, 64)
 //GO(SECKEY_ExtractPublicKey, 
 //GO(SECKEY_GetPrivateKeyType, 
 //GO(SECKEY_GetPublicKeyType, 
@@ -752,7 +752,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECKEY_NewPrivateKeyList, 
 //DATA(SECKEY_PointerToEncryptedPrivateKeyInfoTemplate, 
 //DATA(SECKEY_PointerToPrivateKeyInfoTemplate, 
-//DATA(SECKEY_PrivateKeyInfoTemplate, 
+DATA(SECKEY_PrivateKeyInfoTemplate, 96)
 //GO(SECKEY_PublicKeyStrength, 
 //GO(SECKEY_PublicKeyStrengthInBits, 
 //GO(SECKEY_RemovePrivateKeyListNode, 

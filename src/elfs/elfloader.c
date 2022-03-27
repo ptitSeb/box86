@@ -1174,6 +1174,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
         if(h->Dynamic[i].d_tag==DT_RPATH || h->Dynamic[i].d_tag==DT_RUNPATH) {
             char *rpathref = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             char* rpath = rpathref;
+            int is_origin = 0;
             while(strstr(rpath, "$ORIGIN")) {
                 char* origin = strdup(h->path);
                 char* p = strrchr(origin, '/');
@@ -1187,6 +1188,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
                     free(rpath);
                 rpath = tmp;
                 free(origin);
+                is_origin = 1;
             }
             while(strstr(rpath, "${ORIGIN}")) {
                 char* origin = strdup(h->path);
@@ -1201,11 +1203,19 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
                     free(rpath);
                 rpath = tmp;
                 free(origin);
+                is_origin = 1;
             }
             if(strchr(rpath, '$')) {
                 printf_log(LOG_INFO, "BOX86: Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {
                 printf_log(LOG_DEBUG, "Prepending path \"%s\" to BOX86_LD_LIBRARY_PATH\n", rpath);
+                if(is_origin) {
+                    // also add rpath/i686 
+                    char tmp[strlen(rpath)+strlen("/i686")+1];
+                    strcpy(tmp, rpath);
+                    strcat(tmp, "/i686");
+                    PrependList(&box86->box86_ld_lib, tmp, 1);
+                }
                 PrependList(&box86->box86_ld_lib, rpath, 1);
             }
             if(rpath!=rpathref)

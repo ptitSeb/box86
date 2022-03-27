@@ -658,7 +658,7 @@ EXPORTDYN
 void LoadEnvVars(box86context_t *context)
 {
     // check BOX86_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86", "BOX86_LD_LIBRARY_PATH");
+    LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86:i686", "BOX86_LD_LIBRARY_PATH");
 #ifdef PANDORA
     if(FileExist("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", 0))
         AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
@@ -1070,6 +1070,8 @@ int main(int argc, const char **argv, char **env) {
                 box86_tcmalloc_minimal = 1;
             if(strstr(p, "libtcmalloc_minimal.so.0"))
                 box86_tcmalloc_minimal = 1;
+            if(strstr(p, "libtcmalloc_minimal.so"))
+                box86_tcmalloc_minimal = 1;
             if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
                 box86_tcmalloc_minimal = 1;
             if(strstr(p, "libasan.so"))
@@ -1114,6 +1116,7 @@ int main(int argc, const char **argv, char **env) {
         AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
         box86_nogtk = 1;
+        unsetenv("BOX86_NOGTK");
     }
     // special case for steam-runtime-check-requirements to fake 64bits suport
     if(strstr(prgname, "steam-runtime-check-requirements")==prgname) {

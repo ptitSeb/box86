@@ -430,6 +430,8 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedplds4.c"
     "${BOX86_ROOT}/src/wrapped/wrappedplc4.c"
     "${BOX86_ROOT}/src/wrapped/wrappedssl3.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedsoftokn3.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedfreebl3.c"
     "${BOX86_ROOT}/src/wrapped/wrappedsecret1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedtbbmalloc.c"
     "${BOX86_ROOT}/src/wrapped/wrappedmimalloc.c"
@@ -437,6 +439,8 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibharfbuzz.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibcairogobject.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibvkd3d.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedgomp.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedcap.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS

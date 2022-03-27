@@ -2151,6 +2151,7 @@ wrappedcairo:
   - cairo_scaled_font_set_user_data
   - cairo_set_user_data
   - cairo_surface_set_user_data
+wrappedcap:
 wrappedcrashhandler:
 wrappedcrypto:
 - vFv:
@@ -2239,6 +2240,7 @@ wrappedfontconfig:
 - iFppiuui:
   - FcPatternAdd
   - FcPatternAddWeak
+wrappedfreebl3:
 wrappedfreetype:
 - iFppp:
   - FT_Outline_Decompose
@@ -2549,6 +2551,7 @@ wrappedgobject2:
 - uFpiippppiup:
   - g_signal_new_valist
   - g_signal_newv
+wrappedgomp:
 wrappedgssapikrb5:
 wrappedgstapp:
 wrappedgstaudio:
@@ -4155,6 +4158,7 @@ wrappedsmpeg2:
   - SMPEG_new_data
 - pFppii:
   - SMPEG_new_rwops
+wrappedsoftokn3:
 wrappedssl3:
 - iFppp:
   - SSL_AuthCertificateHook
