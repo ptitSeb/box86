@@ -29,7 +29,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t i32, j32;
     uint32_t u32;
     uint8_t gd, ed;
-    uint8_t wback, wb1, wb2, wb;
+    uint8_t wback, wb1, wb2, wb, eb1, eb2;
     uint8_t u8;
     int fixedaddress;
 
@@ -37,8 +37,21 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(wback);
     MAYUSE(wb2);
     MAYUSE(wb);
+    MAYUSE(eb1);
+    MAYUSE(eb2);
     
     switch(opcode) {
+
+        case 0x01:
+            INST_NAME("ADD GS:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_tlsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            GETGD;
+            GETEDO2(x14);
+            emit_add32(dyn, ninst, ed, gd, x3, x14);
+            WBACK;
+            break;
 
         case 0x03:
             INST_NAME("ADD Gd, GS:Ed");
@@ -412,6 +425,24 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             STR_IMM9(xEAX, x2, 0);
             break;
 
+        case 0xC6:
+            INST_NAME("MOV GS:Eb, Ib");
+            grab_tlsdata(dyn, addr, ninst, x14);
+            nextop=F8;
+            if((nextop&0xC0)==0xC0) {   // reg <= u8
+                u8 = F8;
+                ed = (nextop&7);
+                eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                eb2 = (ed&4)>>2;    // L or H
+                MOVW(x3, u8);
+                BFI(eb1, x3, eb2*8, 8);
+            } else {                    // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                u8 = F8;
+                MOVW(x3, u8);
+                STRB_REG_LSL_IMM5(x3, ed, x14, 0);
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV GS:Ed, Id");
             grab_tlsdata(dyn, addr, ninst, x14);
