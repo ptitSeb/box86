@@ -27,6 +27,8 @@ extern int dlsym_error;  // log dlsym error
 extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
 extern int allow_missing_libs;
+extern int box86_prefer_wrapped;
+extern int box86_prefer_emulated;
 extern int box86_steam;
 extern int box86_wine;
 extern int box86_nopulse;   // disabling the use of wrapped pulseaudio

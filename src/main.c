@@ -88,6 +88,8 @@ int x11glx = 1;
 int allow_missing_libs = 0;
 int allow_missing_symbols = 0;
 int fix_64bit_inodes = 0;
+int box86_prefer_wrapped = 0;
+int box86_prefer_emulated = 0;
 int box86_steam = 0;
 int box86_wine = 0;
 int box86_nopulse = 0;
@@ -644,6 +646,8 @@ void PrintHelp() {
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
+    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
+    printf(" BOX64_PREFER_WRAPPED if box86 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX86_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX86_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX86_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
@@ -694,6 +698,18 @@ void LoadEnvVars(box86context_t *context)
     AddPath("libcrypto.so.1", &context->box86_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box86_emulated_libs, 0);
 
+    if(getenv("BOX86_PREFER_WRAPPED")) {
+        if (strcmp(getenv("BOX86_PREFER_WRAPPED"), "1")==0) {
+            box86_prefer_wrapped = 1;
+            printf_log(LOG_INFO, "BOX86: Prefer Wrapped libs\n");
+    	}
+    }
+    if(getenv("BOX86_PREFER_EMULATED")) {
+        if (strcmp(getenv("BOX86_PREFER_EMULATED"), "1")==0) {
+            box86_prefer_emulated = 1;
+            printf_log(LOG_INFO, "BOX86: Prefer Emulated libs\n");
+    	}
+    }
     if(getenv("BOX86_NOSIGSEGV")) {
         if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0) {
             context->no_sigsegv = 1;
