@@ -1406,7 +1406,8 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
         quad =1;
     if(cache->neoncache[j].t==NEON_CACHE_XMMR || cache->neoncache[j].t==NEON_CACHE_XMMW)
         quad =1;
-    
+    if(quad)    // if quad, we need to swap the whole quad!
+        i&=~1;
     if(!cache->neoncache[i].v && ((quad && !cache->neoncache[i+1].v) || !quad)) {
         // a mov is enough, no need to swap
         MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
@@ -1445,6 +1446,8 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             quad = 1;
         if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW)
             quad = 1;
+        if(quad)    // if quad, we need to move away the whole quad!
+            i&=~1;
         int j = i+1+quad;
         if(quad) {
             while(cache->neoncache[j].v && cache->neoncache[j+1].v)
@@ -1525,10 +1528,12 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
 {
     switch(t) {
         case NEON_CACHE_XMMR:
+            i&=~1;
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
             cache->neoncache[i+1].v = 0;    // Quad...
             break;
         case NEON_CACHE_XMMW:
+            i&=~1;
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             int offs = offsetof(x86emu_t, xmm[n]);
             if(*s1_val!=offs) {
@@ -1672,6 +1677,11 @@ void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
         stack_cnt = cache_i2.stack;
     }
     neoncache_t cache = dyn->n;
+    // sanitize XMM regs alocation
+    for(int i=0; i<24; i+=2) {
+        if(cache.neoncache[i].t == NEON_CACHE_XMMR || cache.neoncache[i].t == NEON_CACHE_XMMW)
+            cache.neoncache[i+1] = cache.neoncache[i];
+    }
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
