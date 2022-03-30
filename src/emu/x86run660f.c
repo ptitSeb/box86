@@ -405,6 +405,80 @@ void Run660F(x86emu_t *emu)
                 }
                 break;
 
+            case 0x20:  /* PMOVSXBW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=7; i>=0; --i)
+                    GX.sw[i] = EX->sb[i];
+                break;
+            case 0x21:  /* PMOVSXBD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=3; i>=0; --i)
+                    GX.sd[i] = EX->sb[i];
+                break;
+            case 0x22:  /* PMOVSXBQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.sq[i] = EX->sb[i];
+                break;
+            case 0x23:  /* PMOVSXWD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=3; i>=0; --i)
+                    GX.sd[i] = EX->sw[i];
+                break;
+            case 0x24:  /* PMOVSXWQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.sq[i] = EX->sw[i];
+                break;
+            case 0x25:  /* PMOVSXDQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.sq[i] = EX->sd[i];
+                break;
+
+            case 0x30: /* PMOVZXBW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=7; i>=0; --i)
+                    GX.uw[i] = EX->ub[i];
+                break;
+            case 0x31: /* PMOVZXBD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=3; i>=0; --i)
+                    GX.ud[i] = EX->ub[i];
+                break;
+            case 0x32: /* PMOVZXBQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.q[i] = EX->ub[i];
+                break;
+            case 0x33: /* PMOVZXWD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=3; i>=0; --i)
+                    GX.ud[i] = EX->uw[i];
+                break;
+            case 0x34: /* PMOVZXWQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.q[i] = EX->uw[i];
+                break;
+            case 0x35: /* PMOVZXDQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.q[i] = EX->ud[i];
+                break;
+
             default:
                 ip = R_EIP;
                 UnimpOpcode(emu);
