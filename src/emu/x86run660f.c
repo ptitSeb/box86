@@ -366,6 +366,23 @@ void Run660F(x86emu_t *emu)
                 }
             break;
 
+            case 0x14:  /* BLENDVPS Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i) {
+                    if(emu->xmm[0].ud[i]&0x80000000)
+                        GX.ud[i] = EX->ud[i];
+                }
+                break;
+
+            case 0x17:      // PTEST GX, EX
+                nextop = F8;
+                GET_EX;
+                CHECK_FLAGS(emu);
+                CONDITIONAL_SET_FLAG(!((GX.q[0]&EX->q[0])|(GX.q[1]&EX->q[1])), F_ZF);
+                CONDITIONAL_SET_FLAG(!(((~GX.q[0])&EX->q[0])|((~GX.q[1])&EX->q[1])), F_CF);
+                break;
+
             case 0x1C:  /* PABSB Gx, Ex */
                 nextop = F8;
                 GET_EX;
@@ -434,6 +451,31 @@ void Run660F(x86emu_t *emu)
                 }
                 #endif
                 break;
+
+            case 0x16:      // PEXTRD ED, GX, u8
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                ED->dword[0] = GX.ud[tmp8u&3];
+                break;
+
+            case 0x21:      // INSERTPS GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                if((nextop&0xC0)==0xC0) tmp8s = (tmp8u>>6)&3; else tmp8s = 0;
+                GX.ud[(tmp8u>>4)&3] = EX->ud[tmp8s];
+                for(int i=0; i<4; ++i)
+                    if(tmp8u&(1<<i))
+                        GX.ud[i] = 0;
+                break;
+            case 0x22:      // PINSRD GX, ED, u8
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                GX.ud[tmp8u&0x3] = ED->dword[0];
+                break;
+
             default:
                 ip = R_EIP;
                 UnimpOpcode(emu);
