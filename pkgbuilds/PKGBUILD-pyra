@@ -1,7 +1,7 @@
-# Maintainer: Jai-JAP <parjailu@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
+# Maintainer: Jai-JAP <jai.jap.318@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-pyra-git
-pkgver=3494.bedacef
+pkgver=3858.5368285
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
