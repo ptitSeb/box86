@@ -256,7 +256,7 @@ GO(XDefaultScreen, pFp)
 GO(XDefaultScreenOfDisplay, pFp)
 //GO(XDefaultString
 GO(XDefaultVisual, pFpi)
-//GO(XDefaultVisualOfScreen
+GO(XDefaultVisualOfScreen, pFp)
 // _XDefaultWireError
 GO(XDefineCursor, iFppp)
 GO(XDeleteContext, iFpui)
@@ -992,7 +992,7 @@ GO(XSetWindowBackgroundPixmap, iFppp)
 //GO(XSetWindowBorderPixmap
 GO(XSetWindowBorderWidth, iFppu)
 GO(XSetWindowColormap, iFppp)
-//GO(XSetWMClientMachine
+GO(XSetWMClientMachine, vFppp)
 GO(XSetWMColormapWindows, iFpppi)
 GO(XSetWMHints, iFppp)
 GO(XSetWMIconName, vFppp)
