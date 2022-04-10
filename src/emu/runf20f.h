@@ -62,11 +62,23 @@
     case 0x58:  /* ADDSD Gx, Ex */
         nextop = F8;
         GET_EX;
+        #ifndef NOALIGN
+        // add generate a -NAN only if doing inf + -inf
+        if((isinf(GX.d[0]) && isinf(EX->d[0]) && (EX->q[0]&0x8000000000000000LL)!=(GX.q[0]&0x8000000000000000LL)))
+            GX.d[0] = -NAN;
+        else
+        #endif
         GX.d[0] += EX->d[0];
         break;
     case 0x59:  /* MULSD Gx, Ex */
         nextop = F8;
         GET_EX;
+        #ifndef NOALIGN
+        // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+        if((isinf(GX.d[0]) && EX->d[0]==0.0) || (isinf(EX->d[0]) && GX.d[0]==0.0))
+            GX.d[0] = -NAN;
+        else
+        #endif
         GX.d[0] *= EX->d[0];
         break;
     case 0x5A:  /* CVTSD2SS Gx, Ex */
@@ -78,6 +90,12 @@
     case 0x5C:  /* SUBSD Gx, Ex */
         nextop = F8;
         GET_EX;
+        #ifndef NOALIGN
+            // sub generate a -NAN only if doing inf - inf
+            if((isinf(GX.d[0]) && isinf(EX->d[0]) && (EX->q[0]&0x8000000000000000LL)==(GX.q[0]&0x8000000000000000LL)))
+                GX.d[0] = -NAN;
+            else
+        #endif
         GX.d[0] -= EX->d[0];
         break;
     case 0x5D:  /* MINSD Gx, Ex */

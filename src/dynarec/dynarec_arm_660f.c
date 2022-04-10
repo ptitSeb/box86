@@ -619,9 +619,28 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("ADDPD Gx, Ex");
             nextop = F8;
             GETEX(q0, 0);
-            GETGX(v0, 1);
-            VADD_F64(v0, v0, q0);
-            VADD_F64(v0+1, v0+1, q0+1);
+            GETGX(q1, 1);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x14);               // get fpscr
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
+            VADD_F64(q1, q1, q0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, q1, q1);
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
+            VADD_F64(q1+1, q1+1, q0+1);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, q1+1, q1+1);
+            }
             break;
         case 0x59:
             INST_NAME("MULPD Gx, Ex");
@@ -675,9 +694,28 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("SUBPD Gx, Ex");
             nextop = F8;
             GETEX(q0, 0);
-            GETGX(v0, 1);
-            VSUB_F64(v0, v0, q0);
-            VSUB_F64(v0+1, v0+1, q0+1);
+            GETGX(q1, 1);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x14);               // get fpscr
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
+            VSUB_F64(q1, q1, q0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, q1, q1);
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
+            VSUB_F64(q1+1, q1+1, q0+1);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, q1+1, q1+1);
+            }
             break;
         case 0x5D:
             INST_NAME("MINPD Gx, Ex");

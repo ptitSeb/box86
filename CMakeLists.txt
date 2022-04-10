@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.4)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
 option(PYRA "Set to ON if targeting an OpenPandora device" ${PYRA})
@@ -762,6 +762,8 @@ add_test(NAME sse COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/$
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17 -D TEST_OUTPUT=tmpfile17.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(sse PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTNAN=0")
 
 add_test(NAME longjumpInSignals COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test18 -D TEST_OUTPUT=tmpfile18.txt 
