@@ -48,9 +48,11 @@ void *thread_run(void *parm)
 	pthread_mutex_lock(mutex_ptr);
 	if (pthread_self()==thread[0]) {
 		printf("Thread 1: Entered (%d/%d)\n", TLS_data1, TLS_data2);
+		fflush(stdout);
 	} else {
 		while (!status) pthread_cond_wait(thread_state_cond_ptr, mutex_ptr);
 		printf("Thread 2: Entered (%d/%d)\n", TLS_data1, TLS_data2);
+		fflush(stdout);
 		pthread_mutex_unlock(mutex_ptr);
 		status = 0;
 		pthread_cond_broadcast(thread_state_cond_ptr);
@@ -71,12 +73,14 @@ void *thread_run(void *parm)
 void foo() {
 	if (pthread_self()==thread[0]) {
 		printf("Thread 1: foo(), TLS data=%d %d \"%s\"\n", TLS_data1, TLS_data2, TLS_data3);
+		fflush(stdout);
 		status = 1;
 		pthread_cond_broadcast(thread_state_cond_ptr);
 		while (status) pthread_cond_wait(thread_state_cond_ptr, mutex_ptr);
 		pthread_mutex_unlock(mutex_ptr);
 	} else {
 		printf("Thread 2: foo(), TLS data=%d %d \"%s\"\n", TLS_data1, TLS_data2, TLS_data3);
+		fflush(stdout);
 	}
 	while(!thread[1])
 		usleep(300);
@@ -88,6 +92,7 @@ void foo() {
 void bar() {
 	printf("Thread %d: bar(), TLS data=%d %d \"%s\"\n",
 	        (pthread_self()==thread[0])?1:2, TLS_data1, TLS_data2, TLS_data3);
+	fflush(stdout);
 	return;
 }
  
@@ -98,6 +103,7 @@ int main(int argc, char **argv)
 	threadparm_t          gData[NUMTHREADS];
 
 	printf("Create/start %d threads\n", NUMTHREADS);
+	fflush(stdout);
 	for (i=0; i < NUMTHREADS; i++) { 
 		/* Create per-thread TLS data and pass it to the thread */
 		gData[i].data1 = i;
@@ -120,5 +126,6 @@ int main(int argc, char **argv)
 	checkResults("destroying mutex\n", i);
 
 	printf("Main completed\n");
+	fflush(stdout);
 	return 0;
 }
