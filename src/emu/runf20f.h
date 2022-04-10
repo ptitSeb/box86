@@ -53,7 +53,10 @@
     case 0x51:  /* SQRTSD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d[0] = sqrt(EX->d[0]);
+        if(EX->d[0]<0.0 )
+            GX.d[0] = -NAN;
+        else
+            GX.d[0] = sqrt(EX->d[0]);
         break;
 
     case 0x58:  /* ADDSD Gx, Ex */
@@ -80,13 +83,20 @@
     case 0x5D:  /* MINSD Gx, Ex */
         nextop = F8;
         GET_EX;
-        if (isnan(GX.d[0]) || isnan(EX->d[0]) || isless(EX->d[0], GX.d[0]))
+        if (isnan(GX.d[0]) || isnan(EX->d[0]) || (EX->d[0]<GX.d[0]))
             GX.d[0] = EX->d[0];
         break;
     case 0x5E:  /* DIVSD Gx, Ex */
         nextop = F8;
         GET_EX;
+        #ifndef NOALIGN
+        is_nan = isnan(GX.d[0]) || isnan(EX->d[0]);
+        #endif
         GX.d[0] /= EX->d[0];
+        #ifndef NOALIGN
+        if(!is_nan && isnan(GX.d[0]))
+            GX.d[0] = -NAN;
+        #endif
         break;
     case 0x5F:  /* MAXSD Gx, Ex */
         nextop = F8;

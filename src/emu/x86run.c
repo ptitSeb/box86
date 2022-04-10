@@ -46,6 +46,9 @@ int Run(x86emu_t *emu, int step)
     int64_t ll;
     sse_regs_t *opex, eax1;
     mmx87_regs_t *opem, eam1;
+    #ifndef NOALIGN
+    int is_nan;
+    #endif
 
     if(emu->quit)
         return 0;

@@ -55,6 +55,7 @@ int box86_dynarec_largest = 0;
 int box86_dynarec_bigblock = 1;
 int box86_dynarec_strongmem = 0;
 int box86_dynarec_x87double = 0;
+int box86_dynarec_fastnan = 0;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -339,6 +340,15 @@ void LoadLogEnv()
         }
         if(box86_dynarec_x87double)
             printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
+    }
+    p = getenv("BOX86_DYNAREC_FASTNAN");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_fastnan = p[0]-'0';
+        }
+        if(box86_dynarec_fastnan)
+            printf_log(LOG_INFO, "Dynarec will not try to normalize generated NAN\n");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {
