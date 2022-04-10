@@ -101,7 +101,7 @@
     case 0x5D:  /* MINSD Gx, Ex */
         nextop = F8;
         GET_EX;
-        if (isnan(GX.d[0]) || isnan(EX->d[0]) || (EX->d[0]<GX.d[0]))
+        if (isnan(GX.d[0]) || isnan(EX->d[0]) || (EX->d[0]<=GX.d[0]))
             GX.d[0] = EX->d[0];
         break;
     case 0x5E:  /* DIVSD Gx, Ex */

@@ -170,6 +170,7 @@ endif()
 
 if(NOALIGN)
     add_definitions(-DNOALIGN)
+    add_definitions(-pipe -march=core2 -msse2)
 endif()
 
 if(HAVE_TRACE)
