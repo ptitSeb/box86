@@ -479,6 +479,22 @@ void Run660F(x86emu_t *emu)
                     GX.q[i] = EX->ud[i];
                 break;
 
+            case 0x39:  /* PMINSD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    if(GX.sd[i]>EX->sd[i])
+                        GX.sd[i] = EX->sd[i];
+                break;
+
+            case 0x3D:  /* PMAXSD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    if(GX.sd[i]<EX->sd[i])
+                        GX.sd[i] = EX->sd[i];
+                break;
+
             default:
                 ip = R_EIP;
                 UnimpOpcode(emu);
@@ -488,6 +504,15 @@ void Run660F(x86emu_t *emu)
     case 0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x0E:  /* PBLENDW Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                for (int i=0; i<8; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX.uw[i] = EX->uw[i];
+                }
+                break;
             case 0x0F:          // PALIGNR GX, EX, u8
                 nextop = F8;
                 GET_EX;
