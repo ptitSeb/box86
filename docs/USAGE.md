@@ -134,8 +134,8 @@ Force the use of Double for x87 emulation
 
 #### BOX86_DYNAREC_FASTNAN
 Enable/Disable generation of -NAN
-* 0 : Generate -NAN like on x86 (Default.)
-* 1 : Don't do anything special with NAN, to go as fast as possible (was default before this option exsted)
+* 0 : Generate -NAN like on x86 (slower, more x86 accurate)
+* 1 : Don't do anything special with NAN, to go as fast as possible (Default)
 
 #### BOX86_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
