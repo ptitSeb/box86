@@ -289,10 +289,10 @@ static void* find_InternalFreeNotification_Fct(void* fct)
 }
 // DebugReportCallbackEXT ...
 #define GO(A)   \
-static uintptr_t my_DebugReportCallbackEXT_fct_##A = 0;                                                                             \
-static int my_DebugReportCallbackEXT_##A(int a, int b, uint64_t c, size_t d, int e, void* f, void* g, void* h)                      \
-{                                                                                                                                   \
-    return RunFunction(my_context, my_DebugReportCallbackEXT_fct_##A, 9, a, b, c&0xffffffff, (c>>32)&0xffffffff, d, e, f, g, h);    \
+static uintptr_t my_DebugReportCallbackEXT_fct_##A = 0;                                                                                                 \
+static int my_DebugReportCallbackEXT_##A(int a, int b, uint64_t c, size_t d, int e, void* f, void* g, void* h)                                          \
+{                                                                                                                                                       \
+    return RunFunction(my_context, my_DebugReportCallbackEXT_fct_##A, 9, a, b, (uint32_t)(c&0xffffffff), (uint32_t)(c>>32)&0xffffffff, d, e, f, g, h);  \
 }
 SUPER()
 #undef GO

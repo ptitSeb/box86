@@ -421,7 +421,7 @@ static void* find_ioctl_Fct(void* fct)
 static uintptr_t my_seek_fct_##A = 0;   \
 static int32_t my_seek_##A(void* userdata, int64_t off, int32_t origin)     \
 {                                       \
-    return (int32_t)RunFunction(my_context, my_seek_fct_##A, 4, userdata, (off&0xffffffff), ((off>>32)&0xffffffff), origin);\
+    return (int32_t)RunFunction(my_context, my_seek_fct_##A, 4, userdata, (uint32_t)(off&0xffffffff), (uint32_t)((off>>32)&0xffffffff), origin);\
 }
 SUPER()
 #undef GO
