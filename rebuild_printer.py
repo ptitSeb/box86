@@ -106,7 +106,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 					alreadyChanged = 0
 					csp = 0
 					while csp < curSplt:
-						if spltln[csp] == '\x00':
+						if spltln[csp] == '\x01':
 							alreadyChanged = 1
 							curSplt = curSplt + 1
 						else:
@@ -119,7 +119,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 								line = line + spltln[csp] + ">"
 								alreadyChanged = 1
 						csp = csp + 1
-					if spltln[csp] == '\x00':
+					if spltln[csp] == '\x01':
 						alreadyChanged = 1
 						curSplt = curSplt + 1
 						csp = csp + 1
@@ -134,7 +134,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 						alreadyChanged = 1
 					csp = csp + 1
 					while csp < len(spltln):
-						if spltln[csp] == '\x00':
+						if spltln[csp] == '\x01':
 							alreadyChanged = 1
 							curSplt = curSplt + 1
 						else:
@@ -605,7 +605,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				instText = [itp for itp2 in instText for itp in itp2]
 				
 				# Make the failures nicer
-				spltln = spltln[:curSplt] + ["\x00"] + instText
+				spltln = spltln[:curSplt] + ["\x01"] + instText
 				
 				printf_args = ""
 				for idx, text in enumerate(instText):
@@ -858,7 +858,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				instText = [itp for itp2 in instText for itp in itp2]
 				
 				# Make the failures nicer
-				spltln = spltln[:curSplt] + ["\x00"] + instText
+				spltln = spltln[:curSplt] + ["\x01"] + instText
 				
 				printf_args = ""
 				for idx, text in enumerate(instText):
@@ -1156,7 +1156,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				instText = [itp for itp2 in instText for itp in itp2]
 				
 				# Make the failures nicer
-				spltln = spltln[:curSplt] + ["\x00"] + instText
+				spltln = spltln[:curSplt] + ["\x01"] + instText
 				
 				printf_args = ""
 				for idx, text in enumerate(instText):
@@ -1456,7 +1456,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				instText = [itp for itp2 in instText for itp in itp2]
 				
 				# Make the failures nicer
-				spltln = spltln[:curSplt] + ["\x00"] + instText
+				spltln = spltln[:curSplt] + ["\x01"] + instText
 				
 				# inside '{, '...'}'?
 				hasOpened = False
@@ -1675,308 +1675,300 @@ def main(root, ver, __debug_forceAllDebugging=False):
 	
 	# Now the files rebuilding part
 	# File header and guard
-	files_header = {
-		"arm_printer.c": """
-		#include <stdint.h>
-		#include <stddef.h>
-		#include <string.h>
-		#include <stdio.h>
+	header = """
+	#include <stdint.h>
+	#include <stddef.h>
+	#include <string.h>
+	#include <stdio.h>
+	
+	#include "arm_printer.h"
+	
+	// conditions
+	#define cEQ (0b0000<<28)
+	#define cNE (0b0001<<28)
+	#define cCS (0b0010<<28)
+	#define cCC (0b0011<<28)
+	#define cMI (0b0100<<28)
+	#define cPL (0b0101<<28)
+	#define cVS (0b0110<<28)
+	#define cVC (0b0111<<28)
+	#define cHI (0b1000<<28)
+	#define cLS (0b1001<<28)
+	#define cGE (0b1010<<28)
+	#define cLT (0b1011<<28)
+	#define cGT (0b1100<<28)
+	#define cLE (0b1101<<28)
+	#define c__ (0b1110<<28)	// means all
+	
+	static const char* conds[16] = {
+		"EQ", "NE", "CS", "CC",
+		"MI", "PL", "VS", "VC",
+		"HI", "LS", "GE", "LT",
+		"GT", "LE",   "", "##"
+	};
+	
+	static const char* regname[16] = {
+		"r0", "r1", "r2", "r3", "r4",
+		"r5", "r6", "r7", "r8", "r9",
+		"r10", "r11", "r12", "SP", "LR", "PC"
+	};
+	
+	// Single precision are V_:_
+	// Double and quad precision are _:V_
+	// So we always use _:V_ and invert the corresponding single-precision (cleaner? code)
+	static const char* vecname[96] = {
+		"S0",  "S2",  "S4",  "S6",  "S8", "S10", "S12", "S14",
+		"S16", "S18", "S20", "S22", "S24", "S26", "S28", "S30",
+		"S1",  "S3",  "S5",  "S7",  "S9", "S11", "S13", "S15",
+		"S17", "S19", "S21", "S23", "S25", "S27", "S29", "S31",
+		"D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7",
+		"D8", "D9", "D10", "D11", "D12", "D13", "D14", "D15",
+		"D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23",
+		"D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31",
+		"Q0", "!!!", "Q1", "!!!", "Q2", "!!!", "Q3", "!!!",
+		"Q4", "!!!", "Q5", "!!!", "Q6", "!!!", "Q7", "!!!",
+		"Q8", "!!!", "Q9", "!!!", "Q10", "!!!", "Q11", "!!!",
+		"Q12", "!!!", "Q13", "!!!", "Q14", "!!!", "Q15", "!!!"
+	};
+	
+	static const char* dts[16] = {
+		"S8", "S16", "S32", "S64",
+		"U8", "U16", "U32", "U64",
+		"I8", "I16", "I32", "I64",
+		"F8", "F16", "F32", "F64"
+	};
+	
+	static const char* shift_type[4] = {
+		"lsl ", "lsr ", "asr ", "ror "
+	};
+	
+	const char* print_shift(int shift, int comma) {
+		static __thread char ret[20];
+		ret[0] = '\\0';
 		
-		#include "arm_printer.h"
-		
-		// conditions
-		#define cEQ (0b0000<<28)
-		#define cNE (0b0001<<28)
-		#define cCS (0b0010<<28)
-		#define cCC (0b0011<<28)
-		#define cMI (0b0100<<28)
-		#define cPL (0b0101<<28)
-		#define cVS (0b0110<<28)
-		#define cVC (0b0111<<28)
-		#define cHI (0b1000<<28)
-		#define cLS (0b1001<<28)
-		#define cGE (0b1010<<28)
-		#define cLT (0b1011<<28)
-		#define cGT (0b1100<<28)
-		#define cLE (0b1101<<28)
-		#define c__ (0b1110<<28)	// means all
-		
-		static const char* conds[16] = {
-			"EQ", "NE", "CS", "CC",
-			"MI", "PL", "VS", "VC",
-			"HI", "LS", "GE", "LT",
-			"GT", "LE",   "", "##"
-		};
-		
-		static const char* regname[16] = {
-			"r0", "r1", "r2", "r3", "r4",
-			"r5", "r6", "r7", "r8", "r9",
-			"r10", "r11", "r12", "SP", "LR", "PC"
-		};
-		
-		// Single precision are V_:_
-		// Double and quad precision are _:V_
-		// So we always use _:V_ and invert the corresponding single-precision (cleaner? code)
-		static const char* vecname[96] = {
-			"S0",  "S2",  "S4",  "S6",  "S8", "S10", "S12", "S14",
-			"S16", "S18", "S20", "S22", "S24", "S26", "S28", "S30",
-			"S1",  "S3",  "S5",  "S7",  "S9", "S11", "S13", "S15",
-			"S17", "S19", "S21", "S23", "S25", "S27", "S29", "S31",
-			"D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7",
-			"D8", "D9", "D10", "D11", "D12", "D13", "D14", "D15",
-			"D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23",
-			"D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31",
-			"Q0", "!!!", "Q1", "!!!", "Q2", "!!!", "Q3", "!!!",
-			"Q4", "!!!", "Q5", "!!!", "Q6", "!!!", "Q7", "!!!",
-			"Q8", "!!!", "Q9", "!!!", "Q10", "!!!", "Q11", "!!!",
-			"Q12", "!!!", "Q13", "!!!", "Q14", "!!!", "Q15", "!!!"
-		};
-		
-		static const char* dts[16] = {
-			"S8", "S16", "S32", "S64",
-			"U8", "U16", "U32", "U64",
-			"I8", "I16", "I32", "I64",
-			"F8", "F16", "F32", "F64"
-		};
-		
-		static const char* shift_type[4] = {
-			"lsl ", "lsr ", "asr ", "ror "
-		};
-		
-		const char* print_shift(int shift, int comma) {
-			static __thread char ret[20];
-			ret[0] = '\\0';
-			
-			int sh_op = (shift >> 1) & 3;
-			if(shift & 1) {
-				int rs = shift >> 4;
-				sprintf(ret, "%s%s%s", (comma ? ", " : ""), shift_type[sh_op], regname[rs]);
-			} else {
-				uint8_t amount = shift >> 3;
-				if (!amount) {
-					switch (sh_op) {
-					case 0b00:
-						break;
-					case 0b01:
-					case 0b10:
-						sprintf(ret, "%s%s#32", (comma ? ", " : ""), shift_type[sh_op]);
-						break;
-					case 0b11:
-						sprintf(ret, "%srrx", (comma ? ", " : ""));
-						break;
-					}
-				} else {
-					sprintf(ret, "%s%s#%u", (comma ? ", " : ""), shift_type[sh_op], amount);
+		int sh_op = (shift >> 1) & 3;
+		if(shift & 1) {
+			int rs = shift >> 4;
+			sprintf(ret, "%s%s%s", (comma ? ", " : ""), shift_type[sh_op], regname[rs]);
+		} else {
+			uint8_t amount = shift >> 3;
+			if (!amount) {
+				switch (sh_op) {
+				case 0b00:
+					break;
+				case 0b01:
+				case 0b10:
+					sprintf(ret, "%s%s#32", (comma ? ", " : ""), shift_type[sh_op]);
+					break;
+				case 0b11:
+					sprintf(ret, "%srrx", (comma ? ", " : ""));
+					break;
 				}
+			} else {
+				sprintf(ret, "%s%s#%u", (comma ? ", " : ""), shift_type[sh_op], amount);
 			}
-			return ret;
 		}
+		return ret;
+	}
+	
+	#define print_modified_imm_ARM(imm12) (((imm12 & 0xFF) >> (2*(imm12 >> 8))) | ((imm12 & 0xFF) << (32 - 2*(imm12 >> 8))))
+	
+	const char* print_register_list(int list, int size) {
+		int last = -2;
+		int cnt = 0;
+		static __thread char ret[68];
 		
-		#define print_modified_imm_ARM(imm12) (((imm12 & 0xFF) >> (2*(imm12 >> 8))) | ((imm12 & 0xFF) << (32 - 2*(imm12 >> 8))))
+		ret[0] = '{';
+		ret[1] = '\\0';
+		for (int i = 0; i < size; ++i) {
+			if (list & (1 << i)) {
+				if (last >= 0) {
+					++cnt;
+				} else {
+					if (last == -1)
+						strcat(ret, ", ");
+					strcat(ret, regname[i]);
+					last = i;
+				}
+			} else {
+				if (cnt) {
+					strcat(ret, "-");
+					strcat(ret, regname[i - 1]);
+				}
+				if (last != -2) last = -1;
+				cnt = 0;
+			}
+		}
+		if (cnt) {
+			strcat(ret, "-");
+			strcat(ret, regname[size - 1]);
+		}
+		strcat(ret, "}");
 		
-		const char* print_register_list(int list, int size) {
-			int last = -2;
-			int cnt = 0;
-			static __thread char ret[68];
-			
+		return ret;
+	}
+	
+	const char* print_register_list_fpu(uint8_t start, uint8_t size, uint8_t double_prec) {
+		static __thread char ret[68];
+		
+		// Assume VFPSmallRegisterBank(), so no D16 and no S32 (and above)
+		if (start + (double_prec + 1) * size > 32) {
+			return "!!!";
+		}
+		if (size == 0) {
+			return "!!!";
+		}
+		if (double_prec && (size % 2 == 1)) {
+			strcpy(ret, "!! {");
+		} else {
 			ret[0] = '{';
 			ret[1] = '\\0';
-			for (int i = 0; i < size; ++i) {
-				if (list & (1 << i)) {
-					if (last >= 0) {
-						++cnt;
-					} else {
-						if (last == -1)
-							strcat(ret, ", ");
-						strcat(ret, regname[i]);
-						last = i;
-					}
-				} else {
-					if (cnt) {
-						strcat(ret, "-");
-						strcat(ret, regname[i - 1]);
-					}
-					if (last != -2) last = -1;
-					cnt = 0;
-				}
-			}
-			if (cnt) {
-				strcat(ret, "-");
-				strcat(ret, regname[size - 1]);
-			}
-			strcat(ret, "}");
-			
-			return ret;
 		}
 		
-		const char* print_register_list_fpu(uint8_t start, uint8_t size, uint8_t double_prec) {
-			static __thread char ret[68];
-			
-			// Assume VFPSmallRegisterBank(), so no D16 and no S32 (and above)
-			if (start + (double_prec + 1) * size > 32) {
-				return "!!!";
-			}
-			if (size == 0) {
-				return "!!!";
-			}
-			if (double_prec && (size % 2 == 1)) {
-				strcpy(ret, "!! {");
-			} else {
-				ret[0] = '{';
-				ret[1] = '\\0';
-			}
-			
-			char regChr;
-			if (double_prec) {
-				regChr = 'D';
-				size /= 2;
-			} else {
-				regChr = 'S';
-				start = (start >> 4) + ((start & 0xF) << 1);
-			}
-			
-			char tmp[6];
-			for (int cur = start; cur < start + size - 1; ++cur) {
-				sprintf(tmp, "%c%d, ", regChr, cur);
-				strcat(ret, tmp);
-			}
-			sprintf(tmp, "%c%d}", regChr, start + size - 1);
+		char regChr;
+		if (double_prec) {
+			regChr = 'D';
+			size /= 2;
+		} else {
+			regChr = 'S';
+			start = (start >> 4) + ((start & 0xF) << 1);
+		}
+		
+		char tmp[6];
+		for (int cur = start; cur < start + size - 1; ++cur) {
+			sprintf(tmp, "%c%d, ", regChr, cur);
 			strcat(ret, tmp);
-			
-			return ret;
 		}
+		sprintf(tmp, "%c%d}", regChr, start + size - 1);
+		strcat(ret, tmp);
 		
-		static const char* _print_modified_imm_I64_bytes[2] = {"00", "FF"};
+		return ret;
+	}
+	
+	static const char* _print_modified_imm_I64_bytes[2] = {"00", "FF"};
+	
+	const char* print_modified_imm_NEON(int op_cmode, int imm) {
+		static __thread char ret[34] = "???\\0-"; // [dt: 4][imm: 30]
 		
-		const char* print_modified_imm_NEON(int op_cmode, int imm) {
-			static __thread char ret[34] = "???\\0-"; // [dt: 4][imm: 30]
-			
-			strcpy(&ret[4], "UNPREDICTABLE");
-			
-			switch (op_cmode) {
-			case 0b00000: // VMOV.I32
-			case 0b00001: // VORR.I32
-			case 0b10000: // VMVN.I32
-			case 0b10001: // VBIC.I32
+		strcpy(&ret[4], "UNPREDICTABLE");
+		
+		switch (op_cmode) {
+		case 0b00000: // VMOV.I32
+		case 0b00001: // VORR.I32
+		case 0b10000: // VMVN.I32
+		case 0b10001: // VBIC.I32
+			strcpy(ret, "I32");
+			sprintf(&ret[4], "0x%02X", imm);
+			break;
+		case 0b00010: // VMOV.I32
+		case 0b00011: // VORR.I32
+		case 0b10010: // VMVN.I32
+		case 0b10011: // VBIC.I32
+			if (imm) {
 				strcpy(ret, "I32");
-				sprintf(&ret[4], "0x%02X", imm);
-				break;
-			case 0b00010: // VMOV.I32
-			case 0b00011: // VORR.I32
-			case 0b10010: // VMVN.I32
-			case 0b10011: // VBIC.I32
-				if (imm) {
-					strcpy(ret, "I32");
-					sprintf(&ret[4], "0x%02X00", imm);
-				}
-				break;
-			case 0b00100: // VMOV.I32
-			case 0b00101: // VORR.I32
-			case 0b10100: // VMVN.I32
-			case 0b10101: // VBIC.I32
-				if (imm) {
-					strcpy(ret, "I32");
-					sprintf(&ret[4], "0x%02X0000", imm);
-				}
-				break;
-			case 0b00110: // VMOV.I32
-			case 0b00111: // VORR.I32
-			case 0b10110: // VMVN.I32
-			case 0b10111: // VBIC.I32
-				if (imm) {
-					strcpy(ret, "I32");
-					sprintf(&ret[4], "0x%02X000000", imm);
-				}
-				break;
-			case 0b01000: // VMOV.I16
-			case 0b01001: // VORR.I16
-			case 0b11000: // VMVN.I16
-			case 0b11001: // VBIC.I16
-				strcpy(ret, "I16");
-				sprintf(&ret[4], "0x%02X", imm);
-				break;
-			case 0b01010: // VMOV.I16
-			case 0b01011: // VORR.I16
-			case 0b11010: // VMVN.I16
-			case 0b11011: // VBIC.I16
-				if (imm) {
-					strcpy(ret, "I16");
-					sprintf(&ret[4], "0x%02X00", imm);
-				}
-				break;
-			case 0b01100: // VMOV.I32
-			case 0b11100: // VMVN.I32
-				if (imm) {
-					strcpy(ret, "I32");
-					sprintf(&ret[4], "0x%02XFF", imm);
-				}
-				break;
-			case 0b01101: // VMOV.I32
-			case 0b11101: // VMVN.I32
-				if (imm) {
-					strcpy(ret, "I32");
-					sprintf(&ret[4], "0x%02XFFFF", imm);
-				}
-				break;
-			case 0b01110: // VMOV.I8
-				strcpy(ret, "I8");
-				sprintf(&ret[4], "0x%02X", imm);
-				break;
-			case 0b01111: // VMOV.F32
-				strcpy(ret, "F32");
-				sprintf(&ret[4], "%e", (imm & 0x80 ? -1 : 1) * (1 << (((imm >> 4) & 0x7) ^ 0b100)) * (float) (16 + (imm & 0xF)) / 128.);
-				break;
-			case 0b11110: // VMOV.I64
-				{
-					strcpy(ret, "I64");
-					sprintf(&ret[4], "#0x%s%s%s%s%s%s%s%s",
-						_print_modified_imm_I64_bytes[(imm >> 7) & 1], _print_modified_imm_I64_bytes[(imm >> 6) & 1],
-						_print_modified_imm_I64_bytes[(imm >> 5) & 1], _print_modified_imm_I64_bytes[(imm >> 4) & 1],
-						_print_modified_imm_I64_bytes[(imm >> 3) & 1], _print_modified_imm_I64_bytes[(imm >> 2) & 1],
-						_print_modified_imm_I64_bytes[(imm >> 1) & 1], _print_modified_imm_I64_bytes[(imm >> 0) & 1]);
-				}
-				break;
-			case 0b11111: // V???.-
-			default:
-				strcpy(ret, "-");
-				strcpy(&ret[4], "UNDEFINED");
-				break;
+				sprintf(&ret[4], "0x%02X00", imm);
 			}
-			
-			return ret;
+			break;
+		case 0b00100: // VMOV.I32
+		case 0b00101: // VORR.I32
+		case 0b10100: // VMVN.I32
+		case 0b10101: // VBIC.I32
+			if (imm) {
+				strcpy(ret, "I32");
+				sprintf(&ret[4], "0x%02X0000", imm);
+			}
+			break;
+		case 0b00110: // VMOV.I32
+		case 0b00111: // VORR.I32
+		case 0b10110: // VMVN.I32
+		case 0b10111: // VBIC.I32
+			if (imm) {
+				strcpy(ret, "I32");
+				sprintf(&ret[4], "0x%02X000000", imm);
+			}
+			break;
+		case 0b01000: // VMOV.I16
+		case 0b01001: // VORR.I16
+		case 0b11000: // VMVN.I16
+		case 0b11001: // VBIC.I16
+			strcpy(ret, "I16");
+			sprintf(&ret[4], "0x%02X", imm);
+			break;
+		case 0b01010: // VMOV.I16
+		case 0b01011: // VORR.I16
+		case 0b11010: // VMVN.I16
+		case 0b11011: // VBIC.I16
+			if (imm) {
+				strcpy(ret, "I16");
+				sprintf(&ret[4], "0x%02X00", imm);
+			}
+			break;
+		case 0b01100: // VMOV.I32
+		case 0b11100: // VMVN.I32
+			if (imm) {
+				strcpy(ret, "I32");
+				sprintf(&ret[4], "0x%02XFF", imm);
+			}
+			break;
+		case 0b01101: // VMOV.I32
+		case 0b11101: // VMVN.I32
+			if (imm) {
+				strcpy(ret, "I32");
+				sprintf(&ret[4], "0x%02XFFFF", imm);
+			}
+			break;
+		case 0b01110: // VMOV.I8
+			strcpy(ret, "I8");
+			sprintf(&ret[4], "0x%02X", imm);
+			break;
+		case 0b01111: // VMOV.F32
+			strcpy(ret, "F32");
+			sprintf(&ret[4], "%e", (imm & 0x80 ? -1 : 1) * (1 << (((imm >> 4) & 0x7) ^ 0b100)) * (float) (16 + (imm & 0xF)) / 128.);
+			break;
+		case 0b11110: // VMOV.I64
+			{
+				strcpy(ret, "I64");
+				sprintf(&ret[4], "#0x%s%s%s%s%s%s%s%s",
+					_print_modified_imm_I64_bytes[(imm >> 7) & 1], _print_modified_imm_I64_bytes[(imm >> 6) & 1],
+					_print_modified_imm_I64_bytes[(imm >> 5) & 1], _print_modified_imm_I64_bytes[(imm >> 4) & 1],
+					_print_modified_imm_I64_bytes[(imm >> 3) & 1], _print_modified_imm_I64_bytes[(imm >> 2) & 1],
+					_print_modified_imm_I64_bytes[(imm >> 1) & 1], _print_modified_imm_I64_bytes[(imm >> 0) & 1]);
+			}
+			break;
+		case 0b11111: // V???.-
+		default:
+			strcpy(ret, "-");
+			strcpy(&ret[4], "UNDEFINED");
+			break;
 		}
 		
-		const char* arm_print(uint32_t opcode) {
-			static __thread char ret[100];
-			memset(ret, 0, sizeof(ret));
-			
-			"""
+		return ret;
 	}
-	files_guard = {
-		"arm_printer.c": """
-		{
-				strcpy(ret, "???");
-			}
-			
-			return ret;
-		}
+	
+	const char* arm_print(uint32_t opcode) {
+		static __thread char ret[100];
+		memset(ret, 0, sizeof(ret));
+		
 		"""
+	footer = """
+	{
+			strcpy(ret, "???");
+		}
+		
+		return ret;
 	}
+	"""
 	banner = "/*******************************************************" + ('*'*len(ver)) + "***\n" \
 	         " * File automatically generated by rebuild_printer.py (v" + ver + ") *\n" \
 	         " *******************************************************" + ('*'*len(ver)) + "***/\n"
-	trim = lambda string: '\n'.join(line[2:] for line in string.splitlines())[1:]
-	# Yes, the for loops are inverted. This is because both dicts should have the same keys.
-	for fhdr in files_guard:
-		files_header[fhdr] = banner + trim(files_header[fhdr])
-	for fhdr in files_header:
-		files_guard[fhdr] = trim(files_guard[fhdr])
+	trim = lambda string: '\n'.join(line[1:] for line in string.splitlines())[1:]
+	header = banner + trim(header)
+	footer = trim(footer)
 	
-	for f in files_header:
-		with open(os.path.join(root, "src", "dynarec", f), 'w') as file:
-			file.write(files_header[f])
-			file.write(output)
-			file.write(files_guard[f])
+	with open(os.path.join(root, "src", "dynarec", "arm_printer.c"), 'w') as file:
+		file.write(header)
+		file.write(output)
+		file.write(footer)
 	# Save the string for the next iteration, writing was successful
 	with open(os.path.join(root, "src", "dynarec", "last_run.txt"), 'w') as file:
 		file.write('\n'.join(insts))
@@ -1988,6 +1980,6 @@ if __name__ == '__main__':
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
-	if main(sys.argv[1], "1.2.0.05") != 0:
+	if main(sys.argv[1], "1.2.0.06") != 0:
 		exit(2)
 	exit(0)

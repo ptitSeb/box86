@@ -166,8 +166,8 @@ U = TypeVar('U')
 Filename = str
 
 class CustOrderedDict(Generic[T, U], Iterable[T]):
-	__keys__: List[T]
-	__actdict__: Dict[T, U]
+	__keys__: List[T] = []
+	__actdict__: Dict[T, U] = {}
 	
 	def __init__(self, src: Optional[Dict[T, U]] = None) -> None:
 		if src is None:
@@ -195,7 +195,7 @@ class CustOrderedDictList(CustOrderedDict[T, List[U]]):
 		return super().__getitem__(k)
 
 class FirstArgumentSingletonMeta(Generic[T], type):
-	_singletons: Dict[T, Type['FirstArgumentSingletonMeta']]
+	_singletons: Dict[T, Type['FirstArgumentSingletonMeta']] = {}
 	
 	@classmethod
 	def __prepare__(metacls, __name: str, __bases: Tuple[type, ...], **kwds: Any) -> Dict[str, Any]:
@@ -227,10 +227,9 @@ class FileSpec:
 	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M', 's']
 	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M', 's']
 	validrepl: Sequence[str] = ['c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', '2', 'P', 'G', 'N', 'M', 's']
-	structs:   CustOrderedDict[str, Struct]
 	
 	def __init__(self) -> None:
-		self.structs = CustOrderedDict()
+		self.structs: CustOrderedDict[str, FileSpec.Struct] = CustOrderedDict()
 		
 		self.typedefs: CustOrderedDictList[_BareFunctionType, Function] = CustOrderedDictList()
 		self.structsuses: List[FunctionType] = []
@@ -441,8 +440,8 @@ class Function:
 DefineType = NewType('DefineType', str)
 @final
 class Define:
-	name: DefineType
-	inverted_: bool
+	name: DefineType = DefineType("")
+	inverted_: bool = False
 	
 	defines: List[DefineType] = []
 	
@@ -480,7 +479,7 @@ class Define:
 		return isinstance(o, Define) and (self.name == o.name) and (self.inverted_ == o.inverted_)
 @final
 class Clause:
-	defines: List[Define]
+	defines: List[Define] = []
 	
 	def __init__(self, defines: Union[List[Define], str] = []) -> None:
 		if isinstance(defines, str):
@@ -528,7 +527,7 @@ class Clauses:
 	Represent a list of clauses, aka a list of or-ed together and-ed "defined()"
 	conditions
 	"""
-	clauses: List[Clause]
+	clauses: List[Clause] = []
 	
 	def __init__(self, clauses: Union[List[Clause], str] = []) -> None:
 		if isinstance(clauses, str):
