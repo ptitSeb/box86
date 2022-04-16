@@ -1,10 +1,11 @@
-Current version
+v0.2.6
 ======
 * Added an option to get generated -NAN on SSE2 operation
 * Many small fixes and improvement to get steam and SteamPlay working (along with box64)
 * Added some workaround for program calling uname to mimic x86 system
 * Added some more Vulkan extensions
 * Added some granularity to mmap64, and generic memory protection tracking improvment, to mimic x86 system (for wine stagging and proton)
+* Better clone syscall and libc implementation
 * Improved wrapping of GTK libs
 * More wrapped libs (more gtk libs, like gstreamer-1.0 among other non-gtk libs too)
 * More wrapped functions(with some tricky one, like dladdr1)
