@@ -183,7 +183,18 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             GETEX(d0, 0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x14);               // get fpscr
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
             VADD_F64(v0, v0, d0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, v0, v0);
+            }
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
@@ -191,7 +202,18 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             GETEX(d0, 0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x14);               // get fpscr
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
             VMUL_F64(v0, v0, d0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, v0, v0);
+            }
             break;
         case 0x5A:
             INST_NAME("CVTSD2SS Gx, Ex");
@@ -215,7 +237,18 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             GETEX(d0, 0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x14);               // get fpscr
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
             VSUB_F64(v0, v0, d0);
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                VNEG_F64_cond(cNE, v0, v0);
+            }
             break;
         case 0x5D:
             INST_NAME("MINSD Gx, Ex");
