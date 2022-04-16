@@ -1,6 +1,23 @@
 Current version
 ======
-
+* Added an option to get generated -NAN on SSE2 operation
+* Many small fixes and improvement to get steam and SteamPlay working (along with box64)
+* Added some workaround for program calling uname to mimic x86 system
+* Added some more Vulkan extensions
+* Added some granularity to mmap64, and generic memory protection tracking improvment, to mimic x86 system (for wine stagging and proton)
+* Improved wrapping of GTK libs
+* More wrapped libs (more gtk libs, like gstreamer-1.0 among other non-gtk libs too)
+* More wrapped functions(with some tricky one, like dladdr1)
+* Some fixes and improvment to some wrapped functions
+* Refactor Dynarec:
+    * better handling of SSE/x87 registers
+    * optimisation to limit float/double conversion
+    * better handling of "internal" jump inside a dynablock
+* Improved elfloader
+* Improved some tests
+* A few fixes in some Dynarec opcodes
+* Don't quit on unsupported syscall, return -1 / ENOSYS error
+* A bit more optimisation in some Dynarec opcodes
 
 v0.2.4
 ======
