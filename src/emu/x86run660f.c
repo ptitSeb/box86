@@ -701,7 +701,7 @@ void Run660F(x86emu_t *emu)
                     GX.d[i] = -NAN;
                 else
             #endif
-            GX.d[i] += EX->d[i];
+            GX.d[i] -= EX->d[i];
         }
         break;
     case 0x5D:                      /* MINPD Gx, Ex */
