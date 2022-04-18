@@ -1114,7 +1114,7 @@ GO(mbtowc, iFppL)
 // _mcleanup
 GOWM(mcount, vFpp)   //%%,noE
 // _mcount
-GOW(memalign, pFuu)
+GOW(memalign, pFLL)
 DATAV(__memalign_hook, 4)
 GOW(memccpy, pFppiL)
 GO(memchr, pFpiL)
@@ -1274,7 +1274,7 @@ GO(posix_fadvise64, iFiuui)
 GO(posix_fallocate, iFiii)
 GO(posix_fallocate64, iFiII)
 // posix_madvise
-GOW(posix_memalign, iFpuu)
+GOW(posix_memalign, iFpLL)
 // posix_openpt // Weak
 GO(posix_spawn, iFpppppp)
 // posix_spawnattr_destroy
