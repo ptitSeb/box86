@@ -14,7 +14,7 @@
 DATA(__libc_enable_secure, 4)
 DATA(__libc_stack_end, 4)
 DATA(__pointer_chk_guard, 4)
-// _r_debug //type B
+DATAM(_r_debug, 20) //type B
 DATA(_rtld_global, 4)
 DATA(_rtld_global_ro, 4)
 DATA(__stack_chk_guard, 4)
