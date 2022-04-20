@@ -128,10 +128,10 @@ static void* findGstPadQueryFunctionFct(void* fct)
 }
 //GstPadGetRangeFunction
 #define GO(A)   \
-static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                                                         \
-static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)                                     \
-{                                                                                                                               \
-    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 6, a, b, c&0xffffffff, (c>>32)&0xffffffff, d, e);    \
+static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                                                                             \
+static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)                                                         \
+{                                                                                                                                                   \
+    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 6, a, b, (uint32_t)(c&0xffffffff), (uint32_t)(c>>32)&0xffffffff, d, e);  \
 }
 SUPER()
 #undef GO

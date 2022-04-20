@@ -333,17 +333,14 @@ static void updateNeed(dynarec_arm_t* dyn, int ninst, uint32_t need) {
     if(dyn->insts[ninst].x86.jmp_insts==-1)
         new_need |= X_PEND;
 
+    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
+        return;
+
+    new_need &=~new_set;    // clean needed flag that were suplied
+    new_need |= new_use;    // new need
     // a Flag Barrier will change all need to "Pending", as it clear all flags optimisation
     if(new_need && dyn->insts[ninst].x86.barrier&BARRIER_FLAGS)
         new_need = X_PEND;
-    
-    if((new_need == old_need) && (new_use == old_use))    // no changes, bye
-        return;
-    
-    if(!(new_need && dyn->insts[ninst].x86.barrier&BARRIER_FLAGS)) {
-        new_need &=~new_set;    // clean needed flag that were suplied
-        new_need |= new_use;    // new need
-    }
 
     if((new_need == (X_ALL|X_PEND)) && (dyn->insts[ninst].x86.state_flags & SF_SET))
         new_need = X_ALL;
@@ -415,7 +412,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     // already protect the block and compute hash signature
     protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
-    // Compute flag_need, without with current barriers
+    // Compute flag_need, without current barriers
     resetNeed(&helper);
     for(int i = helper.size; i-- > 0;)
         updateNeed(&helper, i, 0);
@@ -492,7 +489,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             else
                 helper.insts[i].x86.use_flags |= (helper.insts[k].x86.need_flags | helper.insts[k].x86.use_flags);
         }
-        if(helper.insts[i].x86.barrier&BARRIER_FLAGS)
+        if(helper.insts[i].x86.barrier&BARRIER_FLAGS && !(helper.insts[i].x86.set_flags&SF_PENDING))
             // immediate barrier
             helper.insts[i].x86.use_flags |= X_PEND;
     }

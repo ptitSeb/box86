@@ -132,6 +132,11 @@ Force the use of Double for x87 emulation
 * 0 : Try to use float when possible for x87 emulation (faster)
 * 1 : Only use Double for x87 emulation (slower, may be needed for some specific games, like Crysis)
 
+#### BOX86_DYNAREC_FASTNAN
+Enable/Disable generation of -NAN
+* 0 : Generate -NAN like on x86 (slower, more x86 accurate)
+* 1 : Don't do anything special with NAN, to go as fast as possible (Default)
+
 #### BOX86_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.4)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
 option(PYRA "Set to ON if targeting an OpenPandora device" ${PYRA})
@@ -16,13 +16,14 @@ option(ODROID "Set to ON if targeting an ODroid device" ${ODROID})
 option(POWER9 "Set to ON if targeting a POWER9 processor" ${POWER9})
 option(SD845 "Set to ON if targeting a Snapragon 845 based device" ${SD845})
 option(A64 "Set to ON if targeting an Allwinner A64 based device" ${A64})
+option(LX2160A "Set to ON if targeting an LX2160A based device" ${LX2160A})
 option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
-if(PANDORA OR PYRA OR RPI2 OR RPI3 OR RPI4 OR GAMESHELL OR ODROID OR GOA_CLONE OR RK3288 OR RK3399 OR ODROIDN2 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64)
+if(PANDORA OR PYRA OR RPI2 OR RPI3 OR RPI4 OR GAMESHELL OR ODROID OR GOA_CLONE OR RK3288 OR RK3399 OR ODROIDN2 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64 OR LX2160A)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
@@ -58,7 +59,7 @@ string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "x86_64"  _x86_64)
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "aarch64"  _aarch64)
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "armhf"  _armhf)
 
-if(_aarch64 AND (RK3399 OR ODROIDN2 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64))
+if(_aarch64 AND (RK3399 OR ODROIDN2 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64 OR LX2160A))
     set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
     #set(CMAKE_ASM_COMPILER arm-linux-gnueabihf-as) #will use gcc in fact
     set(CMAKE_C_COMPILER_TARGET arm-linux-gnueabihf)
@@ -138,6 +139,10 @@ elseif(PHYTIUM)
     add_definitions(-DPHYTIUM)
     add_definitions(-pipe -march=armv8.1-a+simd+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.1-a+simd+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard")
+elseif(LX2160A)
+    add_definitions(-DLX2160A)
+    add_definitions(-pipe -march=armv8-a+crypto+crc -mcpu=cortex-a72+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard)
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crypto+crc -mcpu=cortex-a72+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard")
 elseif(ANDROID)
     add_definitions(-DANDROID)
 elseif(ARM_DYNAREC)
@@ -170,6 +175,7 @@ endif()
 
 if(NOALIGN)
     add_definitions(-DNOALIGN)
+    add_definitions(-pipe -march=core2 -msse2)
 endif()
 
 if(HAVE_TRACE)
@@ -762,6 +768,8 @@ add_test(NAME sse COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/$
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17 -D TEST_OUTPUT=tmpfile17.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(sse PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTNAN=0")
 
 add_test(NAME longjumpInSignals COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test18 -D TEST_OUTPUT=tmpfile18.txt 

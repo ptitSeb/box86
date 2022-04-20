@@ -38,6 +38,9 @@ void Run660F(x86emu_t *emu)
     int32_t tmp32s;
     sse_regs_t *opex, eax1, *opx2;
     mmx87_regs_t *opem;
+    #ifndef NOALIGN
+    int is_nan;
+    #endif
 
 
     opcode = F8;
@@ -479,6 +482,22 @@ void Run660F(x86emu_t *emu)
                     GX.q[i] = EX->ud[i];
                 break;
 
+            case 0x39:  /* PMINSD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    if(GX.sd[i]>EX->sd[i])
+                        GX.sd[i] = EX->sd[i];
+                break;
+
+            case 0x3D:  /* PMAXSD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    if(GX.sd[i]<EX->sd[i])
+                        GX.sd[i] = EX->sd[i];
+                break;
+
             default:
                 ip = R_EIP;
                 UnimpOpcode(emu);
@@ -488,6 +507,15 @@ void Run660F(x86emu_t *emu)
     case 0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x0E:  /* PBLENDW Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                for (int i=0; i<8; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX.uw[i] = EX->uw[i];
+                }
+                break;
             case 0x0F:          // PALIGNR GX, EX, u8
                 nextop = F8;
                 GET_EX;
@@ -566,8 +594,14 @@ void Run660F(x86emu_t *emu)
     case 0x51:                      /* SQRTPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d[0] = sqrt(EX->d[0]);
-        GX.d[1] = sqrt(EX->d[1]);
+        for (int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+            if(EX->d[i]<0.0)        // on x86, default nan are negative
+                GX.d[i] = -NAN;    // but input NAN are not touched (so sqrt(+nan) -> +nan)
+            else
+            #endif
+            GX.d[i] = sqrt(EX->d[i]);
+        }
         break;
 
     case 0x54:                      /* ANDPD Gx, Ex */
@@ -597,14 +631,28 @@ void Run660F(x86emu_t *emu)
     case 0x58:                      /* ADDPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d[0] += EX->d[0];
-        GX.d[1] += EX->d[1];
+        for(int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+                // add generate a -NAN only if doing inf + -inf
+                if((isinf(GX.d[i]) && isinf(EX->d[i]) && (EX->q[i]&0x8000000000000000LL)!=(GX.q[i]&0x8000000000000000LL)))
+                    GX.d[i] = -NAN;
+                else
+            #endif
+            GX.d[i] += EX->d[i];
+        }
         break;
     case 0x59:                      /* MULPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d[0] *= EX->d[0];
-        GX.d[1] *= EX->d[1];
+        for(int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+                // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+                if((isinf(GX.d[i]) && EX->d[i]==0.0) || (isinf(EX->d[i]) && GX.d[i]==0.0))
+                    GX.d[i] = -NAN;
+                else
+            #endif
+            GX.d[i] *= EX->d[i];
+        }
         break;
     case 0x5A:                      /* CVTPD2PS Gx, Ex */
         nextop = F8;
@@ -646,8 +694,15 @@ void Run660F(x86emu_t *emu)
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d[0] -= EX->d[0];
-        GX.d[1] -= EX->d[1];
+        for(int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+                // sub generate a -NAN only if doing inf - inf
+                if((isinf(GX.d[i]) && isinf(EX->d[i]) && (EX->q[i]&0x8000000000000000LL)==(GX.q[i]&0x8000000000000000LL)))
+                    GX.d[i] = -NAN;
+                else
+            #endif
+            GX.d[i] -= EX->d[i];
+        }
         break;
     case 0x5D:                      /* MINPD Gx, Ex */
         nextop = F8;
@@ -660,8 +715,16 @@ void Run660F(x86emu_t *emu)
     case 0x5E:                      /* DIVPD Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.d[0] /= EX->d[0];
-        GX.d[1] /= EX->d[1];
+        for (int i=0; i<2; ++i) {
+            #ifndef NOALIGN
+            is_nan = isnan(GX.d[i]) || isnan(EX->d[i]);
+            #endif
+            GX.d[i] /= EX->d[i];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX.d[i]))
+                GX.d[i] = -NAN;
+            #endif
+        }
         break;
     case 0x5F:                      /* MAXPD Gx, Ex */
         nextop = F8;
@@ -950,11 +1013,25 @@ void Run660F(x86emu_t *emu)
     case 0x7C:  /* HADDPD Gx, Ex */
         nextop = F8;
         GET_EX;
+        #ifndef NOALIGN
+        is_nan = isnan(GX.d[0]) || isnan(GX.d[1]);
+        #endif
         GX.d[0] += GX.d[1];
+        #ifndef NOALIGN
+        if(!is_nan && isnan(GX.d[0]))
+            GX.d[0] = -NAN;
+        #endif
         if(EX==&GX) {
             GX.d[1] = GX.d[0];
         } else {
+            #ifndef NOALIGN
+            is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
+            #endif
             GX.d[1] = EX->d[0] + EX->d[1];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX.d[1]))
+                GX.d[1] = -NAN;
+            #endif
         }
         break;
 

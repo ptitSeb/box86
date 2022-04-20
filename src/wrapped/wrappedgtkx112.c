@@ -1097,31 +1097,31 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x86emu_t* emu, void* f, void* data,
 #define CUSTOM_INIT \
     libname = lib->name;                \
     lib->priv.w.p2 = getGtkx112My(lib); \
-    SetGtkObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());     \
-    SetGtkWidgetID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());     \
-    SetGtkContainerID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());\
-    SetGtkActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
-    SetGtkMiscID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());         \
-    SetGtkLabelID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());       \
-    SetGtkTreeViewID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());\
-    SetGtkBinID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_bin_get_type());           \
-    SetGtkWindowID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_window_get_type());     \
-    SetGtkTableID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_table_get_type());       \
-    SetGtkFixedID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_fixed_get_type());       \
-    SetGtkButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_button_get_type());     \
-    SetGtkComboBoxID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_combo_box_get_type());\
-    SetGtkToggleButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_toggle_button_get_type());\
-    SetGtkCheckButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_check_button_get_type());\
-    SetGtkEntryID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_entry_get_type());       \
-    SetGtkSpinButtonID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_spin_button_get_type());\
-    SetGtkProgressID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_get_type()); \
-    SetGtkProgressBarID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_bar_get_type());\
-    SetGtkFrameID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_frame_get_type());       \
-    SetGtkMenuShellID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_shell_get_type()); \
-    SetGtkMenuBarID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_bar_get_type());  \
-    lib->priv.w.needed = 2;                                                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                  \
+    SetGtkObjectID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_object_get_type());         \
+    SetGtkWidget2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_widget_get_type());        \
+    SetGtkContainer2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_container_get_type());  \
+    SetGtkActionID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_action_get_type());         \
+    SetGtkMisc2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_misc_get_type());            \
+    SetGtkLabel2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_label_get_type());          \
+    SetGtkTreeView2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());   \
+    SetGtkBin2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_bin_get_type());              \
+    SetGtkWindow2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_window_get_type());        \
+    SetGtkTable2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_table_get_type());          \
+    SetGtkFixed2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_fixed_get_type());          \
+    SetGtkButton2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_button_get_type());        \
+    SetGtkComboBox2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_combo_box_get_type());   \
+    SetGtkToggleButton2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_toggle_button_get_type());\
+    SetGtkCheckButton2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_check_button_get_type());\
+    SetGtkEntry2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_entry_get_type());          \
+    SetGtkSpinButton2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_spin_button_get_type());\
+    SetGtkProgress2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_get_type());    \
+    SetGtkProgressBar2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_progress_bar_get_type());\
+    SetGtkFrame2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_frame_get_type());          \
+    SetGtkMenuShell2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_shell_get_type()); \
+    SetGtkMenuBar2ID(((gtkx112_my_t*)lib->priv.w.p2)->gtk_menu_bar_get_type());     \
+    lib->priv.w.needed = 2;                                                         \
+    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*));     \
+    lib->priv.w.neededlibs[0] = strdup("libgdk-x11-2.0.so.0");                      \
     lib->priv.w.neededlibs[1] = strdup("libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \

@@ -13,6 +13,7 @@
 
 typedef void* (*pFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpV_t)(void*, ...);
 typedef int32_t (*iFLp_t)(uintptr_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFiV_t)(int32_t, ...);
@@ -39,6 +40,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_type_class, pFi_t) \
 	GO(gtk_builder_connect_signals, vFpp_t) \
 	GO(gtk_init, vFpp_t) \
+	GO(gtk_style_context_get_style, vFpV_t) \
 	GO(gtk_type_unique, iFLp_t) \
 	GO(gtk_init_check, iFpp_t) \
 	GO(gtk_list_store_new, pFiV_t) \
@@ -50,6 +52,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_list_store_set, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
+	GO(gtk_style_context_get, vFppV_t) \
 	GO(gtk_tree_model_get, vFppV_t) \
 	GO(gtk_tree_store_set, vFppV_t) \
 	GO(gtk_widget_style_get, vFppV_t) \

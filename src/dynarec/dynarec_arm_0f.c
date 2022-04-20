@@ -627,7 +627,24 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMULQ_F32(v1, v2, v2);      // v1 = x1²
             VRSQRTSQ_F32(v1, v1, q0);   // v1 = (3-d*X1²)/2
             VMULQ_F32(v2, v2, v1);      // v2 = X1*(3-d*X1²)/2 = X2
-            VMULQ_F32(v0, v2, q0);      // v0 = X2*d ~ SQRT(d)
+            if(!box86_dynarec_fastnan) {
+                // need to preserve v0, in case it's == q0
+                VMULQ_F32(v1, v2, q0);      // v1 = X2*d ~ SQRT(d)
+                if(v0<dyn->n.fpu_scratch || v0!=q0)
+                    q1 = v0;    // v0 is a scratch register
+                else
+                    q1 = fpu_get_scratch_quad(dyn); // need a new scratch
+                VCEQQ_0_F32(q1, q0);    // prepare mask, 111 when == 0.0
+                VMOVQ_H32(v2, 0xff);    // prepare +inf
+                VSHRQ_U32(v2, v2, 1);   // 0xff000000 -> 0x7f800000 == +inf
+                VCEQQ_32(v2, v2, q0);   // v2 mask: 111 when == +inf
+                VORRQ(q1, q1, v2);      // q1 mask: 111 when ==0 || == +inf
+                VBICQ(v1, v1, q1);      // mask value in result
+                VANDQ(q1, q0, q1);      // keep original value that are 0 or +inf
+                VORRQ(v0, v1, q1);      // copy over
+            } else {
+                VMULQ_F32(v0, v2, q0);  // v0 = X2*d ~ SQRT(d)
+            }
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");

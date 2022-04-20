@@ -775,11 +775,11 @@ EXPORT void my_g_value_register_transform_func(x86emu_t* emu, int src, int dst, 
     my->g_value_register_transform_func(src, dst, findValueTransformFct(f));
 }
 
-static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, my_signal_t* sig)
+static int my_signal_emission_hook(void* ihint, uint32_t n, my_GValue_t* values, my_signal_t* sig)
 {
     printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook called, sig=%p\n", sig);
-    my_GValue_t my_values[n];
-    alignNGValue(my_values, values, n);
+    void* my_values = alloca(n*(4+2*8));
+    unalignNGValue(my_values, values, n);
     return (int)RunFunction(my_context, sig->c_handler, 4, ihint, n, my_values, sig->data);
 }
 EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)

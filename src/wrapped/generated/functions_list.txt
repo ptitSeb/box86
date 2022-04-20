@@ -124,6 +124,7 @@
 #() vFpl
 #() vFpL
 #() vFpp
+#() vFpV
 #() vFpS
 #() vFpP
 #() vFpG
@@ -1043,9 +1044,11 @@
 #() vFppudd
 #() vFppupi
 #() vFppupp
+#() vFppddp
 #() vFpppii
 #() vFpppip
 #() vFpppuu
+#() vFpppdd
 #() vFppppi
 #() vFppppu
 #() vFppppL
@@ -1330,6 +1333,7 @@
 #() vFpUUiup
 #() vFpdddii
 #() vFpddddd
+#() vFpddddp
 #() vFppiiii
 #() vFppiiip
 #() vFppiiui
@@ -1342,6 +1346,7 @@
 #() vFppupii
 #() vFppuppp
 #() vFppdidd
+#() vFppdddd
 #() vFpplppi
 #() vFpplppp
 #() vFppLppi
@@ -1570,6 +1575,8 @@
 #() vFppipiip
 #() vFppipipp
 #() vFppipppp
+#() vFppddddi
+#() vFppddpii
 #() vFppLpppi
 #() vFppLpppp
 #() vFpppiiii
@@ -1841,6 +1848,7 @@
 #() vFppipppiii
 #() vFppipppiip
 #() vFppuuiiiii
+#() vFppddddidd
 #() vFpplpppppi
 #() vFpppiiiiii
 #() vFppppipiip
@@ -2592,6 +2600,8 @@ wrappedgtk3:
 - vFpp:
   - gtk_builder_connect_signals
   - gtk_init
+- vFpV:
+  - gtk_style_context_get_style
 - iFLp:
   - gtk_type_unique
 - iFpp:
@@ -2609,6 +2619,7 @@ wrappedgtk3:
   - gtk_list_store_set
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
+  - gtk_style_context_get
   - gtk_tree_model_get
   - gtk_tree_store_set
   - gtk_widget_style_get
@@ -4174,6 +4185,8 @@ wrappedtcmallocminimal:
 wrappedturbojpeg:
 wrappedudev0:
 wrappedudev1:
+- vFpp:
+  - udev_set_log_fn
 wrappedutil:
 - iFpppp:
   - forkpty

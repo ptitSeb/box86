@@ -11,6 +11,7 @@
 #include "x86emu.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "debug.h"
 
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
 {
@@ -894,7 +895,7 @@ void alignNGValue(my_GValue_t* v, void* value, int n)
         v->g_type = *(int*)value;
         memcpy(v->data, value+4, 2*sizeof(double));
         ++v;
-        value+=4*2*sizeof(double);
+        value+=4+2*sizeof(double);
         --n;
     }
 }
@@ -904,7 +905,7 @@ void unalignNGValue(void* value, my_GValue_t* v, int n)
         *(int*)value = v->g_type;
         memcpy(value+4, v->data, 2*sizeof(double));
         ++v;
-        value+=4*2*sizeof(double);
+        value+=4+2*sizeof(double);
         --n;
     }
 }

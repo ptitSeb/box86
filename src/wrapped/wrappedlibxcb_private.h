@@ -175,8 +175,8 @@ GOS(xcb_depth_visuals_iterator, XFEp)
 //GO(xcb_destroy_subwindows_checked, 
 GOS(xcb_destroy_window, xFEpu)
 //GO(xcb_destroy_window_checked, 
-//GO(xcb_discard_reply, 
-//GO(xcb_discard_reply64, 
+GO(xcb_discard_reply, vFpu)
+GO(xcb_discard_reply64, vFpU)
 GO(xcb_disconnect, vFp)
 //GO(xcb_drawable_end, 
 //GO(xcb_drawable_next, 

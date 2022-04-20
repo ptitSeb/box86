@@ -37,17 +37,31 @@ typedef int           (*iFppp_t)(void*, void*, void*);
 typedef void          (*vFpipV_t)(void*, int, void*, ...);
 
 #define ADDED_FUNCTIONS()                   \
-GO(gtk_object_get_type, iFv_t)              \
-GO(gtk_dialog_add_button, pFppi_t)          \
+GO(g_type_class_ref, pFi_t)                 \
+GO(g_type_class_unref, vFp_t)               \
+GO(g_initially_unowned_get_type, iFv_t)     \
 GO(gtk_bin_get_type, iFv_t)                 \
 GO(gtk_widget_get_type, iFv_t)              \
 GO(gtk_button_get_type, iFv_t)              \
 GO(gtk_container_get_type, iFv_t)           \
+GO(gtk_misc_get_type, iFv_t)                \
 GO(gtk_label_get_type, iFv_t)               \
 GO(gtk_tree_view_get_type, iFv_t)           \
+GO(gtk_window_get_type, iFv_t)              \
+GO(gtk_table_get_type, iFv_t)               \
+GO(gtk_fixed_get_type, iFv_t)               \
+GO(gtk_combo_box_get_type, iFv_t)           \
+GO(gtk_toggle_button_get_type, iFv_t)       \
+GO(gtk_check_button_get_type, iFv_t)        \
+GO(gtk_frame_get_type, iFv_t)               \
+GO(gtk_entry_get_type, iFv_t)               \
+GO(gtk_spin_button_get_type, iFv_t)         \
+GO(gtk_progress_get_type, iFv_t)            \
+GO(gtk_progress_bar_get_type, iFv_t)        \
+GO(gtk_menu_shell_get_type, iFv_t)          \
+GO(gtk_menu_bar_get_type, iFv_t)            \
 GO(gtk_action_get_type, iFv_t)              \
-GO(g_type_class_ref, pFi_t)                 \
-GO(g_type_class_unref, vFp_t)               \
+GO(gtk_dialog_add_button, pFppi_t)          \
 GO(gtk_spin_button_get_value, dFp_t)        \
 GO(gtk_builder_lookup_callback_symbol, pFpp_t)  \
 GO(g_module_symbol, iFppp_t)                \
@@ -724,12 +738,9 @@ EXPORT void my3_gtk_tree_view_column_set_cell_data_func(x86emu_t* emu, void* tre
     libname = lib->name;                \
     lib->priv.w.p2 = getGtk3My(lib);    \
     lib->altmy = strdup("my3_");        \
-    SetGtkWidgetID(((gtk3_my_t*)lib->priv.w.p2)->gtk_widget_get_type());    \
-    SetGtkContainerID(((gtk3_my_t*)lib->priv.w.p2)->gtk_container_get_type());     \
-    SetGtkActionID(((gtk3_my_t*)lib->priv.w.p2)->gtk_action_get_type());    \
-    SetGtkMiscID(((gtk3_my_t*)lib->priv.w.p2)->gtk_widget_get_type());      \
-    SetGtkLabelID(((gtk3_my_t*)lib->priv.w.p2)->gtk_label_get_type());      \
-    SetGtkTreeViewID(((gtk3_my_t*)lib->priv.w.p2)->gtk_tree_view_get_type());       \
+    SetGInitiallyUnownedID(((gtk3_my_t*)lib->priv.w.p2)->g_initially_unowned_get_type());\
+    SetGtkWidget3ID(((gtk3_my_t*)lib->priv.w.p2)->gtk_widget_get_type());    \
+    SetGtkActionID(((gtk3_my_t*)lib->priv.w.p2)->gtk_action_get_type());     \
     lib->priv.w.needed = 2; \
     lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
     lib->priv.w.neededlibs[0] = strdup("libgdk-3.so.0");                  \
