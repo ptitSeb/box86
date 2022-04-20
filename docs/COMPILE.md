@@ -47,7 +47,9 @@ sudo systemctl restart systemd-binfmt
 
 `mkdir build; cd build; cmake .. -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
-As most RK3399 devices run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. Also, on armbian, you may need to also use `sudo apt install libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other similar file not found at link.
+As most RK3399 devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
+
+Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
 #### for Tinker Board (1/1S) or RK3288
 
@@ -57,19 +59,23 @@ As most RK3399 devices run AARCH64 OS, you'll need an `armhf` multiarch environm
 
 `mkdir build; cd build; cmake .. -DA64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
-As most Allwinner A64 device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. Also, on armbian, you may need to also use `sudo apt install libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other similar file not found at link.
+As most Allwinner A64 devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
+
+Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
 #### for Snapdragon 845
 
 `mkdir build; cd build; cmake .. -DSD845=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
 
-As most Snapdragon 845 device run AARCH64 OS, in most cases you'll need an `armhf` multiarch environment, and an armhf gcc: On mobian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+As most Snapdragon 845 devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On mobian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
 #### for Phytium
 
 `mkdir build; cd build; cmake .. -DPHYTIUM=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
 
-As most Phytium (D2000 or FT2000/4) device run AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian/ubuntu, install it with `sudo apt install gcc-arm-linux-gnueabihf`. Also, on armbian, you may need to also use `sudo apt install libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other similar file not found at link.
+As most Phytium (D2000 or FT2000/4) devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
+
+Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
 #### for Other ARM Linux platforms
 
@@ -132,7 +138,7 @@ The tests are very basic and only tests some functionality for now.
 
 Note about devices with Tegra X1 and newer.
 
-NVIDIA doesn't provide armhf libraries for their GPU drivers at this moment. There is no special variable to compile it for them, as it would be misleading for many people. If you still want to use it wihout GPU acceleration, building it with RPI4 configuration should work just fine. Installation of Mesa can break the NVIDIA driver, so the safest option is to use a chroot environment.
+NVIDIA doesn't provide armhf libraries for their GPU drivers at this time. There is no special variable to compile box86 for them, as it would be misleading to many people. If you still want to use it wihout GPU acceleration, building it with RPI4 configuration should work just fine. Installation of Mesa can break the NVIDIA driver, so the safest option is to use a chroot environment.
 
 ----
 
