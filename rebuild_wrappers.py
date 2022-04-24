@@ -751,6 +751,7 @@ def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions,
 							 or match("gstinterfaces010","gstvideo")\
 							 or match("gstinterfaces010","gstaudio")\
 							 or match("gstreamer010","gstreamer")	\
+							 or match("appindicator","appindicator3")\
 							 \
 							 or match("libc",        "tcmallocminimal") \
 							 or match("libc",        "ldlinux") 	\
