@@ -246,11 +246,11 @@ void FreeBox86Context(box86context_t** context)
     if(ctx->deferedInitList)
         free(ctx->deferedInitList);
 
-    free(ctx->argv);
+    /*free(ctx->argv);*/
     
-    for (int i=0; i<ctx->envc; ++i)
+    /*for (int i=0; i<ctx->envc; ++i)
         free(ctx->envv[i]);
-    free(ctx->envv);
+    free(ctx->envv);*/
 
     if(ctx->atfork_sz) {
         free(ctx->atforks);
