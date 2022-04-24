@@ -165,6 +165,7 @@ GO("libgsttag-1.0.so.0", gsttag)
 GO("libgstvideo-1.0.so.0", gstvideo)
 GO("libgomp.so.1", gomp)
 GO("libcap.so.2", cap)
+GO("libpcap.so.0", pcap)
 
 #ifdef ANDROID
 GO("libc.so", libc)

@@ -828,6 +828,7 @@
 #() uFpuup
 #() uFppiu
 #() uFppip
+#() uFppuu
 #() uFppup
 #() uFppLp
 #() uFpppi
@@ -3712,6 +3713,7 @@ wrappedpangocairo:
 - vFpppp:
   - pango_cairo_context_set_shape_renderer
 wrappedpangoft2:
+wrappedpcap:
 wrappedplc4:
 wrappedplds4:
 wrappedpng12:
