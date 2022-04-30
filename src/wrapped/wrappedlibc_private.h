@@ -1166,11 +1166,11 @@ GOW(msgget, iFpi)
 GOW(msgrcv, lFipLli)
 GOW(msgsnd, iFipLi)
 GOW(msync, iFpLi)
-// mtrace
+GO(mtrace, vFv)
 GO(munlock, iFpL)
 GO(munlockall, iFv)
 GOM(munmap, iFEpL)       //%%
-// muntrace
+GO(muntrace, vFv)
 GOWM(nanosleep, iFpp)	 //%%,noE
 // __nanosleep  // Weak
 // netname2host
