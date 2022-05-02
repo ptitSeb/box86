@@ -89,6 +89,10 @@
     _66_0x3D:
         cmp16(emu, R_AX, F16);
         NEXT;
+    _66_0x3E:                      /* DS: */
+        // ignored
+        opcode = F8;
+        goto *opcodes66[opcode];
     
     _66_0x40:
     _66_0x41:

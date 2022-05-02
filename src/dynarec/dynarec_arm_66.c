@@ -38,7 +38,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(u8);
     MAYUSE(j32);
     while(opcode==0x66) opcode = F8;    // "unlimited" 0x66 as prefix for variable sized NOP
-    if(opcode==0x2E) opcode = F8;       // cs: is ignored
+    if((opcode==0x26) || (opcode==0x2E) || (opcode==0x36) || (opcode==0x3E)) opcode = F8;       // segment prefix are ignored
     switch(opcode) {
         
         case 0x01:
