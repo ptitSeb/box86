@@ -166,10 +166,25 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FDIVP STx, ST0");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(!box86_dynarec_fastnan) {
+                VMRS(x14);               // get fpscr
+                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
             if(ST_IS_F(0)) {
                 VDIV_F32(v2, v2, v1);
             } else {
                 VDIV_F64(v2, v2, v1);
+            }
+            if(!box86_dynarec_fastnan) {
+                VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                if(ST_IS_F(0)) {
+                    VNEG_F32_cond(cNE, v2, v2);
+                } else {
+                    VNEG_F64_cond(cNE, v2, v2);
+                }
             }
             x87_do_pop(dyn, ninst, x3);
             break;
