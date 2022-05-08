@@ -19,31 +19,10 @@
 
 const char* pangoName = "libpango-1.0.so.0";
 #define LIBNAME pango
-static library_t *my_lib = NULL;
 
 #include "generated/wrappedpangotypes.h"
 
-typedef struct pango_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} pango_my_t;
-
-void* getPangoMy(library_t* lib)
-{
-    pango_my_t* my = (pango_my_t*)calloc(1, sizeof(pango_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freePangoMy(void* lib)
-{
-    //pango_my_t *my = (pango_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 typedef struct my_PangoAttrClass_s {
   int                type;
@@ -175,22 +154,16 @@ static void* findGDestroyNotifyFct(void* fct)
 
 EXPORT void my_pango_attribute_init(x86emu_t* emu, void* attr, my_PangoAttrClass_t* klass)
 {
-    pango_my_t* my = (pango_my_t*)my_lib->priv.w.p2;
-
     my->pango_attribute_init(attr, find_PangoAttrClass_Fct(klass));
 }
 
 EXPORT void* my_pango_attr_list_filter(x86emu_t* emu, void* list, void* f, void* data)
 {
-    pango_my_t* my = (pango_my_t*)my_lib->priv.w.p2;
-
     return my->pango_attr_list_filter(list, find_AttrFilter_Fct(f), data);
 }
 
 EXPORT void* my_pango_attr_shape_new_with_data(x86emu_t* emu, void* ink, void* loc, void* data, void* f, void* d)
 {
-    pango_my_t* my = (pango_my_t*)my_lib->priv.w.p2;
-
     return my->pango_attr_shape_new_with_data(ink, loc, data, find_AttrDataCopy_Fct(f), findGDestroyNotifyFct(d));
 }
 
@@ -199,16 +172,10 @@ EXPORT void* my_pango_attr_shape_new_with_data(x86emu_t* emu, void* ink, void* l
         return -1;
 
 #define CUSTOM_INIT \
-    my_lib = lib;                   \
-    lib->priv.w.p2 = getPangoMy(lib); \
-    lib->priv.w.needed = 2;         \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgobject-2.0.so.0");                  \
-    lib->priv.w.neededlibs[1] = strdup("libglib-2.0.so.0");
+    getMy(lib); \
+    setNeededLibs(&lib->priv.w, 2, "libgobject-2.0.so.0", "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \
-    my_lib = NULL;              \
-    freePangoMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

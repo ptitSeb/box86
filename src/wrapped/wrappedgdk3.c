@@ -27,27 +27,7 @@ static char* libname = NULL;
 
 #include "generated/wrappedgdk3types.h"
 
-typedef struct gdk3_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gdk3_my_t;
-
-void* getGdk3My(library_t* lib)
-{
-    gdk3_my_t* my = (gdk3_my_t*)calloc(1, sizeof(gdk3_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeGdk3My(void* lib)
-{
-    //gdk3_my_t *my = (gdk3_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -86,9 +66,6 @@ static void my3_event_handler(void* event, my_signal_t* sig)
 
 EXPORT void my3_gdk_event_handler_set(x86emu_t* emu, void* func, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     if(!func)
         return my->gdk_event_handler_set(func, data, notify);
 
@@ -104,9 +81,6 @@ static void my3_input_function(my_signal_t* sig, int source, int condition)
 
 EXPORT int my3_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     if(!f)
         return my->gdk_input_add_full(source, condition, f, data, NULL);
 
@@ -116,9 +90,6 @@ EXPORT int my3_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, 
 
 EXPORT int my3_gdk_input_add_full(x86emu_t* emu, int source, int condition, void* f, void* data, void* notify)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     if(!f)
         return my->gdk_input_add_full(source, condition, f, data, notify);
     
@@ -128,18 +99,12 @@ EXPORT int my3_gdk_input_add_full(x86emu_t* emu, int source, int condition, void
 
 EXPORT void my3_gdk_init(x86emu_t* emu, void* argc, void* argv)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     my->gdk_init(argc, argv);
     my_checkGlobalGdkDisplay();
 }
 
 EXPORT int my3_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     int ret = my->gdk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
     return ret;
@@ -147,17 +112,11 @@ EXPORT int my3_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT void my3_gdk_window_add_filter(x86emu_t* emu, void* window, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     my->gdk_window_add_filter(window, findFilterFct(f), data);
 }
 
 EXPORT void my3_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, void* data)
 {
-    library_t * lib = GetLibInternal(libname);
-    gdk3_my_t *my = (gdk3_my_t*)lib->priv.w.p2;
-
     my->gdk_window_remove_filter(window, findFilterFct(f), data);
 }
 
@@ -166,18 +125,16 @@ EXPORT void my3_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, v
         return -1;
 
 #define CUSTOM_INIT \
-    libname = lib->name;                        \
-    lib->altmy = strdup("my3_");                \
-    lib->priv.w.p2 = getGdk3My(lib);            \
-    lib->priv.w.needed = 3;                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgobject-2.0.so.0"); \
-    lib->priv.w.neededlibs[1] = strdup("libgio-2.0.so.0");  \
-    lib->priv.w.neededlibs[2] = strdup("libgdk_pixbuf-2.0.so.0");
+    libname = lib->name;            \
+    SETALT(my3_);                   \
+    getMy(lib);                     \
+    setNeededLibs(&lib->priv.w, 3,  \
+        "libgobject-2.0.so.0",      \
+        "libgio-2.0.so.0",          \
+        "libgdk_pixbuf-2.0.so.0");
 
 #define CUSTOM_FINI \
-    freeGdk3My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 
 #include "wrappedlib_init.h"

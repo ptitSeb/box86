@@ -20,31 +20,10 @@
 
 const char* bz2Name = "libbz2.so.1";
 #define LIBNAME bz2
-static library_t* my_lib = NULL;
 
 #include "generated/wrappedbz2types.h"
 
-typedef struct bz2_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} bz2_my_t;
-
-void* getBz2My(library_t* lib)
-{
-    bz2_my_t* my = (bz2_my_t*)calloc(1, sizeof(bz2_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeBz2My(void* lib)
-{
-    //bz2_my_t *my = (bz2_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -148,8 +127,6 @@ typedef struct {
 
 EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocksize, int verbosity, int work)
 {
-    library_t * lib = GetLibInternal(bz2Name);
-    bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompressInit(strm, blocksize, verbosity, work);
     UNWRAP_BZ(strm);
@@ -158,8 +135,6 @@ EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocks
 
 EXPORT int my_BZ2_bzCompress(x86emu_t* emu, my_bz_stream_t* strm, int action)
 {
-    library_t * lib = GetLibInternal(bz2Name);
-    bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompress(strm, action);
     UNWRAP_BZ(strm);
@@ -168,8 +143,6 @@ EXPORT int my_BZ2_bzCompress(x86emu_t* emu, my_bz_stream_t* strm, int action)
 
 EXPORT int my_BZ2_bzCompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 {
-    library_t * lib = GetLibInternal(bz2Name);
-    bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompressEnd(strm);
     UNWRAP_BZ(strm);
@@ -178,8 +151,6 @@ EXPORT int my_BZ2_bzCompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressInit(x86emu_t* emu, my_bz_stream_t* strm, int verbosity, int small)
 {
-    library_t * lib = GetLibInternal(bz2Name);
-    bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompressInit(strm, verbosity, small);
     UNWRAP_BZ(strm);
@@ -188,8 +159,6 @@ EXPORT int my_BZ2_bzDecompressInit(x86emu_t* emu, my_bz_stream_t* strm, int verb
 
 EXPORT int my_BZ2_bzDecompress(x86emu_t* emu, my_bz_stream_t* strm)
 {
-    library_t * lib = GetLibInternal(bz2Name);
-    bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompress(strm);
     UNWRAP_BZ(strm);
@@ -198,8 +167,6 @@ EXPORT int my_BZ2_bzDecompress(x86emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 {
-    library_t * lib = GetLibInternal(bz2Name);
-    bz2_my_t *my = (bz2_my_t*)lib->priv.w.p2;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompressEnd(strm);
     UNWRAP_BZ(strm);
@@ -207,12 +174,9 @@ EXPORT int my_BZ2_bzDecompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getBz2My(lib); \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeBz2My(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

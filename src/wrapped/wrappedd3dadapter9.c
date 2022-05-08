@@ -159,10 +159,12 @@ typedef struct d3d_my_s {
     } vtables;
 } d3d_my_t;
 
+static d3d_my_t my_d3d = {0};
+static d3d_my_t * const my = &my_d3d;
+
 #define GOR(retcnd, name, args, call, ret, vtbl, a) \
     static ret name(UNPACK args) \
     { \
-        d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2; \
         int r = name##_real(UNPACK call); \
         if (retcnd) return r; \
         if (!my->vtables.my_##vtbl##_init) { \
@@ -210,16 +212,13 @@ GOR((r || !ppQuery), my_CreateQuery, (x86emu_t* emu, void* This, int Type, void*
 #undef GO
 #undef GOR
 
-void* getD3dMy(library_t* lib)
+static void getMy(library_t* lib)
 {
-    d3d_my_t* my = (d3d_my_t*)calloc(1, sizeof(d3d_my_t));
     my->D3DAdapter9GetProc = (pFp_t)dlsym(lib->priv.w.lib, "D3DAdapter9GetProc");
-    return my;
 }
 
-void freeD3dMy(void* lib)
+static void freeMy()
 {
-    //d3d_my_t *my = (d3d_my_t *)lib;
 }
 
 #define GOV(ns, ret, fn, args, call) \
@@ -335,7 +334,6 @@ IDirect3D9Vtbl my_Direct3D9_vtbl = {
 
 static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9)
 {
-    d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2;
     int r = my_GetDirect3D_real(This, ppD3D9);
     if (r) return r;
     *ppD3D9 = (void**)((my_Direct3D9*)*ppD3D9)->real;
@@ -344,8 +342,6 @@ static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9)
 
 int my_create_device(x86emu_t* emu, void *This, unsigned RealAdapter, int DeviceType, void *hFocusWindow, unsigned BehaviorFlags, void *pPresent, IDirect3D9Vtbl **pD3D9, ID3DPresentGroupVtbl **pPresentationFactory, IDirect3DDevice9Vtbl ***ppReturnedDeviceInterface)
 {
-    d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2;
-
     my_Direct3D9 *my_pD3D9 = malloc(sizeof(my_Direct3D9));
 
     my_pD3D9->vtbl = &my_Direct3D9_vtbl;
@@ -375,7 +371,6 @@ int my_create_device(x86emu_t* emu, void *This, unsigned RealAdapter, int Device
 
 int my_create_adapter(x86emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
 {
-    d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2;
 
     ID3DAdapter9Vtbl **adapter;
     int r = my->create_adapter(fd, &adapter);
@@ -398,7 +393,6 @@ int my_create_adapter(x86emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
 
 EXPORT void* my_D3DAdapter9GetProc(x86emu_t* emu, void *ptr)
 {
-    d3d_my_t *my = (d3d_my_t*)emu->context->d3dadapter9->priv.w.p2;
 
     /* stdcall, so callee cleans the stack */
     *(uint32_t *)(R_ESP + 4) = *(uint32_t *)(R_ESP);
@@ -417,11 +411,10 @@ EXPORT void* my_D3DAdapter9GetProc(x86emu_t* emu, void *ptr)
 
 #define CUSTOM_INIT \
     box86->d3dadapter9 = lib; \
-    lib->priv.w.p2 = getD3dMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeD3dMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2); \
+    freeMy(); \
     ((box86context_t*)(lib->context))->d3dadapter9 = NULL;
 
 #include "wrappedlib_init.h"

@@ -20,33 +20,10 @@
 
 const char* ssl3Name = "libssl3.so";
 #define LIBNAME ssl3
-static library_t *my_lib = NULL;
 
 #include "generated/wrappedssl3types.h"
 
-typedef struct ssl3_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} ssl3_my_t;
-
-void* getSsl3My(library_t* lib)
-{
-    my_lib = lib;
-    ssl3_my_t* my = (ssl3_my_t*)calloc(1, sizeof(ssl3_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeSsl3My(void* lib)
-{
-    //ssl3_my_t *my = (ssl3_my_t *)lib;
-}
-
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -105,24 +82,19 @@ static void* find_SSLAuthCertificate_Fct(void* fct)
 
 EXPORT int my_SSL_BadCertHook(x86emu_t* emu, void* fd, void* f, void* arg)
 {
-    ssl3_my_t* my = (ssl3_my_t*)my_lib->priv.w.p2;
-
     return my->SSL_BadCertHook(fd, find_SSLBadCertHandler_Fct(f), arg);
 }
 
 EXPORT int my_SSL_AuthCertificateHook(x86emu_t* emu, void* fd, void* f, void* arg)
 {
-    ssl3_my_t* my = (ssl3_my_t*)my_lib->priv.w.p2;
-
     return my->SSL_AuthCertificateHook(fd, find_SSLBadCertHandler_Fct(f), arg);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getSsl3My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeSsl3My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

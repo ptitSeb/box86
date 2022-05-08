@@ -21,36 +21,20 @@
 
 const char* vulkanName = "libvulkan.so.1";
 #define LIBNAME vulkan
-static library_t *my_lib = NULL;
 
 typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 
 #define ADDED_FUNCTIONS()                           \
     GO(vkDestroySamplerYcbcrConversion, vFpUp_t)    \
 
-
 #include "generated/wrappedvulkantypes.h"
 
-typedef struct vulkan_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
+#define ADDED_STRUCT()                              \
     void* currentInstance;  // track current instance. If using multiple instance, that will be a mess!
-} vulkan_my_t;
 
-void* getVulkanMy(library_t* lib)
-{
-    vulkan_my_t* my = (vulkan_my_t*)calloc(1, sizeof(vulkan_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-void freeVulkanMy(void* p)
-{
-    //vulkan_my_t* my = (vulkan_my_t*)p;
-}
+#define ADDED_SUPER 1
+#include "wrappercallback.h"
+
 void updateInstance(vulkan_my_t* my)
 {
     void* p;
@@ -95,8 +79,6 @@ EXPORT void* my_vkGetDeviceProcAddr(x86emu_t* emu, void* device, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
-
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetDeviceProcAddr(%p, \"%s\") => ", device, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
@@ -126,8 +108,6 @@ EXPORT void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* instance, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
-
     if(dlsym_error && box86_log<LOG_DEBUG) printf_log(LOG_NONE, "Calling my_vkGetInstanceProcAddr(%p, \"%s\") => ", instance, rname);
     if(!emu->context->vkwrappers)
         fillVulkanProcWrapper(emu->context);
@@ -320,14 +300,13 @@ static void* find_DebugReportCallbackEXT_Fct(void* fct)
 
 #define CUSTOM_INIT \
     my_lib = lib; \
-    lib->priv.w.p2 = getVulkanMy(lib);  \
+    getMy(lib);  \
     lib->priv.w.priv = dlsym(lib->priv.w.lib, "vkGetInstanceProcAddr"); \
     box86->vkprocaddress = lib->priv.w.priv;
 
 #define CUSTOM_FINI \
     my_lib = NULL;  \
-    freeVulkanMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 
@@ -385,21 +364,18 @@ my_VkAllocationCallbacks_t* find_VkAllocationCallbacks(my_VkAllocationCallbacks_
 #define CREATE(A)   \
 EXPORT int my_##A(x86emu_t* emu, void* device, void* pAllocateInfo, my_VkAllocationCallbacks_t* pAllocator, void* p)    \
 {                                                                                                                       \
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;                                                                  \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
     return my->A(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);                          \
 }
 #define DESTROY(A)   \
 EXPORT void my_##A(x86emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                         \
 {                                                                                                                       \
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;                                                                  \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
     my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                         \
 }
 #define DESTROY64(A)   \
 EXPORT void my_##A(x86emu_t* emu, void* device, uint64_t p, my_VkAllocationCallbacks_t* pAllocator)                        \
 {                                                                                                                       \
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;                                                                  \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
     my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                \
 }
@@ -411,7 +387,6 @@ CREATE(vkCreateCommandPool)
 
 EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     void* aligned;
     const char* desc="upiSupiiUppUUi";
@@ -429,7 +404,6 @@ CREATE(vkCreateDevice)
 
 EXPORT int my_vkCreateDisplayModeKHR(x86emu_t* emu, void* physical, uint64_t display, void* pCreateInfo, my_VkAllocationCallbacks_t* pAllocator, void* pMode)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkCreateDisplayModeKHR(physical, display, pCreateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), pMode);
 }
@@ -441,7 +415,6 @@ CREATE(vkCreateFramebuffer)
 
 EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     void* aligned;
     const char* desc="upiuppppppppppUUuUi"; //TODO: check if any substruct need alignement!
@@ -456,7 +429,6 @@ CREATE(vkCreateImageView)
 
 EXPORT int my_vkCreateInstance(x86emu_t* emu, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pInstance)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkCreateInstance(pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pInstance);
 }
@@ -472,7 +444,6 @@ CREATE(vkCreateShaderModule)
 
 EXPORT int my_vkCreateSharedSwapchainsKHR(x86emu_t* emu, void* device, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pSwapchains)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     void* aligned;
     const char* desc="upiUuiiuuuiiupiiiiU";
@@ -491,13 +462,11 @@ CREATE(vkCreateRenderPass2KHR)
 
 EXPORT int my_vkRegisterDeviceEventEXT(x86emu_t* emu, void* device, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkRegisterDeviceEventEXT(device, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
 }
 EXPORT int my_vkRegisterDisplayEventEXT(x86emu_t* emu, void* device, uint64_t disp, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkRegisterDisplayEventEXT(device, disp, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
 }
@@ -514,7 +483,6 @@ DESTROY64(vkDestroyDescriptorUpdateTemplateKHR)
 
 EXPORT void my_vkDestroyDevice(x86emu_t* emu, void* pDevice, my_VkAllocationCallbacks_t* pAllocator)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     my->vkDestroyDevice(pDevice, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
@@ -527,7 +495,6 @@ DESTROY64(vkDestroyImageView)
 
 EXPORT void my_vkDestroyInstance(x86emu_t* emu, void* instance, my_VkAllocationCallbacks_t* pAllocator)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     my->vkDestroyInstance(instance, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
@@ -556,7 +523,6 @@ DESTROY64(vkDestroyValidationCacheEXT)
 
 EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = 
     "uuuuiYB"
     "SuuuuuuuuuuuUUuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuffuuuffuLUUUiuiuffuuuuiiiiuiiiiiuifuuuuffffffiiUUU"
@@ -568,7 +534,6 @@ EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* 
 
 EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, void* device, int format, int type, int samples, int usage, int tiling, uint32_t* count, void** pProps)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = "iuuui";
     if(!pProps)
         return my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, pProps);
@@ -583,7 +548,6 @@ EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, voi
 
 EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writeCount, void* writeSet, uint32_t copyCount, void* copySet)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* writeDesc = "upUuuuippp";
     static const char* copyDesc = "upUuuUuuu";
 
@@ -596,7 +560,6 @@ EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writ
 
 EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint64_t mode, uint32_t index, void* pCap)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = "iuuuuuuuuuuuuuuuu";
 
     void* aligned = vkalignStruct(pCap, desc, 0);
@@ -607,7 +570,6 @@ EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint
 
 EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x86emu_t* emu, void* device, uint32_t* count, void* pProp)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = "Upuuuuiii";
     if(!pProp)
         return my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, count, pProp);
@@ -622,7 +584,6 @@ EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x86emu_t* emu, void* devic
 
 EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, void* pProps)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = 
     "u" //uint32_t        memoryTypeCount;
     "iuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiu"  //VkMemoryType    memoryTypes[VK_MAX_MEMORY_TYPES]; //32
@@ -637,7 +598,6 @@ EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, 
 EXPORT void my_vkCmdPipelineBarrier(x86emu_t* emu, void* device, int src, int dst, int dep, 
     uint32_t barrierCount, void* pBarriers, uint32_t bufferCount, void* pBuffers, uint32_t imageCount, void* pImages)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = "upiiiiuuUiuuuu";
 
     void* aligned = (imageCount)?vkalignStruct(pImages, desc, imageCount):NULL;
@@ -657,7 +617,6 @@ EXPORT int my_vkCreateDebugReportCallbackEXT(x86emu_t* emu, void* instance,
                                              my_VkDebugReportCallbackCreateInfoEXT_t* create, 
                                              my_VkAllocationCallbacks_t* alloc, void* callback)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkDebugReportCallbackCreateInfoEXT_t dbg = *create;
     my_VkAllocationCallbacks_t my_alloc; 
     dbg.pfnCallback = find_DebugReportCallbackEXT_Fct(dbg.pfnCallback);
@@ -666,7 +625,6 @@ EXPORT int my_vkCreateDebugReportCallbackEXT(x86emu_t* emu, void* instance,
 
 EXPORT int my_vkDestroyDebugReportCallbackEXT(x86emu_t* emu, void* instance, void* callback, void* alloc)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
 }
@@ -675,7 +633,6 @@ CREATE(vkCreateHeadlessSurfaceEXT)
 
 EXPORT int my_vkGetPastPresentationTimingGOOGLE(x86emu_t* emu, void* device, uint64_t swapchain, uint32_t* count, void* timings)
 {
-    vulkan_my_t* my = (vulkan_my_t*)my_lib->priv.w.p2;
     static const char* desc = "uUUUU";
 
     void* aligned = (timings)?vkalignStruct(timings, desc, *count):NULL;

@@ -23,62 +23,13 @@ const char* libjpeg62Name = "libjpeg.so.62";
 #define LIBNAME libjpeg62
 #define ALTNAME "libjpeg.so.8"
 
-static library_t* my_lib = NULL;
 static bridge_t* my_bridge = NULL;
 
-typedef void    (*vFp_t)    (void*);
-typedef void*   (*pFp_t)    (void*);
-typedef int     (*iFp_t)    (void*);
-typedef int     (*iFpi_t)   (void*, int);
-typedef void    (*vFpi_t)   (void*, int);
-typedef void    (*vFpii_t)  (void*, int, int);
-typedef void    (*vFpip_t)  (void*, int, void*);
-typedef void    (*vFppp_t)  (void*, void*, void*);
-typedef void    (*vFpiL_t)  (void*, int, unsigned long);
-typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
-typedef void    (*vFpipu_t) (void*, int, void*, uint32_t);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(jpeg_CreateDecompress, vFpiL_t)  \
-    GO(jpeg_read_header, iFpi_t)        \
-    GO(jpeg_start_decompress, iFp_t)    \
-    GO(jpeg_read_scanlines, uFppu_t)    \
-    GO(jpeg_finish_decompress, iFp_t)   \
-    GO(jpeg_std_error, pFp_t)           \
-    GO(jpeg_set_marker_processor, vFpip_t)  \
-    GO(jpeg_destroy_decompress, vFp_t)  \
-    GO(jpeg_CreateCompress, vFpiL_t)    \
-    GO(jpeg_destroy_compress, vFp_t)    \
-    GO(jpeg_finish_compress, vFp_t)     \
-    GO(jpeg_resync_to_restart, iFpi_t)  \
-    GO(jpeg_set_defaults, vFp_t)        \
-    GO(jpeg_start_compress, vFpi_t)     \
-    GO(jpeg_write_scanlines, uFppu_t)   \
-    GO(jpeg_set_quality, vFpii_t)       \
-    GO(jpeg_mem_dest, vFppp_t)          \
-    GO(jpeg_write_marker, vFpipu_t)     \
+#include "generated/wrappedlibjpeg62types.h"
 
-typedef struct jpeg62_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} jpeg62_my_t;
-
-void* getJpeg62My(library_t* lib)
-{
-    jpeg62_my_t* my = (jpeg62_my_t*)calloc(1, sizeof(jpeg62_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeJpeg62My(void* lib)
-{
-    //jpeg62_my_t *my = (jpeg62_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 typedef struct jpeg62_error_mgr_s {
   void (*error_exit) (void* cinfo);
@@ -1298,8 +1249,6 @@ EXPORT int my62_jpeg_simd_cpu_support()
 
 EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
 {
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
-
     jpeg62_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
     wrapErrorMgr(ret);
@@ -1308,7 +1257,6 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
 }
 
 #define WRAP(R, A, T)               \
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;  \
     is_jmpbuf = 1;                  \
     my62_jpegcb_emu = emu;          \
     unwrapCommonStruct(cinfo, T);   \
@@ -1322,7 +1270,6 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
     wrapCommonStruct(cinfo, T)
 
 #define WRAPC(R, A)                                     \
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;  \
     is_jmpbuf = 1;                                      \
     my62_jpegcb_emu = emu;                              \
     j62_compress_ptr_t  tmp;                            \
@@ -1339,7 +1286,6 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
 EXPORT void my62_jpeg_CreateDecompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int version, unsigned long structsize)
 {
     // Not using WRAP macro because only err field might be initialized here
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
     is_jmpbuf = 1;
     my62_jpegcb_emu = emu;
     unwrapErrorMgr(cinfo->err);
@@ -1385,7 +1331,6 @@ EXPORT void my62_jpeg_set_marker_processor(x86emu_t* emu, jpeg62_common_struct_t
 EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
     is_jmpbuf = 1;
     my62_jpegcb_emu = emu;
     int unwrapped = 0;
@@ -1404,7 +1349,6 @@ EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* 
 EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int version, unsigned long structsize)
 {
     // Not using WRAPC macro because only err field might be initialized here
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
     is_jmpbuf = 1;
     my62_jpegcb_emu = emu;
     j62_compress_ptr_t tmp = {0};
@@ -1425,7 +1369,6 @@ EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, 
 EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
-    jpeg62_my_t *my = (jpeg62_my_t*)my_lib->priv.w.p2;
     is_jmpbuf = 1;
     my62_jpegcb_emu = emu;
     j62_compress_ptr_t tmp;
@@ -1486,13 +1429,10 @@ EXPORT void my62_jpeg_write_marker(x86emu_t* emu, i386_compress_ptr_t* cinfo, in
 
 #define CUSTOM_INIT \
     my_bridge = lib->priv.w.bridge;     \
-    my_lib = lib;                       \
-    lib->altmy = strdup("my62_");       \
-    lib->priv.w.p2 = getJpeg62My(lib);
+    SETALT(my62_);                      \
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeJpeg62My(lib->priv.w.p2);   \
-    free(lib->priv.w.p2);           \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

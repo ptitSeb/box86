@@ -17,37 +17,16 @@
 #include "librarian.h"
 #include "myalign.h"
 
+const char* openalName = "libopenal.so.1";
+#define LIBNAME openal
 static char* libname = NULL;
 
-typedef void* (*pFp_t)(void*);
-typedef void* (*pFpp_t)(void*, void*);
-typedef void (*vFv_t)();
-typedef void (*vFiiipp_t)(int32_t, int32_t, int32_t, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-typedef struct openal_my_s {
-    // functions
-    pFp_t  alGetProcAddress;
-    pFpp_t  alcGetProcAddress;
-    vFiiipp_t alRequestFoldbackStart;
-    vFv_t alRequestFoldbackStop;
-} openal_my_t;
+#include "generated/wrappedopenaltypes.h"
 
-void* getOpenALMy(library_t* lib)
-{
-    openal_my_t* my = (openal_my_t*)calloc(1, sizeof(openal_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    GO(alGetProcAddress, pFp_t)
-    GO(alcGetProcAddress, pFpp_t)
-    GO(alRequestFoldbackStart, vFiiipp_t)
-    GO(alRequestFoldbackStop, vFv_t)
-    #undef GO
-    return my;
-}
+#include "wrappercallback.h"
 
-void freeOpenALMy(void* lib)
-{
-    //openal_my_t *my = (openal_my_t *)lib;
-}
 #define SUPER() \
 GO(0)   \
 GO(1)   \
@@ -80,73 +59,15 @@ static void* find_Request_Fct(void* fct)
 
 #undef SUPER
 
-void* my_alGetProcAddress(x86emu_t* emu, void* name);
-void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name);
-void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb);
-void my_alRequestFoldbackStop(x86emu_t* emu);
-
-const char* openalName = "libopenal.so.1";
-#define LIBNAME openal
-
-#define CUSTOM_INIT \
-    libname = lib->name;                \
-    lib->priv.w.p2 = getOpenALMy(lib);
-
-#define CUSTOM_FINI \
-    freeOpenALMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
-
-#include "wrappedlib_init.h"
-
-
-
-void fillALProcWrapper(box86context_t* context)
-{
-    int cnt, ret;
-    khint_t k;
-    kh_symbolmap_t * symbolmap = kh_init(symbolmap);
-    // populates maps...
-    cnt = sizeof(openalsymbolmap)/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, symbolmap, openalsymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = openalsymbolmap[i].w;
-    }
-    // and the my_ symbols map
-    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
-    }
-    context->alwrappers = symbolmap;
-    // fill my_* map
-    symbolmap = kh_init(symbolmap);
-    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
-    }
-    context->almymap = symbolmap;
-}
-void freeALProcWrapper(box86context_t* context)
-{
-    if(!context)
-        return;
-    if(context->alwrappers)
-        kh_destroy(symbolmap, context->alwrappers);
-    if(context->almymap)
-        kh_destroy(symbolmap, context->almymap);
-    context->alwrappers = NULL;
-    context->almymap = NULL;
-}
+void fillALProcWrapper();
 
 EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name) 
 {
     khint_t k;
-    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alGetProcAddress(%s)\n", rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
-        fillALProcWrapper(emu->context);
+        fillALProcWrapper();
     // get proc adress using actual alGetProcAddress
     k = kh_get(symbolmap, emu->context->almymap, rname);
     int is_my = (k==kh_end(emu->context->almymap))?0:1;
@@ -179,11 +100,10 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
 EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
 {
     khint_t k;
-    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling alcGetProcAddress(%p, %s)\n", device, rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
-        fillALProcWrapper(emu->context);
+        fillALProcWrapper();
     // get proc adress using actual alGetProcAddress
     k = kh_get(symbolmap, emu->context->almymap, rname);
     int is_my = (k==kh_end(emu->context->almymap))?0:1;
@@ -214,13 +134,58 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
 
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
 {
-    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     my->alRequestFoldbackStart(mode, count, length, mem, find_Request_Fct(cb));
 }
 
 EXPORT void my_alRequestFoldbackStop(x86emu_t* emu)
 {
-    openal_my_t* my = (openal_my_t*)GetLibInternal(libname)->priv.w.p2;
     my->alRequestFoldbackStop();
 }
 
+#define CUSTOM_INIT         \
+    libname = lib->name;    \
+    getMy(lib);
+
+#define CUSTOM_FINI \
+    freeMy();
+
+#include "wrappedlib_init.h"
+
+void fillALProcWrapper()
+{
+    int cnt, ret;
+    khint_t k;
+    kh_symbolmap_t * symbolmap = kh_init(symbolmap);
+    // populates maps...
+    cnt = sizeof(openalsymbolmap)/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, openalsymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = openalsymbolmap[i].w;
+    }
+    // and the my_ symbols map
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
+    }
+    my_context->alwrappers = symbolmap;
+    // fill my_* map
+    symbolmap = kh_init(symbolmap);
+    cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
+    for (int i=0; i<cnt; ++i) {
+        k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
+        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
+    }
+    my_context->almymap = symbolmap;
+}
+void freeALProcWrapper(box86context_t* context)
+{
+    if(!context)
+        return;
+    if(context->alwrappers)
+        kh_destroy(symbolmap, context->alwrappers);
+    if(context->almymap)
+        kh_destroy(symbolmap, context->almymap);
+    context->alwrappers = NULL;
+    context->almymap = NULL;
+}

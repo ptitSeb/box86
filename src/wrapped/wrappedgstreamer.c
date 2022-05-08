@@ -18,7 +18,6 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-static library_t *my_lib = NULL;
 const char* gstreamerName = "libgstreamer-1.0.so.0";
 #define LIBNAME gstreamer
 
@@ -26,29 +25,7 @@ const char* gstreamerName = "libgstreamer-1.0.so.0";
 
 #include "generated/wrappedgstreamertypes.h"
 
-typedef struct gstreamer_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gstreamer_my_t;
-
-static void addGObject2Alternate(library_t* lib);
-
-static void* getGstreamerMy(library_t* lib)
-{
-    gstreamer_my_t* my = (gstreamer_my_t*)calloc(1, sizeof(gstreamer_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-static void freeGstreamerMy(void* lib)
-{
-    //gstreamer_my_t *my = (gstreamer_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -217,33 +194,28 @@ static void* findGstBusSyncHandlerFct(void* fct)
 #undef SUPER
 
 EXPORT void my_gst_caps_set_simple(x86emu_t* emu, void* caps, void* field, void* b) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
 
     PREPARE_VALIST_(b);
     my->gst_caps_set_simple_valist(caps, field, VARARGS_(b));
 }
 
 EXPORT void my_gst_caps_set_simple_valist(x86emu_t* emu, void* caps, void* field, void* V) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     PREPARE_VALIST_(V);
     my->gst_caps_set_simple_valist(caps, field, VARARGS_(V));
 }
 
 EXPORT void my_gst_structure_remove_fields(x86emu_t* emu, void* structure, void* field, void* b) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
 
     PREPARE_VALIST_(b);
     my->gst_structure_remove_fields_valist(structure, field, VARARGS_(b));
 }
 
 EXPORT void my_gst_structure_remove_fields_valist(x86emu_t* emu, void* structure, void* field, void* V) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     PREPARE_VALIST_(V);
     my->gst_structure_remove_fields_valist(structure, field, VARARGS_(V));
 }
 
 EXPORT void my_gst_debug_log(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* b) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
 
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
@@ -251,21 +223,18 @@ EXPORT void my_gst_debug_log(x86emu_t* emu, void* cat, int level, void* file, vo
 }
 
 EXPORT void my_gst_debug_log_valist(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* V) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
 
     PREPARE_VALIST_(V);
     my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS_(V));
 }
 
 EXPORT int my_gst_structure_get(x86emu_t* emu, void* structure, void* field, void* b) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
 
     PREPARE_VALIST_(b);
     return my->gst_structure_get_valist(structure, field, VARARGS_(b));
 }
 
 EXPORT int my_gst_structure_get_valist(x86emu_t* emu, void* structure, void* field, void* V) {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     PREPARE_VALIST_(V);
     return my->gst_structure_get_valist(structure, field, VARARGS_(V));
 }
@@ -273,37 +242,31 @@ EXPORT int my_gst_structure_get_valist(x86emu_t* emu, void* structure, void* fie
 
 EXPORT void my_gst_pad_set_activatemode_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     my->gst_pad_set_activatemode_function_full(pad, findGstPadActivateModeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_query_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     my->gst_pad_set_query_function_full(pad, findGstPadQueryFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_getrange_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     my->gst_pad_set_getrange_function_full(pad, findGstPadGetRangeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_chain_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     my->gst_pad_set_chain_function_full(pad, findGstPadChainFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_event_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     my->gst_pad_set_event_function_full(pad, findGstPadEventFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_bus_set_sync_handler(x86emu_t* emu, void* bus, void* f, void* data, void* d)
 {
-    gstreamer_my_t *my = (gstreamer_my_t*)my_lib->priv.w.p2;
     my->gst_bus_set_sync_handler(bus, findGstBusSyncHandlerFct(f), data, findDestroyFct(d));
 }
 
@@ -312,12 +275,9 @@ EXPORT void my_gst_bus_set_sync_handler(x86emu_t* emu, void* bus, void* f, void*
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getGstreamerMy(lib);        \
-    my_lib = lib;                               \
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeGstreamerMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);           \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

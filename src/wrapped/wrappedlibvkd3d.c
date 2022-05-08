@@ -16,28 +16,13 @@
 #include "debug.h"
 const char* libvkd3dName = "libvkd3d.so.1";
 #define LIBNAME libvkd3d
-typedef int32_t (*iFpp_t)(void*, void*);
-static library_t* my_lib = NULL;
-#define SUPER() \
-	GO(vkd3d_create_instance, iFpp_t)
-typedef struct libvkd3d_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libvkd3d_my_t;
-void* getVkd3dMy(library_t* lib)
-{
-    libvkd3d_my_t* my = (libvkd3d_my_t*)calloc(1, sizeof(libvkd3d_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-void freeVkd3dMy(void* lib)
-{
-}
+
+#define ADDED_FUNCTIONS()           \
+
+#include "generated/wrappedlibvkd3dtypes.h"
+
+#include "wrappercallback.h"
+
 typedef int (*PFN_vkd3d_signal_event)(void *event);
 typedef void * (*PFN_vkd3d_thread)(void *data);
 typedef void * (*PFN_vkd3d_create_thread)(PFN_vkd3d_thread thread_main, void *data);
@@ -72,7 +57,6 @@ static int my_join_thread(void *thread)
 }
 EXPORT int my_vkd3d_create_instance(x86emu_t* emu, void *create_info, void *instance)
 {
-    libvkd3d_my_t *my = (libvkd3d_my_t*)my_lib->priv.w.p2;
     vkd3d_instance_create_info* my_create_info = (vkd3d_instance_create_info*)create_info;
     origin_signal_event = (uintptr_t)my_create_info->pfn_signal_event;
     origin_create_thread = (uintptr_t)my_create_info->pfn_create_thread;
@@ -85,10 +69,9 @@ EXPORT int my_vkd3d_create_instance(x86emu_t* emu, void *create_info, void *inst
     return ret;
 }
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->priv.w.p2 = getVkd3dMy(lib);
+    getMy(lib);
+
 #define CUSTOM_FINI \
-    freeVkd3dMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

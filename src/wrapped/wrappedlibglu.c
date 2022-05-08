@@ -18,36 +18,14 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-typedef void        (*vFpip_t)(void*, int32_t, void*);
+const char* libgluName = "libGLU.so.1";
+#define LIBNAME libglu
 
-static library_t* my_lib = NULL;
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(gluQuadricCallback, vFpip_t) \
-    GO(gluTessCallback, vFpip_t)   \
-    GO(gluNurbsCallback, vFpip_t)
+#include "generated/wrappedlibglutypes.h"
 
-typedef struct libglu_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libglu_my_t;
-
-void* getGLUMy(library_t* lib)
-{
-    libglu_my_t* my = (libglu_my_t*)calloc(1, sizeof(libglu_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeGLUMy(void* lib)
-{
-    //libglu_my_t *my = (libglu_my_t *)lib;
-}
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -136,12 +114,10 @@ static void* findglu_callback5Fct(void* fct)
 #define GLU_TESS_COMBINE_DATA              100111
 void EXPORT my_gluQuadricCallback(x86emu_t* emu, void* a, int32_t b, void* cb)
 {
-    libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
     my->gluQuadricCallback(a, b, findglu_callbackFct(cb));
 }
 void EXPORT my_gluTessCallback(x86emu_t* emu, void* a, int32_t b, void* cb)
 {
-    libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
     if(b==GLU_TESS_COMBINE)
         my->gluTessCallback(a, b, findglu_callback4Fct(cb));
     else if(b==GLU_TESS_COMBINE_DATA)
@@ -151,24 +127,15 @@ void EXPORT my_gluTessCallback(x86emu_t* emu, void* a, int32_t b, void* cb)
 }
 void EXPORT my_gluNurbsCallback(x86emu_t* emu, void* a, int32_t b, void* cb)
 {
-    libglu_my_t *my = (libglu_my_t*)my_lib->priv.w.p2;
     my->gluNurbsCallback(a, b, findglu_callbackFct(cb));
 }
 
-const char* libgluName = "libGLU.so.1";
-#define LIBNAME libglu
-
 #define CUSTOM_INIT                     \
     my_lib = lib;                       \
-    lib->priv.w.p2 = getGLUMy(lib);     \
-    lib->priv.w.needed = 1;             \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libGL.so.1"); \
+    getMy(lib);                         \
+    setNeededLibs(&lib->priv.w, 1, "libGL.so.1");
 
 #define CUSTOM_FINI             \
-    freeGLUMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
-
+    freeMy();
 
 #include "wrappedlib_init.h"

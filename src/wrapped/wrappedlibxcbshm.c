@@ -58,32 +58,11 @@ typedef my_xcb_iterator_t   (*YFY_t)            (my_xcb_iterator_t);
     GO(xcb_shm_seg_end, YFY_t)                          \
 
 
-typedef struct xcbshm_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-    // functions
-} xcbshm_my_t;
-
-void* getXcbshmMy(library_t* lib)
-{
-    xcbshm_my_t* my = (xcbshm_my_t*)calloc(1, sizeof(xcbshm_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXcbshmMy(void* lib)
-{
-    //xcbshm_my_t *my = (xcbshm_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER(F, P, ...)                                            \
     EXPORT void* my_##F P                                           \
     {                                                               \
-        xcbshm_my_t *my = (xcbshm_my_t*)emu->context->libxcb->priv.w.p2;  \
         *ret = my->F(__VA_ARGS__);                                  \
         return ret;                                                 \
     }
@@ -110,12 +89,9 @@ SUPER(xcb_shm_seg_end, (x86emu_t* emu, my_xcb_iterator_t* ret, my_xcb_iterator_t
 
 
 #define CUSTOM_INIT \
-    box86->libxcbshm = lib;                \
-    lib->priv.w.p2 = getXcbshmMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeXcbshmMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    ((box86context_t*)(lib->context))->libxcbshm = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

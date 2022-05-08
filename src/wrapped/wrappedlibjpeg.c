@@ -23,46 +23,13 @@ const char* libjpegName = "libjpeg.so.8";
 #define LIBNAME libjpeg
 #define ALTNAME "libjpeg.so.62"
 
-static library_t* my_lib = NULL;
 static bridge_t* my_bridge = NULL;
 
-typedef void*   (*pFp_t)    (void*);
-typedef int     (*iFp_t)    (void*);
-typedef int     (*iFpi_t)   (void*, int);
-typedef void    (*vFpip_t)  (void*, int, void*);
-typedef void    (*vFpiL_t)  (void*, int, unsigned long);
-typedef uint32_t(*uFppu_t)  (void*, void*, uint32_t);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(jpeg_CreateDecompress, vFpiL_t)  \
-    GO(jpeg_read_header, iFpi_t)        \
-    GO(jpeg_start_decompress, iFp_t)    \
-    GO(jpeg_read_scanlines, uFppu_t)    \
-    GO(jpeg_finish_decompress, iFp_t)   \
-    GO(jpeg_std_error, pFp_t)           \
-    GO(jpeg_set_marker_processor, vFpip_t)
+#include "generated/wrappedlibjpegtypes.h"
 
-typedef struct jpeg_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} jpeg_my_t;
-
-void* getJpegMy(library_t* lib)
-{
-    jpeg_my_t* my = (jpeg_my_t*)calloc(1, sizeof(jpeg_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeJpegMy(void* lib)
-{
-    //jpeg_my_t *my = (jpeg_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 typedef struct jpeg_error_mgr_s {
   void (*error_exit) (void* cinfo);
@@ -336,8 +303,6 @@ EXPORT int my_jpeg_simd_cpu_support()
 
 EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
 {
-    jpeg_my_t *my = (jpeg_my_t*)my_lib->priv.w.p2;
-
     jpeg_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
     wrapErrorMgr(my_lib->priv.w.bridge, ret);
@@ -347,7 +312,6 @@ trace_end = 0;
 }
 
 #define WRAP(T, A)          \
-    jpeg_my_t *my = (jpeg_my_t*)my_lib->priv.w.p2;      \
     is_jmpbuf = 1;          \
     my_jpegcb_emu = emu;    \
     unwrapErrorMgr(my_lib->priv.w.bridge, cinfo->err);  \
@@ -399,12 +363,9 @@ EXPORT void my_jpeg_set_marker_processor(x86emu_t* emu, jpeg_common_struct_t* ci
 
 #define CUSTOM_INIT \
     my_bridge = lib->priv.w.bridge;     \
-    my_lib = lib;                       \
-    lib->priv.w.p2 = getJpegMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeJpegMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

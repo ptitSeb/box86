@@ -12,6 +12,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 #include "debug.h"
+
 const char* libharfbuzzName = "libharfbuzz.so.0";
 #define LIBNAME libharfbuzz
+
 #include "wrappedlib_init.h"

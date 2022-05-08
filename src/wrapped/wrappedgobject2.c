@@ -22,7 +22,6 @@
 
 const char* gobject2Name = "libgobject-2.0.so.0";
 #define LIBNAME gobject2
-static library_t *my_lib = NULL;
 
 typedef size_t(*LFv_t)(void);
 typedef void*(*pFL_t)(size_t);
@@ -34,31 +33,11 @@ typedef void*(*pFipp_t)(int, void*, void*);
  GO(g_object_new_valist, pFipp_t)   \
 
 #include "generated/wrappedgobject2types.h"
-
-typedef struct gobject2_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gobject2_my_t;
-
 static void addGObject2Alternate(library_t* lib);
 
-void* getGobject2My(library_t* lib)
-{
-    gobject2_my_t* my = (gobject2_my_t*)calloc(1, sizeof(gobject2_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    addGObject2Alternate(lib);
-    return my;
-}
-#undef SUPER
+#define ADDED_INIT()   addGObject2Alternate(lib);
 
-void freeGobject2My(void* lib)
-{
-    //gobject2_my_t *my = (gobject2_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 static int signal_cb(void* a, void* b, void* c, void* d)
 {
@@ -205,8 +184,6 @@ static void addGObject2Alternate(library_t* lib)
 
 EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     //TODO: get the type of instance to be more precise below
 
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
@@ -648,8 +625,6 @@ static void* findcompareFct(void* fct)
 
 EXPORT uintptr_t my_g_signal_connect_object(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     //TODO: get the type of instance to be more precise below
 
     return my->g_signal_connect_object(instance, detailed, findGCallbackFct(c_handler), object, flags);
@@ -657,7 +632,6 @@ EXPORT uintptr_t my_g_signal_connect_object(x86emu_t* emu, void* instance, void*
 
 EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     void* bc = findCopyFct(boxed_copy);
     void* bf = findFreeFct(boxed_free);
     return my->g_boxed_type_register_static(name, bc, bf);
@@ -665,8 +639,6 @@ EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxe
 
 EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags, uint32_t offset, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void** b)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     printf_log(LOG_DEBUG, "g_signal_new for \"%s\", with offset=%d and %d args\n", (const char*)name, offset, n);
     
     void* cb_acc = findAccumulatorFct(acc);
@@ -689,8 +661,6 @@ EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags,
 
 EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* types)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     printf_log(LOG_DEBUG, "g_signal_newv for \"%s\", with %d args\n", (const char*)name, n);
     
     return my->g_signal_newv(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, types);
@@ -698,8 +668,6 @@ EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags
 
 EXPORT uint32_t my_g_signal_new_valist(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* b)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     printf_log(LOG_DEBUG, "g_signal_new_valist for \"%s\", with %d args\n", (const char*)name, n);
     
     return my->g_signal_new_valist(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, b);
@@ -707,8 +675,6 @@ EXPORT uint32_t my_g_signal_new_valist(x86emu_t* emu, void* name, int itype, int
 
 EXPORT uint32_t my_g_signal_handlers_block_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -717,8 +683,6 @@ EXPORT uint32_t my_g_signal_handlers_block_matched(x86emu_t* emu, void* instance
 
 EXPORT uint32_t my_g_signal_handlers_unblock_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -727,8 +691,6 @@ EXPORT uint32_t my_g_signal_handlers_unblock_matched(x86emu_t* emu, void* instan
 
 EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -737,8 +699,6 @@ EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x86emu_t* emu, void* ins
 
 EXPORT unsigned long my_g_signal_handler_find(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handler_find called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -747,8 +707,6 @@ EXPORT unsigned long my_g_signal_handler_find(x86emu_t* emu, void* instance, int
 
 EXPORT void* my_g_object_new(x86emu_t* emu, int type, void* first, void* b)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     if(first)
         return my->g_object_new_valist(type, first, b);
     return my->g_object_new(type, first);
@@ -756,22 +714,16 @@ EXPORT void* my_g_object_new(x86emu_t* emu, int type, void* first, void* b)
 
 EXPORT int my_g_type_register_static(x86emu_t* emu, int parent, void* name, my_GTypeInfo_t* info, int flags)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     return my->g_type_register_static(parent, name, findFreeGTypeInfo(info, parent), flags);
 }
 
 EXPORT int my_g_type_register_fundamental(x86emu_t* emu, int parent, void* name, my_GTypeInfo_t* info, void* finfo, int flags)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     return my->g_type_register_fundamental(parent, name, findFreeGTypeInfo(info, parent), finfo, flags);
 }
 
 EXPORT void my_g_value_register_transform_func(x86emu_t* emu, int src, int dst, void* f)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     my->g_value_register_transform_func(src, dst, findValueTransformFct(f));
 }
 
@@ -785,7 +737,6 @@ static int my_signal_emission_hook(void* ihint, uint32_t n, my_GValue_t* values,
 EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
 {
     // there can be many signals connected, so something "light" is needed here
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
 
     if(!f)
         return my->g_signal_add_emission_hook(signal, detail, f, data, notify);
@@ -815,8 +766,6 @@ typedef struct my_GInterfaceInfo_s {
 
 EXPORT void my_g_type_add_interface_static(x86emu_t* emu, int instance_type, int interface_type, my_GInterfaceInfo_t* info)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     my_GInterfaceInfo_t i = {0};
     i.interface_init = findGInterfaceInitFuncFct(info->interface_init);
     i.interface_finalize = findGInterfaceFinalizeFuncFct(info->interface_finalize);
@@ -826,43 +775,31 @@ EXPORT void my_g_type_add_interface_static(x86emu_t* emu, int instance_type, int
 
 EXPORT void my_g_param_spec_set_qdata_full(x86emu_t* emu, void* pspec, uint32_t quark, void* data, void* notify)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     my->g_param_spec_set_qdata_full(pspec, quark, data, findFreeFct(notify));
 }
 
 EXPORT int my_g_param_type_register_static(x86emu_t* emu, void* name, void* pspec_info)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     return my->g_param_type_register_static(name, findFreeGParamSpecTypeInfo(pspec_info));
 }
 
 EXPORT void* my_g_value_array_sort(x86emu_t* emu, void* array, void* comp)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     return my->g_value_array_sort(array, findcompareFct(comp));
 }
 
 EXPORT void* my_g_value_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     return my->g_value_array_sort_with_data(array, findcompareFct(comp), data);
 }
 
 EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     my->g_object_set_data_full(object, key, data, findFreeFct(notify));
 }
 
 EXPORT void* my_g_type_class_peek_parent(x86emu_t* emu, void* object)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
-
     void* klass = my->g_type_class_peek_parent(object);
     int type = klass?*(int*)klass:0;
     return wrapCopyGTKClass(klass, type);
@@ -870,7 +807,6 @@ EXPORT void* my_g_type_class_peek_parent(x86emu_t* emu, void* object)
 
 EXPORT void* my_g_value_init(void* value, int type)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my_GValue_t v;
     alignNGValue(&v, value, 1);
     my->g_value_init(&v, type);
@@ -880,7 +816,6 @@ EXPORT void* my_g_value_init(void* value, int type)
 
 EXPORT void* my_g_value_reset(void* value)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my_GValue_t v;
     alignNGValue(&v, value, 1);
     my->g_value_reset(&v);
@@ -890,7 +825,6 @@ EXPORT void* my_g_value_reset(void* value)
 
 EXPORT void* my_g_param_spec_get_default_value(void* spec)
 {
-    gobject2_my_t *my = (gobject2_my_t*)my_lib->priv.w.p2;
     my_GValue_t v = *(my_GValue_t*)my->g_param_spec_get_default_value(spec);
     static int cnt = 0;
     if(cnt==4) cnt=0;
@@ -904,20 +838,15 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
         return -1;
 
 #define CUSTOM_INIT \
-    InitGTKClass(lib->priv.w.bridge);           \
-    lib->priv.w.p2 = getGobject2My(lib);        \
-    my_lib = lib;                               \
-    SetGObjectID(((gobject2_my_t*)lib->priv.w.p2)->g_object_get_type());        \
-    SetGTypeName(((gobject2_my_t*)lib->priv.w.p2)->g_type_name);                \
-    lib->priv.w.needed = 1;                     \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libglib-2.0.so.0");
+    InitGTKClass(lib->priv.w.bridge);       \
+    getMy(lib);                             \
+    SetGObjectID(my->g_object_get_type());  \
+    SetGTypeName(my->g_type_name);          \
+    setNeededLibs(&lib->priv.w, 1, "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \
-    FiniGTKClass();                 \
-    freeGobject2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);           \
-    my_lib = NULL;
+    FiniGTKClass(); \
+    freeMy();
 
 #include "wrappedlib_init.h"
 

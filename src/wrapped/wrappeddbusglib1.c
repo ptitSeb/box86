@@ -25,27 +25,7 @@ const char* dbusglib1Name = "libdbus-glib-1.so.2";
 
 #include "generated/wrappeddbusglib1types.h"
 
-typedef struct dbusglib1_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} dbusglib1_my_t;
-
-static void* getDBusGLib1My(library_t* lib)
-{
-    dbusglib1_my_t* my = (dbusglib1_my_t*)calloc(1, sizeof(dbusglib1_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-static void freeDBusGLib1My(void* lib)
-{
-    //dbusglib1_my_t *my = (dbusglib1_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
     GO(0)   \
@@ -193,25 +173,16 @@ static void* findDBusGTypeSpecializedMapIteratorFct(void* fct)
 
 EXPORT void my_dbus_g_type_collection_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
-    library_t * lib = GetLibInternal(dbusglib1Name);
-    dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
-
     my->dbus_g_type_collection_value_iterate(value, findDBusGTypeSpecializedCollectionIteratorFct(cb), data);
 }
 
 EXPORT void my_dbus_g_type_map_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
-    library_t * lib = GetLibInternal(dbusglib1Name);
-    dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
-
     my->dbus_g_type_map_value_iterate(value, findDBusGTypeSpecializedMapIteratorFct(cb), data);
 }
 
 EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int first, int* next)
 {
-    library_t * lib = GetLibInternal(dbusglib1Name);
-    dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
-
     int narg = 0;
     if(first)
         while(next[narg]) ++narg;
@@ -228,9 +199,6 @@ EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method
 
 EXPORT void* my_dbus_g_proxy_begin_call_with_timeout(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int timeout, int first, int* next)
 {
-    library_t * lib = GetLibInternal(dbusglib1Name);
-    dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
-
     int narg = 0;
     if(first)
         while(next[narg]) ++narg;
@@ -247,17 +215,11 @@ EXPORT void* my_dbus_g_proxy_begin_call_with_timeout(x86emu_t* emu, void* proxy,
 
 EXPORT void my_dbus_g_proxy_connect_signal(x86emu_t* emu, void* proxy, void* name, void* handler, void* data, void* free_fnc)
 {
-    library_t * lib = GetLibInternal(dbusglib1Name);
-    dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
-
     my->dbus_g_proxy_connect_signal(proxy, name, findGCallbackFct(handler), data, findGClosureNotifyFct(free_fnc));
 }
 
 EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* name, void* handler, void* data)
 {
-    library_t * lib = GetLibInternal(dbusglib1Name);
-    dbusglib1_my_t *my = (dbusglib1_my_t*)lib->priv.w.p2;
-
     my->dbus_g_proxy_disconnect_signal(proxy, name, findGCallbackFct(handler), data);
 }
 
@@ -266,11 +228,10 @@ EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* 
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getDBusGLib1My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeDBusGLib1My(lib->priv.w.p2);\
-    free(lib->priv.w.p2);
+    freeMy();
 
 
 #include "wrappedlib_init.h"

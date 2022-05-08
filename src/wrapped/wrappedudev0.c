@@ -17,6 +17,4 @@ const char* udev0Name = "libudev.so.0";
 #include "wrappedlib_init.h"
 
 #define CUSTOM_INIT \
-    lib->priv.w.needed = 1;             \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libudev.so.1"); \
+    setNeededLibs(&lib->priv.w, 1, "libudev.so.1");

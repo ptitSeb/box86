@@ -24,34 +24,12 @@ const char* lcms2Name =
 #endif
     ;
 #define LIBNAME lcms2
-static library_t* my_lib = NULL;
 
-typedef void    (*vFp_t)        (void*);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER()                                 \
-    GO(cmsSetLogErrorHandler, vFp_t)            \
+#include "generated/wrappedlcms2types.h"
 
-typedef struct lcms2_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} lcms2_my_t;
-
-void* getLcms2My(library_t* lib)
-{
-    lcms2_my_t* my = (lcms2_my_t*)calloc(1, sizeof(lcms2_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeLcms2My(void* lib)
-{
-    //lcms2_my_t *my = (lcms2_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -86,8 +64,6 @@ static void* find_cmsLogErrorHandlerFunction_Fct(void* fct)
 
 EXPORT void my_cmsSetLogErrorHandler(x86emu_t* emu, void* f)
 {
-    lcms2_my_t* my = (lcms2_my_t*)my_lib->priv.w.p2;
-
     my->cmsSetLogErrorHandler(find_cmsLogErrorHandlerFunction_Fct(f));
 }
 
@@ -96,13 +72,9 @@ EXPORT void my_cmsSetLogErrorHandler(x86emu_t* emu, void* f)
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getLcms2My(lib);    \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeLcms2My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
-
+    freeMy();
 
 #include "wrappedlib_init.h"

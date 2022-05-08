@@ -20,13 +20,12 @@ const char* appindicator3Name = "libappindicator3.so.1";
         return -1;
 
 #define CUSTOM_INIT \
-    lib->altmy = strdup("my3_");                                    \
-    lib->priv.w.needed = 5; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libgtk-3.so.0");        \
-    lib->priv.w.neededlibs[1] = strdup("libgdk-3.so.0");        \
-    lib->priv.w.neededlibs[2] = strdup("libgio-2.0.so.0");      \
-    lib->priv.w.neededlibs[3] = strdup("libgobject-2.0.so.0");  \
-    lib->priv.w.neededlibs[4] = strdup("libglib-2.0.so.0");     \
+    SETALT(my3_);                   \
+    setNeededLibs(&lib->priv.w, 5,  \
+        "libgtk-3.so.0",            \
+        "libgdk-3.so.0",            \
+        "libgio-2.0.so.0",          \
+        "libgobject-2.0.so.0",      \
+        "libglib-2.0.so.0");
 
 #include "wrappedlib_init.h"

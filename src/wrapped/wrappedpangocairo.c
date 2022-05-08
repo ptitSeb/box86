@@ -26,31 +26,12 @@
 
 const char* pangocairoName = "libpangocairo-1.0.so.0";
 #define LIBNAME pangocairo
-static library_t* my_lib = NULL;
 
 #include "generated/wrappedpangocairotypes.h"
 
-typedef struct pangocario_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} pangocairo_my_t;
+#define ADDED_FUNCTIONS()           \
 
-void* getPangoCairoMy(library_t* lib)
-{
-    my_lib = lib;
-    pangocairo_my_t* my = (pangocairo_my_t*)calloc(1, sizeof(pangocairo_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freePangoCairoMy(void* lib)
-{
-    //pangocairo_my_t *my = (pangocairo_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #undef SUPER
 
@@ -121,13 +102,11 @@ static void* findGDestroyNotifyFct(void* fct)
 
 EXPORT void* my_pango_cairo_context_get_shape_renderer(x86emu_t* emu, void* ctx, void* p)
 {
-    pangocairo_my_t* my = (pangocairo_my_t*)my_lib->priv.w.p2;
     return reverse_ShapeRenderer_Fct(my->pango_cairo_context_get_shape_renderer(ctx, p));
 }
 
 EXPORT void my_pango_cairo_context_set_shape_renderer(x86emu_t* emu, void* ctx, void* f, void* p, void* d)
 {
-    pangocairo_my_t* my = (pangocairo_my_t*)my_lib->priv.w.p2;
     my->pango_cairo_context_set_shape_renderer(ctx, find_ShapeRenderer_Fct(f), p, findGDestroyNotifyFct(d));
 }
 
@@ -136,14 +115,10 @@ EXPORT void my_pango_cairo_context_set_shape_renderer(x86emu_t* emu, void* ctx, 
         return -1;
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getPangoCairoMy(lib); \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libpango-1.0.so.0");
+    getMy(lib); \
+    setNeededLibs(&lib->priv.w, 1, "libpango-1.0.so.0");
 
 #define CUSTOM_FINI \
-    freePangoCairoMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
-
+    freeMy();
 
 #include "wrappedlib_init.h"

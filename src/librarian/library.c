@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <link.h>
+#include <stdarg.h>
 
 #include "debug.h"
 #include "library.h"
@@ -1014,4 +1015,16 @@ void free_dependedbylib(needed_libs_t* dependedby)
     if(dependedby->libs)
         free(dependedby->libs);
     dependedby->libs = NULL;
+}
+
+void setNeededLibs(wlib_t* wlib, int n, ...)
+{
+    wlib->needed = n;
+    wlib->neededlibs = (char**)calloc(n, sizeof(char*));
+    va_list va;
+    va_start (va, n);
+    for (int i=0; i<n; ++i) {
+        wlib->neededlibs[i] = strdup(va_arg(va, char*));
+    }
+    va_end (va);
 }

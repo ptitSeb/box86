@@ -20,33 +20,12 @@
 
 const char* nspr4Name = "libnspr4.so";
 #define LIBNAME nspr4
-static library_t* my_lib = NULL;
 
 #define ADDED_FUNCTIONS()           \
 
 #include "generated/wrappednspr4types.h"
 
-typedef struct nspr4_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} nspr4_my_t;
-
-void* getNspr4My(library_t* lib)
-{
-    my_lib = lib;
-    nspr4_my_t* my = (nspr4_my_t*)calloc(1, sizeof(nspr4_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-
-void freeNspr4My(void* lib)
-{
-    //nspr4_my_t *my = (nspr4_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #undef SUPER
 
@@ -92,24 +71,19 @@ typedef struct my_PRLibrary_s {
 
 EXPORT int my_PR_CallOnceWithArg(x86emu_t* emu, void* once, void* f, void* arg)
 {
-    nspr4_my_t* my = (nspr4_my_t*)my_lib->priv.w.p2;
-
     return my->PR_CallOnceWithArg(once, find_PRCallOnceWithArg_Fct(f), arg);
 }
 
 EXPORT void* my_PR_FindFunctionSymbol(x86emu_t* emu, void* symbol, void* name)
 {
-    nspr4_my_t* my = (nspr4_my_t*)my_lib->priv.w.p2;
     //TODO!!!
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getNspr4My(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeNspr4My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
-
+    freeMy();
 
 #include "wrappedlib_init.h"
 

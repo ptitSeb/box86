@@ -27,33 +27,9 @@ const char* gnutlsName =
     ;
 #define LIBNAME gnutls
 
-static library_t *my_lib = NULL;
+#include "generated/wrappedgnutlstypes.h"
 
-typedef void        (*vFp_t)        (void*);
-typedef void        (*vFpp_t)       (void*, void*);
-
-#define SUPER() \
-    GO(gnutls_global_set_log_function, vFp_t)       \
-    GO(gnutls_transport_set_pull_function, vFpp_t)  \
-    GO(gnutls_transport_set_push_function, vFpp_t)  \
-    GO(gnutls_transport_set_pull_timeout_function, vFpp_t)  \
-
-typedef struct gnutls_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} gnutls_my_t;
-
-void* getGnutlsMy(library_t* lib)
-{
-    gnutls_my_t* my = (gnutls_my_t*)calloc(1, sizeof(gnutls_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
+#include "wrappercallback.h"
 
 void freeGnutlsMy(void* lib)
 {
@@ -145,39 +121,28 @@ static void* find_pulltimeout_Fct(void* fct)
 
 EXPORT void my_gnutls_global_set_log_function(x86emu_t* emu, void* f)
 {
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_global_set_log_function(find_gnutls_log_Fct(f));
 }
 
 EXPORT void my_gnutls_transport_set_pull_function(x86emu_t* emu, void* session, void* f)
 {
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_transport_set_pull_function(session, find_pullpush_Fct(f));
 }
 EXPORT void my_gnutls_transport_set_push_function(x86emu_t* emu, void* session, void* f)
 {
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_transport_set_push_function(session, find_pullpush_Fct(f));
 }
 
 EXPORT void my_gnutls_transport_set_pull_timeout_function(x86emu_t* emu, void* session, void* f)
 {
-    gnutls_my_t *my = (gnutls_my_t*)my_lib->priv.w.p2;
-
     my->gnutls_transport_set_pull_timeout_function(session, find_pulltimeout_Fct(f));
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->priv.w.p2 = getGnutlsMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    my_lib = NULL;  \
-    freeGnutlsMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

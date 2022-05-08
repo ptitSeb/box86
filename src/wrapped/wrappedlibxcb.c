@@ -165,32 +165,11 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_free_cursor, XFpp_t)                     \
 
 
-typedef struct xcb_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-    // functions
-} xcb_my_t;
-
-void* getXcbMy(library_t* lib)
-{
-    xcb_my_t* my = (xcb_my_t*)calloc(1, sizeof(xcb_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXcbMy(void* lib)
-{
-    //xcb_my_t *my = (xcb_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER(F, P, ...)                                            \
     EXPORT void* my_##F P                                           \
     {                                                               \
-        xcb_my_t *my = (xcb_my_t*)emu->context->libxcb->priv.w.p2;  \
         *ret = my->F(__VA_ARGS__);                                  \
         return ret;                                                 \
     }
@@ -288,8 +267,6 @@ SUPER(xcb_ungrab_button_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, 
 
 EXPORT void* my_xcb_depth_visuals_iterator(x86emu_t* emu, void* ret, void* R)
 {
-    xcb_my_t *my = (xcb_my_t*)emu->context->libxcb->priv.w.p2;
-
     my_xcb_XXX_iterator_t tmp = my->xcb_depth_visuals_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -297,8 +274,6 @@ EXPORT void* my_xcb_depth_visuals_iterator(x86emu_t* emu, void* ret, void* R)
 
 EXPORT void* my_xcb_screen_allowed_depths_iterator(x86emu_t* emu, void* ret, void* R)
 {
-    xcb_my_t *my = (xcb_my_t*)emu->context->libxcb->priv.w.p2;
-
     my_xcb_XXX_iterator_t tmp = my->xcb_screen_allowed_depths_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -306,8 +281,6 @@ EXPORT void* my_xcb_screen_allowed_depths_iterator(x86emu_t* emu, void* ret, voi
 
 EXPORT void* my_xcb_setup_pixmap_formats_iterator(x86emu_t* emu, void* ret, void* R)
 {
-    xcb_my_t *my = (xcb_my_t*)emu->context->libxcb->priv.w.p2;
-
     my_xcb_XXX_iterator_t tmp = my->xcb_setup_pixmap_formats_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -315,20 +288,15 @@ EXPORT void* my_xcb_setup_pixmap_formats_iterator(x86emu_t* emu, void* ret, void
 
 EXPORT void* my_xcb_setup_roots_iterator(x86emu_t* emu, void* ret, void* R)
 {
-    xcb_my_t *my = (xcb_my_t*)emu->context->libxcb->priv.w.p2;
-
     my_xcb_XXX_iterator_t tmp = my->xcb_setup_roots_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
 }
 
 #define CUSTOM_INIT \
-    box86->libxcb = lib;                \
-    lib->priv.w.p2 = getXcbMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeXcbMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    ((box86context_t*)(lib->context))->libxcb = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

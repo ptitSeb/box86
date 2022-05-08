@@ -54,33 +54,11 @@ typedef my_xcb_iterator_t (*YFp_t)  (void*);
     GO(xcb_randr_get_output_info_unchecked, XFppu_t)                \
     GO(xcb_randr_get_screen_resources_current_outputs_end, YFp_t)   \
 
-
-typedef struct xcbrandr_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-    // functions
-} xcbrandr_my_t;
-
-void* getXcbrandrMy(library_t* lib)
-{
-    xcbrandr_my_t* my = (xcbrandr_my_t*)calloc(1, sizeof(xcbrandr_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXcbrandrMy(void* lib)
-{
-    //xcbrandr_my_t *my = (xcbrandr_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER(F, P, ...)                                            \
     EXPORT void* my_##F P                                           \
     {                                                               \
-        xcbrandr_my_t *my = (xcbrandr_my_t*)emu->context->libxcb->priv.w.p2;  \
         *ret = my->F(__VA_ARGS__);                                  \
         return ret;                                                 \
     }
@@ -106,12 +84,9 @@ SUPER(xcb_randr_get_screen_resources_current_outputs_end, (x86emu_t* emu, my_xcb
 
 
 #define CUSTOM_INIT \
-    box86->libxcbrandr = lib;                \
-    lib->priv.w.p2 = getXcbrandrMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeXcbrandrMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    ((box86context_t*)(lib->context))->libxcbrandr = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

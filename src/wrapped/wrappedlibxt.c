@@ -20,32 +20,11 @@
 const char* libxtName = "libXt.so.6";
 #define LIBNAME libxt
 
-typedef void  (*vFpuipp_t)(void*, uint32_t, int32_t, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(XtAddEventHandler, vFpuipp_t)
+#include "generated/wrappedlibxttypes.h"
 
-typedef struct libxt_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-    // functions
-} libxt_my_t;
-
-void* getXtMy(library_t* lib)
-{
-    libxt_my_t* my = (libxt_my_t*)calloc(1, sizeof(libxt_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXtMy(void* lib)
-{
-    //libxt_my_t *my = (libxt_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -83,22 +62,15 @@ static void* findEventFct(void* fct)
 EXPORT void my_XtAddEventHandler(x86emu_t* emu, void* w, uint32_t mask, int32_t maskable, void* cb, void* data)
 {
     void* fct = findEventFct(cb);
-    library_t* lib = GetLibInternal(libxtName);
-    libxt_my_t* my = (libxt_my_t*)lib->priv.w.p2;
-
     my->XtAddEventHandler(w, mask, maskable, fct, data);
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getXtMy(lib);   \
-    lib->priv.w.needed = 2; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
-    lib->priv.w.neededlibs[1] = strdup("libXext.so.6");
+    getMy(lib);   \
+    setNeededLibs(&lib->priv.w, 2, "libX11.so.6", "libXext.so.6");
 
 #define CUSTOM_FINI \
-    freeXtMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

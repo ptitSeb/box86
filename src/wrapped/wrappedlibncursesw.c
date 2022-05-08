@@ -22,39 +22,15 @@
 const char* libncurseswName = "libncursesw.so.5";
 #define LIBNAME libncursesw
 
-static library_t* my_lib = NULL;
-
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 
 #define ADDED_FUNCTIONS() GO(stdscr, void*)
 #include "generated/wrappedlibncurseswtypes.h"
 
-typedef struct libncursesw_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libncursesw_my_t;
-
-void* getNCurseswMy(library_t* lib)
-{
-    libncursesw_my_t* my = (libncursesw_my_t*)calloc(1, sizeof(libncursesw_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeNCurseswMy(void* lib)
-{
-    //libncursesw_my_t *my = (libncursesw_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 EXPORT int myw_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void* b)
 {
-    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
-
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -72,8 +48,6 @@ EXPORT int myw_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void
 
 EXPORT int myw_printw(x86emu_t* emu, void* fmt, void* b)
 {
-    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
-
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
@@ -85,8 +59,6 @@ EXPORT int myw_printw(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT int myw_wprintw(x86emu_t* emu,void* win, void* fmt, void* b)
 {
-    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
-
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
@@ -98,8 +70,6 @@ EXPORT int myw_wprintw(x86emu_t* emu,void* win, void* fmt, void* b)
 
 EXPORT int myw_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
 {
-    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
-
     char* buf = NULL;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
@@ -116,8 +86,6 @@ EXPORT int myw_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
 }
 
 EXPORT int myw_vw_printw(x86emu_t *emu, void* win, void* fmt, void* b) {
-    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
-
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
@@ -131,23 +99,17 @@ EXPORT int myw_vwprintw(x86emu_t *emu, void* win, void* fmt, void* b) __attribut
 
 EXPORT void* myw_initscr()
 {
-    libncursesw_my_t *my = (libncursesw_my_t*)my_lib->priv.w.p2;
     void* ret = my->initscr();
     my_checkGlobalTInfo();
     return ret;
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getNCurseswMy(lib); \
-    my_lib = lib;   \
-    lib->altmy = strdup("myw_"); \
-    lib->priv.w.needed = 1; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libtinfo.so.5");
+    getMy(lib);     \
+    SETALT(myw_);   \
+    setNeededLibs(&lib->priv.w, 1, "libtinfo.so.5");
 
 #define CUSTOM_FINI \
-    freeNCurseswMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);           \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

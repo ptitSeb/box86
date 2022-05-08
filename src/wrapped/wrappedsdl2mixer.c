@@ -16,51 +16,17 @@
 #include "sdl2rwops.h"
 #include "callback.h"
 
-typedef void* (*pFpi_t)(void*, int32_t);
-typedef int32_t(*iFip_t)(int32_t, void*);
-typedef void* (*pFpii_t)(void*, int32_t, int32_t);
-typedef void  (*vFpp_t)(void*, void*);
-typedef void  (*vFp_t)(void*);
-typedef int32_t (*iFippp_t)(int32_t, void*, void*, void*);
-typedef int   (*iFiwC_t)(int, int16_t, uint8_t);
+const char* sdl2mixerName = "libSDL2_mixer-2.0.so.0";
+#define LIBNAME sdl2mixer
 
-#define SUPER() \
-    GO(Mix_LoadMUSType_RW,pFpii_t)      \
-    GO(Mix_LoadMUS_RW,pFpi_t)           \
-    GO(Mix_LoadWAV_RW,pFpi_t)           \
-    GO(Mix_SetPostMix,vFpp_t)           \
-    GO(Mix_RegisterEffect, iFippp_t)    \
-    GO(Mix_UnregisterEffect, iFip_t)    \
-    GO(Mix_ChannelFinished,vFp_t)       \
-    GO(Mix_HookMusic, vFpp_t)           \
-    GO(Mix_HookMusicFinished, vFp_t)    \
-    GO(Mix_SetPosition, iFiwC_t)        \
+typedef int (*iFiwC_t)(int, int16_t, uint8_t);
 
-typedef struct sdl2mixer_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
+#define ADDED_FUNCTIONS() \
+    GO(Mix_SetPosition, iFiwC_t)
 
-    x86emu_t* PostCallback;
-    x86emu_t* hookMusicCB;
-} sdl2mixer_my_t;
+#include "generated/wrappedsdl2mixertypes.h"
 
-static void* getSDL2MixerMy(library_t* lib)
-{
-    sdl2mixer_my_t* my = (sdl2mixer_my_t*)calloc(1, sizeof(sdl2mixer_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-
-    return my;
-}
-
-static void freeSDL2MixerMy(library_t* lib)
-{
-//    sdl2mixer_my_t *my = lib->priv.w.p2;
-}
-
-#undef SUPER
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -193,7 +159,6 @@ static void* find_MusicFinished_Fct(void* fct)
 
 EXPORT void* my2_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->Mix_LoadMUSType_RW(rw, b, c);
     if(c==0)
@@ -202,7 +167,6 @@ EXPORT void* my2_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c
 }
 EXPORT void* my2_Mix_LoadMUS_RW(x86emu_t* emu, void* a, int32_t f)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->Mix_LoadMUS_RW(rw, f);
     if(f==0)
@@ -211,7 +175,6 @@ EXPORT void* my2_Mix_LoadMUS_RW(x86emu_t* emu, void* a, int32_t f)
 }
 EXPORT void* my2_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t f)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->Mix_LoadWAV_RW(rw, f);
     if(f==0)
@@ -221,63 +184,47 @@ EXPORT void* my2_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t f)
 
 EXPORT void my2_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     my->Mix_SetPostMix(find_MixFunc_Fct(a), b);
 }
 
 EXPORT int32_t my2_Mix_RegisterEffect(x86emu_t*emu, int32_t channel, void* cb_effect, void* cb_done, void* arg)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
-
     return my->Mix_RegisterEffect(channel, find_EffectFunc_Fct(cb_effect), find_EffectDone_Fct(cb_done), arg);
 }
 
 EXPORT int32_t my2_Mix_UnregisterEffect(x86emu_t* emu, int channel, void* f)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
-
     return my->Mix_UnregisterEffect(channel, find_EffectFunc_Fct(f));
 }
 
 EXPORT void my2_Mix_ChannelFinished(x86emu_t* emu, void* cb)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
-
     my->Mix_ChannelFinished(find_ChannelFinished_Fct(cb));
 }
 
 EXPORT void my2_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
-
     my->Mix_HookMusic(find_MixFunc_Fct(f), arg);
 }
 
 EXPORT void my2_Mix_HookMusicFinished(x86emu_t* emu, void* f)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
-
     my->Mix_HookMusicFinished(find_MusicFinished_Fct(f));
 }
 
 // This is a hack for AntiChamber
 EXPORT int my2_MinorityMix_SetPosition(x86emu_t* emu, int channel, int16_t angle)
 {
-    sdl2mixer_my_t *my = (sdl2mixer_my_t *)emu->context->sdl2mixerlib->priv.w.p2;
     return my->Mix_SetPosition(channel, angle, 0);
 }
 
-const char* sdl2mixerName = "libSDL2_mixer-2.0.so.0";
-#define LIBNAME sdl2mixer
-
 #define CUSTOM_INIT \
     box86->sdl2mixerlib = lib; \
-    lib->priv.w.p2 = getSDL2MixerMy(lib); \
-    lib->altmy = strdup("my2_");
+    getMy(lib); \
+    SETALT(my2_);
 
 #define CUSTOM_FINI \
-    freeSDL2MixerMy(lib); \
-    free(lib->priv.w.p2); \
+    freeMy(); \
     ((box86context_t*)(lib->context))->sdl2mixerlib = NULL;
 
 #include "wrappedlib_init.h"

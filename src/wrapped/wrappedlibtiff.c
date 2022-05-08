@@ -26,34 +26,12 @@ const char* libtiffName =
 #endif
     ;
 #define LIBNAME libtiff
-static library_t* my_lib = NULL;
 
-typedef void*(*pFpppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(TIFFClientOpen, pFpppppppppp_t)  \
+#include "generated/wrappedlibtifftypes.h"
 
-typedef struct tiff_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} tiff_my_t;
-
-void* getTiffMy(library_t* lib)
-{
-    tiff_my_t* my = (tiff_my_t*)calloc(1, sizeof(tiff_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeTiffMy(void* lib)
-{
-    //tiff_my_t *my = (tiff_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -198,7 +176,6 @@ static void* find_TIFFUnmapFileProc_Fct(void* fct)
 
 EXPORT void* my_TIFFClientOpen(void* filename, void* mode, void* clientdata, void* readproc, void* writeproc, void* seekproc, void* closeproc, void* sizeproc, void* mapproc, void* unmapproc)
 {
-    tiff_my_t *my = (tiff_my_t*)my_lib->priv.w.p2;
     return my->TIFFClientOpen(filename, mode, clientdata,
                             find_TIFFReadWriteProc_Fct(readproc), find_TIFFReadWriteProc_Fct(writeproc), find_TIFFSeekProc_Fct(seekproc),
                             find_TIFFCloseProc_Fct(closeproc), find_TIFFSizeProc_Fct(sizeproc), find_TIFFMapFileProc_Fct(mapproc),
@@ -206,13 +183,10 @@ EXPORT void* my_TIFFClientOpen(void* filename, void* mode, void* clientdata, voi
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getTiffMy(lib); \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeTiffMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

@@ -42,32 +42,10 @@ typedef int (*iFppSi_t)(void*, void*, FcValue_t, int);
     GO(FcPatternAdd, iFppSi_t)              \
     GO(FcPatternAddWeak, iFppSi_t)          \
 
-typedef struct fontconfig_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} fontconfig_my_t;
-
-void* getFontconfigMy(library_t* lib)
-{
-    fontconfig_my_t* my = (fontconfig_my_t*)calloc(1, sizeof(fontconfig_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeFontconfigMy(void* lib)
-{
-    //fontconfig_my_t *my = (fontconfig_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 EXPORT int my_FcPatternAdd(x86emu_t* emu, void* p, void* object, int type, uint32_t t1, uint32_t t2, int append)
 {
-    library_t* lib = GetLibInternal(fontconfigName);
-    fontconfig_my_t* my = (fontconfig_my_t*)lib->priv.w.p2;
     FcValue_t val;
     val.type = type;
     val.u.fake[0] = t1;
@@ -78,8 +56,6 @@ EXPORT int my_FcPatternAdd(x86emu_t* emu, void* p, void* object, int type, uint3
 
 EXPORT int my_FcPatternAddWeak(x86emu_t* emu, void* p, void* object, int type, uint32_t t1, uint32_t t2, int append)
 {
-    library_t* lib = GetLibInternal(fontconfigName);
-    fontconfig_my_t* my = (fontconfig_my_t*)lib->priv.w.p2;
     FcValue_t val;
     val.type = type;
     val.u.fake[0] = t1;
@@ -89,11 +65,10 @@ EXPORT int my_FcPatternAddWeak(x86emu_t* emu, void* p, void* object, int type, u
 }
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getFontconfigMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeFontconfigMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
 

@@ -19,7 +19,6 @@
 
 const char* libxcbpresentName = "libxcb-present.so.0";
 #define LIBNAME libxcbpresent
-static library_t *my_lib = NULL;
 
 typedef struct my_xcb_cookie_s {
     uint32_t        data;
@@ -37,32 +36,11 @@ typedef my_xcb_cookie_t (*XFpuuuuuwwuuuuUUUup_t)(void*, uint32_t, uint32_t, uint
     GO(xcb_present_query_version, XFpuu_t)                  \
     GO(xcb_present_select_input_checked, XFpuuu_t)          \
 
-typedef struct xcbpresent_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-    // functions
-} xcbpresent_my_t;
-
-void* getXcbpresentMy(library_t* lib)
-{
-    xcbpresent_my_t* my = (xcbpresent_my_t*)calloc(1, sizeof(xcbpresent_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeXcbpresent2My(void* lib)
-{
-    //xcbpresent_my_t *my = (xcbpresent_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER(F, P, ...)                        \
     EXPORT void* my_##F P                       \
     {                                           \
-        xcbpresent_my_t *my = my_lib->priv.w.p2;   \
         *ret = my->F(__VA_ARGS__);              \
         return ret;                             \
     }
@@ -77,12 +55,9 @@ SUPER(xcb_present_select_input_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, vo
 
 
 #define CUSTOM_INIT \
-    my_lib = lib;                \
-    lib->priv.w.p2 = getXcbpresentMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeXcbpresent2My(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

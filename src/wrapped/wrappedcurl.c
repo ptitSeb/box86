@@ -20,38 +20,12 @@ const char* curlName = "libcurl.so.4";
 #define ALTNAME "libcurl-gnutls.so.4"
 #define LIBNAME curl
 
-static library_t* my_lib = NULL;
-
-typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 
-#define SUPER() \
-    GO(curl_easy_setopt, uFpup_t)
+#include "generated/wrappedcurltypes.h"
 
-typedef struct curl_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} curl_my_t;
-
-void* getCurlMy(library_t* lib)
-{
-    curl_my_t* my = (curl_my_t*)calloc(1, sizeof(curl_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-
-    return my;
-}
-
-void freeCurlMy(void* lib)
-{
-//    curl_my_t *my = (curl_my_t *)lib;
-
-}
-#undef SUPER
+#include "wrappercallback.h"
 
 #define LONG          0
 #define OBJECTPOINT   10000
@@ -489,8 +463,6 @@ static void* find_progress_Fct(void* fct)
 
 EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option, void* param)
 {
-    curl_my_t *my = (curl_my_t*)my_lib->priv.w.p2;
-
     switch(option) {
         case CURLOPT_WRITEDATA:
             return my->curl_easy_setopt(handle, option, param);
@@ -550,13 +522,10 @@ EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option
 
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getCurlMy(lib);    \
-    my_lib = lib;
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    freeCurlMy(lib->priv.w.p2); \
-    free(lib->priv.w.p2);       \
-    my_lib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

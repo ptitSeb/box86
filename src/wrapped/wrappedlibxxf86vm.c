@@ -50,9 +50,6 @@ EXPORT int my_XF86VidModeSetGamma(void* display, int screen, my_XF86VidModeGamma
 #endif
 
 #define CUSTOM_INIT \
-    lib->priv.w.needed = 2; \
-    lib->priv.w.neededlibs = (char**)calloc(lib->priv.w.needed, sizeof(char*)); \
-    lib->priv.w.neededlibs[0] = strdup("libX11.so.6"); \
-    lib->priv.w.neededlibs[1] = strdup("libXext.so.6");
+    setNeededLibs(&lib->priv.w, 2, "libX11.so.6", "libXext.so.6");
 
 #include "wrappedlib_init.h"

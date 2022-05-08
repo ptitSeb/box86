@@ -22,46 +22,11 @@ const char* libsslName = "libssl.so.1.0.0";
 #define ALTNAME "libssl.so.1.0.2"
 #define ALTNAME2 "libssl.so.1.1"
 
-static library_t* my_lib = NULL;
+#define ADDED_FUNCTIONS()           \
 
-typedef void    (*vFpp_t)       (void*, void*);
-typedef void    (*vFpip_t)      (void*, int, void*);
-typedef long    (*lFpip_t)      (void*, int, void*);
-typedef void    (*vFppp_t)      (void*, void*, void*);
-typedef int     (*iFlpppp_t)    (long, void*, void*, void*, void*);
+#include "generated/wrappedlibssltypes.h"
 
-#define SUPER() \
-    GO(SSL_CTX_set_default_passwd_cb, vFpp_t)       \
-    GO(SSL_CTX_callback_ctrl, lFpip_t)              \
-    GO(SSL_CTX_set_verify, vFpip_t)                 \
-    GO(SSL_set_verify, vFpip_t)                     \
-    GO(SSL_callback_ctrl, lFpip_t)                  \
-    GO(SSL_get_ex_new_index, iFlpppp_t)             \
-    GO(SSL_set_psk_client_callback, vFpp_t)         \
-    GO(SSL_CTX_set_next_proto_select_cb, vFppp_t)   \
-    GO(SSL_CTX_sess_set_new_cb, vFpp_t)             \
-
-typedef struct libssl_my_s {
-    // functions
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-} libssl_my_t;
-
-void* getSllMy(library_t* lib)
-{
-    libssl_my_t* my = (libssl_my_t*)calloc(1, sizeof(libssl_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freeSllMy(void* lib)
-{
-    //libssl_my_t *my = (libssl_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 // utility functions
 #define SUPER() \
@@ -291,74 +256,53 @@ static void* find_new_session_cb_Fct(void* fct)
 
 EXPORT void my_SSL_CTX_set_default_passwd_cb(x86emu_t* emu, void* ctx, void* cb)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_CTX_set_default_passwd_cb(ctx, find_pem_passwd_cb_Fct(cb));
 }
 
 EXPORT long my_SSL_CTX_callback_ctrl(x86emu_t* emu, void* ctx, int cmd, void* f)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     return my->SSL_CTX_callback_ctrl(ctx, cmd, find_anonymous_Fct(f));
 }
 
 EXPORT long my_SSL_callback_ctrl(x86emu_t* emu, void* ctx, int cmd, void* f)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     return my->SSL_callback_ctrl(ctx, cmd, find_anonymous_Fct(f));
 }
 
 EXPORT void my_SSL_CTX_set_verify(x86emu_t* emu, void* ctx, int mode, void* f)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_CTX_set_verify(ctx, mode, find_verify_Fct(f));
 }
 
 EXPORT void my_SSL_set_verify(x86emu_t* emu, void* ctx, int mode, void* f)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_set_verify(ctx, mode, find_verify_Fct(f));
 }
 
 EXPORT void my_SSL_get_ex_new_index(x86emu_t* emu, long argl, void* argp, void* new_func, void* dup_func, void* free_func)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_get_ex_new_index(argl, argp, find_ex_new_Fct(new_func), find_ex_dup_Fct(dup_func), find_ex_free_Fct(free_func));
 }
 
 EXPORT void my_SSL_set_psk_client_callback(x86emu_t* emu, void* ctx, void* cb)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_set_psk_client_callback(ctx, find_client_cb_Fct(cb));
 }
 
 EXPORT void my_SSL_CTX_set_next_proto_select_cb(x86emu_t* emu, void* ctx, void* cb, void* arg)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_CTX_set_next_proto_select_cb(ctx, find_proto_select_Fct(cb), arg);
 }
 
 EXPORT void my_SSL_CTX_sess_set_new_cb(x86emu_t* emu, void* ctx, void* cb)
 {
-    libssl_my_t* my = (libssl_my_t*)my_lib->priv.w.p2;
-
     my->SSL_CTX_sess_set_new_cb(ctx, find_new_session_cb_Fct(cb));
 }
 
 #define CUSTOM_INIT \
-    my_lib = lib;   \
-    lib->priv.w.p2 = getSllMy(lib);
+    getMy(lib);
 
 #define CUSTOM_FINI \
-    my_lib = NULL;              \
-    freeSllMy(lib->priv.w.p2);  \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"

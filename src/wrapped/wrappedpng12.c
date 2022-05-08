@@ -20,43 +20,11 @@
 const char* png12Name = "libpng12.so.0";
 #define LIBNAME png12
 
-typedef void  (*vFpp_t)(void*, void*);
-typedef void  (*vFppp_t)(void*, void*, void*);
-typedef void  (*vFpppp_t)(void*, void*, void*, void*);
-typedef void* (*pFpppp_t)(void*, void*, void*, void*);
-typedef void  (*vFppppp_t)(void*, void*, void*, void*, void*);
-typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
+#define ADDED_FUNCTIONS()           \
 
-#define SUPER() \
-    GO(png_set_write_fn, vFpppp_t)              \
-    GO(png_set_read_fn, vFppp_t)                \
-    GO(png_set_error_fn, vFpppp_t)              \
-    GO(png_create_read_struct_2, pFppppppp_t)   \
-    GO(png_create_write_struct_2, pFppppppp_t)  \
-    GO(png_set_progressive_read_fn, vFppppp_t)  \
-    GO(png_create_read_struct, pFpppp_t)        \
+#include "generated/wrappedpng12types.h"
 
-typedef struct png12_my_s {
-    #define GO(A, B)    B   A;
-    SUPER()
-    #undef GO
-    // functions
-} png12_my_t;
-
-void* getPng12My(library_t* lib)
-{
-    png12_my_t* my = (png12_my_t*)calloc(1, sizeof(png12_my_t));
-    #define GO(A, W) my->A = (W)dlsym(lib->priv.w.lib, #A);
-    SUPER()
-    #undef GO
-    return my;
-}
-#undef SUPER
-
-void freePng12My(void* lib)
-{
-    //png12_my_t *my = (png12_my_t *)lib;
-}
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -292,57 +260,36 @@ static void* findprogressive_rowFct(void* fct)
 
 EXPORT void my12_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* write_fn, void* flush_fn)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     my->png_set_write_fn(png_ptr, ioptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
 EXPORT void my12_png_set_read_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* read_fn)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     my->png_set_read_fn(png_ptr, ioptr, finduser_readFct(read_fn));
 }
 
 EXPORT void my12_png_set_error_fn(x86emu_t* emu, void* pngptr, void* errorptr, void* error_fn, void* warning_fn)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     my->png_set_error_fn(pngptr, errorptr, finderrorFct(error_fn), findwarningFct(warning_fn));
 }
 
 EXPORT void* my12_png_create_read_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     return my->png_create_read_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
 }
 
 EXPORT void* my12_png_create_write_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     return my->png_create_write_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
 }
 
 EXPORT void my12_png_set_progressive_read_fn(x86emu_t* emu, void* png_ptr, void* user_ptr, void* info, void* row, void* end)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     my->png_set_progressive_read_fn(png_ptr, user_ptr, findprogressive_infoFct(info), findprogressive_rowFct(row), findprogressive_endFct(end));
 }
 
 EXPORT void* my12_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
 {
-    library_t * lib = GetLibInternal(png12Name);
-    png12_my_t *my = (png12_my_t*)lib->priv.w.p2;
-
     return my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
 }
 
@@ -350,11 +297,10 @@ EXPORT void* my12_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* use
 //#define CUSTOM_INIT     lib->priv.w.altprefix=strdup("yes");
 
 #define CUSTOM_INIT \
-    lib->priv.w.p2 = getPng12My(lib);   \
-    lib->altmy = strdup("my12_");
+    getMy(lib);   \
+    SETALT(my12_);
 
 #define CUSTOM_FINI \
-    freePng12My(lib->priv.w.p2); \
-    free(lib->priv.w.p2);
+    freeMy();
 
 #include "wrappedlib_init.h"
