@@ -128,7 +128,7 @@ EXPORT void my3_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, v
     libname = lib->name;            \
     SETALT(my3_);                   \
     getMy(lib);                     \
-    setNeededLibs(&lib->priv.w, 3,  \
+    setNeededLibs(lib, 3,           \
         "libgobject-2.0.so.0",      \
         "libgio-2.0.so.0",          \
         "libgdk_pixbuf-2.0.so.0");

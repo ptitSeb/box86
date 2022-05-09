@@ -20,7 +20,7 @@ const char* gudev1Name = "libgudev-1.0.so.0";
         return -1;
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 2, "libglib-2.0.so.0", "libgobject-2.0.so.0");
+    setNeededLibs(lib, 2, "libglib-2.0.so.0", "libgobject-2.0.so.0");
 
 #include "wrappedlib_init.h"
 

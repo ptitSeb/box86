@@ -67,7 +67,7 @@ EXPORT void my_XtAddEventHandler(x86emu_t* emu, void* w, uint32_t mask, int32_t 
 
 #define CUSTOM_INIT \
     getMy(lib);   \
-    setNeededLibs(&lib->priv.w, 2, "libX11.so.6", "libXext.so.6");
+    setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
 
 #define CUSTOM_FINI \
     freeMy();

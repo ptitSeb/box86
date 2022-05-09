@@ -173,7 +173,7 @@ EXPORT void* my_pango_attr_shape_new_with_data(x86emu_t* emu, void* ink, void* l
 
 #define CUSTOM_INIT \
     getMy(lib); \
-    setNeededLibs(&lib->priv.w, 2, "libgobject-2.0.so.0", "libglib-2.0.so.0");
+    setNeededLibs(lib, 2, "libgobject-2.0.so.0", "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

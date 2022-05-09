@@ -644,7 +644,7 @@ EXPORT void my3_gtk_tree_view_column_set_cell_data_func(x86emu_t* emu, void* tre
     SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
     SetGtkActionID(my->gtk_action_get_type());                  \
-    setNeededLibs(&lib->priv.w, 2, "libgdk-3.so.0", "libpangocairo-1.0.so.0");
+    setNeededLibs(lib, 2, "libgdk-3.so.0", "libpangocairo-1.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

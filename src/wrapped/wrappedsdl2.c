@@ -968,7 +968,7 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
     box86->sdl2allocrw = my->SDL_AllocRW;   \
     box86->sdl2freerw  = my->SDL_FreeRW;    \
     SETALT(my2_);                           \
-    setNeededLibs(&lib->priv.w, 4,          \
+    setNeededLibs(lib, 4,                   \
         "libdl.so.2",                       \
         "libm.so.6",                        \
         "librt.so.1",                       \

@@ -563,7 +563,7 @@ EXPORT void* my_g_initable_new(x86emu_t* emu, int type, void* cancellable, void*
     libname = lib->name;                                                        \
     getMy(lib);                                                                 \
     SetGDBusObjectManagerClientID(my->g_dbus_object_manager_client_get_type()); \
-    setNeededLibs(&lib->priv.w, 1, "libgmodule-2.0.so.0");
+    setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

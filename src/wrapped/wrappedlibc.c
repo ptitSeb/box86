@@ -2992,7 +2992,7 @@ EXPORT char* my_program_invocation_short_name = NULL;
     my___progname = my_program_invocation_short_name =                          \
         strrchr(box86->argv[0], '/');                                           \
     getMy(lib);                                                                 \
-    setNeededLibs(&lib->priv.w, NEEDED_LIBS);
+    setNeededLibs(lib, NEEDED_LIBS);
 
 #define CUSTOM_FINI \
     freeMy();

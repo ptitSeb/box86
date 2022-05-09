@@ -20,6 +20,6 @@ const char* dbusmenugtkName = "libdbusmenu-gtk.so.4";
         return -1;
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 1, "libgtk-x11-2.0.so.0");
+    setNeededLibs(lib, 1, "libgtk-x11-2.0.so.0");
 
 #include "wrappedlib_init.h"

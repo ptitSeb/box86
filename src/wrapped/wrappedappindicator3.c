@@ -21,7 +21,7 @@ const char* appindicator3Name = "libappindicator3.so.1";
 
 #define CUSTOM_INIT \
     SETALT(my3_);                   \
-    setNeededLibs(&lib->priv.w, 5,  \
+    setNeededLibs(lib, 5,           \
         "libgtk-3.so.0",            \
         "libgdk-3.so.0",            \
         "libgio-2.0.so.0",          \

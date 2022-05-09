@@ -1204,7 +1204,7 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
 #define CUSTOM_INIT                 \
     box86->x11lib = lib;            \
     getMy(lib);                     \
-    setNeededLibs(&lib->priv.w, 1, "libdl.so.2"); \
+    setNeededLibs(lib, 1, "libdl.so.2"); \
     if(x11threads) my->XInitThreads();
 
 #define CUSTOM_FINI \

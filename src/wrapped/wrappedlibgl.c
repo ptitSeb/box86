@@ -186,7 +186,7 @@ EXPORT void my_glProgramCallbackMESA(x86emu_t* emu, void* f, void* data)
 #define CUSTOM_INIT \
     lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");             \
     box86->glxprocaddress = lib->priv.w.priv;                                   \
-    setNeededLibs(&lib->priv.w, 1, "libdl.so.2");
+    setNeededLibs(lib, 1, "libdl.so.2");
 
 
 #include "wrappedlib_init.h"

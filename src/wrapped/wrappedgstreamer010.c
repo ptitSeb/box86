@@ -21,6 +21,6 @@ const char* gstreamer010Name = "libgstreamer-0.10.so.0";
 
 #define CUSTOM_INIT \
     SETALT(my010_); \
-    setNeededLibs(&lib->priv.w, 1, "libglib-2.0.so.0");
+    setNeededLibs(lib, 1, "libglib-2.0.so.0");
 
 #include "wrappedlib_init.h"

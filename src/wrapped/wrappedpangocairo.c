@@ -116,7 +116,7 @@ EXPORT void my_pango_cairo_context_set_shape_renderer(x86emu_t* emu, void* ctx, 
 
 #define CUSTOM_INIT \
     getMy(lib); \
-    setNeededLibs(&lib->priv.w, 1, "libpango-1.0.so.0");
+    setNeededLibs(lib, 1, "libpango-1.0.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

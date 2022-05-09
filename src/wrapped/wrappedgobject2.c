@@ -842,7 +842,7 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
     getMy(lib);                             \
     SetGObjectID(my->g_object_get_type());  \
     SetGTypeName(my->g_type_name);          \
-    setNeededLibs(&lib->priv.w, 1, "libglib-2.0.so.0");
+    setNeededLibs(lib, 1, "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \
     FiniGTKClass(); \

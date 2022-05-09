@@ -20,6 +20,6 @@ const char* appindicatorName = "libappindicator.so.1";
         return -1;
 
 #define CUSTOM_INIT \
-    setNeededLibs(&lib->priv.w, 2, "libgtk-x11-2.0.so.0", "libglib-2.0.so.0");
+    setNeededLibs(lib, 2, "libgtk-x11-2.0.so.0", "libglib-2.0.so.0");
 
 #include "wrappedlib_init.h"

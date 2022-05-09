@@ -21,6 +21,6 @@ const char* gstinterfaces010Name = "libgstinterfaces-0.10.so.0";
 
 #define CUSTOM_INIT \
     SETALT(my010_); \
-    setNeededLibs(&lib->priv.w, 1, "libgstreamer-0.10.so.0");
+    setNeededLibs(lib, 1, "libgstreamer-0.10.so.0");
 
 #include "wrappedlib_init.h"
