@@ -1,5 +1,18 @@
-Compiling
+Compiling/Installing
 ----
+
+#### Debian-based Linux 
+You can use [@Itai-Nelken](https://github.com/Itai-Nelken)'s apt repository to install precompiled box86 debs, updated weekly. 
+
+```
+
+sudo wget https://itai-nelken.github.io/weekly-box86-debs/debian/box86.list -O /etc/apt/sources.list.d/box86.list
+wget -qO- https://itai-nelken.github.io/weekly-box86-debs/debian/KEY.gpg | sudo apt-key add -
+sudo apt update && sudo apt install box86 -y
+```
+
+Alternatively, you can generate your own package using the [instructions below](https://github.com/ptitSeb/box86/blob/master/docs/COMPILE.md#debian-packaging). 
+
 #### for Pandora
 
  `mkdir build; cd build; cmake .. -DPANDORA=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
