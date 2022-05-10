@@ -1019,7 +1019,7 @@ void free_dependedbylib(needed_libs_t* dependedby)
 
 void setNeededLibs(library_t* lib, int n, ...)
 {
-    if(lib->type!=0)
+    if(lib->type!=0 && lib->type!=-1)
         return;
     lib->priv.w.needed = n;
     lib->priv.w.neededlibs = (char**)calloc(n, sizeof(char*));
