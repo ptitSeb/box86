@@ -1,20 +1,30 @@
-cd ~
-mkdir steam
-cd steam
-mkdir tmp
-cd tmp
+#!/bin/bash
+
+# create necessary directories
+mkdir -p ~/steam
+mkdir -p ~/steam/tmp
+cd ~/steam/tmp
+
+# download latest deb and unpack
 wget https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
 ar x steam.deb
 tar xf data.tar.xz
-cd ..
-mv tmp/usr/* .
-rm -rf tmp
-cat > steam << EOF
-#!/bin/bash
+
+# remove deb archives, not needed anymore
+rm ./*.tar.xz ./steam.deb
+
+# move deb contents to steam folder
+mv ./usr/* ../
+cd ../ && rm -rf ./tmp/
+
+# create run script
+echo "#!/bin/bash
 export STEAMOS=1
 export STEAM_RUNTIME=1
-~/steam/bin/steam steam://open/minigameslist
-EOF
+~/steam/bin/steam steam://open/minigameslist" > steam
+
+# make script executable and move
 chmod +x steam
 sudo mv steam /usr/local/bin/
 
+echo "Script complete."
