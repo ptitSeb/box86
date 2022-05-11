@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.10)
 
 option(PANDORA "Set to ON if targeting an OpenPandora device" ${PANDORA})
 option(PYRA "Set to ON if targeting an OpenPandora device" ${PYRA})
