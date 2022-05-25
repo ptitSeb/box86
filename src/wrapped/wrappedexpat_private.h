@@ -10,7 +10,7 @@ GO(XML_ErrorString, pFi)
 //GO(XML_ExternalEntityParserCreate, 
 //GO(XML_FreeContentModel, 
 //GO(XML_GetBase, 
-//GO(XML_GetBuffer, 
+GO(XML_GetBuffer, pFpi)
 //GO(XML_GetCurrentByteCount, 
 //GO(XML_GetCurrentByteIndex, 
 //GO(XML_GetCurrentColumnNumber, 
@@ -25,7 +25,7 @@ GO(XML_GetErrorCode, iFp)
 //GO(XML_MemMalloc, 
 //GO(XML_MemRealloc, 
 GO(XML_Parse, iFppii)
-//GO(XML_ParseBuffer, 
+GO(XML_ParseBuffer, iFpii)
 GO(XML_ParserCreate, pFp)
 //GO(XML_ParserCreate_MM, 
 //GO(XML_ParserCreateNS, 

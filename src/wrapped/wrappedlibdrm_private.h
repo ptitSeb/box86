@@ -48,8 +48,8 @@ GO(drmAuthMagic, iFiu)
 //GO(drmFree, 
 //GO(drmFreeBufs, 
 //GO(drmFreeBusid, 
-//GO(drmFreeDevice, 
-//GO(drmFreeDevices, 
+GO(drmFreeDevice, vFp)
+GO(drmFreeDevices, vFpi)
 //GO(drmFreeReservedContextList, 
 GO(drmFreeVersion, vFp)
 //GO(drmGetBufInfo, 
@@ -59,12 +59,12 @@ GO(drmFreeVersion, vFp)
 //GO(drmGetContextFlags, 
 //GO(drmGetContextPrivateMapping, 
 //GO(drmGetContextTag, 
-//GO(drmGetDevice, 
-//GO(drmGetDevice2, 
+GO(drmGetDevice, iFip)
+GO(drmGetDevice2, iFiup)
 GO(drmGetDeviceNameFromFd, pFi)
 //GO(drmGetDeviceNameFromFd2, 
-//GO(drmGetDevices, 
-//GO(drmGetDevices2, 
+GO(drmGetDevices, iFpi)
+GO(drmGetDevices2, iFupi)
 //GO(drmGetEntry, 
 //GO(drmGetHashTable, 
 //GO(drmGetInterruptFromBusID, 
