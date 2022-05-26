@@ -421,7 +421,7 @@ GO(XGetSelectionOwner, pFpp)
 //GO(XGetSizeHints
 //GO(XGetStandardColormap
 GOM(XGetSubImage, pFEppiiuuuipii)
-//GO(XGetTextProperty
+GO(XGetTextProperty, iFpppp)
 GO(XGetTransientForHint, iFppp)
 GO(XGetVisualInfo, pFpipp)
 GO(XGetWindowAttributes, iFppp)
