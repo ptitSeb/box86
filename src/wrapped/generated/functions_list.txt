@@ -374,6 +374,7 @@
 #() iFuup
 #() iFuff
 #() iFuLp
+#() iFupi
 #() iFupp
 #() iFfff
 #() iFpwp
@@ -673,6 +674,7 @@
 #() vFppdd
 #() vFppdp
 #() vFpplp
+#() vFppLp
 #() vFpppi
 #() vFpppI
 #() vFpppu
@@ -2040,6 +2042,7 @@
 #() vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu
 #() vFuffffffffffff
+#() vFpipppiiiiiiuu
 #() vFpippppppppppp
 #() vFpuppppppppppp
 #() vFppiiiiiiiiiii
