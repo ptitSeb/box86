@@ -1262,6 +1262,23 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
     return 0;
 }
 
+void RefreshElfTLS(elfheader_t* h)
+{
+    if(h->tlsfilesize) {
+        char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
+        printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
+        memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+        tlsdatasize_t* ptr;
+        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
+            if(ptr->tlssize==my_context->tlssize) {
+                // refresh in tlsdata too
+                dest = (char*)(ptr->tlsdata+ptr->tlssize+h->tlsbase);
+                printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
+                memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+            }
+    }
+}
+
 void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
     if(!h || h->init_done)
@@ -1270,6 +1287,9 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
     uintptr_t p = h->initentry + h->delta;
     box86context_t* context = GetEmuContext(emu);
+    // Refresh no-file part of TLS in case default value changed
+    RefreshElfTLS(h);
+    // check if in deferedInit
     if(context->deferedInit) {
         if(context->deferedInitSz==context->deferedInitCap) {
             context->deferedInitCap += 4;
@@ -1277,20 +1297,6 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
         }
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
-    }
-    // Refresh no-file part of TLS in case default value changed
-    if(h->tlsfilesize) {
-        char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
-        printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%x\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
-        memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
-        tlsdatasize_t* ptr;
-        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
-            if(ptr->tlssize==my_context->tlssize) {
-                // refresh in tlsdata too
-                dest = (char*)(ptr->tlsdata+ptr->tlssize+h->tlsbase);
-                printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%x\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
-                memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
-            }
     }
     printf_log(LOG_DEBUG, "Calling Init for %s %p\n", ElfName(h), (void*)p);
     if(h->initentry)
