@@ -498,6 +498,14 @@ void Run660F(x86emu_t *emu)
                         GX.sd[i] = EX->sd[i];
                 break;
 
+            case 0x40:  /* PMULLD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i) {
+                    GX.sd[i] *= EX->sd[i];
+                }
+                break;
+
             default:
                 ip = R_EIP;
                 UnimpOpcode(emu);
@@ -507,6 +515,103 @@ void Run660F(x86emu_t *emu)
     case 0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x08:          // roundps GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                {
+                    case ROUND_Nearest:
+                        GX.f[0] = nearbyint(EX->f[0]);
+                        GX.f[1] = nearbyint(EX->f[1]);
+                        GX.f[2] = nearbyint(EX->f[2]);
+                        GX.f[3] = nearbyint(EX->f[3]);
+                        break;
+                    case ROUND_Down:
+                        GX.f[0] = floor(EX->f[0]);
+                        GX.f[1] = floor(EX->f[1]);
+                        GX.f[2] = floor(EX->f[2]);
+                        GX.f[3] = floor(EX->f[3]);
+                        break;
+                    case ROUND_Up:
+                        GX.f[0] = ceil(EX->f[0]);
+                        GX.f[1] = ceil(EX->f[1]);
+                        GX.f[2] = ceil(EX->f[2]);
+                        GX.f[3] = ceil(EX->f[3]);
+                        break;
+                    case ROUND_Chop:
+                        GX.f[0] = trunc(EX->f[0]);
+                        GX.f[1] = trunc(EX->f[1]);
+                        GX.f[2] = trunc(EX->f[2]);
+                        GX.f[3] = trunc(EX->f[3]);
+                        break;
+                }
+                break;
+            case 0x09:          // roundpd GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                {
+                    case ROUND_Nearest:
+                        GX.d[0] = nearbyint(EX->d[0]);
+                        GX.d[1] = nearbyint(EX->d[1]);
+                        break;
+                    case ROUND_Down:
+                        GX.d[0] = floor(EX->d[0]);
+                        GX.d[1] = floor(EX->d[1]);
+                        break;
+                    case ROUND_Up:
+                        GX.d[0] = ceil(EX->d[0]);
+                        GX.d[1] = ceil(EX->d[1]);
+                        break;
+                    case ROUND_Chop:
+                        GX.d[0] = trunc(EX->d[0]);
+                        GX.d[1] = trunc(EX->d[1]);
+                        break;
+                }
+                break;
+            case 0x0A:          // roundss GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                {
+                    case ROUND_Nearest:
+                        GX.f[0] = nearbyint(EX->f[0]);
+                        break;
+                    case ROUND_Down:
+                        GX.f[0] = floor(EX->f[0]);
+                        break;
+                    case ROUND_Up:
+                        GX.f[0] = ceil(EX->f[0]);
+                        break;
+                    case ROUND_Chop:
+                        GX.f[0] = trunc(EX->f[0]);
+                        break;
+                }
+                break;
+            case 0x0B:          // roundsd GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                {
+                    case ROUND_Nearest:
+                        GX.d[0] = nearbyint(EX->d[0]);
+                        break;
+                    case ROUND_Down:
+                        GX.d[0] = floor(EX->d[0]);
+                        break;
+                    case ROUND_Up:
+                        GX.d[0] = ceil(EX->d[0]);
+                        break;
+                    case ROUND_Chop:
+                        GX.d[0] = trunc(EX->d[0]);
+                        break;
+                }
+                break;
+
             case 0x0E:  /* PBLENDW Gx, Ex, Ib */
                 nextop = F8;
                 GET_EX;
@@ -561,6 +666,12 @@ void Run660F(x86emu_t *emu)
                 ED->dword[0] = GX.ud[tmp8u&3];
                 break;
 
+            case 0x20:            // PINSRB GX, Ed, Ib
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                GX.ub[tmp8u&0xF] = ED->byte[0];   // only low 8bits
+                break;
             case 0x21:      // INSERTPS GX, EX, u8
                 nextop = F8;
                 GET_EX;
