@@ -515,6 +515,39 @@ void Run660F(x86emu_t *emu)
     case 0x3A:  // these are some SSE3 opcodes
         opcode = F8;
         switch(opcode) {
+            case 0x08:          // roundps GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                {
+                    case ROUND_Nearest:
+                        GX.f[0] = nearbyint(EX->f[0]);
+                        GX.f[1] = nearbyint(EX->f[1]);
+                        GX.f[2] = nearbyint(EX->f[2]);
+                        GX.f[3] = nearbyint(EX->f[3]);
+                        break;
+                    case ROUND_Down:
+                        GX.f[0] = floor(EX->f[0]);
+                        GX.f[1] = floor(EX->f[1]);
+                        GX.f[2] = floor(EX->f[2]);
+                        GX.f[3] = floor(EX->f[3]);
+                        break;
+                    case ROUND_Up:
+                        GX.f[0] = ceil(EX->f[0]);
+                        GX.f[1] = ceil(EX->f[1]);
+                        GX.f[2] = ceil(EX->f[2]);
+                        GX.f[3] = ceil(EX->f[3]);
+                        break;
+                    case ROUND_Chop:
+                        GX.f[0] = trunc(EX->f[0]);
+                        GX.f[1] = trunc(EX->f[1]);
+                        GX.f[2] = trunc(EX->f[2]);
+                        GX.f[3] = trunc(EX->f[3]);
+                        break;
+                }
+                break;
+
             case 0x0E:  /* PBLENDW Gx, Ex, Ib */
                 nextop = F8;
                 GET_EX;
