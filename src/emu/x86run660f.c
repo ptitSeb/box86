@@ -591,6 +591,26 @@ void Run660F(x86emu_t *emu)
                         break;
                 }
                 break;
+            case 0x0B:          // roundsd GX, EX, u8
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                {
+                    case ROUND_Nearest:
+                        GX.d[0] = nearbyint(EX->d[0]);
+                        break;
+                    case ROUND_Down:
+                        GX.d[0] = floor(EX->d[0]);
+                        break;
+                    case ROUND_Up:
+                        GX.d[0] = ceil(EX->d[0]);
+                        break;
+                    case ROUND_Chop:
+                        GX.d[0] = trunc(EX->d[0]);
+                        break;
+                }
+                break;
 
             case 0x0E:  /* PBLENDW Gx, Ex, Ib */
                 nextop = F8;
