@@ -569,6 +569,12 @@ void Run660F(x86emu_t *emu)
                 ED->dword[0] = GX.ud[tmp8u&3];
                 break;
 
+            case 0x20:            // PINSRB GX, Ed, Ib
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                GX.ub[tmp8u&0xF] = ED->byte[0];   // only low 8bits
+                break;
             case 0x21:      // INSERTPS GX, EX, u8
                 nextop = F8;
                 GET_EX;
