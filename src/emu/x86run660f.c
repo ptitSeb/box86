@@ -498,6 +498,14 @@ void Run660F(x86emu_t *emu)
                         GX.sd[i] = EX->sd[i];
                 break;
 
+            case 0x40:  /* PMULLD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i) {
+                    GX.sd[i] *= EX->sd[i];
+                }
+                break;
+
             default:
                 ip = R_EIP;
                 UnimpOpcode(emu);
