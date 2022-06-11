@@ -2963,6 +2963,24 @@ EXPORT void my___cxa_pure_virtual(x86emu_t* emu)
     abort();
 }
 
+EXPORT int my_fstatat64(int dirfd, const char* pathname, struct i386_stat64 *buf, int flags)
+{
+    struct stat64 buf_ = {0};
+    int ret = fstatat64(dirfd, pathname, &buf_, flags);
+    if(buf)
+        UnalignStat64(&buf_, buf);
+    return ret;
+}
+
+EXPORT int my_fstat64(int fd, struct i386_stat64 *buf)
+{
+    struct stat64 buf_ = {0};
+    int ret = fstat64(fd, &buf_);
+    if(buf)
+        UnalignStat64(&buf_, buf);
+    return ret;
+}
+
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
 EXPORT char** my___environ = NULL;  // all aliases

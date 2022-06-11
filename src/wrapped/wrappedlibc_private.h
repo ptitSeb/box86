@@ -2247,6 +2247,9 @@ GO(__fstatat_time64, iFippi)
 GO(__futimens_time64, iFip)
 GO(__utimensat_time64, iFippi)
 
+GOM(fstatat64, iFippi)  //%%,noE
+GOM(fstat64, iFip)  //%%,noE
+
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GOM(stat, iFpp)             //%noE
