@@ -2179,6 +2179,8 @@ GOM(__gmon_start__, vFEv) //%%
 
 GOM(_Jv_RegisterClasses, vFv)   //%%,noE dummy
 
+GOWM(__cxa_pure_virtual, vFEv)     // create a function to trap pure virtual call
+
 GOM(__fdelt_chk, LFL) //%%,noE
 
 GOM(getauxval, uFEu)  //%% implemented since glibc 2.16
