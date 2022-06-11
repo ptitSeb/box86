@@ -2224,6 +2224,27 @@ GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
 
 GOM(modify_ldt, iFEipL) // there is suposedly no glibc wrapper for this one
 
+// time64 stuffs
+GO(__prctl_time64, iFiV)
+GO(asctime64, pFp)
+GO(asctime64_r, pFpp)
+GO(ctime64, pFp)
+GO(ctime64_r, pFpp)
+GO(gmtime64, pFp)
+GO(gmtime64_r, pFpp)
+GO(localtime64, pFpp)
+GO(localtime64_r, pFpp)
+GO(mktime64, UFp)
+GO(timegm64, UFp)
+GO(timelocal64, UFp)
+GO(__clock_gettime64, iFpp)
+GO(__stat_time64, iFpp)  //needs alignement?
+GO(__fstat_time64, iFip)
+GO(__lstat_time64, iFpp)
+GO(__fstatat_time64, iFippi)
+GO(__futimens_time64, iFip)
+GO(__utimensat_time64, iFippi)
+
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GOM(stat, iFpp)             //%noE
