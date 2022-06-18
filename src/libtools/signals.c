@@ -234,7 +234,7 @@ static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
-uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
+uint32_t RunFunctionHandler(int* exit, int* lj, i386_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
         printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s with %d args \n", fnc?"SIG_DFL":"SIG_IGN", nargs);
@@ -273,9 +273,12 @@ uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fn
     emu->quitonlongjmp = oldquitonlongjmp;
 
     if(emu->longjmp) {
+        if(lj)
+            *lj = 1;
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler
         emu->longjmp = 0;
         if(sigcontext) {
+            printf_log(LOG_DEBUG, "Longjmp in signal\n");
             #define GO(R) sigcontext->uc_mcontext.gregs[REG_E##R] = emu->regs[_##R].dword[0]
             GO(AX);
             GO(CX);
@@ -578,11 +581,12 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     R_EBP = sigcontext->uc_mcontext.gregs[REG_EBP];
 
     int exits = 0;
+    int lj = 0;
     int ret;
     if(simple)
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
+        ret = RunFunctionHandler(&exits, &lj, sigcontext, my_context->signals[sig], 1, sig);
     else
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
+        ret = RunFunctionHandler(&exits, &lj, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
     // restore old value from emu
     #define GO(R) R_##R = old_##R
     GO(EAX);
@@ -590,7 +594,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     GO(EDX);
     #undef GO
 
-    if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
+    if(lj && memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
             #define GO(R) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
@@ -653,7 +657,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
         exit(ret);
     }
     if(restorer)
-        RunFunctionHandler(&exits, NULL, restorer, 0);
+        RunFunctionHandler(&exits, NULL, NULL, restorer, 0);
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
     relockMutex(Locks);
