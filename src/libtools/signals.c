@@ -581,7 +581,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     R_EBP = sigcontext->uc_mcontext.gregs[REG_EBP];
 
     int exits = 0;
-    int lj = 0;
+    int lj = box86_wine?0:1;
     int ret;
     if(simple)
         ret = RunFunctionHandler(&exits, &lj, sigcontext, my_context->signals[sig], 1, sig);
