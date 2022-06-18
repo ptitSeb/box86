@@ -2832,6 +2832,7 @@ wrappedlibc:
   - aligned_alloc
 - pFpi:
 - pFpp:
+  - _Unwind_Find_FDE
 - vFipV:
   - syslog
 - vFpuu:

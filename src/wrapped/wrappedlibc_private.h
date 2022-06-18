@@ -2250,6 +2250,8 @@ GO(__utimensat_time64, iFippi)
 GOM(fstatat64, iFippi)  //%%,noE
 GOM(fstat64, iFip)  //%%,noE
 
+GOWM(_Unwind_Find_FDE, pFEpp)    // this is a libgcc_s function, I think. Create a dummy weak one, just in case
+
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GOM(stat, iFpp)             //%noE

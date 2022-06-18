@@ -2981,6 +2981,11 @@ EXPORT int my_fstat64(int fd, struct i386_stat64 *buf)
     return ret;
 }
 
+EXPORT void* my__Unwind_Find_FDE(x86emu_t* emu, void* pc, void* base)
+{
+    return NULL;
+}
+
 EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
 EXPORT char** my___environ = NULL;  // all aliases

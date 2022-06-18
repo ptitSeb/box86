@@ -133,6 +133,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(execlp, iFpV_t) \
 	GO(_IO_file_stat, iFSp_t) \
 	GO(aligned_alloc, pFuu_t) \
+	GO(_Unwind_Find_FDE, pFpp_t) \
 	GO(syslog, vFipV_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
 	GO(__vwprintf_chk, iFvpp_t) \
