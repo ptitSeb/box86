@@ -21,8 +21,8 @@ GO(nm_access_point_get_wpa_flags, iFp)
 GO(nm_activation_state_flags_get_type, iFv)
 //GO(nm_active_connection_get_connection, 
 //GO(nm_active_connection_get_connection_type, 
-//GO(nm_active_connection_get_default, 
-//GO(nm_active_connection_get_default6, 
+GO(nm_active_connection_get_default, iFp)
+GO(nm_active_connection_get_default6, iFp)
 //GO(nm_active_connection_get_devices, 
 //GO(nm_active_connection_get_dhcp4_config, 
 //GO(nm_active_connection_get_dhcp6_config, 
@@ -31,10 +31,10 @@ GO(nm_activation_state_flags_get_type, iFv)
 //GO(nm_active_connection_get_ip6_config, 
 //GO(nm_active_connection_get_master, 
 //GO(nm_active_connection_get_specific_object_path, 
-//GO(nm_active_connection_get_state, 
-//GO(nm_active_connection_get_state_flags, 
-//GO(nm_active_connection_get_state_reason, 
-//GO(nm_active_connection_get_type, 
+GO(nm_active_connection_get_state, iFp)
+GO(nm_active_connection_get_state_flags, iFp)
+GO(nm_active_connection_get_state_reason, iFp)
+GO(nm_active_connection_get_type, pFv)
 //GO(nm_active_connection_get_uuid, 
 //GO(nm_active_connection_get_vpn, 
 //GO(nm_active_connection_state_get_type, 
@@ -50,7 +50,7 @@ GO(nm_activation_state_flags_get_type, iFv)
 GO(nm_checkpoint_get_type, iFv)
 //GOM(nm_client_activate_connection_async, vFEpppppBp)
 GO(nm_client_activate_connection_finish, pFppp)
-//GOM(nm_client_add_and_activate_connection_async, vFEpppppBp)
+GOM(nm_client_add_and_activate_connection_async, vFEppppppp)
 GO(nm_client_add_and_activate_connection_finish, pFppp)
 //GOM(nm_client_add_connection_async, vFEppBp)
 GO(nm_client_add_connection_finish, iFppp)
@@ -220,18 +220,18 @@ GO(nm_device_delete, iFppp)
 GO(nm_device_delete_finish, iFppp)
 GO(nm_device_disambiguate_names, pFpi)
 GO(nm_device_disconnect, iFppp)
-//GOM(nm_device_disconnect_async, vFEppBp)
+GOM(nm_device_disconnect_async, vFEpppp)
 GO(nm_device_disconnect_finish, iFppp)
 //GO(nm_device_dummy_get_hw_address, 
 //GO(nm_device_dummy_get_type, 
 //GO(nm_device_error_get_type, 
 //GO(nm_device_error_quark, 
-//GO(nm_device_ethernet_get_carrier, 
+GO(nm_device_ethernet_get_carrier, iFp)
 //GO(nm_device_ethernet_get_hw_address, 
-//GO(nm_device_ethernet_get_permanent_hw_address, 
+GO(nm_device_ethernet_get_permanent_hw_address, pFp)
 //GO(nm_device_ethernet_get_s390_subchannels, 
-//GO(nm_device_ethernet_get_speed, 
-//GO(nm_device_ethernet_get_type, 
+GO(nm_device_ethernet_get_speed, uFp)
+GO(nm_device_ethernet_get_type, pFv)
 GO(nm_device_filter_connections, pFpp)
 //GO(nm_device_generic_get_hw_address, 
 GO(nm_device_generic_get_type, iFv)
@@ -376,7 +376,7 @@ GO(nm_device_wifi_get_mode, iFp)
 GO(nm_device_wifi_get_permanent_hw_address, pFp)
 GO(nm_device_wifi_get_type, iFv)
 GO(nm_device_wifi_request_scan, iFppp)
-//GOM(nm_device_wifi_request_scan_async, vFEppBp)
+GOM(nm_device_wifi_request_scan_async, vFEpppp)
 GO(nm_device_wifi_request_scan_finish, iFppp)
 GO(nm_device_wifi_request_scan_options, iFpppp)
 //GOM(nm_device_wifi_request_scan_options_async, vFEpppBp)
@@ -407,26 +407,26 @@ GO(nm_dns_entry_get_type, iFv)
 GO(nm_dns_entry_get_vpn, iFp)
 GO(nm_dns_entry_unref, vFp)
 //GO(nm_ip_address_equal, 
-//GO(nm_ip_address_get_address, 
-//GO(nm_ip_address_get_address_binary, 
+GO(nm_ip_address_get_address, pFp)
+GO(nm_ip_address_get_address_binary, vFpp)
 //GO(nm_ip_address_get_attribute, 
 //GO(nm_ip_address_get_attribute_names, 
 //GO(nm_ip_address_get_family, 
-//GO(nm_ip_address_get_prefix, 
+GO(nm_ip_address_get_prefix, uFp)
 //GO(nm_ip_address_get_type, 
-//GO(nm_ip_address_new, 
+GO(nm_ip_address_new, pFipup)
 //GO(nm_ip_address_new_binary, 
-//GO(nm_ip_address_ref, 
+GO(nm_ip_address_ref, vFp)
 //GO(nm_ip_address_set_address, 
 //GO(nm_ip_address_set_address_binary, 
 //GO(nm_ip_address_set_attribute, 
 //GO(nm_ip_address_set_prefix, 
-//GO(nm_ip_address_unref, 
-//GO(nm_ip_config_get_addresses, 
+GO(nm_ip_address_unref, vFp)
+GO(nm_ip_config_get_addresses, pFp)
 //GO(nm_ip_config_get_domains, 
 //GO(nm_ip_config_get_family, 
-//GO(nm_ip_config_get_gateway, 
-//GO(nm_ip_config_get_nameservers, 
+GO(nm_ip_config_get_gateway, pFp)
+GO(nm_ip_config_get_nameservers, pFp)
 //GO(nm_ip_config_get_routes, 
 //GO(nm_ip_config_get_searches, 
 //GO(nm_ip_config_get_type, 
@@ -471,18 +471,18 @@ GO(nm_manager_error_quark, uFv)
 GO(nm_metered_get_type, iFv)
 //GO(nm_object_get_path, 
 GO(nm_object_get_type, iFv)
-//GO(nm_remote_connection_commit_changes, 
-//GO(nm_remote_connection_commit_changes_async, 
-//GO(nm_remote_connection_commit_changes_finish, 
+GO(nm_remote_connection_commit_changes, iFpipp)
+GOM(nm_remote_connection_commit_changes_async, vFEpippp)
+GO(nm_remote_connection_commit_changes_finish, iFppp)
 //GO(nm_remote_connection_delete, 
-//GO(nm_remote_connection_delete_async, 
-//GO(nm_remote_connection_delete_finish, 
+GOM(nm_remote_connection_delete_async, vFEpppp)
+GO(nm_remote_connection_delete_finish, iFppp)
 //GO(nm_remote_connection_get_filename, 
 //GO(nm_remote_connection_get_flags, 
 //GO(nm_remote_connection_get_secrets, 
-//GO(nm_remote_connection_get_secrets_async, 
-//GO(nm_remote_connection_get_secrets_finish, 
-//GO(nm_remote_connection_get_type, 
+GOM(nm_remote_connection_get_secrets_async, vFEppppp)
+GO(nm_remote_connection_get_secrets_finish, pFppp)
+GO(nm_remote_connection_get_type, pFv)
 //GO(nm_remote_connection_get_unsaved, 
 //GO(nm_remote_connection_get_visible, 
 //GO(nm_remote_connection_save, 
@@ -507,7 +507,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_secret_agent_old_unregister_finish, 
 //GO(nm_setting_6lowpan_get_type, 
 //GO(nm_setting_802_1x_add_altsubject_match, 
-//GO(nm_setting_802_1x_add_eap_method, 
+GO(nm_setting_802_1x_add_eap_method, iFpp)
 //GO(nm_setting_802_1x_add_phase2_altsubject_match, 
 //GO(nm_setting_802_1x_auth_flags_get_type, 
 //GO(nm_setting_802_1x_check_cert_scheme, 
@@ -584,7 +584,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_802_1x_get_subject_match, 
 //GO(nm_setting_802_1x_get_system_ca_certs, 
 //GO(nm_setting_802_1x_get_type, 
-//GO(nm_setting_802_1x_new, 
+GO(nm_setting_802_1x_new, pFv)
 //GO(nm_setting_802_1x_remove_altsubject_match, 
 //GO(nm_setting_802_1x_remove_altsubject_match_by_value, 
 //GO(nm_setting_802_1x_remove_eap_method, 
@@ -649,13 +649,13 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_connection_add_secondary, 
 //GO(nm_setting_connection_autoconnect_slaves_get_type, 
 //GO(nm_setting_connection_get_auth_retries, 
-//GO(nm_setting_connection_get_autoconnect, 
+GO(nm_setting_connection_get_autoconnect, iFp)
 //GO(nm_setting_connection_get_autoconnect_priority, 
 //GO(nm_setting_connection_get_autoconnect_retries, 
 //GO(nm_setting_connection_get_autoconnect_slaves, 
 //GO(nm_setting_connection_get_connection_type, 
 //GO(nm_setting_connection_get_gateway_ping_timeout, 
-//GO(nm_setting_connection_get_id, 
+GO(nm_setting_connection_get_id, pFp)
 //GO(nm_setting_connection_get_interface_name, 
 //GO(nm_setting_connection_get_lldp, 
 //GO(nm_setting_connection_get_llmnr, 
@@ -678,7 +678,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_connection_lldp_get_type, 
 //GO(nm_setting_connection_llmnr_get_type, 
 //GO(nm_setting_connection_mdns_get_type, 
-//GO(nm_setting_connection_new, 
+GO(nm_setting_connection_new, pFv)
 //GO(nm_setting_connection_permissions_user_allowed, 
 //GO(nm_setting_connection_remove_permission, 
 //GO(nm_setting_connection_remove_permission_by_value, 
@@ -724,7 +724,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_get_dbus_property_type, 
 //GO(nm_setting_get_name, 
 //GO(nm_setting_get_secret_flags, 
-//GO(nm_setting_get_type, 
+GO(nm_setting_get_type, pFv)
 //GO(nm_setting_gsm_get_apn, 
 //GO(nm_setting_gsm_get_device_id, 
 //GO(nm_setting_gsm_get_home_only, 
@@ -751,17 +751,17 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_ip4_config_get_dhcp_client_id, 
 //GO(nm_setting_ip4_config_get_dhcp_fqdn, 
 //GO(nm_setting_ip4_config_get_type, 
-//GO(nm_setting_ip4_config_new, 
+GO(nm_setting_ip4_config_new, pFv)
 //GO(nm_setting_ip6_config_addr_gen_mode_get_type, 
 //GO(nm_setting_ip6_config_get_addr_gen_mode, 
 //GO(nm_setting_ip6_config_get_dhcp_duid, 
 //GO(nm_setting_ip6_config_get_ip6_privacy, 
 //GO(nm_setting_ip6_config_get_token, 
 //GO(nm_setting_ip6_config_get_type, 
-//GO(nm_setting_ip6_config_new, 
+GO(nm_setting_ip6_config_new, pFv)
 //GO(nm_setting_ip6_config_privacy_get_type, 
-//GO(nm_setting_ip_config_add_address, 
-//GO(nm_setting_ip_config_add_dns, 
+GO(nm_setting_ip_config_add_address, iFpp)
+GO(nm_setting_ip_config_add_dns, iFpp)
 //GO(nm_setting_ip_config_add_dns_option, 
 //GO(nm_setting_ip_config_add_dns_search, 
 //GO(nm_setting_ip_config_add_route, 
@@ -793,7 +793,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_ip_config_get_route, 
 //GO(nm_setting_ip_config_get_route_metric, 
 //GO(nm_setting_ip_config_get_route_table, 
-//GO(nm_setting_ip_config_get_type, 
+GO(nm_setting_ip_config_get_type, pFv)
 //GO(nm_setting_ip_config_has_dns_options, 
 //GO(nm_setting_ip_config_remove_address, 
 //GO(nm_setting_ip_config_remove_address_by_value, 
@@ -1080,7 +1080,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_wired_get_valid_s390_options, 
 //GO(nm_setting_wired_get_wake_on_lan, 
 //GO(nm_setting_wired_get_wake_on_lan_password, 
-//GO(nm_setting_wired_new, 
+GO(nm_setting_wired_new, pFv)
 //GO(nm_setting_wired_remove_mac_blacklist_item, 
 //GO(nm_setting_wired_remove_mac_blacklist_item_by_value, 
 //GO(nm_setting_wired_remove_s390_option, 
@@ -1110,7 +1110,7 @@ GO(nm_object_get_type, iFv)
 //GO(nm_setting_wireless_get_tx_power, 
 //GO(nm_setting_wireless_get_type, 
 //GO(nm_setting_wireless_get_wake_on_wlan, 
-//GO(nm_setting_wireless_new, 
+GO(nm_setting_wireless_new, pFv)
 //GO(nm_setting_wireless_powersave_get_type, 
 //GO(nm_setting_wireless_remove_mac_blacklist_item, 
 //GO(nm_setting_wireless_remove_mac_blacklist_item_by_value, 
@@ -1155,7 +1155,7 @@ GO(nm_setting_wireless_security_set_wep_key, vFpup)
 //GO(nm_setting_wireless_wake_on_wlan_get_type, 
 //GO(nm_setting_wpan_get_type, 
 //GO(nm_simple_connection_get_type, 
-//GO(nm_simple_connection_new, 
+GO(nm_simple_connection_new, pFv)
 //GO(nm_simple_connection_new_clone, 
 //GO(nm_simple_connection_new_from_dbus, 
 //GO(nm_sriov_vf_add_vlan, 
@@ -1275,17 +1275,17 @@ GO(nm_setting_wireless_security_set_wep_key, vFpup)
 //GO(nm_utils_parse_variant_attributes, 
 //GO(nm_utils_same_ssid, 
 //GO(nm_utils_security_type_get_type, 
-//GO(nm_utils_security_valid, 
+GO(nm_utils_security_valid, iFiiiiiii)
 //GO(nm_utils_sriov_vf_from_str, 
 //GO(nm_utils_sriov_vf_to_str, 
-//GO(nm_utils_ssid_to_utf8, 
+GO(nm_utils_ssid_to_utf8, pFpL)
 //GO(nm_utils_tc_action_from_str, 
 //GO(nm_utils_tc_action_to_str, 
 //GO(nm_utils_tc_qdisc_from_str, 
 //GO(nm_utils_tc_qdisc_to_str, 
 //GO(nm_utils_tc_tfilter_from_str, 
 //GO(nm_utils_tc_tfilter_to_str, 
-//GO(nm_utils_uuid_generate, 
+GO(nm_utils_uuid_generate, pFv)
 //GO(nm_utils_version, 
 //GO(nm_utils_wep_key_valid, 
 //GO(nm_utils_wifi_2ghz_freqs, 

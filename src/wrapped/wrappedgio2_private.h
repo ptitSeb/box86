@@ -341,7 +341,7 @@ GO(g_dbus_connection_unregister_subtree, iFpu)
 //GO(g_dbus_error_get_type, 
 //GO(g_dbus_error_is_remote_error, 
 //GO(g_dbus_error_new_for_dbus_error, 
-//GO(g_dbus_error_quark, 
+GO(g_dbus_error_quark, uFv)
 //GO(g_dbus_error_register_error, 
 //GO(g_dbus_error_register_error_domain, 
 //GO(g_dbus_error_set_dbus_error, 
@@ -352,7 +352,7 @@ GO(g_dbus_generate_guid, pFv)
 GO(g_dbus_gvalue_to_gvariant, pFpp)
 GO(g_dbus_gvariant_to_gvalue, vFpp)
 //GO(g_dbus_interface_dup_object, 
-//GO(g_dbus_interface_get_info, 
+GO(g_dbus_interface_get_info, pFp)
 //GO(g_dbus_interface_get_object, 
 //GO(g_dbus_interface_get_type, 
 GO(g_dbus_interface_info_cache_build, vFp)
@@ -365,7 +365,7 @@ GO(g_dbus_interface_info_lookup_signal, pFpp)
 GO(g_dbus_interface_info_ref, pFp)
 GO(g_dbus_interface_info_unref, vFp)
 //GO(g_dbus_interface_set_object, 
-//GO(g_dbus_interface_skeleton_export, 
+GO(g_dbus_interface_skeleton_export, iFpppp)
 //GO(g_dbus_interface_skeleton_flags_get_type, 
 //GO(g_dbus_interface_skeleton_flush, 
 //GO(g_dbus_interface_skeleton_get_connection, 
@@ -374,7 +374,7 @@ GO(g_dbus_interface_info_unref, vFp)
 //GO(g_dbus_interface_skeleton_get_info, 
 //GO(g_dbus_interface_skeleton_get_object_path, 
 //GO(g_dbus_interface_skeleton_get_properties, 
-//GO(g_dbus_interface_skeleton_get_type, 
+GO(g_dbus_interface_skeleton_get_type, pFv)
 //GO(g_dbus_interface_skeleton_get_vtable, 
 //GO(g_dbus_interface_skeleton_has_connection, 
 //GO(g_dbus_interface_skeleton_set_flags, 
@@ -491,7 +491,7 @@ GOM(g_dbus_object_manager_client_new_for_bus_sync, pFEiippppppp)
 GO(g_dbus_object_manager_get_object, pFpp)
 GO(g_dbus_object_manager_get_object_path, pFp)
 GO(g_dbus_object_manager_get_objects, pFp)
-//GO(g_dbus_object_manager_get_type, 
+GO(g_dbus_object_manager_get_type, pFv)
 //GO(g_dbus_object_manager_server_export, 
 //GO(g_dbus_object_manager_server_export_uniquely, 
 //GO(g_dbus_object_manager_server_get_connection, 
@@ -501,7 +501,7 @@ GO(g_dbus_object_manager_get_objects, pFp)
 //GO(g_dbus_object_manager_server_set_connection, 
 //GO(g_dbus_object_manager_server_unexport, 
 //GO(g_dbus_object_proxy_get_connection, 
-//GO(g_dbus_object_proxy_get_type, 
+GO(g_dbus_object_proxy_get_type, pFv)
 //GO(g_dbus_object_proxy_new, 
 //GO(g_dbus_object_skeleton_add_interface, 
 //GO(g_dbus_object_skeleton_flush, 

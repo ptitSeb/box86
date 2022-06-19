@@ -881,6 +881,7 @@
 #() pFiIIi
 #() pFipii
 #() pFipip
+#() pFipup
 #() pFippi
 #() pFippu
 #() pFuiii
@@ -1604,6 +1605,7 @@
 #() iFEpplppi
 #() iFEpppiiu
 #() iFEpppppp
+#() iFiiiiiii
 #() iFiiiiiip
 #() iFpiiiiii
 #() iFpiiiiip
@@ -1712,6 +1714,7 @@
 #() vFEppipppp
 #() vFEpppuipV
 #() vFEpppppuu
+#() vFEppppppp
 #() vFiiiiuuip
 #() vFilipufip
 #() vFuiiiiiii
@@ -3137,6 +3140,16 @@ wrappedlibncursesw:
 - iFpiipV:
   - mvwprintw
 wrappedlibnm:
+- vFpppp:
+  - nm_device_disconnect_async
+  - nm_device_wifi_request_scan_async
+  - nm_remote_connection_delete_async
+- vFpippp:
+  - nm_remote_connection_commit_changes_async
+- vFppppp:
+  - nm_remote_connection_get_secrets_async
+- vFppppppp:
+  - nm_client_add_and_activate_connection_async
 wrappedlibogg:
 wrappedlibpanel:
 wrappedlibpthread:
