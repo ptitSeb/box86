@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <setjmp.h>
 
 #include "wrappedlibs.h"
 
@@ -26,7 +27,10 @@ const char* png16Name =
 	;
 #define LIBNAME png16
 
+typedef void (*vFp_t)(void*);
+
 #define ADDED_FUNCTIONS()           \
+    GO(png_free, vFp_t)
 
 #include "generated/wrappedpng16types.h"
 
@@ -85,7 +89,7 @@ static void* finduser_flushFct(void* fct)
 // user_read
 #define GO(A)   \
 static uintptr_t my_user_read_fct_##A = 0;   \
-static void my_user_read_##A(void* png_ptr, void* data, int32_t length)    \
+static void my_user_read_##A(void* png_ptr, void* data, size_t length)    \
 {                                       \
     RunFunction(my_context, my_user_read_fct_##A, 3, png_ptr, data, length);\
 }
@@ -288,6 +292,39 @@ static void* finduser_transformFct(void* fct)
 
 #undef SUPER
 
+typedef struct png_setjmp_def_s {
+   jmp_buf jmp_buf_local;
+   void* longjmp_fn;
+   jmp_buf *jmp_buf_ptr;
+   size_t jmp_buf_size;
+} png_setjmp_def_t;
+
+static void* current_png_struct = NULL;
+static int current_jmpbuf[12] = {0};
+int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
+void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
+int png16_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
+{
+    if(!current_png_struct)
+        return 0;
+    png_setjmp_def_t * png = (png_setjmp_def_t*)current_png_struct;
+    if(!png->jmp_buf_ptr || (uintptr_t)png->jmp_buf_ptr<0x1000)
+        return 0;
+    if(p!=*png->jmp_buf_ptr)
+        return 0;
+    printf_log(LOG_DEBUG, " (Hack for setjmp inside png16 struct) ");
+    if(png->jmp_buf_size) {
+        my->png_free(png->jmp_buf_ptr);
+        png->jmp_buf_size = 0;
+        png->jmp_buf_ptr = &png->jmp_buf_local;
+    }
+    my_setjmp(emu, current_jmpbuf);
+    if(setjmp(png->jmp_buf_local)) {
+        my_longjmp(emu, current_jmpbuf, 1);
+    }
+    return 1;
+}
+
 EXPORT void my16_png_set_read_fn(x86emu_t *emu, void* png_ptr, void* io_ptr, void* read_data_fn)
 {
     my->png_set_read_fn(png_ptr, io_ptr, finduser_readFct(read_data_fn));
@@ -325,7 +362,29 @@ EXPORT void my16_png_set_progressive_read_fn(x86emu_t* emu, void* png_ptr, void*
 
 EXPORT void* my16_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
 {
-    return my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
+    void* ret = my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
+    current_png_struct = ret;
+    return ret;
+}
+
+EXPORT void* my16_png_create_write_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
+{
+    void* ret = my->png_create_write_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
+    current_png_struct = ret;
+    return ret;
+}
+
+EXPORT void my16_png_destroy_read_struct(x86emu_t* emu, void** png_ptr, void** info_ptr, void** end_info_ptr)
+{
+    if(png_ptr && *png_ptr==current_png_struct)
+        current_png_struct = NULL;
+    my->png_destroy_read_struct(png_ptr, info_ptr, end_info_ptr);
+}
+EXPORT void my16_png_destroy_write_struct(x86emu_t* emu, void** png_ptr, void** info_ptr)
+{
+    if(png_ptr && *png_ptr==current_png_struct)
+        current_png_struct = NULL;
+    my->png_destroy_write_struct(png_ptr, info_ptr);
 }
 
 #define CUSTOM_INIT \

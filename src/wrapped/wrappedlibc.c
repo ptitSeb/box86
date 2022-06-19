@@ -2528,8 +2528,12 @@ EXPORT int32_t my__setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *
 {
     return  my___sigsetjmp(emu, p, 0);
 }
+int png16_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);  // in wrappedpng16.c
 EXPORT int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
 {
+    int ret;
+    if((ret = png16_setjmp(emu, p)))
+        return ret;
     return  my___sigsetjmp(emu, p, 1);
 }
 

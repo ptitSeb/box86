@@ -19,11 +19,14 @@ typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(png_destroy_write_struct, vFpp_t) \
 	GO(png_set_read_user_transform_fn, vFpp_t) \
+	GO(png_destroy_read_struct, vFppp_t) \
 	GO(png_set_read_fn, vFppp_t) \
 	GO(png_set_error_fn, vFpppp_t) \
 	GO(png_set_write_fn, vFpppp_t) \
 	GO(png_create_read_struct, pFpppp_t) \
+	GO(png_create_write_struct, pFpppp_t) \
 	GO(png_set_progressive_read_fn, vFppppp_t) \
 	GO(png_create_read_struct_2, pFppppppp_t) \
 	GO(png_create_write_struct_2, pFppppppp_t)
