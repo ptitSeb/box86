@@ -270,7 +270,7 @@ static instsize_t* addInst(instsize_t* insts, size_t* size, size_t* cap, int x86
 
 static void fillPredecessors(dynarec_arm_t* dyn)
 {
-    int pred_sz = 0;
+    int pred_sz = 1;    // to be safe
     // compute total size of predecessor to alocate the array
     // first compute the jumps
     for(int i=0; i<dyn->size; ++i) {
@@ -280,8 +280,8 @@ static void fillPredecessors(dynarec_arm_t* dyn)
         }
     }
     // second the "has_next"
-    for(int i=0; i<dyn->size; ++i) {
-        if(i!=dyn->size-1 && dyn->insts[i].x86.has_next && (!i || dyn->insts[i].pred_sz)) {
+    for(int i=0; i<dyn->size-1; ++i) {
+        if(dyn->insts[i].x86.has_next) {
             ++pred_sz;
             ++dyn->insts[i+1].pred_sz;
         }
