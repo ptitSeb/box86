@@ -294,7 +294,6 @@ static void fillPredecessors(dynarec_arm_t* dyn)
         p += dyn->insts[i].pred_sz;
         dyn->insts[i].pred_sz=0;  // reset size, it's reused to actually fill pred[]
     }
-    assert(p==dyn->predecessor+pred_sz);
     // fill pred
     for(int i=0; i<dyn->size; ++i) {
         if(i!=dyn->size-1 && dyn->insts[i].x86.has_next && (!i || dyn->insts[i].pred_sz))
