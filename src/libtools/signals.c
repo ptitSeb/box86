@@ -566,7 +566,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
     // call the signal handler
-    i386_ucontext_t sigcontext_copy = *sigcontext;
+    i386_mcontext_t sigmcontext_copy = sigcontext->uc_mcontext;
     // save old value from emu
     #define GO(R) uint32_t old_##R = R_##R
     GO(EAX);
@@ -591,7 +591,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     GO(EDX);
     #undef GO
 
-    if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
+    if(memcmp(&sigcontext->uc_mcontext, &sigmcontext_copy, sizeof(i386_mcontext_t))) {
         emu_jmpbuf_t* ejb = GetJmpBuf();
         if(ejb->jmpbuf_ok) {
             #define GO(R) ejb->emu->regs[_##R].dword[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
@@ -625,7 +625,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
             //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled
             siglongjmp(ejb->jmpbuf, 1);
         }
-        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
+        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigmcontext_copy.gregs[REG_EIP])?" (EIP changed)":"");
     }
     // restore regs...
     #define GO(R) emu->regs[_##R].dword[0] = sigcontext->uc_mcontext.gregs[REG_E##R]
