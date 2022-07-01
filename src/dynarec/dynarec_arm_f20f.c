@@ -174,6 +174,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                 TSTS_IMM8_ROR(x3, 0b00000001, 0);
                 VNEG_F64_cond(cNE, v0, v0);
+                VMSR(x14);  // restore FPSCR
             }
             break;
 
@@ -194,6 +195,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                 TSTS_IMM8_ROR(x3, 0b00000001, 0);
                 VNEG_F64_cond(cNE, v0, v0);
+                VMSR(x14);  // restore FPSCR
             }
             break;
         case 0x59:
@@ -213,6 +215,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                 TSTS_IMM8_ROR(x3, 0b00000001, 0);
                 VNEG_F64_cond(cNE, v0, v0);
+                VMSR(x14);  // restore FPSCR
             }
             break;
         case 0x5A:
@@ -248,6 +251,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                 TSTS_IMM8_ROR(x3, 0b00000001, 0);
                 VNEG_F64_cond(cNE, v0, v0);
+                VMSR(x14);  // restore FPSCR
             }
             break;
         case 0x5D:
@@ -278,6 +282,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                 TSTS_IMM8_ROR(x3, 0b00000001, 0);
                 VNEG_F64_cond(cNE, v0, v0);
+                VMSR(x14);  // restore FPSCR
             }
             break;
         case 0x5F:
