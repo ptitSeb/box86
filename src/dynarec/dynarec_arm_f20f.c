@@ -165,7 +165,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0, 0);
             if(!box86_dynarec_fastnan) {
                 VMRS(x14);               // get fpscr
-                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                 BIC_IMM8(x3, x3, 0b10011111, 0);
                 VMSR(x3);
             }
@@ -185,7 +185,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0, 0);
             if(!box86_dynarec_fastnan) {
                 VMRS(x14);               // get fpscr
-                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                 BIC_IMM8(x3, x3, 0b10011111, 0);
                 VMSR(x3);
             }
@@ -204,7 +204,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0, 0);
             if(!box86_dynarec_fastnan) {
                 VMRS(x14);               // get fpscr
-                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                 BIC_IMM8(x3, x3, 0b10011111, 0);
                 VMSR(x3);
             }
@@ -239,7 +239,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0, 0);
             if(!box86_dynarec_fastnan) {
                 VMRS(x14);               // get fpscr
-                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                 BIC_IMM8(x3, x3, 0b10011111, 0);
                 VMSR(x3);
             }
@@ -269,7 +269,7 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(d0, 0);
             if(!box86_dynarec_fastnan) {
                 VMRS(x14);               // get fpscr
-                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                 BIC_IMM8(x3, x3, 0b10011111, 0);
                 VMSR(x3);
             }

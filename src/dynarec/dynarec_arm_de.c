@@ -168,7 +168,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             if(!box86_dynarec_fastnan) {
                 VMRS(x14);               // get fpscr
-                ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                 BIC_IMM8(x3, x3, 0b10011111, 0);
                 VMSR(x3);
             }
@@ -185,6 +185,7 @@ uintptr_t dynarecDE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 } else {
                     VNEG_F64_cond(cNE, v2, v2);
                 }
+                VMSR(x14);  // restore fpscr
             }
             x87_do_pop(dyn, ninst, x3);
             break;

@@ -182,7 +182,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MSR_nzcvq_0();
                     VMRS(x14);               // get fpscr
                     // x1 already have FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, x14, 0b001, 6); // enable exceptions
+                    ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     if(ST_IS_F(0)) {
@@ -209,7 +209,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
                     // x1 already have FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
+                    ORR_IMM8(x3, x1, 0b010, 9); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     if(ST_IS_F(0)) {
@@ -235,7 +235,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     MSR_nzcvq_0();
                     // x1 already have FPCSR reg to clear exceptions flags
-                    ORR_IMM8(x3, x1, 0b001, 6); // enable exceptions
+                    ORR_IMM8(x3, x1, 0b010, 9); // enable exceptions
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     if(ST_IS_F(0)) {
@@ -413,7 +413,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VDIV_F64(v2, v1, v0);   // v2 = abs(ST0)/(1<<32) : so 32 bits high part
                         MSR_nzcvq_0();
                         VMRS(x2);               // get fpscr
-                        ORR_IMM8(x3, x2, 0b001, 6); // enable exceptions
+                        ORR_IMM8(x3, x2, 0b010, 9); // enable exceptions
                         BIC_IMM8(x3, x3, 0b10011111, 0);
                         VMSR(x3);
                         VCVT_U32_F64(s0, v2);   // convert high part to U32
