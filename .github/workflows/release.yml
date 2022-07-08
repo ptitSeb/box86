@@ -29,8 +29,23 @@ jobs:
       matrix:
         platform: [I386, OTHER_ARM, PANDORA, PYRA, GAMESHELL, RPI4, RPI4ARM64, ODROID, RK3399, RK3288, A64, SD845, PHYTIUM, ANDROID]
         type: [Release, Trace]
+        os: [ubuntu-latest]
+        
+        include:
+          - platform: TEGRAX1
+            type: Release
+            os: ubuntu-18.04
+          - platform: TEGRAX1
+            type: Trace
+            os: ubuntu-18.04
+          - platform: TEGRAX1ARM32
+            type: Release
+            os: ubuntu-18.04
+          - platform: TEGRAX1ARM32
+            type: Trace
+            os: ubuntu-18.04
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: "Checkout Box86 Repository"
         uses: actions/checkout@v2
