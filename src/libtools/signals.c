@@ -379,8 +379,9 @@ uintptr_t getX86Address(dynablock_t* db, uintptr_t arm_addr)
         do {
             x86sz+=db->instsize[i].x86;
             armsz+=db->instsize[i].nat*4;
+            ++i;
         }
-        while(!db->instsize[++i].x86);
+        while(db->instsize[i-1].x86==15 || db->instsize[i-1].nat==15);
         if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
             return x86addr;
         armaddr+=armsz;
@@ -402,8 +403,9 @@ static int getDBX86N(dynablock_t* db, uintptr_t arm_addr)
         do {
             x86sz+=db->instsize[i].x86;
             armsz+=db->instsize[i].nat*4;
+            ++i;
         }
-        while(!db->instsize[++i].x86);
+        while(db->instsize[i-1].x86==15 || db->instsize[i-1].nat==15);
         if(arm_addr>=armaddr && arm_addr<(armaddr+armsz))
             return (arm_addr-armaddr)>>2;
         armaddr+=armsz;
