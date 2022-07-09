@@ -17,16 +17,16 @@
 int LoadSH(FILE *f, Elf32_Shdr *s, void** SH, const char* name, uint32_t type)
 {
     if(type && (s->sh_type != type)) {
-        printf_log(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has incorect type (%d != %d)\n", name, s->sh_offset, s->sh_size, s->sh_type, type);
+        printf_dump(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has incorect type (%d != %d)\n", name, s->sh_offset, s->sh_size, s->sh_type, type);
         return -1;
     }
     if (type==SHT_SYMTAB && s->sh_size%sizeof(Elf32_Sym)) {
-        printf_log(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has size (not multiple of %d)\n", name, s->sh_offset, s->sh_size, sizeof(Elf32_Sym));
+        printf_dump(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has size (not multiple of %d)\n", name, s->sh_offset, s->sh_size, sizeof(Elf32_Sym));
     }
     *SH = calloc(1, s->sh_size);
     fseeko64(f, s->sh_offset ,SEEK_SET);
     if(fread(*SH, s->sh_size, 1, f)!=1) {
-            printf_log(LOG_INFO, "Cannot read Section Header \"%s\" (off=%d, size=%d)\n", name, s->sh_offset, s->sh_size);
+            printf_dump(LOG_INFO, "Cannot read Section Header \"%s\" (off=%d, size=%d)\n", name, s->sh_offset, s->sh_size);
             return -1;
     }
 
@@ -46,7 +46,7 @@ int FindSection(Elf32_Shdr *s, int n, char* SHStrTab, const char* name)
 void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, int* num)
 {
     int n = FindSection(s, size, SHStrTab, name);
-    printf_log(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
+    printf_dump(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
     if(n)
         LoadSH(f, s+n, what, name, type);
     if(type==SHT_SYMTAB || type==SHT_DYNSYM) {
@@ -63,54 +63,54 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     Elf32_Ehdr header;
     int level = (exec)?LOG_INFO:LOG_DEBUG;
     if(fread(&header, sizeof(Elf32_Ehdr), 1, f)!=1) {
-        printf_log(level, "Cannot read ELF Header\n");
+        printf_dump(level, "Cannot read ELF Header\n");
         return NULL;
     }
     if(memcmp(header.e_ident, ELFMAG, SELFMAG)!=0) {
-        printf_log(LOG_INFO, "Not an ELF file (sign=%c%c%c%c)\n", header.e_ident[0], header.e_ident[1], header.e_ident[2], header.e_ident[3]);
+        printf_dump(LOG_INFO, "Not an ELF file (sign=%c%c%c%c)\n", header.e_ident[0], header.e_ident[1], header.e_ident[2], header.e_ident[3]);
         return NULL;
     }
     if(header.e_ident[EI_CLASS]!=ELFCLASS32) {
         if(header.e_ident[EI_CLASS]==ELFCLASS64) {
-            printf_log(LOG_INFO, "This is a 64bits ELF! box86 can only run 32bits ELF!\n");
+            printf_dump(LOG_INFO, "This is a 64bits ELF! box86 can only run 32bits ELF!\n");
         } else {
-            printf_log(LOG_INFO, "Not a 32bits ELF (%d)\n", header.e_ident[EI_CLASS]);
+            printf_dump(LOG_INFO, "Not a 32bits ELF (%d)\n", header.e_ident[EI_CLASS]);
         }
         return NULL;
     }
     if(header.e_ident[EI_DATA]!=ELFDATA2LSB) {
-        printf_log(LOG_INFO, "Not a LittleEndian ELF (%d)\n", header.e_ident[EI_DATA]);
+        printf_dump(LOG_INFO, "Not a LittleEndian ELF (%d)\n", header.e_ident[EI_DATA]);
         return NULL;
     }
     if(header.e_ident[EI_VERSION]!=EV_CURRENT) {
-        printf_log(LOG_INFO, "Incorrect ELF version (%d)\n", header.e_ident[EI_VERSION]);
+        printf_dump(LOG_INFO, "Incorrect ELF version (%d)\n", header.e_ident[EI_VERSION]);
         return NULL;
     }
     if(header.e_ident[EI_OSABI]!=ELFOSABI_LINUX && header.e_ident[EI_OSABI]!=ELFOSABI_NONE && header.e_ident[EI_OSABI]!=ELFOSABI_SYSV) {
-        printf_log(LOG_INFO, "Not a Linux ELF (%d)\n",header.e_ident[EI_OSABI]);
+        printf_dump(LOG_INFO, "Not a Linux ELF (%d)\n",header.e_ident[EI_OSABI]);
         return NULL;
     }
 
     if(header.e_type != ET_EXEC && header.e_type != ET_DYN) {
-        printf_log(LOG_INFO, "Not an Executable (%d)\n", header.e_type);
+        printf_dump(LOG_INFO, "Not an Executable (%d)\n", header.e_type);
         return NULL;
     }
 
     if(header.e_machine != EM_386) {
-        printf_log(level, "Not an i386 ELF (%d)\n", header.e_machine);
+        printf_dump(level, "Not an i386 ELF (%d)\n", header.e_machine);
         return NULL;
     }
 
     if(header.e_entry == 0 && exec) {
-        printf_log(LOG_INFO, "No entry point in ELF\n");
+        printf_dump(LOG_INFO, "No entry point in ELF\n");
         return NULL;
     }
     if(header.e_phentsize != sizeof(Elf32_Phdr)) {
-        printf_log(LOG_INFO, "Program Header Entry size incorrect (%d != %d)\n", header.e_phentsize, sizeof(Elf32_Phdr));
+        printf_dump(LOG_INFO, "Program Header Entry size incorrect (%d != %d)\n", header.e_phentsize, sizeof(Elf32_Phdr));
         return NULL;
     }
     if(header.e_shentsize != sizeof(Elf32_Shdr) && header.e_shentsize != 0) {
-        printf_log(LOG_INFO, "Section Header Entry size incorrect (%d != %d)\n", header.e_shentsize, sizeof(Elf32_Shdr));
+        printf_dump(LOG_INFO, "Section Header Entry size incorrect (%d != %d)\n", header.e_shentsize, sizeof(Elf32_Shdr));
         return NULL;
     }
 
@@ -124,55 +124,55 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     if(header.e_shentsize && header.e_shnum) {
         // special cases for nums
         if(h->numSHEntries == 0) {
-            printf_log(LOG_DEBUG, "Read number of Sections in 1st Section\n");
+            printf_dump(LOG_DEBUG, "Read number of Sections in 1st Section\n");
             // read 1st section header and grab actual number from here
             fseeko64(f, header.e_shoff, SEEK_SET);
             Elf32_Shdr section;
             if(fread(&section, sizeof(Elf32_Shdr), 1, f)!=1) {
                 free(h);
-                printf_log(LOG_INFO, "Cannot read Initial Section Header\n");
+                printf_dump(LOG_INFO, "Cannot read Initial Section Header\n");
                 return NULL;
             }
             h->numSHEntries = section.sh_size;
         }
         // now read all section headers
-        printf_log(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
+        printf_dump(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
         h->SHEntries = (Elf32_Shdr*)calloc(h->numSHEntries, sizeof(Elf32_Shdr));
         fseeko64(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
                 FreeElfHeader(&h);
-                printf_log(LOG_INFO, "Cannot read all Section Header\n");
+                printf_dump(LOG_INFO, "Cannot read all Section Header\n");
                 return NULL;
         }
 
         if(h->numPHEntries == PN_XNUM) {
-            printf_log(LOG_DEBUG, "Read number of Program Header in 1st Section\n");
+            printf_dump(LOG_DEBUG, "Read number of Program Header in 1st Section\n");
             // read 1st section header and grab actual number from here
             h->numPHEntries = h->SHEntries[0].sh_info;
         }
     }
 
-    printf_log(LOG_DEBUG, "Read %d Program header\n", h->numPHEntries);
+    printf_dump(LOG_DEBUG, "Read %d Program header\n", h->numPHEntries);
     h->PHEntries = (Elf32_Phdr*)calloc(h->numPHEntries, sizeof(Elf32_Phdr));
     fseeko64(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries, sizeof(Elf32_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
             FreeElfHeader(&h);
-            printf_log(LOG_INFO, "Cannot read all Program Header\n");
+            printf_dump(LOG_INFO, "Cannot read all Program Header\n");
             return NULL;
     }
 
     if(header.e_shentsize && header.e_shnum) {
         if(h->SHIdx == SHN_XINDEX) {
-            printf_log(LOG_DEBUG, "Read number of String Table in 1st Section\n");
+            printf_dump(LOG_DEBUG, "Read number of String Table in 1st Section\n");
             h->SHIdx = h->SHEntries[0].sh_link;
         }
         if(h->SHIdx > h->numSHEntries) {
-            printf_log(LOG_INFO, "Incoherent Section String Table Index : %d / %d\n", h->SHIdx, h->numSHEntries);
+            printf_dump(LOG_INFO, "Incoherent Section String Table Index : %d / %d\n", h->SHIdx, h->numSHEntries);
             FreeElfHeader(&h);
             return NULL;
         }
         // load Section table
-        printf_log(LOG_DEBUG, "Loading Sections Table String (idx = %d)\n", h->SHIdx);
+        printf_dump(LOG_DEBUG, "Loading Sections Table String (idx = %d)\n", h->SHIdx);
         if(LoadSH(f, h->SHEntries+h->SHIdx, (void*)&h->SHStrTab, ".shstrtab", SHT_STRTAB)) {
             FreeElfHeader(&h);
             return NULL;
@@ -231,65 +231,65 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     break;
                 case DT_INIT: // Entry point
                     h->initentry = ptr;
-                    printf_log(LOG_DEBUG, "The DT_INIT is at address %p\n", (void*)h->initentry);
+                    printf_dump(LOG_DEBUG, "The DT_INIT is at address %p\n", (void*)h->initentry);
                     break;
                 case DT_INIT_ARRAY:
                     h->initarray = ptr;
-                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAY is at address %p\n", (void*)h->initarray);
+                    printf_dump(LOG_DEBUG, "The DT_INIT_ARRAY is at address %p\n", (void*)h->initarray);
                     break;
                 case DT_INIT_ARRAYSZ:
                     h->initarray_sz = val / sizeof(Elf32_Addr);
-                    printf_log(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %d\n", h->initarray_sz);
+                    printf_dump(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %d\n", h->initarray_sz);
                     break;
                 case DT_PREINIT_ARRAYSZ:
                     if(val)
-                        printf_log(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
+                        printf_dump(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
                     break;
                 case DT_FINI: // Exit hook
                     h->finientry = ptr;
-                    printf_log(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
+                    printf_dump(LOG_DEBUG, "The DT_FINI is at address %p\n", (void*)h->finientry);
                     break;
                 case DT_FINI_ARRAY:
                     h->finiarray = ptr;
-                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAY is at address %p\n", (void*)h->finiarray);
+                    printf_dump(LOG_DEBUG, "The DT_FINI_ARRAY is at address %p\n", (void*)h->finiarray);
                     break;
                 case DT_FINI_ARRAYSZ:
                     h->finiarray_sz = val / sizeof(Elf32_Addr);
-                    printf_log(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %d\n", h->finiarray_sz);
+                    printf_dump(LOG_DEBUG, "The DT_FINI_ARRAYSZ is %d\n", h->finiarray_sz);
                     break;
                 case DT_VERNEEDNUM:
                     h->szVerNeed = val;
-                    printf_log(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
+                    printf_dump(LOG_DEBUG, "The DT_VERNEEDNUM is %d\n", h->szVerNeed);
                     break;
                 case DT_VERNEED:
                     h->VerNeed = (Elf32_Verneed*)ptr;
-                    printf_log(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
+                    printf_dump(LOG_DEBUG, "The DT_VERNEED is at address %p\n", h->VerNeed);
                     break;
                 case DT_VERDEFNUM:
                     h->szVerDef = val;
-                    printf_log(LOG_DEBUG, "The DT_VERDEFNUM is %d\n", h->szVerDef);
+                    printf_dump(LOG_DEBUG, "The DT_VERDEFNUM is %d\n", h->szVerDef);
                     break;
                 case DT_VERDEF:
                     h->VerDef = (Elf32_Verdef*)ptr;
-                    printf_log(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
+                    printf_dump(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
                     break;
                 }
             }
             if(h->rel) {
                 if(h->relent != sizeof(Elf32_Rel)) {
-                    printf_log(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%x)\n", h->relent, sizeof(Elf32_Rel));
+                    printf_dump(LOG_NONE, "Rel Table Entry size invalid (0x%x should be 0x%x)\n", h->relent, sizeof(Elf32_Rel));
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
+                printf_dump(LOG_DEBUG, "Rel Table @%p (0x%x/0x%x)\n", (void*)h->rel, h->relsz, h->relent);
             }
             if(h->rela) {
                 if(h->relaent != sizeof(Elf32_Rela)) {
-                    printf_log(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%x)\n", h->relaent, sizeof(Elf32_Rela));
+                    printf_dump(LOG_NONE, "RelA Table Entry size invalid (0x%x should be 0x%x)\n", h->relaent, sizeof(Elf32_Rela));
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
+                printf_dump(LOG_DEBUG, "RelA Table @%p (0x%x/0x%x)\n", (void*)h->rela, h->relasz, h->relaent);
             }
             if(h->jmprel) {
                 if(h->pltrel == DT_REL) {
@@ -297,16 +297,16 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                 } else if(h->pltrel == DT_RELA) {
                     h->pltent = sizeof(Elf32_Rela);
                 } else {
-                    printf_log(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%d)\n", h->pltsz, h->pltrel);
+                    printf_dump(LOG_NONE, "PLT Table type is unknown (size = 0x%x, type=%d)\n", h->pltsz, h->pltrel);
                     FreeElfHeader(&h);
                     return NULL;
                 }
                 if((h->pltsz / h->pltent)*h->pltent != h->pltsz) {
-                    printf_log(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%d)\n", h->pltsz, h->pltent, h->pltrel);
+                    printf_dump(LOG_NONE, "PLT Table Entry size invalid (0x%x, ent=0x%x, type=%d)\n", h->pltsz, h->pltent, h->pltrel);
                     FreeElfHeader(&h);
                     return NULL;
                 }
-                printf_log(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
+                printf_dump(LOG_DEBUG, "PLT Table @%p (type=%d 0x%x/0x%0x)\n", (void*)h->jmprel, h->pltrel, h->pltsz, h->pltent);
             }
             if(h->DynStrTab && h->szDynStrTab) {
                 //DumpDynamicNeeded(h); cannot dump now, it's not loaded yet
@@ -317,32 +317,32 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         if(ii) {
             h->gotplt = h->SHEntries[ii].sh_addr;
             h->gotplt_end = h->gotplt + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
+            printf_dump(LOG_DEBUG, "The GOT.PLT Table is at address %p\n", (void*)h->gotplt);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".got");
         if(ii) {
             h->got = h->SHEntries[ii].sh_addr;
             h->got_end = h->got + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The GOT Table is at address %p..%p\n", (void*)h->got, (void*)h->got_end);
+            printf_dump(LOG_DEBUG, "The GOT Table is at address %p..%p\n", (void*)h->got, (void*)h->got_end);
         }
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".plt");
         if(ii) {
             h->plt = h->SHEntries[ii].sh_addr;
             h->plt_end = h->plt + h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
+            printf_dump(LOG_DEBUG, "The PLT Table is at address %p..%p\n", (void*)h->plt, (void*)h->plt_end);
         }
         // grab version of symbols
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".gnu.version");
         if(ii) {
             h->VerSym = (Elf32_Half*)(h->SHEntries[ii].sh_addr);
-            printf_log(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
+            printf_dump(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
         }
         // grab .text for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
         if(ii) {
             h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
             h->textsz = h->SHEntries[ii].sh_size;
-            printf_log(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
+            printf_dump(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
         }
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);
@@ -355,19 +355,21 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
 const char* GetSymbolVersion(elfheader_t* h, int version)
 {
     version&=0x7fff;    // remove bit15 that switch between hidden/public
-    if(!h->VerNeed || (version<2))
+    if(version<2)
         return NULL;
     /*if(version==1)
         return "*";*/
-    Elf32_Verneed *ver = (Elf32_Verneed*)((uintptr_t)h->VerNeed + h->delta);
-    while(ver) {
-        Elf32_Vernaux *aux = (Elf32_Vernaux*)((uintptr_t)ver + ver->vn_aux);
-        for(int j=0; j<ver->vn_cnt; ++j) {
-            if(aux->vna_other==version)
-                return h->DynStr+aux->vna_name;
-            aux = (Elf32_Vernaux*)((uintptr_t)aux + aux->vna_next);
+    if(h->VerNeed) {
+        Elf32_Verneed *ver = (Elf32_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+        while(ver) {
+            Elf32_Vernaux *aux = (Elf32_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+            for(int j=0; j<ver->vn_cnt; ++j) {
+                if(aux->vna_other==version)
+                    return h->DynStr+aux->vna_name;
+                aux = (Elf32_Vernaux*)((uintptr_t)aux + aux->vna_next);
+            }
+            ver = ver->vn_next?((Elf32_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
         }
-        ver = ver->vn_next?((Elf32_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
     }
     return GetParentSymbolVersion(h, version);  // if symbol is "internal", use Def table instead
 }
