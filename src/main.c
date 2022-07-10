@@ -48,6 +48,7 @@ int box86_dump = 0;
 int box86_nobanner = 0;
 int box86_dynarec_log = LOG_NONE;
 int box86_pagesize;
+uintptr_t box86_load_addr = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
@@ -397,6 +398,13 @@ void LoadLogEnv()
 #endif
 #endif
     // Other BOX86 env. var.
+    p = getenv("BOX86_LOAD_ADDR");
+    if(p) {
+        if(sscanf(p, "0x%zx", &box86_load_addr)!=1)
+            box86_load_addr = 0;
+        if(box86_load_addr)
+            printf_log(LOG_INFO, "Use a starting load address of %p\n", (void*)box86_load_addr);
+    }
     p = getenv("BOX86_DLSYM_ERROR");
     if(p) {
         if(strlen(p)==1) {

@@ -8,6 +8,7 @@ extern int box86_dump;   // dump elf or not
 extern int box86_dynarec_log;
 extern int box86_dynarec;
 extern int box86_pagesize;
+extern uintptr_t box86_load_addr;
 #ifdef DYNAREC
 extern int box86_dynarec_dump;
 extern int box86_dynarec_trace;
