@@ -403,6 +403,7 @@ void LoadLogEnv()
             if(p[0]>='0' && p[0]<='0'+1)
                 dlsym_error = p[0]-'0';
         }
+        printf_log(LOG_INFO, "Shows details of dlopen / dlsym /dlclose : %s\n", dlsym_error?"Yes":"No");
     }
 #ifdef PANDORA
     p = getenv("BOX86_X11COLOR16");
