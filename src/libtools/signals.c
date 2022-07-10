@@ -844,6 +844,20 @@ exit(-1);
             addr, info->si_code, prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
             getAddrFunctionName((uintptr_t)(db?db->x86_addr:0)), (db?db->need_test:0)?"need_stest":"clean", db?db->hash:0, hash);
+#if defined(ARM)
+        static const char* reg_name[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
+        if(db)
+            for (int i=0; i<8; ++i) {
+                if(!(i%4)) printf_log(log_minimum, "\n");
+                printf_log(log_minimum, "%s:0x%08x ", reg_name[i], ((uint32_t*)&p->uc_mcontext.arm_r4)[i]);
+            }
+        if(esp!=addr)
+            for (int i=-4; i<4; ++i) {
+                printf_log(log_minimum, "%sESP%c0x%02x:0x%08x", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*4, *(uintptr_t*)(esp+i*4));
+            }
+#else
+        #warning TODO
+#endif
 #else
         printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code);
 #endif
