@@ -671,12 +671,47 @@ void PrintHelp() {
     printf(" BOX86_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX86_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX86_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
+    printf(" BOX86_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
+    printf(" BOX86_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
     printf(" BOX86_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
+}
+
+void addNewEnvVar(const char* s)
+{
+    if(!s)
+        return;
+    char* p = strdup(s);
+    char* e = strchr(p, '=');
+    if(!e) {
+        printf_log(LOG_INFO, "Invalid speicifc env. var. '%s'\n", s);
+        free(p);
+        return;
+    }
+    *e='\0';
+    ++e;
+    setenv(p, e, 1);
+    free(p);
 }
 
 EXPORTDYN
 void LoadEnvVars(box86context_t *context)
 {
+    // Check custom env. var. and add them if needed
+    {
+        char* p = getenv("BOX86_ENV");
+        if(p)
+            addNewEnvVar(p);
+        int i = 0;
+        char box86_env[50];
+        do {
+            sprintf(box86_env, "BOX86_ENV%d", i);
+            p = getenv(box86_env);
+            if(p) {
+                addNewEnvVar(p);
+                ++i;
+            }
+        } while(p);
+    }
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86:i686", "BOX86_LD_LIBRARY_PATH");
 #ifdef PANDORA

@@ -186,6 +186,14 @@ Disables the load of vulkan libraries.
  * 0 : Load vulkan libraries if found.
  * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
 
+#### BOX86_ENV
+ * XXX=yyyy
+ will add XXX=yyyy env. var.
+
+#### BOX86_ENV1
+ * XXX=yyyy
+ will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
+
 #### BOX86_FIX_64BIT_INODES
 Fix/Don't fix 64bit inodes
  * 0 : Don't fix 64bit inodes. (Default.)
