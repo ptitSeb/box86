@@ -2004,7 +2004,7 @@ GOW(wcsncasecmp, iFppu)
 // __wcsncasecmp_l
 GOW(wcsncasecmp_l, iFppup)
 GO(wcsncat, pFppu)
-// __wcsncat_chk
+GO(__wcsncat_chk, pFppLL)
 GO(wcsncmp, iFppu)
 GOW(wcsncpy, pFppu)
 GO(__wcsncpy_chk, pFppuu)
