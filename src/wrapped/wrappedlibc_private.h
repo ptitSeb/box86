@@ -1765,7 +1765,7 @@ GOW(strtouq, UFppi) // ok?
 GOW(strverscmp, iFpp)
 // __strverscmp
 GO(strxfrm, uFppu)
-GO(__strxfrm_l, uFppup)
+GO(__strxfrm_l, LFppLp)
 GO(strxfrm_l, uFppup)
 // stty
 // svcauthdes_stats // type B

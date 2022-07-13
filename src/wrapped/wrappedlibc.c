@@ -2962,7 +2962,7 @@ EXPORT int my_on_exit(x86emu_t* emu, void* f, void* args)
 
 EXPORT void my___cxa_pure_virtual(x86emu_t* emu)
 {
-    fprintf(LOG_NONE, "Pure virtual function called\n");
+    printf_log(LOG_NONE, "Pure virtual function called\n");
     emu->quit = 1;
     abort();
 }
