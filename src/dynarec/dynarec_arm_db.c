@@ -187,7 +187,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 1023, 0, 0, NULL);
                         VLDR_32(s0, ed, fixedaddress);
                     } else {
                         GETED;
@@ -202,7 +202,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0, NULL);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
@@ -228,7 +228,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0, NULL);
                         ed = x1; // will not be writen immediatly, so x1 is safe for now
                     }
                     s0 = fpu_get_scratch_single(dyn);
@@ -253,7 +253,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0, NULL);
                         ed = x1;
                     }
                     s0 = fpu_get_scratch_single(dyn);
@@ -273,7 +273,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(PK(0)==0xDB && ((PK(1)>>3)&7)==7) {
                         // the FLD is immediatly followed by an FSTP
                         LDR_IMM9(x2, ed, 0);
@@ -283,7 +283,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
                         nextop = F8;    //0xDB
                         nextop = F8;    //modrm
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         STR_IMM9(x2, ed, 0);
                         STR_IMM9(x3, ed, 4);
                         STRH_IMM8(x14, ed, 8);
@@ -333,7 +333,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     #if 0
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     x87_forget(dyn, ninst, x1, x3, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {
                         MOV_REG(x1, ed);
                     }
@@ -341,7 +341,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     #else
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     v2 = fpu_get_scratch_double(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     // get top in x3
                     LDR_IMM9(x3, xEmu, offsetof(x86emu_t, top));
                     int a = -dyn->n.x87stack;

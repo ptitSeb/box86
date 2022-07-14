@@ -38,6 +38,9 @@ static int                 mmapcap = 0;
 static kh_dynablocks_t     *dblist_oversized;      // store the list of oversized dynablocks (normal sized are inside mmaplist)
 static uintptr_t           *box86_jumptable[JMPTABL_SIZE];
 static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
+// lock addresses
+KHASH_SET_INIT_INT(lockaddress)
+static kh_lockaddress_t    *lockaddress = NULL;
 #endif
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
@@ -938,6 +941,7 @@ void init_custommem_helper(box86context_t* ctx)
 #else
 #error Unsupported architecture!
 #endif
+    lockaddress = kh_init(lockaddress);
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapmem list
@@ -988,6 +992,8 @@ void fini_custommem_helper(box86context_t *ctx)
             if(box86_jumptable[i]!=box86_jmptbl_default)
                 free(box86_jumptable[i]);
     }
+    kh_destroy(lockaddress, lockaddress);
+    lockaddress = NULL;
 #endif
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP
@@ -1003,3 +1009,20 @@ void fini_custommem_helper(box86context_t *ctx)
         free(tmp);
     }
 }
+
+#ifdef DYNAREC
+// add an address to the list of "LOCK"able
+void addLockAddress(uintptr_t addr)
+{
+    int ret;
+    kh_put(lockaddress, lockaddress, addr, &ret);
+}
+
+// return 1 is the address is used as a LOCK, 0 else
+int isLockAddress(uintptr_t addr)
+{
+    khint_t k = kh_get(lockaddress, lockaddress, addr);
+    return (k==kh_end(lockaddress))?0:1;
+}
+
+#endif

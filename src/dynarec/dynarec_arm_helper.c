@@ -27,8 +27,11 @@
 #include "dynarec_arm_helper.h"
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, uint32_t absmax, uint32_t mask, int getfixonly)
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixaddress, uint32_t absmax, uint32_t mask, int getfixonly, int* l)
 {
+    int lock = l?((l==LOCK_LOCK)?1:2):0;
+    if(lock==2)
+        *l = (box86_dynarec_strongmem==2)?1:0;
     uint8_t ret = 2;
     uint8_t scratch = 2;
     *fixaddress = 0;
@@ -51,6 +54,10 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         *fixaddress = tmp;
                     }
                 } else {
+                    switch(lock) {
+                        case 1: addLockAddress(tmp); break;
+                        case 2: if(isLockAddress(tmp)) *l=1; break;
+                    }
                     MOV32(ret, tmp);
                 }
             } else {

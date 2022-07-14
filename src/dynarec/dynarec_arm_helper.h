@@ -27,6 +27,9 @@
 #define PKip(a) *(uint8_t*)(ip+a)
 #define PKa(a)  *(uint8_t*)(a)
 
+//LOCK_* define
+#define LOCK_LOCK   (int*)1
+
 // GETGD    get x86 register in gd
 #define GETGD   gd = xEAX+((nextop&0x38)>>3)
 //GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
@@ -34,7 +37,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0, NULL); \
                     LDR_IMM9(x1, wback, fixedaddress); \
                     ed = x1;                \
                 }
@@ -43,7 +46,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 4095, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 4095, 0, 0, NULL); \
                     LDR_IMM9(hint, wback, fixedaddress); \
                     ed = hint;              \
                 }
@@ -53,7 +56,7 @@
                     MOV_REG(ret, ed);       \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 4095, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 4095, 0, 0, NULL); \
                     ed = ret;               \
                     LDR_IMM9(ed, wback, fixedaddress); \
                 }
@@ -66,7 +69,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL); \
                     LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
                     ed = x1;                 \
                 }
@@ -75,7 +78,7 @@
                     ed = xEAX+(nextop&7);               \
                     wback = 0;                          \
                 } else {                                \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL); \
                     ADD_REG_LSL_IMM5(x2, wback, O, 0);  \
                     if(wback != x2) wback = x2;         \
                     LDR_IMM9(x1, wback, 0);             \
@@ -95,7 +98,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 255, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 255, 0, 0, NULL); \
                     LDRH_IMM8(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
@@ -107,7 +110,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL); \
                     LDRH_IMM8(i, wback, fixedaddress); \
                     ed = i;                 \
                     wb1 = 1;                \
@@ -119,7 +122,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL); \
                     LDRSH_IMM8(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
@@ -139,7 +142,7 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0, 0, NULL); \
                     LDRB_IMM9(i, wback, fixedaddress); \
                     wb1 = 1;                \
                     ed = i;                 \
@@ -153,7 +156,7 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0, NULL); \
                     ADD_REG_LSL_IMM5(x3, wback, i, 0);  \
                     if(wback!=x3) wback = x3;           \
                     LDRB_IMM9(i, wback, fixedaddress);  \
@@ -169,7 +172,7 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL); \
                     LDRSB_IMM8(i, wback, fixedaddress);\
                     wb1 = 1;                \
                     ed = i;                 \
@@ -518,7 +521,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define fpuCacheTransform       STEPNAME(fpuCacheTransform)
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress, uint32_t absmax, uint32_t mask, int getfixonly);
+uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress, uint32_t absmax, uint32_t mask, int getfixonly, int* l);
 
 /* setup r2 to address pointed by */
 uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int* fixedaddress, uint32_t absmax, uint32_t mask);

@@ -51,7 +51,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         emit_inc16(dyn, ninst, ed, x3, x14);
                         EWBACK(x1);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1, LOCK_LOCK);
                         if(!fixedaddress) {
                             TSTS_IMM8(wback, 1);
                             B_MARK(cNE);    // unaligned
@@ -89,7 +89,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         emit_dec32(dyn, ninst, ed, x3, x14);
                         EWBACK(x1);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1, LOCK_LOCK);
                         if(!fixedaddress) {
                             TSTS_IMM8(wback, 1);
                             B_MARK(cNE);    // unaligned

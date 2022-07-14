@@ -184,10 +184,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -200,10 +200,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -216,10 +216,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -233,10 +233,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -251,10 +251,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -267,10 +267,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -283,10 +283,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
@@ -299,10 +299,10 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     d1 = fpu_get_scratch_double(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 1023, 3, 0, NULL);
                         VLDR_64(d1, wback, fixedaddress);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, 4095-4, 0, 0, NULL);
                         LDR_IMM9(x2, wback, fixedaddress);
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
