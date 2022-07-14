@@ -701,7 +701,7 @@ void LoadEnvVars(box86context_t *context)
         char* p = getenv("BOX86_ENV");
         if(p)
             addNewEnvVar(p);
-        int i = 0;
+        int i = 1;
         char box86_env[50];
         do {
             sprintf(box86_env, "BOX86_ENV%d", i);
