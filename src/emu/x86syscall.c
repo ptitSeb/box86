@@ -192,6 +192,8 @@ scwrap_t syscallwrap[] = {
     { 175, __NR_rt_sigprocmask, 4 },
     { 179, __NR_rt_sigsuspend, 2 },
     { 183, __NR_getcwd, 2 },
+    { 184, __NR_capget, 2},
+    { 185, __NR_capset, 2},
     { 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     { 191, __NR_ugetrlimit, 2 },
 //    { 192, __NR_mmap2, 6},
