@@ -100,7 +100,9 @@ int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
         return 1;
     if(PK(0)==0x90)
         return is_nops(dyn, addr+1, n-1);
-    if(n>1 && PK(0)==0x66)  // if opcode start with 0x66, and there is more after, than is *can* be a NOP
+    if(n>1 && PK(0)==0x2E)  // if opcode start with 0x2E, and there is more after, than this *can* be a NOP
+        return is_nops(dyn, addr+1, n-1);
+    if(n>1 && PK(0)==0x66)  // if opcode start with 0x66, and there is more after, than this *can* be a NOP
         return is_nops(dyn, addr+1, n-1);
     if(n>2 && PK(0)==0x0f && PK(1)==0x1f && PK(2)==0x00)
         return is_nops(dyn, addr+3, n-3);
