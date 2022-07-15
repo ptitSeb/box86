@@ -94,7 +94,7 @@ GO(FcFreeTypeCharIndex, uFpu)
 GO(FcFreeTypeQuery, pFpipp)
 GO(FcFreeTypeQueryFace, pFppip)
 //GO(FcGetLangs, 
-//GO(FcGetVersion, 
+GO(FcGetVersion, iFv)
 GO(FcInit, iFv)
 //GO(FcInitBringUptoDate, 
 //GO(FcInitLoadConfig, 
