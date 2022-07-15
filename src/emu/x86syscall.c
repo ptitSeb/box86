@@ -515,10 +515,10 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 PushExit(newemu);
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
-                    mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                    mystack = __libc_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
                 } else {
                     if(!my_context->stack_clone)
-                        my_context->stack_clone = malloc(1024*1024);
+                        my_context->stack_clone = __libc_malloc(1024*1024);
                     mystack = my_context->stack_clone;
                     my_context->stack_clone_used = 1;
                 }
@@ -717,10 +717,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
                 PushExit(newemu);
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
-                    mystack = malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                    mystack = __libc_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
                 } else {
                     if(!my_context->stack_clone)
-                        my_context->stack_clone = malloc(1024*1024);
+                        my_context->stack_clone = __libc_malloc(1024*1024);
                     mystack = my_context->stack_clone;
                     my_context->stack_clone_used = 1;
                 }
@@ -736,7 +736,7 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
         case 125:   // mprotect
             return (uint32_t)my_mprotect(emu, p(4), u32(8), i32(12));
         case 174:   // sys_rt_sigaction
-            return (uint32_t)my_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
+            return (uint32_t)my_syscall_sigaction(emu, i32(4), p(8), p(12), i32(16));
         case 192:   // mmap2
             return (uint32_t)my_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24));
         case 243: // set_thread_area
