@@ -69,9 +69,16 @@ extern FILE* ftrace;
 #define EXPORTDYN 
 #endif
 
+#ifdef ANDROID
+#define __libc_malloc   malloc
+#define __libc_realloc  realloc
+#define __libc_calloc   calloc
+#define __libc_free     free
+#else
 extern void* __libc_malloc(size_t);
 extern void* __libc_realloc(size_t, void*);
 extern void* __libc_calloc(size_t, size_t);
 extern void __libc_free(void*);
+#endif
 
 #endif //__DEBUG_H_
