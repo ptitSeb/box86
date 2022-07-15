@@ -11,6 +11,7 @@
 #include <ucontext.h>
 #include <setjmp.h>
 #include <sys/mman.h>
+#include <execinfo.h>
 
 #include "box86context.h"
 #include "debug.h"
@@ -871,6 +872,19 @@ exit(-1);
             printf_log(log_minimum, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X\n", ((uint8_t*)x86pc)[0], ((uint8_t*)x86pc)[1], ((uint8_t*)x86pc)[2], ((uint8_t*)x86pc)[3], ((uint8_t*)x86pc)[4], ((uint8_t*)x86pc)[5], ((uint8_t*)x86pc)[6], ((uint8_t*)x86pc)[7]);
         else
             printf_log(log_minimum, "\n");
+        if(box86_backtrace && (log_minimum<=box86_log)) {
+            int nptrs;
+            void *buffer[200];
+            char **strings;
+
+            printf_log(LOG_NONE, "Native bactrace:\n");
+            nptrs = backtrace(buffer, 200);
+            strings = backtrace_symbols(buffer, nptrs);
+            for(int j=0; j<nptrs; j++)
+                printf_log(LOG_NONE, "\t%s\n", strings[j]);
+            free(strings);
+
+        }
     }
     #if 1
     if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_DYNAREC)==7 || (prot&~PROT_DYNAREC)==5))) {

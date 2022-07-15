@@ -199,6 +199,16 @@ Fix/Don't fix 64bit inodes
  * 0 : Don't fix 64bit inodes. (Default.)
  * 1 : Fix 64bit inodes. Helps when running on Filesystems with 64bit inodes. Is useful when a program uses API functions which doesn't support it and the program doesn't use inodes information.
 
+#### BOX86_SHOWSEGV
+Show Segfault signal even if a signal handler is present
+ * 0 : Don't force segfault details when a signal handler is install (Default, to limit message spamming)
+ * 1 : Show segfault details
+
+#### BOX86_BACKTRACE
+Show a backtrace (native and emulated) on Signal
+ * 0 : Don't show any backtrace (Default.)
+ * 1 : Show native backtrace when a signal is dumped
+
 #### BOX86_JITGDB
 
  * 0 : Just print the Segfault message on segfault (default)

@@ -49,6 +49,7 @@ int box86_nobanner = 0;
 int box86_dynarec_log = LOG_NONE;
 int box86_pagesize;
 uintptr_t box86_load_addr = 0;
+int box86_backtrace = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
@@ -527,6 +528,15 @@ void LoadLogEnv()
         }
         if(box86_showsegv)
             printf_log(LOG_INFO, "Show Segfault signal even if a signal handler is present\n");
+    }
+    p = getenv("BOX86_BACKTRACE");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box86_backtrace = p[0]-'0';
+        }
+        if(box86_backtrace)
+            printf_log(LOG_INFO, "Show Backtrace for signals\n");
     }
     box86_pagesize = sysconf(_SC_PAGESIZE);
     if(!box86_pagesize)

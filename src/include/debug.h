@@ -9,6 +9,7 @@ extern int box86_dynarec_log;
 extern int box86_dynarec;
 extern int box86_pagesize;
 extern uintptr_t box86_load_addr;
+extern int box86_backtrace;
 #ifdef DYNAREC
 extern int box86_dynarec_dump;
 extern int box86_dynarec_trace;
@@ -67,5 +68,10 @@ extern FILE* ftrace;
 #else
 #define EXPORTDYN 
 #endif
+
+extern void* __libc_malloc(size_t);
+extern void* __libc_realloc(size_t, void*);
+extern void* __libc_calloc(size_t, size_t);
+extern void __libc_free(void*);
 
 #endif //__DEBUG_H_
