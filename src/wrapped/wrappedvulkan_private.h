@@ -497,3 +497,7 @@ GO(vkGetSwapchainStatusKHR, iFpU)
 
 // VK_NV_clip_space_w_scaling
 GO(vkCmdSetViewportWScalingNV, vFpuup)  // Array of P at the end, but base structure doesn't seems to need aligning...
+
+// VK_EXT_acquire_xlib_display
+GO(vkAcquireXlibDisplayEXT, iFppU)
+GO(vkGetRandROutputDisplayEXT, iFppLU)
