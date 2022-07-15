@@ -207,7 +207,7 @@ Show Segfault signal even if a signal handler is present
 #### BOX86_BACKTRACE
 Show a backtrace (native and emulated) on Signal
  * 0 : Don't show any backtrace (Default.)
- * 1 : Show native backtrace when a signal is dumped
+ * 1 : Show native backtrace when a signal is dumped (not available on Andoid build)
 
 #### BOX86_JITGDB
 
