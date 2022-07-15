@@ -2822,8 +2822,10 @@ wrappedlibc:
 - iFpp:
   - execvp
   - lstat
+  - lstat64
   - scanf
   - stat
+  - stat64
 - iFpV:
   - execl
   - execle

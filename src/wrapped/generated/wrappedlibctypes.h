@@ -126,8 +126,10 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(fstat, iFip_t) \
 	GO(execvp, iFpp_t) \
 	GO(lstat, iFpp_t) \
+	GO(lstat64, iFpp_t) \
 	GO(scanf, iFpp_t) \
 	GO(stat, iFpp_t) \
+	GO(stat64, iFpp_t) \
 	GO(execl, iFpV_t) \
 	GO(execle, iFpV_t) \
 	GO(execlp, iFpV_t) \

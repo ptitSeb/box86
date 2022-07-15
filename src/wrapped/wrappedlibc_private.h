@@ -1637,8 +1637,8 @@ GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to
 // ssignal  // Weak
 // sstk
 GOM(__stack_chk_fail, vFEv) //%%
-GOM(lstat64, iFpp)	//%%,noE
-GOM(stat64, iFpp)	//%%,noE
+GOM(lstat64, iFEpp)
+GOM(stat64, iFEpp)
 GOW(statfs, iFpp)
 // __statfs
 GOWM(statfs64, iFpp)     //%%,noE
