@@ -3715,6 +3715,8 @@ wrappednspr4:
 wrappednss3:
 - vFp:
   - PK11_SetPasswordFunc
+- iFpp:
+  - CERT_RegisterAlternateOCSPAIAInfoCallBack
 wrappednssutil3:
 wrappedopenal:
 - vFv:

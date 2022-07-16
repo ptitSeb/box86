@@ -62,7 +62,7 @@ GO(CERT_ChangeCertTrust, iFppp)
 //GO(CERT_DecodeAltNameExtension, 
 //GO(CERT_DecodeAuthInfoAccessExtension, 
 //GO(CERT_DecodeAuthKeyID, 
-//GO(CERT_DecodeAVAValue, 
+GO(CERT_DecodeAVAValue, pFp)
 //GO(CERT_DecodeBasicConstraintValue, 
 //GO(CERT_DecodeCertificatePoliciesExtension, 
 //GO(CERT_DecodeCRLDistributionPoints, 
@@ -95,7 +95,7 @@ GO(CERT_DestroyCertificateRequest, vFp)
 //GO(CERT_DisableOCSPChecking, 
 //GO(CERT_DisableOCSPDefaultResponder, 
 //GO(CERT_DistNamesFromCertList, 
-//GO(CERT_DupCertificate, 
+GO(CERT_DupCertificate, pFp)
 //GO(CERT_DupCertList, 
 //GO(CERT_DupDistNames, 
 //GO(CERT_EnableOCSPChecking, 
@@ -147,7 +147,7 @@ GO(CERT_DestroyCertificateRequest, vFp)
 //GO(CERT_FreeDistNames, 
 //GO(CERT_FreeNicknames, 
 //GO(CERT_GenTime2FormattedAscii, 
-//GO(CERT_GetAVATag, 
+GO(CERT_GetAVATag, iFp)
 //GO(CERT_GetCertChainFromCert, 
 GO(CERT_GetCertEmailAddress, pFp)
 //GO(CERT_GetCertificateDer, 
@@ -212,13 +212,13 @@ DATA(CERT_NameTemplate, 4*sizeof(void*))
 //GO(CERT_NameToAsciiInvertible, 
 //GO(CERT_NewCertList, 
 //GO(__CERT_NewTempCertificate, 
-//GO(CERT_NewTempCertificate, 
+GO(CERT_NewTempCertificate, pFpppii)
 //GO(CERT_NicknameStringsFromCertList, 
 //GO(CERT_OCSPCacheSettings, 
 //GO(CERT_OpenCertDBFilename, 
 //GO(CERT_PKIXVerifyCert, 
 //GO(CERT_PostOCSPRequest, 
-//GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, 
+GOM(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFEpp)
 //GO(CERT_RemoveCertListNode, 
 //GO(CERT_RFC1485_EscapeAndQuote, 
 //GO(CERT_SaveSMimeProfile, 
@@ -251,7 +251,7 @@ GO(CERT_VerifyCACertForUsage, iFppiippp)
 //GO(CERT_VerifySignedDataWithPublicKey, 
 //GO(CERT_VerifySignedDataWithPublicKeyInfo, 
 //GO(DER_AsciiToTime, 
-//GO(DER_DecodeTimeChoice, 
+GO(DER_DecodeTimeChoice, iFpp)
 //GO(DER_Encode, 
 //GO(DER_EncodeTimeChoice, 
 //GO(DER_GeneralizedDayToAscii, 
@@ -648,7 +648,7 @@ GO(PK11_WriteRawAttribute, iFipLp)
 //GO(PORT_ArenaStrdup, 
 //GO(PORT_ArenaUnmark, 
 //GO(PORT_ArenaZAlloc, 
-//GO(PORT_Free, 
+GO(PORT_Free, vFp)
 //GO(PORT_FreeArena, 
 //GO(PORT_GetError, 
 //GO(PORT_NewArena, 
@@ -715,7 +715,7 @@ DATA(SEC_IA5StringTemplate, 4*sizeof(void*)) //R type
 //GO(SECITEM_CompareItem, 
 //GO(SECITEM_CopyItem, 
 //GO(SECITEM_DupItem, 
-//GO(SECITEM_FreeItem, 
+GO(SECITEM_FreeItem, iFpi)
 //GO(SECITEM_ItemsAreEqual, 
 //GO(SECITEM_ZfreeItem, 
 //GO(SECKEY_AddPrivateKeyToListTail, 
