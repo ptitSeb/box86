@@ -129,13 +129,18 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         const char* libs[] = {rfilename};
         my_context->deferedInit = 1;
         int bindnow = (flag&0x2 && !allow_missing_symbols)?1:0;
+        int old_missing = allow_missing_libs;
+        if(flag&0x01)   // RTLD_LAZY
+            allow_missing_libs = 1;
         if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, emu->context, emu)) {
+            allow_missing_libs = old_missing;
             printf_dlsym(strchr(rfilename,'/')?LOG_DEBUG:LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
                 dl->last_error = malloc(129);
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             return NULL;
         }
+        allow_missing_libs = old_missing;
         lib = GetLibInternal(rfilename);
         RunDeferedElfInit(emu);
     } else {
