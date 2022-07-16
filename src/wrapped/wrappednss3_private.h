@@ -6,6 +6,8 @@
 // CK_OBJECT_HANDLE is type ULong
 // CK_ATTRIBUTE_TYPE is type ULong
 // SECOidTag is an enum
+// SECCertificateUsage is Int64
+// PRTime is Int64
 
 //GO(ATOB_AsciiToData, 
 //GO(ATOB_ConvertAsciiToItem, 
@@ -31,7 +33,7 @@ DATA(CERT_CertificateTemplate, 240)
 //GO(CERT_CertTimesValid, 
 GO(CERT_ChangeCertTrust, iFppp)
 //GO(CERT_CheckCertUsage, 
-//GO(CERT_CheckCertValidTimes, 
+GO(CERT_CheckCertValidTimes, iFpIi)
 //GO(CERT_CheckNameSpace, 
 //GO(CERT_CheckOCSPStatus, 
 //GO(CERT_ClearOCSPCache, 
@@ -59,7 +61,7 @@ GO(CERT_ChangeCertTrust, iFppp)
 //GO(CERT_CreateValidity, 
 //GO(CERT_CRLCacheRefreshIssuer, 
 //DATA(CERT_CrlTemplate, 
-//GO(CERT_DecodeAltNameExtension, 
+GO(CERT_DecodeAltNameExtension, pFpp)
 //GO(CERT_DecodeAuthInfoAccessExtension, 
 //GO(CERT_DecodeAuthKeyID, 
 GO(CERT_DecodeAVAValue, pFp)
@@ -116,7 +118,7 @@ GO(CERT_DupCertificate, pFp)
 //GO(CERT_EncodePolicyMappingExtension, 
 //GO(CERT_EncodeSubjectKeyID, 
 //GO(CERT_EncodeUserNotice, 
-//GO(CERT_ExtractPublicKey, 
+GO(CERT_ExtractPublicKey, pFp)
 //GO(CERT_FilterCertListByCANames, 
 //GO(CERT_FilterCertListByUsage, 
 //GO(CERT_FilterCertListForUserCerts, 
@@ -130,7 +132,7 @@ GO(CERT_DupCertificate, pFp)
 //GO(CERT_FindCertByNicknameOrEmailAddrForUsage, 
 //GO(CERT_FindCertByNicknameOrEmailAddrForUsageCX, 
 //GO(CERT_FindCertBySubjectKeyID, 
-//GO(CERT_FindCertExtension, 
+GO(CERT_FindCertExtension, iFppp)
 //GO(CERT_FindCertIssuer, 
 //GO(CERT_FindCRLEntryReasonExten, 
 //GO(CERT_FindCRLNumberExten, 
@@ -176,7 +178,7 @@ GO(CERT_GetDomainComponentName, pFp)
 //GO(CERT_GetImposedNameConstraints, 
 GO(CERT_GetLocalityName, pFp)
 //GO(CERT_GetNextEmailAddress, 
-//GO(CERT_GetNextGeneralName, 
+GO(CERT_GetNextGeneralName, pFp)
 //GO(CERT_GetNextNameConstraint, 
 //GO(CERT_GetOCSPAuthorityInfoAccessLocation, 
 //GO(CERT_GetOCSPResponseStatus, 
@@ -216,7 +218,7 @@ GO(CERT_NewTempCertificate, pFpppii)
 //GO(CERT_NicknameStringsFromCertList, 
 //GO(CERT_OCSPCacheSettings, 
 //GO(CERT_OpenCertDBFilename, 
-//GO(CERT_PKIXVerifyCert, 
+GO(CERT_PKIXVerifyCert, iFpIppp)
 //GO(CERT_PostOCSPRequest, 
 GOM(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFEpp)
 //GO(CERT_RemoveCertListNode, 
@@ -649,9 +651,9 @@ GO(PK11_WriteRawAttribute, iFipLp)
 //GO(PORT_ArenaUnmark, 
 //GO(PORT_ArenaZAlloc, 
 GO(PORT_Free, vFp)
-//GO(PORT_FreeArena, 
-//GO(PORT_GetError, 
-//GO(PORT_NewArena, 
+GO(PORT_FreeArena, vFpi)
+GO(PORT_GetError, iFv)
+GO(PORT_NewArena, pFL)
 //GO(PORT_Realloc, 
 //GO(PORT_SetError, 
 //GO(PORT_SetUCS2_ASCIIConversionFunction, 
@@ -806,7 +808,7 @@ GO(SECMOD_ReleaseReadLock, vFp)
 //DATA(SEC_NullTemplate,    //R type
 //DATA(SEC_ObjectIDTemplate,    //R type
 DATA(SEC_OctetStringTemplate, 4*sizeof(void*))   //R type
-//GO(SECOID_AddEntry, 
+GO(SECOID_AddEntry, iFp)
 DATA(SECOID_AlgorithmIDTemplate, 16*sizeof(void*))   //R type
 //GO(SECOID_CompareAlgorithmID, 
 //GO(SECOID_CopyAlgorithmID, 
