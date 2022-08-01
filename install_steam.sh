@@ -27,4 +27,14 @@ export STEAM_RUNTIME=1
 chmod +x steam
 sudo mv steam /usr/local/bin/
 
+# detect if we're running on 64 bit Debian 
+MACHINE_TYPE=`uname -m`
+if [ ${MACHINE_TYPE} == 'aarch64' ] && [ -f '/etc/debian_version' ]; then
+ echo "Detected 64 bit ARM Debian. Installing 32 bit libraries"
+ sudo dpkg --add-architecture armhf # enable installation of armhf libraries
+ sudo apt update # update package lists with the newly added arch
+ sudo apt install libc6:armhf libncurses5:armhf libsdl2*:armhf libopenal*:armhf libpng*:armhf libfontconfig*:armhf libXcomposite*:armhf libbz2-dev:armhf libXtst*:armhf # install the libraries that Steam requires
+ echo "Don't forget to compile/install Box64!"
+fi
+
 echo "Script complete."
