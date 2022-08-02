@@ -43,7 +43,7 @@ sudo systemctl restart systemd-binfmt
   _For Pi4. Change to RPI2 or RPI3 for other models.  Change `-DRPI4=1` to `-DRPI4ARM64=1` for compiling on arm64. (armhf multiarch or chroot required alongside armhf gcc. Install it with 'sudo apt install gcc-arm-linux-gnueabihf'.)_
 
 ```
-sudo apt install gcc-arm-linux-gnueabihf # optional: armhf cross-compiler only required if you are not in a multiarch or chroot enviroment
+sudo apt install gcc-arm-linux-gnueabihf # installs the cross-compiler toolchain required to build 32 bit ARM code
 git clone https://github.com/ptitSeb/box86
 cd box86
 mkdir build; cd build; cmake .. -DRPI4ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
