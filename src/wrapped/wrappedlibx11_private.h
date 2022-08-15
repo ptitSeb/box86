@@ -433,7 +433,7 @@ GO(XGetWMHints, pFpp)
 GO(XGetWMIconName, iFppp)
 GO(XGetWMName, iFppp)
 GO(XGetWMNormalHints, iFpppp)
-//GO(XGetWMProtocols
+GO(XGetWMProtocols, iFppp)
 GO(XGetWMSizeHints, iFppppu)
 //GO(XGetZoomHints
 DATAB(_Xglobal_lock, 4)
