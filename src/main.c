@@ -1181,6 +1181,7 @@ int main(int argc, const char **argv, char **env) {
         AddPath("libudev.so.0", &my_context->box86_emulated_libs, 0);
         box86_steam = 1;
         box86_nogtk = 1;
+        AddPath("libSDL2-2.0.so.0", &my_context->box86_emulated_libs, 0);
         unsetenv("BOX86_NOGTK");
     }
     // special case for steam-runtime-check-requirements to fake 64bits suport
