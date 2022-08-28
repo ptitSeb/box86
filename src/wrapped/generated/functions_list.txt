@@ -186,6 +186,7 @@
 #() CFpi
 #() CFpu
 #() CFpp
+#() WFpp
 #() uFEv
 #() uFEu
 #() uFEp
@@ -195,8 +196,10 @@
 #() uFuu
 #() uFup
 #() uFUp
+#() uFpw
 #() uFpi
 #() uFpu
+#() uFpf
 #() uFpL
 #() uFpp
 #() uFp2
@@ -298,6 +301,7 @@
 #() vFuud
 #() vFuup
 #() vFuff
+#() vFufp
 #() vFudd
 #() vFull
 #() vFulp
@@ -443,15 +447,22 @@
 #() uFuip
 #() uFuuu
 #() uFuup
+#() uFufp
 #() uFupi
 #() uFupu
 #() uFupp
 #() uFpii
 #() uFpip
 #() uFpCi
+#() uFpWi
+#() uFpWu
+#() uFpWf
+#() uFpWp
 #() uFpui
+#() uFpuC
 #() uFpuu
 #() uFpup
+#() uFpfu
 #() uFpLp
 #() uFppi
 #() uFppu
@@ -831,12 +842,14 @@
 #() uFpuip
 #() uFpuuu
 #() uFpuup
+#() uFpupu
 #() uFppiu
 #() uFppip
 #() uFppuu
 #() uFppup
 #() uFppLp
 #() uFpppi
+#() uFpppu
 #() uFpppp
 #() UFpipp
 #() UFppii
@@ -1048,6 +1061,7 @@
 #() vFppWui
 #() vFppuui
 #() vFppuuu
+#() vFppuup
 #() vFppudd
 #() vFppupi
 #() vFppupp
@@ -1055,6 +1069,7 @@
 #() vFpppii
 #() vFpppip
 #() vFpppuu
+#() vFpppup
 #() vFpppdd
 #() vFppppi
 #() vFppppu
@@ -1178,10 +1193,13 @@
 #() uFipipp
 #() uFuiiiu
 #() uFpCCCC
+#() uFpWuip
 #() uFpuuuu
 #() uFpuuup
+#() uFpupuu
 #() uFppiip
 #() uFppipp
+#() uFppuup
 #() uFppupp
 #() uFpplip
 #() uFppLpp
@@ -1458,9 +1476,16 @@
 #() iFpppppp
 #() uFEiippp
 #() uFEiuppp
+#() uFEpCppp
+#() uFEpuppp
 #() uFpippup
+#() uFpWuwCp
+#() uFpWuipp
+#() uFpWuuCp
 #() uFpuippp
 #() uFppippp
+#() uFppuuup
+#() uFppuupu
 #() uFpppppi
 #() uFpppppp
 #() UFpippup
@@ -1665,8 +1690,10 @@
 #() iFppppppp
 #() uFEiipppp
 #() uFEpiippp
+#() uFEpuuppp
 #() uFuippppp
 #() uFppiuppp
+#() uFppuuuup
 #() LFEpppppu
 #() pFEpiiiiu
 #() pFEpLiiii
@@ -1794,8 +1821,12 @@
 #() uFEipipppp
 #() uFEpiupppp
 #() uFEppipppp
+#() uFEpppuppp
 #() uFEppppppp
 #() uFuipppppp
+#() uFpupuuuCp
+#() uFppuuuupp
+#() uFppuuuppi
 #() uFppuppppp
 #() LFEpiupppp
 #() pFEpiuCppp
@@ -1891,6 +1922,7 @@
 #() iFppppppppu
 #() iFppppppppp
 #() uFEipippppp
+#() uFEpppufppp
 #() uFppppppppp
 #() LFEppppppii
 #() pFEppiiuuui
@@ -2253,6 +2285,25 @@ wrappedexpat:
   - XML_SetCharacterDataHandler
 - vFppp:
   - XML_SetElementHandler
+wrappedfaudio:
+- vFpp:
+  - FAudio_UnregisterForCallbacks
+- uFpp:
+  - FAudio_RegisterForCallbacks
+- vFppp:
+  - FAudio_SetEngineProcedureEXT
+- uFpCppp:
+  - FAudioCOMConstructWithCustomAllocatorEXT
+- uFpuppp:
+  - FAudioCreateReverb9WithCustomAllocatorEXT
+  - FAudioCreateReverbWithCustomAllocatorEXT
+  - FAudioCreateVolumeMeterWithCustomAllocatorEXT
+- uFpuuppp:
+  - FAudioCreateWithCustomAllocatorEXT
+- uFpppuppp:
+  - FAPOFX_CreateFXWithCustomAllocatorEXT
+- uFpppufppp:
+  - FAudio_CreateSourceVoice
 wrappedfontconfig:
 - pFpV:
   - FcObjectSetBuild
