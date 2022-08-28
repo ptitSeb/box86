@@ -399,7 +399,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     if(lib->type==-1)
         initEmulatedLib(path, lib, context);
     // still not loaded but notwrapped indicated: use wrapped...
-    if(lib->type==-1 && notwrapped)
+    if(lib->type==-1 && notwrapped && !precise)
         initNativeLib(lib, context);
     // nothing loaded, so error...
     if(lib->type==-1)
