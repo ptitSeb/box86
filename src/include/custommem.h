@@ -34,8 +34,9 @@ uintptr_t getJumpTable();
 uintptr_t getJumpTableAddress(uintptr_t addr);
 #endif
 
-#define PROT_DYNAREC 0x80
-#define PROT_CUSTOM     (PROT_DYNAREC)
+#define PROT_DYNAREC    0x80
+#define PROT_DYNAREC_R  0x40
+#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R)
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
@@ -45,7 +46,7 @@ void freeProtection(uintptr_t addr, uintptr_t size);
 void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);
-void unprotectDB(uintptr_t addr, uintptr_t size);
+void unprotectDB(uintptr_t addr, uintptr_t size, int mark); // if mark==0, the blocks are not marked as potentially dirty
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);

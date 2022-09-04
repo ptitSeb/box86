@@ -656,20 +656,23 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
-        if(!(prot&PROT_DYNAREC)) {
+        if(!prot)
+            prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
+        if(!(prot&PROT_WRITE)) {
             if(!prot)
                 prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
             memprot[i] = prot|PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-        }
+        } else
+            memprot[i] = prot|PROT_DYNAREC_R;
     }
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
 // no log, as it can be executed inside a signal handler
-void unprotectDB(uintptr_t addr, uintptr_t size)
+void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
 {
-    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p (mark=%d)\n", (void*)addr, (void*)(addr+size-1), mark);
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -677,8 +680,10 @@ void unprotectDB(uintptr_t addr, uintptr_t size)
         if(prot&PROT_DYNAREC) {
             memprot[i] = prot&~PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
-            cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-        }
+            if(mark)
+                cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
+        } else if(prot&PROT_DYNAREC_R)
+            memprot[i] = prot&~(PROT_CUSTOM);
     }
 }
 
@@ -780,9 +785,11 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t dyn=(memprot[i]&PROT_DYNAREC);
-        if(dyn && (prot&PROT_WRITE))    // need to remove the write protection from this block
+        uint32_t dyn=(memprot[i]&(PROT_DYNAREC|PROT_DYNAREC_R));
+        if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
+            dyn = PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        }
         memprot[i] = prot|dyn;
     }
 }

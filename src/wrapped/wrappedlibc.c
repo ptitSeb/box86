@@ -1761,7 +1761,7 @@ EXPORT int32_t my_read(int fd, void* buf, uint32_t count)
         void* p = buf+ret;
         if(hasDBFromAddress((uintptr_t)p)) {
             // allow writing the whole block (this happens with HalfLife, libMiles load code directly from .mix and other file like that)
-            unprotectDB((uintptr_t)p, count-ret);
+            unprotectDB((uintptr_t)p, count-ret, 1);
             int l;
             do {
                 l = read(fd, p, count-ret); 

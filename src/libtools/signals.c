@@ -696,7 +696,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
         // access error, unprotect the block (and mark them dirty)
-        unprotectDB((uintptr_t)addr, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
+        unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
@@ -891,7 +891,7 @@ exit(-1);
 #endif
     }
     #if 1
-    if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_DYNAREC)==7 || (prot&~PROT_DYNAREC)==5))) {
+    if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_CUSTOM)==7 || (prot&~PROT_CUSTOM)==5))) {
         /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
         (probably some timing issue) */
         //box86_log=2;
