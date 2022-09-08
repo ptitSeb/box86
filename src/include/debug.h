@@ -34,6 +34,7 @@ extern int box86_prefer_wrapped;
 extern int box86_prefer_emulated;
 extern int box86_steam;
 extern int box86_wine;
+extern int box86_bash;
 extern int box86_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box86_nogtk; // disabling the use of wrapped gtk
 extern int box86_novulkan;  // disabling the use of wrapped vulkan

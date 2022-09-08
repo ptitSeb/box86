@@ -96,6 +96,7 @@ int box86_prefer_wrapped = 0;
 int box86_prefer_emulated = 0;
 int box86_steam = 0;
 int box86_wine = 0;
+int box86_bash = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
@@ -1216,6 +1217,15 @@ int main(int argc, const char **argv, char **env) {
     if(strstr(prgname, "X3R_main")) {
         printf_log(LOG_INFO, "X3Reunion detected, forcing emulated libjpeg\n");
         AddPath("libjpeg.so.62", &my_context->box86_emulated_libs, 0);
+    }
+    // special case for bash (add BOX86_NOBANNER=1 if not there)
+    if(!strcmp(prgname, "bash")) {
+        printf_log(LOG_INFO, "bash detected, disabling banner\n");
+        box86_bash = 1;
+        if (!box86_nobanner) {
+            setenv("BOX86_NOBANNER", "1", 0);
+            setenv("BOX64_NOBANNER", "1", 0);
+        }
     }
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
