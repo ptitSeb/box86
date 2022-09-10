@@ -49,6 +49,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
 	GO(pthread_attr_setscope, iFpi_t) \
 	GO(pthread_kill, iFpi_t) \
+	GO(pthread_kill@GLIBC_2.0, iFpi_t) \
 	GO(pthread_mutexattr_setkind_np, iFpi_t) \
 	GO(__pthread_key_create, iFpp_t) \
 	GO(__pthread_mutex_init, iFpp_t) \

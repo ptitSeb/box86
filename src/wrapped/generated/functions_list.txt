@@ -3239,6 +3239,7 @@ wrappedlibpthread:
 - iFpi:
   - pthread_attr_setscope
   - pthread_kill
+  - pthread_kill@GLIBC_2.0
   - pthread_mutexattr_setkind_np
 - iFpp:
   - __pthread_key_create
