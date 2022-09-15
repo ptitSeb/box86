@@ -278,6 +278,7 @@ void FreeBox86Context(box86context_t** context)
 
     free(ctx->fullpath);
     free(ctx->box86path);
+    free(ctx->bashpath);
 
     FreeBridge(&ctx->system);
 

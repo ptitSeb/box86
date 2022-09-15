@@ -209,6 +209,11 @@ Show a backtrace (native and emulated) on Signal
  * 0 : Don't show any backtrace (Default.)
  * 1 : Show native backtrace when a signal is dumped (not available on Andoid build)
 
+#### BOX86_BASH
+Define x86 bash to launch script
+ * yyyy
+Will use yyyy as x86 bash to launch script. yyyy needs to be a full path to a valid x86 version of bash
+
 #### BOX86_JITGDB
 
  * 0 : Just print the Segfault message on segfault (default)

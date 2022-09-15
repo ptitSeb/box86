@@ -96,7 +96,6 @@ int box86_prefer_wrapped = 0;
 int box86_prefer_emulated = 0;
 int box86_steam = 0;
 int box86_wine = 0;
-int box86_bash = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
@@ -1024,7 +1023,19 @@ int main(int argc, const char **argv, char **env) {
 
     // check BOX86_LOG debug level
     LoadLogEnv();
-    
+    char* bashpath = NULL;
+    {
+        char* p = getenv("BOX86_BASH");
+        if(p) {
+            if(FileIsX86ELF(p)) {
+                bashpath = p;
+                printf_log(LOG_INFO, "Using bash \"%s\"\n", bashpath);
+            } else {
+                printf_log(LOG_INFO, "the x86 bash \"%s\" is not an x86 binary\n", p);
+            }
+        }
+    }
+
     const char* prog = argv[1];
     int nextarg = 1;
     // check if some options are passed
@@ -1221,12 +1232,18 @@ int main(int argc, const char **argv, char **env) {
     // special case for bash (add BOX86_NOBANNER=1 if not there)
     if(!strcmp(prgname, "bash")) {
         printf_log(LOG_INFO, "bash detected, disabling banner\n");
-        box86_bash = 1;
         if (!box86_nobanner) {
             setenv("BOX86_NOBANNER", "1", 0);
             setenv("BOX64_NOBANNER", "1", 0);
         }
+        if (!bashpath) {
+            bashpath = (char*)prog;
+            setenv("BOX86_BASH", prog, 1);
+        }
     }
+    if(bashpath)
+        my_context->bashpath = strdup(bashpath);
+
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
         AddPath("libpng12.so.0", &my_context->box86_emulated_libs, 0);
@@ -1268,10 +1285,11 @@ int main(int argc, const char **argv, char **env) {
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
     if(!elf_header) {
         int x64 = my_context->box64path?FileIsX64ELF(my_context->argv[0]):0;
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x64?"using box64":"natively");
+        int script = my_context->bashpath?FileIsShell(my_context->argv[0]):0;
+        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x64?"using box64":(script?"using bash":"natively"));
         fclose(f);
-        free_contextargv();
         FreeCollection(&ld_preload);
+        int ret;
         if(x64) {
            // duplicate the array and insert 1st arg as box86
             const char** newargv = (const char**)calloc(my_context->argc+2, sizeof(char*));
@@ -1279,15 +1297,24 @@ int main(int argc, const char **argv, char **env) {
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i+1] = my_context->argv[i];
             FreeBox86Context(&my_context);
-            return execvp(newargv[0], (char * const*)newargv);
+            ret = execvp(newargv[0], (char * const*)newargv);
+        } else if (script) {
+            // duplicate the array and insert 1st arg as box64, 2nd is bash
+            const char** newargv = (const char**)calloc(my_context->argc+3, sizeof(char*));
+            newargv[0] = my_context->box86path;
+            newargv[1] = my_context->bashpath;
+            for(int i=0; i<my_context->argc; ++i)
+                newargv[i+2] = my_context->argv[i];
+            ret = execvp(newargv[0], (char * const*)newargv);
         } else {
             const char** newargv = (const char**)calloc(my_context->argc+1, sizeof(char*));
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i] = my_context->argv[i];
-            FreeBox86Context(&my_context);
-            return execvp(newargv[0], (char * const*)newargv);
+            ret = execvp(newargv[0], (char * const*)newargv);
         }
-        printf_log(LOG_NONE, "Failed to execvp: error is %s\n", strerror(errno));
+        free_contextargv();
+        FreeBox86Context(&my_context);
+        return ret;
     }
     AddElfHeader(my_context, elf_header);
 

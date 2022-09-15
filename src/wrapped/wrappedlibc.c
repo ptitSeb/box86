@@ -2038,17 +2038,20 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = my_context->box64path?FileIsX64ELF(path):0;
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    if (x86 || x64 || self) {
+    if (x86 || x64 || script || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
+        int toadd = script?2:1;
+        const char** newargv = (const char**)calloc(n+toadd+1, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
-        memcpy(newargv+1, argv+skip_first, sizeof(char*)*(n+1));
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
@@ -2063,12 +2066,12 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = my_context->box64path?FileIsX64ELF(path):0;
-    int script = (box86_bash && FileIsShell(path))?1:0;
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x86=%d, script=%d\n", path, argv, envp, x86, script);
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p, %p) is x86=%d, x64=%d, script=%d\n", path, argv, envp, x86, x64, script);
     if (x86 || x64 || self || script) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
@@ -2079,7 +2082,7 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
         int toadd = script?2:1;
         const char** newargv = (const char**)calloc(n+1+toadd, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
-        if(script) newargv[1] = emu->context->fullpath; // script needs to be launched with bash
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
         if(self) newargv[toadd] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
@@ -2108,22 +2111,27 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
     int x64 = my_context->box64path?FileIsX64ELF(path):0;
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
     printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
-    free(fullpath);
-    if (x86 || self) {
+    if (x86 || x64 || script || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        int toadd = script?2:1;
+        char** newargv = (char**)calloc(i+toadd+1, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
+        if(script) newargv[2] = emu->context->bashpath;
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         int ret = execvp(newargv[0], newargv);
         free(newargv);
+        free(fullpath);
         return ret;
     }
+    free(fullpath);
     if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
      && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
      && !argv[2]) {
@@ -2147,25 +2155,29 @@ EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path,
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
     int x64 = my_context->box64path?FileIsX64ELF(path):0;
+    int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
+    int ret;
     printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
-    free(fullpath);
-    if ((x86 || self)) {
+    if ((x86 || x64 || script || self)) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        int toadd = script?2:1;
+        char** newargv = (char**)calloc(i+toadd+1, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for (int j=0; j<i; ++j)
             newargv[j+1] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
+        if(script) newargv[2] = fullpath;
         printf_log(LOG_DEBUG, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
-        int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
+        ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
         printf_log(LOG_DEBUG, "posix_spawnp returned %d\n", ret);
         //free(newargv);
-        return ret;
-    }
-    // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
-    return posix_spawnp(pid, path, actions, attrp, argv, envp);
+    } else 
+        ret = posix_spawnp(pid, fullpath, actions, attrp, argv, envp);
+    free(fullpath);
+    return ret;
 }
 
 EXPORT void my__Jv_RegisterClasses() {}
