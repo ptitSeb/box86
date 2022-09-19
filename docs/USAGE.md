@@ -212,8 +212,12 @@ Show a backtrace (native and emulated) on Signal
 #### BOX86_BASH
 Define x86 bash to launch script
  * yyyy
-Will use yyyy as x86 bash to launch script. yyyy needs to be a full path to a valid x86 version of bash
+Will use yyyy as x86 bash to launch script. yyyy needs to be a full path to a valid x86 version of bash. Note that is Box64 is available, an x86_64 version of bash can also be used. Also, BOX64_BASH env. var. will also be read if BOX86_BASH is not defined.
 
+#### BOX86_BOX64
+Define where to find box64 binary
+ * yyyy
+Will use yyyy as x86_64 interpretor, to launch x64_64 binaries
 #### BOX86_JITGDB
 
  * 0 : Just print the Segfault message on segfault (default)

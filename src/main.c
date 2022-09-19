@@ -1027,14 +1027,22 @@ int main(int argc, const char **argv, char **env) {
     {
         char* p = getenv("BOX86_BASH");
         if(p) {
-            if(FileIsX86ELF(p)) {
+            if(FileIsX86ELF(p) || FileIsX64ELF(p)) {
                 bashpath = p;
-                printf_log(LOG_INFO, "Using bash \"%s\"\n", bashpath);
             } else {
                 printf_log(LOG_INFO, "the x86 bash \"%s\" is not an x86 binary\n", p);
             }
         }
+        if(!bashpath && (p=getenv("BOX64_BASH"))) {
+            if(FileIsX86ELF(p) || FileIsX64ELF(p)) {
+                bashpath = p;
+            } else {
+                printf_log(LOG_INFO, "the x86_64 bash \"%s\" is not an x86_64 binary\n", p);
+            }
+        }
     }
+    if(bashpath)
+        printf_log(LOG_INFO, "Using bash \"%s\"\n", bashpath);
 
     const char* prog = argv[1];
     int nextarg = 1;
@@ -1110,12 +1118,19 @@ int main(int argc, const char **argv, char **env) {
     my_context->box86path = ResolveFile(argv[0], &my_context->box86_path);
     // check if box64 is present
     {
-        my_context->box64path = strdup(my_context->box86path);
-        char* p = strrchr(my_context->box64path, '8');  // get the 8 of box86
-        p[0] = '6'; p[1] = '4'; // change 86 to 64
+        my_context->box64path = getenv("BOX86_BOX64");
+        if(!my_context->box64path) {
+            my_context->box64path = strdup(my_context->box86path);
+            char* p = strrchr(my_context->box64path, '8');  // get the 8 of box86
+            p[0] = '6'; p[1] = '4'; // change 86 to 64
+        }
         if(!FileExist(my_context->box64path, IS_FILE)) {
             free(my_context->box64path);
             my_context->box64path = NULL;
+            if(bashpath && FileIsX64ELF(bashpath)) {
+                printf_log(LOG_INFO, "The bash binary given is an x86_64 version, but box64 is not found\n");
+                bashpath = NULL;
+            }
         }
     }
 

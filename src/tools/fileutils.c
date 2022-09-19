@@ -71,9 +71,8 @@ int FileIsX64ELF(const char* filename)
     char head[20] = {0};
     int sz = fread(head, 20, 1, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz!=1)
         return 0;
-    }
     head[7] = x64lib[7];   // this one changes
     head[16]&=0xfe;
     if(memcmp(head, x64lib, 20)==0)
@@ -89,9 +88,8 @@ int FileIsX86ELF(const char* filename)
     char head[20] = {0};
     int sz = fread(head, 20, 1, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz!=1)
         return 0;
-    }
     head[7] = x64lib[7];
     head[16]&=0xfe;
     if(memcmp(head, x86lib, 20)==0)
@@ -107,14 +105,27 @@ int FileIsShell(const char* filename)
     char head[20] = {0};
     int sz = fread(head, strlen(bashsign), 1, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz!=1)
         return 0;
-    if(memcmp(head, bashsign, strlen(bashsign))==0)
+    head[strlen(bashsign)+1] = 0;
+    if(!strcmp(head, bashsign))
         return 1;
-    }
-    if(memcmp(head, shsign, strlen(shsign))==0)
+    head[strlen(shsign)+1] = 0;
+    if(!strcmp(head, shsign))
         return 1;
     return 0;
+}
+
+const char* GetTmpDir() {
+    char *tmpdir;
+    if ((tmpdir = getenv ("TMPDIR")) != NULL) return tmpdir;
+    if ((tmpdir = getenv ("TEMP")) != NULL)   return tmpdir;
+    if ((tmpdir = getenv ("TMP")) != NULL)    return tmpdir;
+    if(FileExist("/tmp", 0))                  return "/tmp";
+    if(FileExist("/var/tmp", 0))              return "/var/tmp";
+    if(FileExist("/usr/tmp", 0))              return "/usr/tmp";
+
+    return "/tmp";  // meh...
 }
 
 #if defined(RPI) || defined(RK3399) || defined(GOA_CLONE)
