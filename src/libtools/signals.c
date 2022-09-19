@@ -694,7 +694,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
-    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC)) {
+    if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_CUSTOM)) {
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // check if SMC inside block
