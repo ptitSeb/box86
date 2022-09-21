@@ -151,12 +151,26 @@ void print_ps(v128 v) {
         else
             printf("%g ", v.f32[i]);
 }
+void print_ps_approx(v128 v) {
+    for(int i=0; i<4; ++i)
+        if(isnanf(v.f32[i]))
+            printf("nan ");
+        else
+            printf("%.2g ", v.f32[i]);
+}
 void print_pd(v128 v) {
     for(int i=0; i<2; ++i)
         if(isnan(v.d64[i]))
             printf("0x%llx ", v.u64[i]);
         else
             printf("%g ", v.d64[i]);
+}
+void print_pd_approx(v128 v) {
+    for(int i=0; i<2; ++i)
+        if(isnan(v.d64[i]))
+            printf("0x%llx ", v.u64[i]);
+        else
+            printf("%.4g ", v.d64[i]);
 }
 #define print_sd print_pd
 
@@ -307,6 +321,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  a128.md = _mm_##A##_pd(A1.md);                     \
  printf("%s(", #C); print_pd(A1);                   \
  printf(") = "); print_pd(a128); printf("\n");
+ #define GO1pda(A, C, A1)                           \
+ a128.md = _mm_##A##_pd(A1.md);                     \
+ printf("%s(", #C); print_pd(A1);                   \
+ printf(") = "); print_pd_approx(a128); printf("\n");
  #define GO2pd(A, C, A1, A2)                        \
  a128.md = _mm_##A##_pd(A1.md, A2.md);              \
  printf("%s(", #C); print_pd(A1);                   \
@@ -325,6 +343,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  a128.md = _mm_##A##_sd(A1.md);                     \
  printf("%s(", #C); print_sd(A1);                   \
  printf(") = "); print_sd(a128); printf("\n");
+ #define GO1sda(A, C, A1)                           \
+ a128.md = _mm_##A##_sd(A1.md);                     \
+ printf("%s(", #C); print_sd(A1);                   \
+ printf(") = "); print_sd_approx(a128); printf("\n");
  #define GO2sd(A, C, A1, A2)                        \
  a128.md = _mm_##A##_sd(A1.md, A2.md);              \
  printf("%s(", #C); print_sd(A1);                   \
@@ -343,6 +365,10 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  a128.mf = _mm_##A##_ps(A1.mf);                     \
  printf("%s(", #C); print_ps(A1);                   \
  printf(") = "); print_ps(a128); printf("\n");
+ #define GO1psa(A, C, A1)                           \
+ a128.mf = _mm_##A##_ps(A1.mf);                     \
+ printf("%s(", #C); print_ps(A1);                   \
+ printf(") = "); print_ps_approx(a128); printf("\n");
  #define GO2ps(A, C, A1, A2)                        \
  a128.mf = _mm_##A##_ps(A1.mf, A2.mf);              \
  printf("%s(", #C); print_ps(A1);                   \
@@ -447,6 +473,14 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1pd(sqrt, psqrtpd, b128_pd)
  GO1pd(sqrt, psqrtpd, c128_pd)
  GO1pd(sqrt, psqrtpd, d128_pd)
+ //GO1pda(rsqrt, prsqrtps, a128_pd)
+ //GO1pda(rsqrt, prsqrtps, b128_pd)
+ //GO1pda(rsqrt, prsqrtps, c128_pd)
+ //GO1pda(rsqrt, prsqrtps, d128_pd)
+ //GO1pda(rcp, prcpps, a128_pd)
+ //GO1pda(rcp, prcpps, b128_pd)
+ //GO1pda(rcp, prcpps, c128_pd)
+ //GO1psa(rcp, prcpps, d128_pd)
  MULITGO2pd(and, andpd)
  MULITGO2pd(andnot, andnpd)
  MULITGO2pd(or, orpd)
@@ -559,14 +593,14 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO1ps(sqrt, psqrtps, b128_ps)
  GO1ps(sqrt, psqrtps, c128_ps)
  GO1ps(sqrt, psqrtps, d128_ps)
- //GO1ps(rsqrt, prsqrtps, a128_ps)  // difference in precision
- //GO1ps(rsqrt, prsqrtps, b128_ps)  // same
- //GO1ps(rsqrt, prsqrtps, c128_ps)  // same
- //GO1ps(rsqrt, prsqrtps, d128_ps)  // difference in the handling of NAN, (-)0, and INF in Dynarec
- //GO1ps(rcp, prcpps, a128_ps)      // deference in precision
- //GO1ps(rcp, prcpps, b128_ps)      // deference in precision
- //GO1ps(rcp, prcpps, c128_ps)      // deference in precision
- GO1ps(rcp, prcpps, d128_ps)
+ GO1psa(rsqrt, prsqrtps, a128_ps)
+ GO1psa(rsqrt, prsqrtps, b128_ps)
+ GO1psa(rsqrt, prsqrtps, c128_ps)
+ GO1psa(rsqrt, prsqrtps, d128_ps)
+ GO1psa(rcp, prcpps, a128_ps)
+ GO1psa(rcp, prcpps, b128_ps)
+ GO1psa(rcp, prcpps, c128_ps)
+ GO1psa(rcp, prcpps, d128_ps)
  MULITGO2ps(and, andps)
  MULITGO2ps(andnot, andnps)
  MULITGO2ps(or, orps)
