@@ -1240,6 +1240,7 @@ void uFppppp(x86emu_t *emu, uintptr_t fnc);
 void UFuiiii(x86emu_t *emu, uintptr_t fnc);
 void lFEipiI(x86emu_t *emu, uintptr_t fnc);
 void lFipLli(x86emu_t *emu, uintptr_t fnc);
+void lFipLlL(x86emu_t *emu, uintptr_t fnc);
 void lFppiip(x86emu_t *emu, uintptr_t fnc);
 void LFEpppp(x86emu_t *emu, uintptr_t fnc);
 void LFLpppp(x86emu_t *emu, uintptr_t fnc);

@@ -1304,7 +1304,7 @@ GOW(pread64, lFipLI)
 // __pread64    // Weak
 // __pread64_chk
 GOM(preadv64, lFEipiI)  //%% not always present
-// __pread_chk
+GO(__pread_chk, lFipLlL)
 GOM(printf, iFEpV) //%%
 GOM(__printf_chk, iFEvpV) //%%
 GO(__printf_fp, iFppp)  // does this needs aligment?
