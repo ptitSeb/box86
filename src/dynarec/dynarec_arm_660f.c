@@ -952,6 +952,9 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVD(v0+1, v1+1);
                 } else if (u8==0b10110001) {
                     VREV64Q_32(v0, v1);
+                } else if (u8==0b01010001) {
+                    VDUP_32(v0+1, v1, 1);
+                    VREV64Q_32(v0, v1);
                 } else if (u8==0b00011011) {
                     VREV64Q_32(v0, v1);
                     VSWP(v0, v0+1);
