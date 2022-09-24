@@ -804,10 +804,45 @@ void printFunctionAddr(uintptr_t nextaddr, const char* text)
     }
 }
 
-#ifdef HAVE_TRACE
-extern uint64_t start_cnt;
 #define PK(a)   (*(uint8_t*)(ip+a))
 #define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
+
+uintptr_t evalED(x86emu_t* emu, uintptr_t ip) {
+    uint8_t nextop = PK(0);
+    if((nextop&0xC0)==0xC0)
+        return emu->regs[(nextop&7)].dword[0];
+    else {
+        ++ip;
+        if(!(nextop&0xC0)) {
+            if((nextop&7)==4) {
+                uint8_t sib = PK(0);
+                ++ip;
+                uintptr_t base = ((sib&0x7)==5)?(PK32(0)):(emu->regs[(sib&0x7)].dword[0]);
+                base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6)); \
+                return *(uintptr_t*)base;
+            } else if((nextop&7)==5) {
+                return *(uintptr_t*)PK32(0);
+            } else {
+                return *(uintptr_t*)emu->regs[nextop&7].dword[0];
+            }
+        } else {
+            uintptr_t base;
+            if((nextop&7)==4) {
+                uint8_t sib = PK(0);
+                ++ip;
+                base = emu->regs[(sib&0x7)].dword[0];
+                base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6));
+            } else {
+                base = emu->regs[(nextop&0x7)].dword[0];
+            } \
+            base+=(nextop&0x80)?(*(int32_t*)ip):(*(int8_t*)ip);
+            return *(uintptr_t*)base;
+        }
+    }
+}
+
+#ifdef HAVE_TRACE
+extern uint64_t start_cnt;
 
 void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
 {
@@ -839,7 +874,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             }
         } else {
             printf_log(LOG_NONE, "%s", DecodeX86Trace(my_context->dec, ip));
-            uint8_t peek = PK(0);
+            const uint8_t peek = PK(0);
             if(peek==0xC3 || peek==0xC2) {
                 printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
                 printFunctionAddr(*(uintptr_t*)(R_ESP), "=> ");
@@ -850,9 +885,11 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
                 uintptr_t nextaddr = ip + 5 + PK32(1);
                 printFunctionAddr(nextaddr, "=> ");
             } else if(peek==0xFF) {
-                if(PK(1)==0x25) {
-                    uintptr_t nextaddr = ip + 6 + PK32(2);
-                    printFunctionAddr(nextaddr, "=> ");
+                const uint8_t pk1 = PK(1);
+                if(((pk1>>3)&7)==2 || ((pk1>>3)&7)==4) { // jmp/call near
+                    uintptr_t nextaddr = (uintptr_t)getAlternate((void*)evalED(emu, ip+1));
+                    printf_log(LOG_NONE, " => %p", nextaddr);
+                    printFunctionAddr(nextaddr, " / ");
                 }
             }
             printf_log(LOG_NONE, "\n");
