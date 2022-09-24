@@ -40,6 +40,7 @@ typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
 #define MAX_SIGNAL 64
+#define CYCLE_LOG  16
 
 typedef struct tlsdatasize_s {
     int         tlssize;
@@ -187,6 +188,11 @@ typedef struct box86context_s {
     int                 no_sigill;
     void*               stack_clone;
     int                 stack_clone_used;
+
+    // rolling logs
+    char*               log_call[CYCLE_LOG];
+    char*               log_ret[CYCLE_LOG];
+    int                 current_line;
 } box86context_t;
 
 extern box86context_t *my_context; // global context

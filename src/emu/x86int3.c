@@ -85,11 +85,16 @@ void x86Int3(x86emu_t* emu)
             elfheader_t *h = FindElfAddress(my_context, *(uintptr_t*)(R_ESP));
             int have_trace = 0;
             if(h && strstr(ElfName(h), "libMiles")) have_trace = 1;*/
-            if(box86_log>=LOG_DEBUG /*|| have_trace*/) {
+            if(box86_log>=LOG_DEBUG  || cycle_log) {
                 int tid = GetTID();
-                char buff[256] = "\0";
+                char t_buff[256] = "\0";
                 char buff2[64] = "\0";
                 char buff3[64] = "\0";
+                char* buff = cycle_log?my_context->log_call[my_context->current_line]:t_buff;
+                char* buffret = cycle_log?my_context->log_ret[my_context->current_line]:NULL;
+                if(buffret) buffret[0] = '\0';
+                if(cycle_log)
+                    my_context->current_line = (my_context->current_line+1)&(CYCLE_LOG-1);
                 char *tmp;
                 int post = 0;
                 int perr = 0;
@@ -97,7 +102,7 @@ void x86Int3(x86emu_t* emu)
                 const char *s = NULL;
                 s = GetNativeName((void*)addr);
                 if(addr==(uintptr_t)PltResolver) {
-                    snprintf(buff, 256, "%s", " ... ");
+                    snprintf(buff, 256, "%s", cycle_log?"PltResolver ":" ... ");
                 } else
                 if(strstr(s, "SDL_RWFromFile")==s || strstr(s, "SDL_RWFromFile")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%s, %s)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
@@ -290,7 +295,7 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
                 pthread_mutex_lock(&emu->context->mutex_trace);
-                printf_log(LOG_NONE, "%s =>", buff);
+                if(!cycle_log) printf_log(LOG_NONE, "%s =>", buff);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 if(post)
@@ -321,7 +326,10 @@ void x86Int3(x86emu_t* emu)
                 else if(perr==3 && ((int)R_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 pthread_mutex_lock(&emu->context->mutex_trace);
-                printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
+                if(cycle_log)
+                    snprintf(buffret, 127, "0x%X%s%s", R_EAX, buff2, buff3);
+                else
+                    printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
                 pthread_mutex_unlock(&emu->context->mutex_trace);
             } else
                 w(emu, addr);

@@ -27,6 +27,7 @@ extern int arm_div;
 #endif
 #endif
 extern int dlsym_error;  // log dlsym error
+extern int cycle_log;    // if using rolling logs
 extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
 extern int allow_missing_libs;

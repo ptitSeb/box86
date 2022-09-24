@@ -16,6 +16,11 @@ Controls the Dump of elf content
  * 0: No dump of elf information (Default)
  * 1: Dump elf sections and relocations and other information (also active if using `BOX86_LOG=3`)
 
+#### BOX86_ROLLING_LOG
+Show last few wrapped function call when a Signal is caught
+ * 0: No last function call printed (Default.)
+ * 1: Last few wrapped function call printed when a signal is printed. Incompatible with BOX86_LOG>1 (may need BOX86_SHOWSEGV=1 also)
+
 #### BOX86_NOBANNER
 Disables Box86 printing its version and build
  * 0 : Enable printing its banner. (Default.)

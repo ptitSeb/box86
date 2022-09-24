@@ -163,6 +163,11 @@ box86context_t *NewBox86Context(int argc)
     // init and put default values
     box86context_t *context = my_context = (box86context_t*)calloc(1, sizeof(box86context_t));
 
+    if(cycle_log)
+        for(int i=0; i<CYCLE_LOG; ++i) {
+            context->log_call[i] = (char*)calloc(256, 1);
+            context->log_ret[i] = (char*)calloc(128, 1);
+        }
 #ifdef BUILD_LIB
     context->deferedInit = 0;
 #else
@@ -324,6 +329,12 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
+
+    if(cycle_log)
+        for(int i=0; i<CYCLE_LOG; ++i) {
+            free(ctx->log_call[i]);
+            free(ctx->log_ret[i]);
+        }
 
     free(ctx);
 }

@@ -71,6 +71,7 @@ int arm_v8 = 0;
 int box86_dynarec = 0;
 #endif
 int dlsym_error = 0;
+int cycle_log = 0;
 int trace_xmm = 0;
 int trace_emm = 0;
 #ifdef HAVE_TRACE
@@ -263,6 +264,19 @@ void LoadLogEnv()
         if(!box86_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box86_log);
     }
+    p = getenv("BOX86_ROLLING_LOG");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                cycle_log = p[0]-'0';
+        }
+        if(cycle_log && box86_log>LOG_INFO) {
+            cycle_log = 0;
+            printf_log(LOG_NONE, "Incompatible Rolling log and Debug Log, disabling Rolling log\n");
+        }
+    }
+    if(!box86_nobanner && cycle_log)
+        printf_log(LOG_INFO, "Rolling log, showing last %d function call on signals\n", CYCLE_LOG);
     p = getenv("BOX86_DUMP");
     if(p) {
         if(strlen(p)==1) {
