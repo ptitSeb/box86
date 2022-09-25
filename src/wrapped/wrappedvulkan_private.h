@@ -500,4 +500,4 @@ GO(vkCmdSetViewportWScalingNV, vFpuup)  // Array of P at the end, but base struc
 
 // VK_EXT_acquire_xlib_display
 GO(vkAcquireXlibDisplayEXT, iFppU)
-GO(vkGetRandROutputDisplayEXT, iFppLU)
+GO(vkGetRandROutputDisplayEXT, iFppLp)

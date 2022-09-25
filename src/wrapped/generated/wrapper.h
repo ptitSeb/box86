@@ -843,7 +843,6 @@ void iFppdp(x86emu_t *emu, uintptr_t fnc);
 void iFppll(x86emu_t *emu, uintptr_t fnc);
 void iFpplp(x86emu_t *emu, uintptr_t fnc);
 void iFppLi(x86emu_t *emu, uintptr_t fnc);
-void iFppLU(x86emu_t *emu, uintptr_t fnc);
 void iFppLL(x86emu_t *emu, uintptr_t fnc);
 void iFppLp(x86emu_t *emu, uintptr_t fnc);
 void iFpppi(x86emu_t *emu, uintptr_t fnc);
