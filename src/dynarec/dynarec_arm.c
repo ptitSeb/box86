@@ -315,6 +315,8 @@ static void updateNeed(dynarec_arm_t* dyn, int ninst, uint32_t need) {
     if((new_need&X_PEND) && dyn->insts[ninst].x86.state_flags==SF_SUBSET) {
         new_need &=~X_PEND;
         new_need |= X_ALL;
+    } else if((new_need&X_PEND) && dyn->insts[ninst].x86.state_flags==SF_SUBSET_PENDING) {
+        new_need |= X_ALL&~dyn->insts[ninst].x86.set_flags;
     }
 
     uint32_t new_set = 0;
