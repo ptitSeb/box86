@@ -1032,7 +1032,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         "__libc_calloc", "__libc_cfree", "__libc_memallign", "__liv_pvalloc",
         "__libcrealloc", "__libc_valloc", "__posix_memalign",
         "valloc", "pvalloc", "posix_memalign", "malloc_stats", "malloc_usable_size",
-        /*"mallopt",*/ "localtime_r",
+        /*"mallopt", "localtime_r",*/
         //c++ symbol from libstdc++ too
         //"_ZnwmRKSt9nothrow_t", "_ZdaPv",    // operator new(unsigned long, std::nothrow_t const&), operator delete[](void*)
         //"_Znwm", "_ZdlPv", "_Znam",         // operator new(unsigned long), operator delete(void*), operator new[](unsigned long)
