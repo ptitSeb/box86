@@ -1105,7 +1105,6 @@
 #() iFiiipp
 #() iFiiupp
 #() iFiipip
-#() iFiLLLL
 #() iFipiii
 #() iFipipi
 #() iFipipu
@@ -1391,6 +1390,7 @@
 #() cFppLppi
 #() iFEiippi
 #() iFEiippp
+#() iFEiLLLL
 #() iFEipuup
 #() iFEipppi
 #() iFElpppp
@@ -2969,6 +2969,8 @@ wrappedlibc:
 - lFpupp:
 - vFpLLpp:
 - iFiippi:
+- iFiLLLL:
+  - prctl
 - iFipipu:
 - iFipuup:
 - iFipppp:

@@ -94,6 +94,7 @@ typedef intptr_t (*lFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef intptr_t (*lFpupp_t)(void*, uint32_t, void*, void*);
 typedef void (*vFpLLpp_t)(void*, uintptr_t, uintptr_t, void*, void*);
 typedef int32_t (*iFiippi_t)(int32_t, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFiLLLL_t)(int32_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 typedef int32_t (*iFipipu_t)(int32_t, void*, int32_t, void*, uint32_t);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFipppp_t)(int32_t, void*, void*, void*, void*);
@@ -158,6 +159,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__vfwprintf_chk, iFpvpp_t) \
 	GO(_IO_vfprintf, iFpppp_t) \
 	GO(__strtold_l, KFppip_t) \
+	GO(prctl, iFiLLLL_t) \
 	GO(getopt_long, iFipppp_t) \
 	GO(getopt_long_only, iFipppp_t)
 

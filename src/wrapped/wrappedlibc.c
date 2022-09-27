@@ -36,6 +36,7 @@
 #include <spawn.h>
 #include <getopt.h>
 #include <pwd.h>
+#include <sys/prctl.h>
 
 #include "wrappedlibs.h"
 
@@ -3033,6 +3034,20 @@ EXPORT int my_fstat64(int fd, struct i386_stat64 *buf)
 EXPORT void* my__Unwind_Find_FDE(x86emu_t* emu, void* pc, void* base)
 {
     return NULL;
+}
+
+EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
+{
+    if(option==PR_SET_NAME) {
+        printf_log(LOG_DEBUG, "BOX86: set process name to \"%s\"\n", (char*)arg2);
+#ifdef DYNAREC
+        if(!strcmp((char*)arg2, "Crysis.exe")) {
+            printf_log(LOG_INFO, "Crysis detected, forcing Dynarec X87 Double\n");
+            box86_dynarec_x87double = 1;
+        }
+#endif
+    }
+    return prctl(option, arg2, arg3, arg4, arg5);
 }
 
 EXPORT char** my_environ = NULL;

@@ -1298,7 +1298,7 @@ GO(posix_spawn_file_actions_destroy, iFp)
 GO(posix_spawn_file_actions_init, iFp)
 GOM(posix_spawnp, iFEpppppp) //%%
 GO(ppoll, iFpupp)
-GOW(prctl, iFiLLLL)
+GOWM(prctl, iFEiLLLL)
 GOW(pread, lFipLl)
 GOW(pread64, lFipLI)
 // __pread64    // Weak
