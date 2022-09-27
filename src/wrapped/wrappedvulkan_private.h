@@ -211,6 +211,9 @@ GO(vkCmdNextSubpass2, vFpPP)
 GOM(vkCreateRenderPass2, iFEpPpp)
 GO(vkCmdDrawIndexedIndirectCount, vFpUUUUuu)
 GO(vkCmdDrawIndirectCount, vFpUUUUuu)
+GO(vkGetSemaphoreCounterValue, iFpUp)
+GO(vkSignalSemaphore, iFpP)
+GO(vkWaitSemaphores, iFpPU)
 
 // VK_EXT_debug_report
 GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -501,3 +504,8 @@ GO(vkCmdSetViewportWScalingNV, vFpuup)  // Array of P at the end, but base struc
 // VK_EXT_acquire_xlib_display
 GO(vkAcquireXlibDisplayEXT, iFppU)
 GO(vkGetRandROutputDisplayEXT, iFppLp)
+
+// VK_KHR_timeline_semaphore
+GO(vkGetSemaphoreCounterValueKHR, iFpUp)
+GO(vkSignalSemaphoreKHR, iFpP)
+GO(vkWaitSemaphoresKHR, iFpPU)

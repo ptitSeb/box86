@@ -500,6 +500,7 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, void*);
 typedef int32_t (*iFppG_t)(void*, void*, void*);
 typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
+typedef int32_t (*iFpPU_t)(void*, void*, uint64_t);
 typedef int32_t (*iFpPp_t)(void*, void*, void*);
 typedef int32_t (*iFpPP_t)(void*, void*, void*);
 typedef int32_t (*iFpGG_t)(void*, void*, void*);
@@ -2690,6 +2691,7 @@ void iFppp(x86emu_t *emu, uintptr_t fcn) { iFppp_t fn = (iFppp_t)fcn; R_EAX=fn(*
 void iFppV(x86emu_t *emu, uintptr_t fcn) { iFppV_t fn = (iFppV_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), (void*)(R_ESP + 12)); }
 void iFppG(x86emu_t *emu, uintptr_t fcn) { iFppG_t fn = (iFppG_t)fcn; my_GValue_t arg12; alignGValue(&arg12, *(void**)(R_ESP + 12)); R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), &arg12); unalignGValue(*(void**)(R_ESP + 12), &arg12); }
 void iFpOu(x86emu_t *emu, uintptr_t fcn) { iFpOu_t fn = (iFpOu_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), of_convert(*(int32_t*)(R_ESP + 8)), *(uint32_t*)(R_ESP + 12)); }
+void iFpPU(x86emu_t *emu, uintptr_t fcn) { iFpPU_t fn = (iFpPU_t)fcn; void* save8 = NULL; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8), &save8); R_EAX=fn(*(void**)(R_ESP + 4), arg8, *(uint64_t*)(R_ESP + 12)); VulkanTox86(arg8, save8); }
 void iFpPp(x86emu_t *emu, uintptr_t fcn) { iFpPp_t fn = (iFpPp_t)fcn; void* save8 = NULL; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8), &save8); R_EAX=fn(*(void**)(R_ESP + 4), arg8, *(void**)(R_ESP + 12)); VulkanTox86(arg8, save8); }
 void iFpPP(x86emu_t *emu, uintptr_t fcn) { iFpPP_t fn = (iFpPP_t)fcn; void* save8 = NULL; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8), &save8); void* save12 = NULL; void *arg12 = VulkanFromx86(*(void**)(R_ESP + 12), &save12); R_EAX=fn(*(void**)(R_ESP + 4), arg8, arg12); VulkanTox86(arg8, save8); VulkanTox86(arg12, save12); }
 void iFpGG(x86emu_t *emu, uintptr_t fcn) { iFpGG_t fn = (iFpGG_t)fcn; my_GValue_t arg8; alignGValue(&arg8, *(void**)(R_ESP + 8)); my_GValue_t arg12; alignGValue(&arg12, *(void**)(R_ESP + 12)); R_EAX=fn(*(void**)(R_ESP + 4), &arg8, &arg12); unalignGValue(*(void**)(R_ESP + 8), &arg8); unalignGValue(*(void**)(R_ESP + 12), &arg12); }
