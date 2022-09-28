@@ -111,13 +111,56 @@ struct i386_fpstate
   unsigned short    status;
   unsigned short    magic;
   /* FXSR FPU environment.  */
-  uint32_t          _fxsr_env[6];
-  uint32_t          mxcsr;
-  uint32_t          reserved;
-  struct i386_fpxreg _fxsr_st[8];
-  struct i386_xmmreg _xmm[8];
-  uint32_t          padding[56];
+  uint16_t ControlWord;        /* 000 */
+  uint16_t StatusWord;         /* 002 */
+  uint8_t  TagWord;            /* 004 */
+  uint8_t  Reserved1;          /* 005 */
+  uint16_t ErrorOpcode;        /* 006 */
+  uint32_t ErrorOffset;        /* 008 */
+  uint16_t ErrorSelector;      /* 00c */
+  uint16_t Reserved2;          /* 00e */
+  uint32_t DataOffset;         /* 010 */
+  uint16_t DataSelector;       /* 014 */
+  uint16_t Reserved3;          /* 016 */
+  uint32_t MxCsr;              /* 018 */
+  uint32_t MxCsr_Mask;         /* 01c */
+  sse_regs_t FloatRegisters[8];/* 020 */  // fpu/mmx are store in 128bits here
+  sse_regs_t XmmRegisters[16]; /* 0a0 */
+  uint8_t  Reserved4[96];      /* 1a0 */
 }__attribute__((packed));
+
+static void save_fpreg(x86emu_t* emu, struct i386_fpstate* state)
+{
+    state->cw = emu->cw.x16;
+    int top = emu->top&7;
+    int stack = 8-top;
+    if(top==0)  // check if stack is full or empty, based on tag[0]
+        stack = (emu->p_regs[0].tag)?8:0;
+    emu->sw.f.F87_TOP = top;
+    state->sw = emu->sw.x16;
+    uint8_t tags = 0;
+    for (int i=0; i<8; ++i)
+        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
+    fpu_fxsave(emu, &state->ControlWord);
+}
+static void load_fpreg(x86emu_t* emu, struct i386_fpstate* state)
+{
+    emu->cw.x16 = state->cw;
+    emu->sw.x16 = state->sw;
+    emu->top = emu->sw.f.F87_TOP;
+    uint8_t tags = state->tag;
+    for(int i=0; i<8; ++i)
+        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
+    // copy back MMX regs...
+    int top = emu->top&7;
+    int stack = 8-top;
+    if(top==0)  // check if stack is full or empty, based on tag[0]
+        stack = (emu->p_regs[0].tag)?8:0;
+    for(int i=0; i<8; ++i)
+        memcpy((i<stack)?&ST(i):&emu->mmx[i], &state->_st[i], sizeof(mmx87_regs_t));
+    // copy SSE regs
+    fpu_fxrstor(emu, &state->ControlWord);
+}
 
 typedef struct i386_fpstate *i386_fpregset_t;
 
@@ -470,6 +513,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
 
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
+    frame -= sizeof(siginfo_t)/sizeof(uintptr_t);
+    siginfo_t* info2 = (siginfo_t*)frame;
+    memcpy(info2, info, sizeof(siginfo_t));
     // try to fill some sigcontext....
     frame -= sizeof(i386_ucontext_t)/sizeof(uintptr_t);
     i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;
@@ -514,7 +560,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
 #endif
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = (i386_fpregset_t)&sigcontext->xstate;
-    fpu_fxsave(emu, &sigcontext->xstate);
+    save_fpreg(emu, sigcontext->uc_mcontext.fpregs);
     // add custom SIGN in reserved area
     //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
     // get signal mask
@@ -553,7 +599,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP]) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0010;    // execution flag issue (probably)
             sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
-        } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
+        } else if((info->si_code==SEGV_ACCERR) && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
             /*if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
@@ -588,7 +634,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     if(simple)
         ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
     else
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info, sigcontext);
+        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
     #define GO(R) R_##R = old_##R
     GO(EAX);
@@ -622,6 +668,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
             GO(CS);
             GO(SS);
             #undef GO
+            load_fpreg(ejb->emu, &sigcontext->xstate.fpstate);
             printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu\n");
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
@@ -761,7 +808,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             glitch_addr = NULL;
             glitch_prot = 0;
         }
-        if(addr && pc && (prot&(PROT_READ|PROT_WRITE)==(PROT_READ|PROT_WRITE))) {
+        if(addr && pc && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
             static void* glitch_pc = NULL;
             static void* glitch_addr = NULL;
             static int glitch_prot = 0;
@@ -899,7 +946,7 @@ exit(-1);
         }
 #endif
     }
-    #if 1
+    #if 0
     if(sig==SIGSEGV && (info->si_code==2 && ((prot&~PROT_CUSTOM)==7 || (prot&~PROT_CUSTOM)==5))) {
         /* there are some strange things happening with Terraria, where a segfault auccurs but the memory is perfectly accessible
         (probably some timing issue) */

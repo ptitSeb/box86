@@ -245,9 +245,8 @@
                 break;
             case 5:     /* FLDCW Ew */
                 GET_EW;
-                emu->cw = EW->word[0];
+                emu->cw.x16 = EW->word[0];
                 // do something with cw?
-                emu->round = (fpu_round_t)((emu->cw >> 10) & 3);
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
@@ -259,7 +258,7 @@
                 break;
             case 7: /* FNSTCW Ew */
                 GET_EW;
-                EW->word[0] = emu->cw;
+                EW->word[0] = emu->cw.x16;
                 break;
             default:
                 goto _default;

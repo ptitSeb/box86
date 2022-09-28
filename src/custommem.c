@@ -781,6 +781,7 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    //dynarec_log(LOG_DEBUG, "updateProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
     addMapMem(addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
@@ -790,7 +791,7 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
             dyn = PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         } else if(dyn && !(prot&PROT_WRITE)) {
-            dyn = PROT_DYNAREC;
+            dyn = PROT_DYNAREC_R;
         }
 
         memprot[i] = prot|dyn;
@@ -799,6 +800,7 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    //dynarec_log(LOG_DEBUG, "forceProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
     addMapMem(addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
@@ -810,6 +812,7 @@ void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
+    //dynarec_log(LOG_DEBUG, "setProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
     addMapMem(addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
