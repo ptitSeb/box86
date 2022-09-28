@@ -1651,7 +1651,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     x87_forget(dyn, ninst, x3, x14, 0);
-                    if(box86_log<2) {   // call the wrapper directly
+                    if((box86_log<2) && !cycle_log) {   // call the wrapper directly
                         uintptr_t ncall[2]; // to avoid BUSERROR!!!
                         memcpy(ncall,  (void*)addr, 2*sizeof(void*));   // the wrapper + function
                         addr+=8;
@@ -2165,7 +2165,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
                     x87_forget(dyn, ninst, x3, x14, 0);
-                    if(box86_log<2 && dyn->insts[ninst].natcall) {   // call the wrapper directly
+                    if((box86_log<2) && !cycle_log && dyn->insts[ninst].natcall) {   // call the wrapper directly
                         uintptr_t ncall[2];
                         memcpy(ncall,  (void*)(dyn->insts[ninst].natcall+2), 2*sizeof(void*));   // the wrapper + function
                         MOV32(xEIP, dyn->insts[ninst].natcall+2+4+4);
