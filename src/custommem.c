@@ -656,13 +656,13 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
+        uint32_t dyn = prot&PROT_CUSTOM;
+        prot&=~PROT_CUSTOM;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
-        if(!(prot&PROT_WRITE)) {
-            if(!prot)
-                prot = PROT_READ | PROT_WRITE;    // comes from malloc & co, so should not be able to execute
+        if(prot&PROT_WRITE) {
             memprot[i] = prot|PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+            if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         } else
             memprot[i] = prot|PROT_DYNAREC_R;
     }
@@ -789,7 +789,10 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
         if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
             dyn = PROT_DYNAREC;
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+        } else if(dyn && !(prot&PROT_WRITE)) {
+            dyn = PROT_DYNAREC;
         }
+
         memprot[i] = prot|dyn;
     }
 }
@@ -800,7 +803,7 @@ void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+        mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
         memprot[i] = prot;
     }
 }
