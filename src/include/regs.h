@@ -205,8 +205,8 @@ typedef union {
         unsigned int C87_UM:1;
         unsigned int C87_PM:1;
         unsigned int C87_R1:2;	// reserved
-        unsigned int C87_PC:3;	// precision control (24bits, reserved, 53bits, 64bits)
-        unsigned int C87_RD:3;	// Rounds
+        unsigned int C87_PC:2;	// precision control (24bits, reserved, 53bits, 64bits)
+        unsigned int C87_RD:2;	// Rounds
 		unsigned int C87_IC:1;
 		unsigned int C87_R2:3;	// reserved
     } f;
