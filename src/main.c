@@ -1107,12 +1107,6 @@ int main(int argc, const char **argv, char **env) {
             printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
             exit(0);    // exiting, it doesn't work anyway
         }
-        #ifdef DYNAREC
-        if(argv[nextarg+1] && strstr(argv[nextarg+1], "Crysis")) {
-            printf_log(LOG_NONE, "Crysis detected, forcing use of Double for x87 emulation\n");
-            box86_dynarec_x87double = 1;
-        }
-        #endif
         box86_wine = 1;
     }
     // check if this is wineserver
