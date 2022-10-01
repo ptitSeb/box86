@@ -509,6 +509,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
             used_stack = 1;
             new_ss->ss_flags = SS_ONSTACK;
         }
+    } else {
+        frame -= 0x200/sizeof(uintptr_t); // redzone
     }
 
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
