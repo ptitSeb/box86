@@ -170,7 +170,10 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             }
         }
         #else
-        if(!ok && !need_epilog && box86_dynarec_bigblock && getProtection(addr+3)&~PROT_CUSTOM)
+        #ifndef PROT_READ
+        #define PROT_READ 1
+        #endif
+        if(!ok && !need_epilog && box86_dynarec_bigblock && (getProtection(addr+3)&PROT_READ))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
