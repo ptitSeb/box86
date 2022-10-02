@@ -877,6 +877,7 @@ void loadProtectionFromMap()
 }
 
 #define LOWEST (void*)0x10000
+#define MEDIAN (void*)0x30000000
 void* findBlockNearHint(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
@@ -896,7 +897,9 @@ void* findBlockNearHint(void* hint, size_t size)
 }
 void* find32bitBlock(size_t size)
 {
-    return findBlockNearHint(LOWEST, size);
+    void* ret = findBlockNearHint(MEDIAN, size);
+    if(!ret) ret = findBlockNearHint(LOWEST, size);
+    return ret;
 }
 
 int unlockCustommemMutex()
