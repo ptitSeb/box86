@@ -29,10 +29,10 @@ typedef struct x86emu_s {
 	x86flags_t  eflags;
     reg32_t     ip;
     // fpu / mmx
-	mmx87_regs_t x87[8];
-	mmx87_regs_t mmx[8];
 	x87control_t cw;
 	x87flags_t  sw;
+	mmx87_regs_t x87[8];
+	mmx87_regs_t mmx[8];
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
