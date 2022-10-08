@@ -26,27 +26,33 @@ Alternatively, you can generate your own package using the [instructions below](
 
 #### for Raspberry Pi
 
-  _a build for model 2, 3 and 4 can be done. Model 1 and 0 cannot (at least not with Dynarec, as they lack NEON support)_
+ _A build for model 2, 3 and 4 can be done. Model 1 and 0 cannot (at least not with Dynarec, as they lack NEON support)_
  
 ```
 git clone https://github.com/ptitSeb/box86
 cd box86
-mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
-make
+mkdir build; cd build; cmake .. -DRPI4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo # -DRPI4=1 for Pi4 (use `-DRPI2=1` etc for other models)
+make # can use `make -j2`, `make -j3`, etc to speed up 1st build (but beware of running out of memory if going too high)
 sudo make install
 sudo systemctl restart systemd-binfmt
 ```
-###### *Note: You can use `make -j2`, `-j3`, etc. to speed up 1st build, but beware of the memory requirement if you go too high.*
  
 #### for Raspberry Pi on 64bit OS
 
-  _For Pi4. Change to RPI2 or RPI3 for other models.  Change `-DRPI4=1` to `-DRPI4ARM64=1` for compiling on arm64. (armhf multiarch or chroot required alongside armhf gcc. Install it with 'sudo apt install gcc-arm-linux-gnueabihf'.)_
+_armhf multiarch or chroot required for running box86 (armhf) on aarch64_
 
 ```
-sudo apt install gcc-arm-linux-gnueabihf # installs the cross-compiler toolchain required to build 32 bit ARM code
+# example of enabling multiarch & installing libc6:armhf (to run box86:armhf on aarch64)
+#  (running i386-wine on aarch64 requires more armhf libraries)
+sudo dpkg --add-architecture armhf && sudo apt-get update
+sudo apt-get install libc6:armhf -y
+```
+_Build box86:armhf on RPiOS 64-bit ARM (aarch64)_
+```
+sudo apt install gcc-arm-linux-gnueabihf # building 32-bit ARM code on aarch64 requires this armhf gcc cross-compiler toolchain 
 git clone https://github.com/ptitSeb/box86
 cd box86
-mkdir build; cd build; cmake .. -DRPI4ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo
+mkdir build; cd build; cmake .. -DRPI4ARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo # -DRPI4ARM64=1 for Pi4 aarch64 (use `-DRPI2ARM64=1` etc for other models)
 make -j2
 sudo make install
 sudo systemctl restart systemd-binfmt
