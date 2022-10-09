@@ -1105,7 +1105,7 @@ void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b)
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-    LDRH_IMM8(s1, xEmu, offsetof(x86emu_t, mxcsr));
+    LDR_IMM9(s1, xEmu, offsetof(x86emu_t, mxcsr));
     UBFX(s2, s1, 13, 2);    // extract round...
     MOV32(s1, round_map);
     LDR_REG_LSL_IMM5(s2, s1, s2, 2);
