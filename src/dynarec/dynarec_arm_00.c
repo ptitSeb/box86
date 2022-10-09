@@ -1574,7 +1574,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC2:
             INST_NAME("RETN");
             //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            READFLAGS(X_PEND);  // lets play safe here too
+            if(box86_dynarec_safeflags) {
+                READFLAGS(X_PEND);  // lets play safe here too
+            }
             BARRIER(BARRIER_FLOAT);
             i32 = F16;
             retn_to_epilog(dyn, ninst, i32);
@@ -1585,7 +1587,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             // ^^^ that hack break PlantsVsZombies and GOG Setup under wine....
-            READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+            if(box86_dynarec_safeflags) {
+                READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
+            }
             BARRIER(BARRIER_FLOAT);
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
@@ -2197,7 +2201,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     jump_to_epilog(dyn, 0, xEIP, ninst);
                     break;*/
                 default:
-                    if(ninst && dyn->insts[ninst-1].x86.set_flags) {
+                    if((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
                         //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
@@ -2350,7 +2354,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xC3:
                         INST_NAME("(REPZ) RET");
-                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                        if(box86_dynarec_safeflags>1) {
+                            READFLAGS(X_PEND);
+                        } else {
+                            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                        }
                         BARRIER(BARRIER_FLOAT);
                         ret_to_epilog(dyn, ninst);
                         *need_epilog = 0;
@@ -2790,7 +2798,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF(ninst && dyn->insts[ninst-1].x86.set_flags, 1) {
+                    PASS2IF((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags), 1) {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         //SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state

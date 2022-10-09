@@ -135,12 +135,18 @@ Enable/Disable simulation of Strong Memory model
 #### BOX86_DYNAREC_X87DOUBLE
 Force the use of Double for x87 emulation
 * 0 : Try to use float when possible for x87 emulation (faster)
-* 1 : Only use Double for x87 emulation (slower, may be needed for some specific games, like Crysis)
+* 1 : Only use Double for x87 emulation (slower, may be needed for some specific games, like Crysis were it's enable automatically)
 
 #### BOX86_DYNAREC_FASTNAN
 Enable/Disable generation of -NAN
 * 0 : Generate -NAN like on x86 (slower, more x86 accurate)
 * 1 : Don't do anything special with NAN, to go as fast as possible (Default)
+
+#### BOX86_DYNAREC_SAFEFLAGS
+Handling of flags on CALL/RET opcodes
+* 0 : Treat CALL/RET as if it never needs any flags (faster but not advised)
+* 1 : most of RET will need flags, most of CALLS will not (Default)
+* 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
 
 #### BOX86_LIBGL
  * libXXXX set the name for libGL (defaults to libGL.so.1).

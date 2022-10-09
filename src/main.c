@@ -59,6 +59,7 @@ int box86_dynarec_bigblock = 1;
 int box86_dynarec_strongmem = 0;
 int box86_dynarec_x87double = 0;
 int box86_dynarec_fastnan = 1;
+int box86_dynarec_safeflags = 1;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -366,6 +367,17 @@ void LoadLogEnv()
         }
         if(!box86_dynarec_fastnan)
             printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
+    }
+    p = getenv("BOX86_DYNAREC_SAFEFLAGS");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='2')
+                box86_dynarec_safeflags = p[0]-'0';
+        }
+        if(!box86_dynarec_safeflags)
+            printf_log(LOG_INFO, "Dynarec will not play it safe with x86 flags\n");
+        else
+            printf_log(LOG_INFO, "Dynarec will play %s safe with x86 flags\n", (box86_dynarec_safeflags==1)?"moderatly":"it");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {

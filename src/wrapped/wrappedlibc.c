@@ -3052,9 +3052,13 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
     if(option==PR_SET_NAME) {
         printf_log(LOG_DEBUG, "BOX86: set process name to \"%s\"\n", (char*)arg2);
 #ifdef DYNAREC
-        if(!strcmp((char*)arg2, "Crysis.exe")) {
+        if(!strcasecmp((char*)arg2, "Crysis.exe")) {
             printf_log(LOG_INFO, "Crysis detected, forcing Dynarec X87 Double\n");
             box86_dynarec_x87double = 1;
+        }
+        if(!strcasecmp((char*)arg2, "Vara.exe")) {
+            printf_log(LOG_INFO, "VARA detected, forcing Dynarec safe flags\n");
+            box86_dynarec_safeflags = 2;
         }
 #endif
     }
