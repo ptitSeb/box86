@@ -668,15 +668,18 @@ void PrintHelp() {
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX86_DUMP)\n");
+    printf(" BOX86_ROLLING_LOG 0/1 use a rolling level 2 log of 16 entries\n");
     printf(" BOX86_DUMP with 0/1 to dump elf infos\n");
     printf(" BOX86_NOBANNER with 0/1 to enable/disable the printing of box86 version and build at start\n");
 #ifdef DYNAREC
     printf(" BOX86_DYNAREC_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed dynarec info\n");
     printf(" BOX86_DYNAREC with 0/1 to disable or enable Dynarec (On by default)\n");
     printf(" BOX86_NODYNAREC with address interval (0x1234-0x4567) to forbid dynablock creation in the interval specified\n");
-    printf(" BOX86_DYNAREC_BIGBLOCK 0/1/2 to control Dynarec building BigBlock or not\n");
-    printf(" BOX86_DYNAREC_STRONGMEM 0/1/2 to control Dynarec emulation attempt of Stong memory model\n");
-    printf(" BOX86_DYNAREC_X87DOUBLE 0/1 to force Dynarec to use Double for x87 emulation\n");
+    printf(" BOX86_DYNAREC_BIGBLOCK 0/1/2 to control Dynarec building BigBlock or not (default: 1)\n");
+    printf(" BOX86_DYNAREC_STRONGMEM 0/1/2 to control Dynarec emulation attempt of Stong memory model (default: 0)\n");
+    printf(" BOX86_DYNAREC_X87DOUBLE 0/1 to force Dynarec to use Double for x87 emulation (default: 0)\n");
+    printf(" BOX86_DYNAREC_FASTNAN 0/1 to control if NaN are x86 accurate or not (default: 1)\n");
+    printf(" BOX86_DYNAREC_SAFEFLAGS 0/1/2 to control flags generation on RET/CALL opcodes (default: 1)\n");
 #endif
 #ifdef HAVE_TRACE
     printf(" BOX86_TRACE with 1 to enable x86 execution trace\n");
