@@ -3,10 +3,11 @@ _TwisterOS users: Wine, winetricks, and Box86 are already installed in TwisterOS
 
 _Raspberry Pi users: Wine requires a 3G/1G split memory kernel. Raspberry Pi OS for the Pi 4 already has a 3G/1G split kernel and works with Wine, but **the Pi 3B+ and earlier models have a 2G/2G kernel and require a custom-compiled 3G/1G kernel to get Wine working.**_
 
-Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (for x64, use [box64](https://github.com/ptitSeb/box64) & wine-amd64 with an `aarch64` processor).  
 See installation steps below (in the [Examples](#examples) section).
 
-Box86 needs `wine-i386` to be installed **manually** on ARM devices.  Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work. The "twist" in Box86 is that Box86 "wraps" many of Wine's core Linux i386 libraries (.so files) so that their calls are interpretable by your ARM devices other armhf Linux system libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
+Using Wine with Box86 allows (x86) Windows programs to run on ARM Linux computers (for x64, use [box64](https://github.com/ptitSeb/box64) & wine-amd64 with an `aarch64` processor).
+
+Box86 needs `wine-i386` to be installed **manually** on ARM devices.  Even though `wine-armhf` is available in many repo's on ARM devices (ie using _apt-get_ will attempt to install `wine-armhf` by default), `wine-armhf` will not work with Box86.  Note that manual installation is required since using `multiarch` will result in your ARM device thinking it needs to install lots of i386 dependencies to make `wine-i386` work. The "twist" in Box86 is that Box86 "wraps" many of Wine's core Linux i386 libraries (.so files) so that their calls are interpretable by your ARM device's other armhf Linux system libraries.  Also note that wrapping libraries is an ongoing process throughout Box86 development and that some programs may not run properly until all of their i386 library dependencies are wrapped.
 
 Installation files for Wine can be found in the [WineHQ repository](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/), the [TwisterOS FAQ](https://twisteros.com/faq.html) page, or the [PlayOnLinux website repository](https://www.playonlinux.com/wine/). Box86 requires the "i386" (x86) version of Wine even though we are installing it on an ARM processor.
 
@@ -15,6 +16,7 @@ The general procedure for installing Wine for Box86 is to...
  - Download all the install files (.deb, .zip, or even .pol files) for the version of Wine you wish to install
  - Unzip or dpkg the install files into one folder
  - Move that folder to the directory that you wish Wine to run from (in TwisterOS, this is `~/wine/` by default)
+ - If you are running box86/i386-wine on a 64bit ARM OS (aarch64), you will also have to install some extra armhf libraries.
  - Go to `/usr/local/bin` and make symlinks or scripts that will point to your main wine binaries (`wine`, `winecfg`, and `wineserver`).
  - Boot wine to create a new wineprefix (`wine wineboot`).
  - Download winetricks (which is simply a very complicated bash script), make it executable, then copy it to `/usr/local/bin`.
@@ -50,11 +52,29 @@ sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/winecfg
 wine wineboot
 ```
 
-### Installing Wine for Box86 on Raspberry Pi OS Buster from WineHQ .deb files
+### Installing Wine for Box86 on Raspberry Pi OS from WineHQ .deb files
 _Links from the [WineHQ repo](https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/)_
 
-This install method allows you to install different versions of Wine.  You may install any version and any branch of Wine that you wish (wine-devel, wine-stable, or wine-staging).
+This install method allows you to install different versions of Wine.  You may install any version/branch of Wine that you wish.
 ```
+### User-defined Wine version variables ################
+# - Replace the variables below with your system's info.
+# - Note that we need the i386 version for Box86 even though we're installing it on our ARM processor.
+# - Wine download links from WineHQ: https://dl.winehq.org/wine-builds/
+
+wbranch="devel" #example: devel, staging, or stable (wine-staging 4.5+ requires libfaudio0:i386 - see below)
+wversion="7.1" #example: 7.1
+wid="debian" #example: debian, ubuntu
+wdist="bullseye" #example (for debian): bullseye, buster, jessie, wheezy, etc
+wtag="-1" #example: -1 (some wine .deb files have -1 tag on the end and some don't)
+
+########################################################
+
+# Clean up any old wine instances
+wineserver -k # stop any old wine installations from running
+rm -rf ~/.cache/wine # remove old wine-mono/wine-gecko install files
+rm -rf ~/.local/share/applications/wine # remove old program shortcuts
+
 # Backup any old wine installations
 sudo mv ~/wine ~/wine-old
 sudo mv ~/.wine ~/.wine-old
@@ -64,14 +84,12 @@ sudo mv /usr/local/bin/winecfg /usr/local/bin/winecfg-old
 sudo mv /usr/local/bin/wineserver /usr/local/bin/wineserver-old
 
 # Download, extract wine, and install wine
-# (Replace the links/versions below with links/versions from the WineHQ site for the version of wine you wish to install. Note that we need the i386 version for Box86 even though we're installing it on our ARM processor.)
-# (Pick an i386 version of wine-devel, wine-staging, or wine-stable)
 cd ~/Downloads
-wget https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/wine-devel-i386_5.21~buster_i386.deb # NOTE: Replace this link with the version you want
-wget https://dl.winehq.org/wine-builds/debian/dists/buster/main/binary-i386/wine-devel_5.21~buster_i386.deb  # NOTE: Also replace this link with the version you want
-dpkg-deb -xv wine-devel-i386_5.21~buster_i386.deb wine-installer # NOTE: Make sure these dpkg command matches the filename of the deb package you just downloaded
-dpkg-deb -xv wine-devel_5.21~buster_i386.deb wine-installer
-mv ~/Downloads/wine-installer/opt/wine* ~/wine
+wget https://dl.winehq.org/wine-builds/${wid}/dists/${wdist}/main/binary-i386/wine-${wbranch}-i386_${wversion}~${wdist}${wtag}_i386.deb # download
+wget https://dl.winehq.org/wine-builds/${wid}/dists/${wdist}/main/binary-i386/wine-${wbranch}_${wversion}~${wdist}${wtag}_i386.deb # (required for wine_i386 if no wine64 / CONFLICTS WITH wine64 support files)
+dpkg-deb -x wine-${wbranch}-i386_${wversion}~${wdist}${wtag}_i386.deb wine-installer # extract
+dpkg-deb -x wine-${wbranch}_${wversion}~${wdist}${wtag}_i386.deb wine-installer
+mv wine-installer/opt/wine* ~/wine # install
 rm wine*.deb # clean up
 rm -rf wine-installer # clean up
 
@@ -83,7 +101,26 @@ sudo ln -s ~/wine/bin/winecfg /usr/local/bin/winecfg
 sudo ln -s ~/wine/bin/wineserver /usr/local/bin/wineserver
 sudo chmod +x /usr/local/bin/wine /usr/local/bin/wineboot /usr/local/bin/winecfg /usr/local/bin/wineserver
 
-# These packages are needed for running wine-staging on RPi 4 (Credits: chills340)
+# These packages are needed for running wine on a 64-bit RPiOS via multiarch
+karch=$(uname -m)
+if [ "$karch" = "aarch64" ] || [ "$karch" = "aarch64-linux-gnu" ] || [ "$karch" = "arm64" ] || [ "$karch" = "aarch64_be" ]; then
+    sudo dpkg --add-architecture armhf && sudo apt-get update # enable multi-arch
+    sudo apt-get install -y libasound2:armhf libc6:armhf libglib2.0-0:armhf libgphoto2-6:armhf libgphoto2-port12:armhf \
+        libgstreamer-plugins-base1.0-0:armhf libgstreamer1.0-0:armhf libldap-2.4-2:armhf libopenal1:armhf libpcap0.8:armhf \
+        libpulse0:armhf libsane1:armhf libudev1:armhf libusb-1.0-0:armhf libvkd3d1:armhf libx11-6:armhf libxext6:armhf \
+        libasound2-plugins:armhf ocl-icd-libopencl1:armhf libncurses6:armhf libncurses5:armhf libcap2-bin:armhf libcups2:armhf \
+        libdbus-1-3:armhf libfontconfig1:armhf libfreetype6:armhf libglu1-mesa:armhf libglu1:armhf libgnutls30:armhf \
+        libgssapi-krb5-2:armhf libkrb5-3:armhf libodbc1:armhf libosmesa6:armhf libsdl2-2.0-0:armhf libv4l-0:armhf \
+        libxcomposite1:armhf libxcursor1:armhf libxfixes3:armhf libxi6:armhf libxinerama1:armhf libxrandr2:armhf \
+        libxrender1:armhf libxxf86vm1 libc6:armhf libcap2-bin:armhf # to run wine-i386 through box86:armhf on aarch64
+        # This list found by downloading...
+        #	wget https://dl.winehq.org/wine-builds/debian/dists/bullseye/main/binary-i386/wine-devel-i386_7.1~bullseye-1_i386.deb
+        #	wget https://dl.winehq.org/wine-builds/debian/dists/bullseye/main/binary-i386/winehq-devel_7.1~bullseye-1_i386.deb
+        #	wget https://dl.winehq.org/wine-builds/debian/dists/bullseye/main/binary-i386/wine-devel_7.1~bullseye-1_i386.deb
+        # then `dpkg-deb -I package.deb`. Read output, add `:armhf` to packages in dep list, then try installing them on Pi aarch64.
+fi
+
+# These packages are needed for running wine-staging on RPiOS (Credits: chills340)
 sudo apt install libstb0 -y
 cd ~/Downloads
 wget -r -l1 -np -nd -A "libfaudio0_*~bpo10+1_i386.deb" http://ftp.us.debian.org/debian/pool/main/f/faudio/ # Download libfaudio i386 no matter its version number
