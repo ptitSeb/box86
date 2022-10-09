@@ -1146,6 +1146,10 @@ int main(int argc, const char **argv, char **env) {
         }
         if(!FileExist(my_context->box64path, IS_FILE)) {
             free(my_context->box64path);
+            my_context->box64path = ResolveFile("box64", &my_context->box86_path);
+        }
+        if(!FileExist(my_context->box64path, IS_FILE)) {
+            free(my_context->box64path);
             my_context->box64path = NULL;
             if(bashpath && FileIsX64ELF(bashpath)) {
                 printf_log(LOG_INFO, "The bash binary given is an x86_64 version, but box64 is not found\n");
