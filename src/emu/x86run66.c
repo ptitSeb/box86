@@ -1424,6 +1424,10 @@ void RunFS(x86emu_t *emu)
             *(uint32_t*)((tlsdata) + tmp32s) = R_EAX;
             break;
 
+        case 0xA8:            /* TEST AL, Ib */
+            test8(emu, R_AL, F8);
+            break;
+
         case 0xC0:             /* GRP2 Eb,Ib */
             nextop = F8;
             GET_EB_OFFS(tlsdata);
