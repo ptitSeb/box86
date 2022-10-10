@@ -3056,8 +3056,10 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
             printf_log(LOG_INFO, "Crysis detected, forcing Dynarec X87 Double\n");
             box86_dynarec_x87double = 1;
         }
-        if(!strcasecmp((char*)arg2, "Vara.exe")) {
-            printf_log(LOG_INFO, "VARA detected, forcing Dynarec safe flags\n");
+        if(!strcasecmp((char*)arg2, "VARA.exe")
+        || !strcasecmp((char*)arg2, "VARAFM.exe")
+        || !strcasecmp((char*)arg2, "VARASAT.exe")) {
+            printf_log(LOG_INFO, "VARA familly detected, forcing Dynarec safe flags\n");
             box86_dynarec_safeflags = 2;
         }
 #endif
