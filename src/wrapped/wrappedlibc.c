@@ -2623,15 +2623,6 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     if(!addr && ret!=new_addr && ret!=(void*)-1) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = findBlockNearHint(addr, length); // is this the best way?
-        ret = mmap(new_addr, length, prot, flags, fd, offset);
-    }
-    #endif
-    if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
-    #ifdef DYNAREC
-    if(!addr && ret!=new_addr && ret!=(void*)-1) {
-        munmap(ret, length);
-        loadProtectionFromMap();    // reload map, because something went wrong previously
         new_addr = findBlockNearHint(addr, length);
         ret = mmap(new_addr, length, prot, flags, fd, offset);
     } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
@@ -2650,6 +2641,21 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
                 munmap(ret, length);
                 ret = (void*)-1;
             }
+        }
+    }
+    #endif
+    if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
+    #ifdef DYNAREC
+    if(box86_dynarec && ret!=(void*)-1) {
+        if(flags&0x100000 && addr!=ret)
+        {
+            // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
+            // and responded with a different address, so ignore it
+        } else {
+            if(prot& PROT_EXEC)
+                addDBFromAddressRange((uintptr_t)ret, length);
+            else
+                cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);
         }
     }
     #endif
@@ -2716,7 +2722,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
 
 EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
-    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %u, %u, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
+    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, 0x%x, 0x%x, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "%p\n", ret);
     if(ret==(void*)-1)
