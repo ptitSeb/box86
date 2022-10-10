@@ -108,13 +108,13 @@ int FileIsShell(const char* filename)
     fclose(f);
     if(sz!=1)
         return 0;
-    head[strlen(bashsign2)+1] = 0;
+    head[strlen(bashsign2)] = 0;
     if(!strcmp(head, bashsign2))
         return 1;
-    head[strlen(bashsign)+1] = 0;
+    head[strlen(bashsign)] = 0;
     if(!strcmp(head, bashsign))
         return 1;
-    head[strlen(shsign)+1] = 0;
+    head[strlen(shsign)] = 0;
     if(!strcmp(head, shsign))
         return 1;
     return 0;
