@@ -1313,6 +1313,7 @@ void vFEpupup(x86emu_t *emu, uintptr_t fnc);
 void vFEpLLpp(x86emu_t *emu, uintptr_t fnc);
 void vFEppipV(x86emu_t *emu, uintptr_t fnc);
 void vFEppupp(x86emu_t *emu, uintptr_t fnc);
+void vFEpppiu(x86emu_t *emu, uintptr_t fnc);
 void vFEppppp(x86emu_t *emu, uintptr_t fnc);
 void vFiiiiii(x86emu_t *emu, uintptr_t fnc);
 void vFiiiuil(x86emu_t *emu, uintptr_t fnc);

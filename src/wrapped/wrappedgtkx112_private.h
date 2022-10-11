@@ -2542,7 +2542,7 @@ GO(gtk_shadow_type_get_type, iFv)
 //GO(gtk_show_about_dialog, 
 GO(gtk_show_uri, iFppup)
 GO(gtk_side_type_get_type, iFv)
-//GO(gtk_signal_compat_matched, 
+GOM(gtk_signal_compat_matched, vFEpppiu)
 GOM(gtk_signal_connect_full, LFEppppppii)
 //GO(gtk_signal_connect_object_while_alive, 
 //GO(gtk_signal_connect_while_alive, 

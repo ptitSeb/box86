@@ -1281,6 +1281,7 @@
 #() vFEpLLpp
 #() vFEppipV
 #() vFEppupp
+#() vFEpppiu
 #() vFEppppp
 #() vFiiiiii
 #() vFiiiuil
@@ -2800,6 +2801,8 @@ wrappedgtkx112:
   - gtk_tree_sortable_set_sort_func
 - vFppupp:
   - gtk_action_group_add_actions_full
+- vFpppiu:
+  - gtk_signal_compat_matched
 - vFppppp:
   - gtk_cell_layout_set_cell_data_func
 - vFpuipuV:

@@ -32,6 +32,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void (*vFppupp_t)(void*, void*, uint32_t, void*, void*);
+typedef void (*vFpppiu_t)(void*, void*, void*, int32_t, uint32_t);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
 typedef void (*vFpuipuV_t)(void*, uint32_t, int32_t, void*, uint32_t, ...);
 typedef int32_t (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
@@ -86,6 +87,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_signal_connect, LFpppp_t) \
 	GO(gtk_tree_sortable_set_sort_func, vFpippp_t) \
 	GO(gtk_action_group_add_actions_full, vFppupp_t) \
+	GO(gtk_signal_compat_matched, vFpppiu_t) \
 	GO(gtk_cell_layout_set_cell_data_func, vFppppp_t) \
 	GO(gtk_binding_entry_add_signal, vFpuipuV_t) \
 	GO(gtk_clipboard_set_with_data, iFppuppp_t) \

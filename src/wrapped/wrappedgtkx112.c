@@ -607,6 +607,30 @@ static void* find_GtkAccelGroupFind_Fct(void* fct)
     return NULL;
 }
 
+// GCallback
+#define GO(A)   \
+static uintptr_t my_GCallback_fct_##A = 0;                          \
+static uint32_t my_GCallback_##A(void* a, void* b, void* c, void* d)\
+{                                                                   \
+    RunFunction(my_context, my_GCallback_fct_##A, 4, a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* findGCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GCallback callback\n");
+    return NULL;
+}
+
+
 #undef SUPER
 
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -1002,6 +1026,11 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x86emu_t* emu, void* f, void* data,
 EXPORT void* my_gtk_accel_group_find(x86emu_t* emu, void* group, void* f, void* data)
 {
     return my->gtk_accel_group_find(group, find_GtkAccelGroupFind_Fct(f), data);
+}
+
+EXPORT void my_gtk_signal_compat_matched(x86emu_t* emu, void* obj, void* cb, void* data, int match, uint32_t action)
+{
+    my->gtk_signal_compat_matched(obj, findGCallbackFct(cb), data, match, action);
 }
 
 #define PRE_INIT    \
