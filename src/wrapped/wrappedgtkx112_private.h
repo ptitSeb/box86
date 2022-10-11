@@ -48,7 +48,7 @@ GO(gtk_accel_group_connect, vFpuiip)  // Closure probably needs wrapping when no
 GO(gtk_accel_group_connect_by_path, vFppp)
 GO(gtk_accel_group_disconnect, iFpp)
 GO(gtk_accel_group_disconnect_key, iFpui)
-//GOM(gtk_accel_group_find, pFEppp)
+GOM(gtk_accel_group_find, pFEppp)
 GO(gtk_accel_group_from_accel_closure, pFp)
 GO(gtk_accel_group_get_is_locked, iFp)
 GO(gtk_accel_group_get_modifier_mask, iFp)
@@ -60,15 +60,15 @@ GO(gtk_accel_groups_activate, iFpui)
 GO(gtk_accel_groups_from_object, pFp)
 GO(gtk_accel_group_unlock, vFp)
 //GO(gtk_accel_label_get_accel_widget, 
-//GO(gtk_accel_label_get_accel_width, 
+GO(gtk_accel_label_get_accel_width, uFp)
 GO(gtk_accel_label_get_type, iFv)
-//GO(gtk_accel_label_new, 
+GO(gtk_accel_label_new, pFp)
 //GO(gtk_accel_label_refetch, 
 //GO(gtk_accel_label_set_accel_closure, 
-//GO(gtk_accel_label_set_accel_widget, 
-//GO(gtk_accel_map_add_entry, 
+GO(gtk_accel_label_set_accel_widget, vFpp)
+GO(gtk_accel_map_add_entry, vFpui)
 //GO(gtk_accel_map_add_filter, 
-//GO(gtk_accel_map_change_entry, 
+GO(gtk_accel_map_change_entry, iFpuii)
 //GO(gtk_accel_map_foreach, 
 //GO(gtk_accel_map_foreach_unfiltered, 
 //GO(gtk_accel_map_get, 
@@ -83,8 +83,8 @@ GO(gtk_accel_map_get_type, iFv)
 //GO(gtk_accel_map_unlock_path, 
 //GO(gtk_accessible_connect_widget_destroyed, 
 GO(gtk_accessible_get_type, iFv)
-//GO(gtk_accessible_get_widget, 
-//GO(gtk_accessible_set_widget, 
+GO(gtk_accessible_get_widget, pFp)
+GO(gtk_accessible_set_widget, vFpp)
 GO(gtk_action_activate, vFp)
 GO(gtk_action_block_activate, vFp)
 GO(gtk_action_block_activate_from, vFpp)
@@ -154,12 +154,12 @@ GO(gtk_action_set_visible_vertical, vFpi)
 GO(gtk_action_unblock_activate, vFp)
 GO(gtk_action_unblock_activate_from, vFpp)
 //GO(gtk_activatable_do_set_related_action, 
-//GO(gtk_activatable_get_related_action, 
+GO(gtk_activatable_get_related_action, pFp)
 GO(gtk_activatable_get_type, iFv)
-//GO(gtk_activatable_get_use_action_appearance, 
+GO(gtk_activatable_get_use_action_appearance, iFp)
 //GO(gtk_activatable_set_related_action, 
 //GO(gtk_activatable_set_use_action_appearance, 
-//GO(gtk_activatable_sync_action_properties, 
+GO(gtk_activatable_sync_action_properties, vFpp)
 GO(gtk_adjustment_changed, vFp)
 GO(gtk_adjustment_clamp_page, vFpdd)
 GO(gtk_adjustment_configure, vFpdddddd)
@@ -1675,7 +1675,7 @@ GO(gtk_menu_set_reserve_toggle_size, vFpi)
 GO(gtk_menu_set_screen, vFpp)
 GO(gtk_menu_set_tearoff_state, vFpi)
 GO(gtk_menu_set_title, vFpp)
-//GO(gtk_menu_shell_activate_item, 
+GO(gtk_menu_shell_activate_item, vFppi)
 GO(gtk_menu_shell_append, vFpp)
 //GO(gtk_menu_shell_cancel, 
 //GO(gtk_menu_shell_deactivate, 
@@ -3068,7 +3068,7 @@ GO(gtk_tips_query_get_type, iFv)
 //GO(gtk_tips_query_set_labels, 
 //GO(gtk_tips_query_start_query, 
 //GO(gtk_tips_query_stop_query, 
-//GO(gtk_toggle_action_get_active, 
+GO(gtk_toggle_action_get_active, iFp)
 //GO(gtk_toggle_action_get_draw_as_radio, 
 GO(gtk_toggle_action_get_type, iFv)
 //GO(gtk_toggle_action_new, 

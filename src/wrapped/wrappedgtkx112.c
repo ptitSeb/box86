@@ -584,6 +584,29 @@ static void* reverse_GtkLinkButtonUri_Fct(void* fct)
     return (void*)AddBridge(my_lib->priv.w.bridge, vFppp, fct, 0, NULL);
 }
 
+// GtkAccelGroupFind ...
+#define GO(A)   \
+static uintptr_t my_GtkAccelGroupFind_fct_##A = 0;                              \
+static int my_GtkAccelGroupFind_##A(void* a, void* b, void* c)                  \
+{                                                                               \
+    return RunFunction(my_context, my_GtkAccelGroupFind_fct_##A, 3, a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_GtkAccelGroupFind_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkAccelGroupFind_fct_##A == (uintptr_t)fct) return my_GtkAccelGroupFind_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkAccelGroupFind_fct_##A == 0) {my_GtkAccelGroupFind_fct_##A = (uintptr_t)fct; return my_GtkAccelGroupFind_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkAccelGroupFind callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -974,6 +997,11 @@ EXPORT void* my_gtk_link_button_set_uri_hook(x86emu_t* emu, void* f, void* data,
 {
     void* ret = my->gtk_link_button_set_uri_hook(find_GtkLinkButtonUri_Fct(f), data, findGDestroyNotifyFct(d));
     return reverse_GtkLinkButtonUri_Fct(ret);
+}
+
+EXPORT void* my_gtk_accel_group_find(x86emu_t* emu, void* group, void* f, void* data)
+{
+    return my->gtk_accel_group_find(group, find_GtkAccelGroupFind_Fct(f), data);
 }
 
 #define PRE_INIT    \
