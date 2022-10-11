@@ -1209,6 +1209,7 @@ void RunFS(x86emu_t *emu)
 {
     uintptr_t ip = R_EIP+1;
     uint8_t opcode = F8;
+    int8_t tmp8s;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
@@ -1338,6 +1339,93 @@ void RunFS(x86emu_t *emu)
             tmp32u = F32;
             GD.dword[0] = imul32(emu, ED->dword[0], tmp32u);
             break;
+
+        #define GOCOND(BASE, PREFIX, CONDITIONAL)       \
+        case BASE+0x0:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_OF))               \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x1:                          \
+            PREFIX                              \
+            if(!ACCESS_FLAG(F_OF))              \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x2:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_CF))               \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x3:                          \
+            PREFIX                              \
+            if(!ACCESS_FLAG(F_CF))              \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x4:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_ZF))               \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x5:                          \
+            PREFIX                              \
+            if(!ACCESS_FLAG(F_ZF))              \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x6:                          \
+            PREFIX                              \
+            if((ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF)))  \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x7:                          \
+            PREFIX                              \
+            if(!(ACCESS_FLAG(F_ZF) || ACCESS_FLAG(F_CF))) \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x8:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_SF))               \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0x9:                          \
+            PREFIX                              \
+            if(!ACCESS_FLAG(F_SF))              \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0xA:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_PF))               \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0xB:                          \
+            PREFIX                              \
+            if(!ACCESS_FLAG(F_PF))              \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0xC:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))  \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0xD:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF)) \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0xE:                          \
+            PREFIX                              \
+            if(ACCESS_FLAG(F_ZF) || (ACCESS_FLAG(F_SF) != ACCESS_FLAG(F_OF))) \
+                CONDITIONAL                     \
+            break;                              \
+        case BASE+0xF:                          \
+            PREFIX                              \
+            if(!ACCESS_FLAG(F_ZF) && (ACCESS_FLAG(F_SF) == ACCESS_FLAG(F_OF))) \
+                CONDITIONAL                     \
+            break;
+        GOCOND(0x70
+            ,   tmp8s = F8S; CHECK_FLAGS(emu);
+            ,   ip += tmp8s;
+            )                           /* Jxx Ib */
+        #undef GOCOND
         case 0x80:             /* GRP Eb,Ib */
         case 0x82:             // 0x82 and 0x80 are the same opcodes it seems?
             nextop = F8;
