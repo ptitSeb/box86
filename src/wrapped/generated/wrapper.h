@@ -730,6 +730,7 @@ void vFpppL(x86emu_t *emu, uintptr_t fnc);
 void vFpppp(x86emu_t *emu, uintptr_t fnc);
 void vFpppV(x86emu_t *emu, uintptr_t fnc);
 void vFpppG(x86emu_t *emu, uintptr_t fnc);
+void vFppGu(x86emu_t *emu, uintptr_t fnc);
 void vFpPpp(x86emu_t *emu, uintptr_t fnc);
 void vFSppi(x86emu_t *emu, uintptr_t fnc);
 void cFpiii(x86emu_t *emu, uintptr_t fnc);

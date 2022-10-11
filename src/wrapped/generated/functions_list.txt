@@ -698,6 +698,7 @@
 #() vFpppp
 #() vFpppV
 #() vFpppG
+#() vFppGu
 #() vFpPpp
 #() vFSppi
 #() cFpiii
@@ -2281,6 +2282,11 @@ wrappeddbusglib1:
 - pFpppppiiV:
   - dbus_g_proxy_begin_call_with_timeout
 wrappeddbusmenuglib:
+- vFppp:
+  - dbusmenu_menuitem_foreach
+  - dbusmenu_menuitem_send_about_to_show
+- iFppp:
+  - dbusmenu_client_add_type_handler
 wrappeddbusmenugtk:
 wrappedexpat:
 - vFpp:

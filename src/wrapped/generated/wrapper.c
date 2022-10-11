@@ -770,6 +770,7 @@ typedef void (*vFpppL_t)(void*, void*, void*, uintptr_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpppV_t)(void*, void*, void*, void*);
 typedef void (*vFpppG_t)(void*, void*, void*, void*);
+typedef void (*vFppGu_t)(void*, void*, void*, uint32_t);
 typedef void (*vFpPpp_t)(void*, void*, void*, void*);
 typedef void (*vFSppi_t)(void*, void*, void*, int32_t);
 typedef int8_t (*cFpiii_t)(void*, int32_t, int32_t, int32_t);
@@ -2962,6 +2963,7 @@ void vFpppL(x86emu_t *emu, uintptr_t fcn) { vFpppL_t fn = (vFpppL_t)fcn; fn(*(vo
 void vFpppp(x86emu_t *emu, uintptr_t fcn) { vFpppp_t fn = (vFpppp_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); }
 void vFpppV(x86emu_t *emu, uintptr_t fcn) { vFpppV_t fn = (vFpppV_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
 void vFpppG(x86emu_t *emu, uintptr_t fcn) { vFpppG_t fn = (vFpppG_t)fcn; my_GValue_t arg16; alignGValue(&arg16, *(void**)(R_ESP + 16)); fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), &arg16); unalignGValue(*(void**)(R_ESP + 16), &arg16); }
+void vFppGu(x86emu_t *emu, uintptr_t fcn) { vFppGu_t fn = (vFppGu_t)fcn; my_GValue_t arg12; alignGValue(&arg12, *(void**)(R_ESP + 12)); fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), &arg12, *(uint32_t*)(R_ESP + 16)); unalignGValue(*(void**)(R_ESP + 12), &arg12); }
 void vFpPpp(x86emu_t *emu, uintptr_t fcn) { vFpPpp_t fn = (vFpPpp_t)fcn; void* save8 = NULL; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8), &save8); fn(*(void**)(R_ESP + 4), arg8, *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); VulkanTox86(arg8, save8); }
 void vFSppi(x86emu_t *emu, uintptr_t fcn) { vFSppi_t fn = (vFSppi_t)fcn; fn(io_convert(*(void**)(R_ESP + 4)), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(int32_t*)(R_ESP + 16)); }
 void cFpiii(x86emu_t *emu, uintptr_t fcn) { cFpiii_t fn = (cFpiii_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16)); }

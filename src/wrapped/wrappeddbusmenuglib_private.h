@@ -2,13 +2,13 @@
 #error Meh....
 #endif
 
-//GO(dbusmenu_client_add_type_handler, 
+GOM(dbusmenu_client_add_type_handler, iFEppp)
 //GO(dbusmenu_client_add_type_handler_full, 
-//GO(dbusmenu_client_get_icon_paths, 
-//GO(dbusmenu_client_get_root, 
+GO(dbusmenu_client_get_icon_paths, pFp)
+GO(dbusmenu_client_get_root, pFp)
 //GO(dbusmenu_client_get_status, 
 //GO(dbusmenu_client_get_text_direction, 
-//GO(dbusmenu_client_get_type, 
+GO(dbusmenu_client_get_type, pFv)
 //GO(dbusmenu_client_menuitem_get_type, 
 //GO(dbusmenu_client_menuitem_new, 
 //GO(dbusmenu_client_new, 
@@ -28,7 +28,7 @@ GO(dbusmenu_menuitem_child_prepend, iFpp)
 GO(dbusmenu_menuitem_child_reorder, iFppu)
 //GO(dbusmenu_menuitem_exposed, 
 GO(dbusmenu_menuitem_find_id, pFpi)
-//GO(dbusmenu_menuitem_foreach, 
+GOM(dbusmenu_menuitem_foreach, vFEppp)
 GO(dbusmenu_menuitem_get_children, pFp)
 GO(dbusmenu_menuitem_get_id, iFp)
 GO(dbusmenu_menuitem_get_parent, pFp)
@@ -36,7 +36,7 @@ GO(dbusmenu_menuitem_get_position, uFpp)
 GO(dbusmenu_menuitem_get_position_realized, uFpp)
 GO(dbusmenu_menuitem_get_root, iFp)
 GO(dbusmenu_menuitem_get_type, iFv)
-//GO(dbusmenu_menuitem_handle_event, 
+GO(dbusmenu_menuitem_handle_event, vFppGu)
 GO(dbusmenu_menuitem_new, pFv)
 GO(dbusmenu_menuitem_new_with_id, pFi)
 GO(dbusmenu_menuitem_properties_copy, pFp)
@@ -59,7 +59,7 @@ GO(dbusmenu_menuitem_proxy_get_type, iFv)
 //GO(dbusmenu_menuitem_proxy_get_wrapped, 
 //GO(dbusmenu_menuitem_proxy_new, 
 //GO(dbusmenu_menuitem_realized, 
-//GO(dbusmenu_menuitem_send_about_to_show, 
+GOM(dbusmenu_menuitem_send_about_to_show, vFEppp)
 //GO(dbusmenu_menuitem_set_parent, 
 //GO(dbusmenu_menuitem_set_realized, 
 GO(dbusmenu_menuitem_set_root, vFpi)
