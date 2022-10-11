@@ -30,6 +30,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     uint8_t ed, gd, u8;
     int fixedaddress;
     int32_t i32, j32;
+    int16_t i16;
     MAYUSE(i32);
     MAYUSE(j32);
     MAYUSE(gb1);
@@ -37,7 +38,61 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     MAYUSE(wb1);
     MAYUSE(wb2);
     switch(opcode) {
-        
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            DMB_ISH();
+            switch((nextop>>3)&7) {
+                case 0: //ADD
+                    if(opcode==0x81) {
+                        INST_NAME("LOCK ADD Ew, Iw");
+                    } else {
+                        INST_NAME("LOCK ADD Ew, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    DMB_ISH();
+                    if((nextop&0xC0)==0xC0) {
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        ed = xEAX+(nextop&7);
+                        emit_add16c(dyn, ninst, ed, i16, x3, x14);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1, LOCK_LOCK);
+                        if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                        if(!fixedaddress) {
+                            TSTS_IMM8(wback, 0x1);
+                            B_MARK(cNE);
+                        }
+                        if(!fixedaddress || (fixedaddress && !(fixedaddress&1))) {
+                            MARKLOCK;
+                            LDREXH(x1, wback);
+                            emit_add16c(dyn, ninst, x1, i16, x3, x14);
+                            STREXH(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARKLOCK(cNE);
+                        }
+                        if(!fixedaddress) {
+                            DMB_ISH();
+                            B_NEXT(c__);
+                        }
+                        if(!fixedaddress || (fixedaddress && (fixedaddress&1))) {
+                            MARK;   // unaligned! also, not enough
+                            LDRH_IMM8(x1, wback, 0);
+                            LDREXB(x14, wback);
+                            BFI(x1, x14, 0, 8); // re-inject
+                            emit_add16c(dyn, ninst, x1, i16, x3, x14);
+                            STREXB(x3, x1, wback);
+                            CMPS_IMM8(x3, 0);
+                            B_MARK(cNE);
+                            STRH_IMM8(x1, wback, 0); // put the whole value
+                        }
+                        DMB_ISH();
+                    }
+                    break;
+                default:
+                  DEFAULT;
+            }
+            DMB_ISH();
+            break;
         case 0xFF:
             nextop = F8;
             DMB_ISH();
