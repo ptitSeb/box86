@@ -1543,6 +1543,7 @@
 #() pFSpiiii
 #() vFEpipppp
 #() vFEpuipuV
+#() vFEppippp
 #() vFEpppppp
 #() vFiiiiiip
 #() vFiiiiuup
@@ -3220,7 +3221,10 @@ wrappedlibnm:
   - nm_remote_connection_commit_changes_async
 - vFppppp:
   - nm_remote_connection_get_secrets_async
+- vFppippp:
+  - nm_client_add_connection_async
 - vFppppppp:
+  - nm_client_activate_connection_async
   - nm_client_add_and_activate_connection_async
 wrappedlibogg:
 wrappedlibpanel:

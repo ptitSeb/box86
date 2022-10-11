@@ -48,11 +48,11 @@ GO(nm_active_connection_get_type, pFv)
 //GO(nm_checkpoint_get_devices, 
 //GO(nm_checkpoint_get_rollback_timeout, 
 GO(nm_checkpoint_get_type, iFv)
-//GOM(nm_client_activate_connection_async, vFEpppppBp)
+GOM(nm_client_activate_connection_async, vFEppppppp)
 GO(nm_client_activate_connection_finish, pFppp)
 GOM(nm_client_add_and_activate_connection_async, vFEppppppp)
 GO(nm_client_add_and_activate_connection_finish, pFppp)
-//GOM(nm_client_add_connection_async, vFEppBp)
+GOM(nm_client_add_connection_async, vFEppippp)
 GO(nm_client_add_connection_finish, iFppp)
 GO(nm_client_check_connectivity, iFppp)
 //GO(nm_client_check_connectivity_async, 

@@ -14,6 +14,7 @@
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void (*vFppppp_t)(void*, void*, void*, void*, void*);
+typedef void (*vFppippp_t)(void*, void*, int32_t, void*, void*, void*);
 typedef void (*vFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -22,6 +23,8 @@ typedef void (*vFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 	GO(nm_remote_connection_delete_async, vFpppp_t) \
 	GO(nm_remote_connection_commit_changes_async, vFpippp_t) \
 	GO(nm_remote_connection_get_secrets_async, vFppppp_t) \
+	GO(nm_client_add_connection_async, vFppippp_t) \
+	GO(nm_client_activate_connection_async, vFppppppp_t) \
 	GO(nm_client_add_and_activate_connection_async, vFppppppp_t)
 
 #endif // __wrappedlibnmTYPES_H_

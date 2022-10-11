@@ -86,6 +86,16 @@ EXPORT void my_nm_device_wifi_request_scan_async(x86emu_t* emu, void* device, vo
     my->nm_device_wifi_request_scan_async(device, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
+EXPORT void my_nm_client_add_connection_async(x86emu_t* emu, void* client, void* connection, int save, void* cancel, void* cb, void* data)
+{
+    my->nm_client_add_connection_async(client, connection, save, cancel, findGAsyncReadyCallbackFct(cb), data);
+}
+
+EXPORT void my_nm_client_activate_connection_async(x86emu_t* emu, void* client, void* connection, void* device, void* obj, void* cancel, void* cb, void* data)
+{
+    my->nm_client_activate_connection_async(client, connection, device, obj, cancel, findGAsyncReadyCallbackFct(cb), data);
+}
+
 #define PRE_INIT    \
     if(box86_nogtk) \
         return -1;
