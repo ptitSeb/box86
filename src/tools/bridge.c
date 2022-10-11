@@ -13,6 +13,7 @@
 #include "debug.h"
 #include "x86emu.h"
 #include "box86context.h"
+#include "elfloader.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
