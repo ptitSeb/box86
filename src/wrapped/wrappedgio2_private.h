@@ -963,7 +963,7 @@ GO(g_initable_new_valist, pFipppp)
 //GO(g_input_stream_skip_finish, 
 //GO(g_io_error_enum_get_type, 
 //GO(g_io_error_from_errno, 
-//GO(g_io_error_quark, 
+GO(g_io_error_quark, pFv)
 //GO(g_io_extension_get_name, 
 //GO(g_io_extension_get_priority, 
 //GO(g_io_extension_get_type, 
@@ -1014,7 +1014,7 @@ GO(g_initable_new_valist, pFipppp)
 //GO(g_memory_input_stream_get_type, 
 //GO(g_memory_input_stream_new, 
 //GO(g_memory_input_stream_new_from_bytes, 
-//GO(g_memory_input_stream_new_from_data, 
+GOM(g_memory_input_stream_new_from_data, pFEplp)
 //GO(g_memory_output_stream_get_data, 
 //GO(g_memory_output_stream_get_data_size, 
 //GO(g_memory_output_stream_get_size, 
@@ -1775,8 +1775,8 @@ GO(g_themed_icon_prepend_name, vFpp)
 //GO(g_unix_credentials_message_new, 
 //GO(g_unix_credentials_message_new_with_credentials, 
 //GO(g_unix_fd_list_append, 
-//GO(g_unix_fd_list_get, 
-//GO(g_unix_fd_list_get_length, 
+GO(g_unix_fd_list_get, iFpip)
+GO(g_unix_fd_list_get_length, iFp)
 GO(g_unix_fd_list_get_type, iFv)
 //GO(g_unix_fd_list_new, 
 //GO(g_unix_fd_list_new_from_array, 

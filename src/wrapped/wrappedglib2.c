@@ -1256,6 +1256,10 @@ EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, m
     }
 }
 
+EXPORT void my_g_list_foreach(x86emu_t* emu, void* list, void* f, void* data)
+{
+    my->g_list_foreach(list, findGFuncFct(f), data);
+}
 
 #define PRE_INIT    \
     if(box86_nogtk) \

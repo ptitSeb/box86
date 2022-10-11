@@ -914,6 +914,7 @@ void pFEipV(x86emu_t *emu, uintptr_t fnc);
 void pFEupp(x86emu_t *emu, uintptr_t fnc);
 void pFEpii(x86emu_t *emu, uintptr_t fnc);
 void pFEpip(x86emu_t *emu, uintptr_t fnc);
+void pFEplp(x86emu_t *emu, uintptr_t fnc);
 void pFEppi(x86emu_t *emu, uintptr_t fnc);
 void pFEppC(x86emu_t *emu, uintptr_t fnc);
 void pFEppu(x86emu_t *emu, uintptr_t fnc);

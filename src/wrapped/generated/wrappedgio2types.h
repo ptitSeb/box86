@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef void* (*pFplp_t)(void*, intptr_t, void*);
 typedef void (*vFippp_t)(int32_t, void*, void*, void*);
 typedef void (*vFppip_t)(void*, void*, int32_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
@@ -44,6 +45,7 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_simple_async_result_set_op_res_gpointer, vFppp_t) \
+	GO(g_memory_input_stream_new_from_data, pFplp_t) \
 	GO(g_bus_get, vFippp_t) \
 	GO(g_simple_async_result_run_in_thread, vFppip_t) \
 	GO(g_dbus_connection_close, vFpppp_t) \

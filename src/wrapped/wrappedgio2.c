@@ -555,6 +555,11 @@ EXPORT void* my_g_initable_new(x86emu_t* emu, int type, void* cancellable, void*
     return my->g_initable_new_valist(type, first, va, cancellable, error);
 }
 
+EXPORT void* my_g_memory_input_stream_new_from_data(x86emu_t* emu, void* data, ssize_t size, void* d)
+{
+    return my->g_memory_input_stream_new_from_data(data, size, findGDestroyNotifyFct(d));
+}
+
 #define PRE_INIT    \
     if(box86_nogtk) \
         return -1;
