@@ -1557,7 +1557,7 @@ int main(int argc, const char **argv, char **env) {
     ResetFlags(emu);
     PushExit(emu);  // push to pop it just after
     SetEDX(emu, Pop32(emu));    // EDX is exit function
-    Run(emu, 0);
+    DynaRun(emu);
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);

@@ -168,6 +168,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         ejb->jmpbuf_ok = 0;
 }
 
+int my_setcontext(x86emu_t* emu, void* ucp);
 int DynaRun(x86emu_t* emu)
 {
     // prepare setjump for signal handling
@@ -228,6 +229,10 @@ int DynaRun(x86emu_t* emu)
                     if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
                         printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 }
+            }
+            else if(emu->quit && emu->uc_link) {
+                emu->quit = 0;
+                my_setcontext(emu, emu->uc_link);
             }
         }
     }
