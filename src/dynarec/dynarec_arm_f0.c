@@ -652,50 +652,68 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     DMB_ISH();
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
-                        wback = 0;
+                        // same as no lock, all in regs...
+                        CMPS_REG_LSL_IMM5(xEAX, ed, 0);
+                        B_MARK(cNE);
+                        // EAX == Ed
+                        MOV_REG(x3, ed);
+                        MOV_REG(ed, gd);
+                        emit_cmp32(dyn, ninst, xEAX, x3, x1, x14);
+                        B_NEXT(c__);
+                        MARK;
+                        // EAX != Ed
+                        emit_cmp32(dyn, ninst, xEAX, ed, x3, x14);
+                        MOV_REG(xEAX, ed);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1, LOCK_LOCK);
-                        MARKLOCK;
-                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
-                            TSTS_IMM8(wback, 3);    // can be unaligned it seems
-                            LDREX_COND(cEQ, x1, wback);
-                            LDR_IMM9_COND(cNE, x1, wback, 0);
-                            LDREXB_COND(cNE, x3, wback); // dummy read, to arm the write...
-                        } else {
-                            LDREX(x1, wback);
-                        }
                         ed = x1;
-                    }
-                    CMPS_REG_LSL_IMM5(xEAX, ed, 0);
-                    B_MARK(cNE);
-                    // EAX == Ed
-                    if(wback) {
                         if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
-                            TSTS_IMM8(wback, 3);
-                            STREX_COND(cEQ, x14, gd, wback);
-                            STREXB_COND(cNE, x14, gd, wback);
+                            if(!fixedaddress) {
+                                // alignment is undetermined
+                                TSTS_IMM8(wback, 3);
+                                B_MARK2(cNE);
+                                MARKLOCK;
+                                // aligned
+                                LDREX(ed, wback);
+                                CMPS_REG_LSL_IMM5(xEAX, ed, 0);
+                                B_MARK(cNE);
+                                // EAX == Ed
+                                STREX(x14, gd, wback);
+                                DMB_ISH();
+                                CMPS_IMM8(x14, 0);
+                                B_MARKLOCK(cNE);
+                                B_MARK(c__);
+                            }
+                            // unaligned
+                            MARK2;
+                            LDR_IMM9(x1, wback, 0);
+                            LDREXB( x3, wback); // dummy read, to arm the write...
+                            CMPS_REG_LSL_IMM5(xEAX, ed, 0);
+                            B_MARK(cNE);
+                            // EAX == Ed
+                            STREXB(x14, gd, wback);
+                            CMPS_IMM8(x14, 0);
+                            B_MARK2(cNE);
+                            STR_IMM9(gd, wback, 0);
+                            DMB_ISH();
                         } else {
+                            MARKLOCK;
+                            // alignment is good
+                            LDREX(ed, wback);
+                            CMPS_REG_LSL_IMM5(xEAX, ed, 0);
+                            B_MARK(cNE);
+                            // EAX == Ed
                             STREX(x14, gd, wback);
+                            CMPS_IMM8(x14, 0);
+                            B_MARKLOCK(cNE);
+                            DMB_ISH();
                         }
-                        CMPS_IMM8(x14, 0);
-                        B_MARKLOCK(cNE);
-                        if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
-                            TSTS_IMM8(wback, 3);    // anoying, all those test
-                            STR_IMM9_COND(cNE, gd, wback, 0);
-                        }
-                        UFLAG_IF {emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);}
-                    } else {
-                        UFLAG_IF {emit_cmp32(dyn, ninst, xEAX, ed, x1, x14);}
-                        MOV_REG(ed, gd);
+                        // end of EAX == Ed or EAX != Ed
+                        MARK;
+                        UFLAG_IF { MOV_REG(x2, xEAX); }
+                        MOV_REG(xEAX, ed);    
+                        UFLAG_IF { emit_cmp32(dyn, ninst, x2, ed, x3, x14); }
                     }
-                    // done
-                    B_MARK3(c__);   // not next, in case its called with a LOCK prefix
-                    MARK;
-                    // EAX != Ed
-                    UFLAG_IF {emit_cmp32(dyn, ninst, xEAX, ed, x3, x14);}
-                    MOV_REG(xEAX, ed);
-                    MARK3
-                    DMB_ISH();
                     break;
                 case 0xB3:
                     INST_NAME("LOCK BTR Ed, Gd");
