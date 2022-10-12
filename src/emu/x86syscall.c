@@ -77,8 +77,7 @@ int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot);
 #ifndef O_NONBLOCK
 #define O_NONBLOCK 04000
 #endif
-#undef fcntl
-int fcntl(int fd, int cmd, ... /* arg */ );
+int my_fcntl(int fd, int cmd, ... /* arg */ );
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
@@ -206,6 +205,9 @@ scwrap_t syscallwrap[] = {
     { 201, __NR_geteuid32, 0 },
     { 202, __NR_getegid32, 0 },
     { 208, __NR_setresuid32, 3 },
+    { 209, __NR_getresuid32, 3 },
+    { 210, __NR_setresgid32, 3 },
+    { 211, __NR_getresgid32, 3 },
 #else
     // PowerPC uses the same syscalls for 32/64 bit processes.
     { 199, __NR_getuid, 0 },
@@ -213,6 +215,9 @@ scwrap_t syscallwrap[] = {
     { 201, __NR_geteuid, 0 },
     { 202, __NR_getegid, 0 },
     { 208, __NR_setresuid, 3 },
+    { 209, __NR_getresuid, 3 },
+    { 210, __NR_setresgid, 3 },
+    { 211, __NR_getresgid, 3 },
 #endif
     { 220, __NR_getdents64, 3 },
     //{ 221, __NR_fcntl64, 3 },
@@ -326,6 +331,38 @@ int clone_fn(void* arg)
     return ret;
 }
 
+#ifndef __NR_ipc
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+static int my_ipc (uint call, int first, int second, int third, void *ptr, long fifth)
+{
+#define IPC_SEMOP		 1
+#define IPC_SEMGET		 2
+#define IPC_SEMCTL		 3
+#define IPC_SEMTIMEDOP	 4
+#define IPC_MSGSND		11
+#define IPC_MSGRCV		12
+#define IPC_MSGGET		13
+#define IPC_MSGCTL		14
+#define IPC_SHMAT		21
+#define IPC_SHMDT		22
+#define IPC_SHMGET		23
+#define IPC_SHMCTL		24
+    int version;
+    version = call>>16;
+    call &= 0xffff;
+    switch (call) {
+        case IPC_SHMGET: 
+            return semget(first, second, third);
+        default:
+            printf_log(LOG_INFO, "Unsuported IPC call %d (version %d)\n", call, version);
+            return -ENOSYS;
+    }
+}
+#endif
+
 void EXPORT x86Syscall(x86emu_t *emu)
 {
     RESET_FLAGS(emu);
@@ -397,17 +434,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = (uint32_t)ioctl((int)R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
             break;
         case 55: // sys_fcntl
-            if(R_ECX==4) {
-                // filter out O_NONBLOCK so old stacally linked games that access X11 don't get EAGAIN error sometimes
-                int tmp = of_convert((int)R_EDX)&(~O_NONBLOCK);
-                if(R_EDX==0xFFFFF7FF) {
-                    // special case for ~O_NONBLOCK...
-                    int flags = fcntl(R_EBX, 3);
-                    tmp = flags&~O_NONBLOCK;
-                }
-                R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, tmp);
-            } else
-                R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
+            R_EAX = (uint32_t)my_fcntl((int)R_EBX, (int)R_ECX, R_EDX);
             break;
 #ifndef __NR_getrlimit
         case 76:    // sys_getrlimit... this is the old version, using the new one. Maybe some tranform is needed?
@@ -481,6 +508,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
 #ifndef __NR_iopl
         case 110:   // iopl
             R_EAX = 0;  // only on x86, so return 0...
+            break;
+#endif
+#ifndef __NR_ipc
+        case 117:   // ipc
+            R_EAX = (uint32_t)my_ipc(R_EBX, (int)R_ECX, (int)R_EDX, (int)R_ESI, (void*)R_EDI, (long)R_EBP);
             break;
 #endif
         case 119: // sys_sigreturn
@@ -595,11 +627,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             }
             break;
         case 221: // sys_fcntl64
-            if(R_ECX==4) {
-                int tmp = of_convert((int)R_EDX);
-                R_EAX = (uint32_t)fcntl((int)R_EBX, R_ECX, tmp);
-            } else
-                R_EAX = (uint32_t)fcntl((int)R_EBX, (int)R_ECX, R_EDX);
+            R_EAX = (uint32_t)my_fcntl((int)R_EBX, (int)R_ECX, R_EDX);
             break;
         case 243: // set_thread_area
             R_EAX = my_set_thread_area((thread_area_t*)R_EBX);
@@ -688,6 +716,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)my_execve(emu, p(4), p(8), p(12));
         case 91:   // munmap
             return (uint32_t)my_munmap(emu, p(4), u32(8));
+#ifndef __NR_ipc
+        case 117:   // ipc
+            return (uint32_t)my_ipc(u32(4), i32(8), i32(12), i32(16), p(20), i32(24));
+#endif
         case 120:   // clone
             // x86 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, unsigned long tls, int *child_tid);
             // so flags=u(4), stack=p(8), parent_tid=p(12), tls=p(16), child_tid=p(20)
