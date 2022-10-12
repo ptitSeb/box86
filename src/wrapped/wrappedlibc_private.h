@@ -1604,6 +1604,7 @@ GOW(sigprocmask, iFipp)
 // sigrelse
 // sigreturn    // Weak
 GOM(sigset, pFEip) //%%
+GOM(sigsetjmp, iFEp) //%%
 GOM(__sigsetjmp, iFEp) //%%
 GOW(sigsetmask, iFi)
 // sigstack

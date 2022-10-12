@@ -2569,6 +2569,10 @@ EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/vo
         ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
     return 0;
 }
+EXPORT int32_t my_sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)
+{
+    return my___sigsetjmp(emu, p, savesigs);
+}
 
 EXPORT int32_t my__setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
 {
