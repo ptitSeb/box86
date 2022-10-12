@@ -41,8 +41,8 @@
         --dyn->size;                    \
         *ok = -1;                       \
         if(box86_dynarec_log>=LOG_INFO || box86_dynarec_dump) {\
-        dynarec_log(LOG_NONE, "%p: Dynarec stopped because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
-        (void*)ip, PKip(0),             \
+        dynarec_log(LOG_NONE, "%p: Dynarec stopped @ %s (%s:%u) because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
+        (void*)ip, __FUNCTION__, __FILE__, __LINE__, PKip(0), \
         PKip(1), PKip(2), PKip(3),      \
         PKip(4), PKip(5), PKip(6),      \
         PKip(7), PKip(8), PKip(9),      \
