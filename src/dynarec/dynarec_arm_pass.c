@@ -178,6 +178,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
                     (((next-addr)<15) && is_nops(dyn, addr, next-addr)) 
+                    && (((box86_dynarec_bigblock<2) && isJumpTableDefault((void*)next)) || (box86_dynarec_bigblock>1))
                     /*||(((next-addr)<30) && is_instructions(dyn, addr, next-addr))*/ ))
                 {
                     ok = 1;
