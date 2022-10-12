@@ -601,7 +601,7 @@ GO(gnutls_pubkey_import_ecc_raw, iFpppp)
 //GO(gnutls_pubkey_import_openpgp, 
 //GO(gnutls_pubkey_import_openpgp_raw, 
 //GO(gnutls_pubkey_import_pkcs11, 
-//GO(gnutls_pubkey_import_privkey, 
+GO(gnutls_pubkey_import_privkey, iFppuu)
 GO(gnutls_pubkey_import_rsa_raw, iFppp)
 //GO(gnutls_pubkey_import_tpm_raw, 
 //GO(gnutls_pubkey_import_tpm_url, 
@@ -681,7 +681,7 @@ GO(gnutls_session_channel_binding, iFppp)
 //GO(gnutls_session_ticket_enable_client, 
 //GO(gnutls_session_ticket_enable_server, 
 //GO(gnutls_session_ticket_key_generate, 
-//GO(gnutls_set_default_priority, 
+GO(gnutls_set_default_priority, iFp)
 //GO(gnutls_sign_algorithm_get, 
 //GO(gnutls_sign_algorithm_get_client, 
 //GO(gnutls_sign_algorithm_get_requested, 
