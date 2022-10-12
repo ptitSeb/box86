@@ -53,8 +53,8 @@ void *thread_run(void *parm)
 		while (!status) pthread_cond_wait(thread_state_cond_ptr, mutex_ptr);
 		printf("Thread 2: Entered (%d/%d)\n", TLS_data1, TLS_data2);
 		fflush(stdout);
-		pthread_mutex_unlock(mutex_ptr);
 		status = 0;
+		pthread_mutex_unlock(mutex_ptr);
 		pthread_cond_broadcast(thread_state_cond_ptr);
 	}
 
