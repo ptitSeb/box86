@@ -1521,6 +1521,45 @@ void* GetDynamicSection(elfheader_t* h)
     return h->Dynamic;
 }
 
+void* ElfGetBrk(elfheader_t* h)
+{
+    if(!h)
+        return NULL;
+    return (void*)(h->bss+h->bsssz);
+}
+
+void* ElfSetBrk(void* newbrk)
+{
+    if(!my_context)
+        return NULL;
+    if(!my_context->elfsize)
+        return NULL;
+    elfheader_t* h = my_context->elfs[0];
+    void* ret = my_context->brk;
+    if(!newbrk)
+        return ret;
+    // compute the added size
+    intptr_t added = (intptr_t)newbrk - (intptr_t)ret;
+    if(added<=0) // cannot remove bss
+        return ret;
+    //check if elf is 1 big memory and splitted
+    if(h->multiblock_n!=1) {
+        // meh
+        printf_log(LOG_NONE, "Error, using brk on multi-part memory elf is not allowed for now");
+    } else {
+        void* newmem = mremap(h->memory, h->memsz+my_context->brksz, h->memsz+added, 0);
+        if(newmem!=(void*)-1) {
+            if(added>my_context->brksz)
+                setProtection((uintptr_t)my_context->brk + my_context->brksz, added-my_context->brksz, PROT_READ|PROT_WRITE);
+            else
+                freeProtection((uintptr_t)my_context->brk + added, my_context->brksz - added);
+        }
+        ret = newmem;
+        my_context->brksz = added;
+    }
+    return ret;
+}
+
 #ifdef DYNAREC
 dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
 {

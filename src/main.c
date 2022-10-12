@@ -1391,6 +1391,7 @@ int main(int argc, const char **argv, char **env) {
     }
     // can close the file now
     fclose(f);
+    my_context->brk = ElfGetBrk(elf_header);
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box86_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!

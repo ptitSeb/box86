@@ -337,12 +337,19 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->VerSym = (Elf32_Half*)(h->SHEntries[ii].sh_addr);
             printf_dump(LOG_DEBUG, "The .gnu.version is at address %p\n", h->VerSym);
         }
-        // grab .text for main code
+        // grab .bss for main code
         ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".text");
         if(ii) {
             h->text = (uintptr_t)(h->SHEntries[ii].sh_addr);
             h->textsz = h->SHEntries[ii].sh_size;
             printf_dump(LOG_DEBUG, "The .text is at address %p, and is %d big\n", (void*)h->text, h->textsz);
+        }
+        // grab .bss to find brk
+        ii = FindSection(h->SHEntries, h->numSHEntries, h->SHStrTab, ".bss");
+        if(ii) {
+            h->bss = (uintptr_t)(h->SHEntries[ii].sh_addr);
+            h->bsssz = h->SHEntries[ii].sh_size;
+            printf_dump(LOG_DEBUG, "The .bss is at address %p, and is %d big\n", (void*)h->bss, h->bsssz);
         }
 
         LoadNamedSection(f, h->SHEntries, h->numSHEntries, h->SHStrTab, ".dynstr", "DynSym Strings", SHT_STRTAB, (void**)&h->DynStr, NULL);

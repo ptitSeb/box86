@@ -66,6 +66,8 @@ struct elfheader_s {
     uintptr_t   plt_end;
     uintptr_t   text;
     int         textsz;
+    uintptr_t   bss;
+    int         bsssz;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;

@@ -102,6 +102,9 @@ typedef struct box86context_s {
 
     uintptr_t           ep;             // entry point
 
+    void*               brk;            // current brk (should be the end of bss segment of main elf)
+    int                 brksz;          // current added sz for brk
+
     lib_t               *maplib;        // lib and symbols handling
     lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
     dic_t               *versym;        // dictionnary of versionned symbols

@@ -54,6 +54,7 @@ dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box86context_t* context, int fd);
 void* GetDynamicSection(elfheader_t* h);
+void* ElfGetBrk(elfheader_t* h);
 
 int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is used
 

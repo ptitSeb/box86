@@ -72,6 +72,7 @@ void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int fla
 void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
 int my_munmap(x86emu_t* emu, void* addr, unsigned long length);
 int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot);
+void* ElfSetBrk(void* newbrk);
 
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
@@ -111,7 +112,7 @@ scwrap_t syscallwrap[] = {
     { 40, __NR_rmdir, 1 },
     { 41, __NR_dup, 1 },
     { 42, __NR_pipe, 1 },
-    { 45, __NR_brk, 1 },
+    //{ 45, __NR_brk, 1 },
     { 47, __NR_getgid, 0 },
     { 49, __NR_geteuid, 0 },
     { 50, __NR_getegid, 0 },
@@ -430,6 +431,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = time(NULL);
             break;
 #endif
+        case 45:    // sys_brk
+            R_EAX = (uintptr_t)ElfSetBrk((void*)R_EBX);
+            break;
         case 54: // sys_ioctl
             R_EAX = (uint32_t)ioctl((int)R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
             break;
@@ -714,6 +718,8 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)close(i32(4));
         case 11: // execve
             return (uint32_t)my_execve(emu, p(4), p(8), p(12));
+        case 45: // brk
+            return (uintptr_t)ElfSetBrk(p(4));
         case 91:   // munmap
             return (uint32_t)my_munmap(emu, p(4), u32(8));
 #ifndef __NR_ipc
