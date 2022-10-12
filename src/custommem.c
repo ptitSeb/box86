@@ -28,6 +28,7 @@
 #include "khash.h"
 
 #define USE_MMAP
+//#define USE_MMAP_MORE
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
@@ -262,9 +263,10 @@ void* customMalloc(size_t size)
     size_t allocsize = MMAPSIZE;
     if(size+2*sizeof(blockmark_t)>allocsize)
         allocsize = size+2*sizeof(blockmark_t);
-    #ifdef USE_MMAP
+    #ifdef USE_MMAP_MORE
     void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     memset(p, 0, allocsize);
+    setProtection((uintptr_t)p, allocsize, PROT_READ|PROT_WRITE);
     #else
     void* p = calloc(1, allocsize);
     #endif
@@ -693,7 +695,7 @@ void printMapMem()
 {
     mapmem_t* m = mapmem;
     while(m) {
-        printf_log(LOG_INFO, " %p-%p\n", (void*)m->begin, (void*)m->end);
+        printf_log(LOG_NONE, " %p-%p\n", (void*)m->begin, (void*)m->end);
         m = m->next;
     }
 }
@@ -813,6 +815,8 @@ void forceProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     //dynarec_log(LOG_DEBUG, "setProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
+    if(!mapmem)
+        return;
     addMapMem(addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
@@ -856,6 +860,7 @@ void loadProtectionFromMap()
     char buf[500];
     FILE *f = fopen("/proc/self/maps", "r");
     uintptr_t current = 0x0;
+    if(box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "Refresh mmap allocated block start =============\n");}
     if(!f)
         return;
     while(!feof(f)) {
@@ -863,6 +868,7 @@ void loadProtectionFromMap()
         (void)ret;
         char r, w, x;
         uintptr_t s, e;
+        if(box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "\t%s", buf);}
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
             if(current<s) {
                 removeMapMem(current, s-1);
@@ -873,6 +879,10 @@ void loadProtectionFromMap()
         }
     }
     fclose(f);
+    if(box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG) {
+        printf_log(LOG_NONE, "Refresh mmap allocated block done =============\n");
+        printMapMem();
+    }
     box86_mapclean = 1;
 }
 
@@ -1012,7 +1022,7 @@ void fini_custommem_helper(box86context_t *ctx)
     lockaddress = NULL;
 #endif
     for(int i=0; i<n_blocks; ++i)
-        #ifdef USE_MMAP
+        #ifdef USE_MMAP_MORE
         munmap(p_blocks[i].block, p_blocks[i].size);
         #else
         free(p_blocks[i].block);
