@@ -1230,6 +1230,11 @@ int main(int argc, const char **argv, char **env) {
         printf_log(LOG_INFO, "Dontstarve* detected, forcing emulated SDL2\n");
         AddPath("libSDL2-2.0.so.0", &my_context->box86_emulated_libs, 0);
     }
+    // special case for A Golden Wake that use an old SDL2 and vorbis libs
+    if(strstr(prgname, "A_Golden_Wake.bin.x86")==prgname) {
+        printf_log(LOG_INFO, "A Golden Wake detected, prefer emulated libs\n");
+        box86_prefer_emulated = 1;
+    }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(strstr(prgname, "steam")==prgname) {
         printf_log(LOG_INFO, "steam detected, forcing emulated libudev and gtk\n");
