@@ -116,7 +116,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
                 }
                 if(!(flag&0x4))
                     dl->count[i] = dl->count[i]+1;
-                    printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%d (dlopened=%d, elf_index=%d)\n", rfilename, (void*)(i+1), dl->count[i], dl->dlopened[i], GetElfIndex(dl->libs[i]));
+                printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%d (dlopened=%d, elf_index=%d)\n", rfilename, (void*)(i+1), dl->count[i], dl->dlopened[i], GetElfIndex(dl->libs[i]));
                 return (void*)(i+1);
             }
         }
