@@ -609,10 +609,10 @@ static void* find_GtkAccelGroupFind_Fct(void* fct)
 
 // GCallback
 #define GO(A)   \
-static uintptr_t my_GCallback_fct_##A = 0;                          \
-static uint32_t my_GCallback_##A(void* a, void* b, void* c, void* d)\
-{                                                                   \
-    RunFunction(my_context, my_GCallback_fct_##A, 4, a, b, c, d);   \
+static uintptr_t my_GCallback_fct_##A = 0;                                  \
+static uint32_t my_GCallback_##A(void* a, void* b, void* c, void* d)        \
+{                                                                           \
+    return RunFunction(my_context, my_GCallback_fct_##A, 4, a, b, c, d);    \
 }
 SUPER()
 #undef GO
