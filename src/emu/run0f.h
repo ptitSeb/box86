@@ -71,6 +71,14 @@
                     goto _default;
             }
             NEXT;
+        _0f_0x0E:                      /* FEMMS */
+            emu->old_ip = R_EIP;
+            R_EIP = ip-2;
+            emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+            ip = R_EIP;
+            if(emu->quit) goto fini;
+            STEP;
+            NEXT;
 
         _0f_0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;
