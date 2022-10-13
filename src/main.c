@@ -87,6 +87,7 @@ int x11color16 = 0;
 #if defined(RPI) || defined(RK3399) || defined(RK3288) || defined(GOA_CLONE) || defined(PYRA) || defined(PANDORA)
 int box86_tokitori2 = 0;
 #endif
+int box86_sc3u = 0;
 int box86_mapclean = 0;
 int box86_zoom = 0;
 int x11threads = 0;
@@ -1264,6 +1265,15 @@ int main(int argc, const char **argv, char **env) {
         box86_tokitori2 = 1;
     }
     #endif
+    // special case for SimCity3k Demo, that have a bug were it do feof after fclose on the same fd
+    if(strstr(prgname, "sc3u_demo.x86")==prgname) {
+        printf_log(LOG_INFO, "SimCity3000 Demo detected, runtime patch to fix buf feof after fclose\n");
+        box86_sc3u = 1;
+    }
+    if(strstr(prgname, "sc3u")==prgname) {
+        printf_log(LOG_INFO, "SimCity3000 detected, runtime patch to fix buf feof after fclose\n");
+        box86_sc3u = 1;
+    }
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {
         printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
@@ -1485,6 +1495,19 @@ int main(int argc, const char **argv, char **env) {
             printf_log(LOG_NONE, "Cannot patch the game\n");
     }
     #endif
+    if(box86_sc3u) {
+        uint32_t *patch1 = (uint32_t*)0x8400684;
+        uint32_t *patch2 = (uint32_t*)0x8406644;
+        if(*patch1==0x57f4c483) {
+            *patch1=0x57f407eb;
+            printf_log(LOG_NONE, "Runtime patching the game\n");
+        } else if(*patch2==0x57f4c483) {
+            *patch2=0x57f407eb;
+            printf_log(LOG_NONE, "Runtime patching the game\n");
+        } else
+
+            printf_log(LOG_NONE, "Cannot patch the game\n");
+    }
     // init x86 emu
     x86emu_t *emu = NewX86Emu(my_context, my_context->ep, (uintptr_t)my_context->stack, my_context->stacksz, 0);
     // stack setup is much more complicated then just that!
