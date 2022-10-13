@@ -15,6 +15,7 @@ typedef void (*vFv_t)(void);
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef void (*vFpi_t)(void*, int32_t);
+typedef int32_t (*iFup_t)(uint32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -47,6 +48,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_rwlock_wrlock, iFp_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
+	GO(pthread_join, iFup_t) \
 	GO(pthread_attr_setscope, iFpi_t) \
 	GO(pthread_kill, iFpi_t) \
 	GO(pthread_kill@GLIBC_2.0, iFpi_t) \

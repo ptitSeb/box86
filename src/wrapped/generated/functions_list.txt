@@ -3257,6 +3257,8 @@ wrappedlibpthread:
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore
+- iFup:
+  - pthread_join
 - iFpi:
   - pthread_attr_setscope
   - pthread_kill

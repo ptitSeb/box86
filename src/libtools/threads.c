@@ -722,9 +722,16 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 EXPORT int my_pthread_kill_old(x86emu_t* emu, void* thread, int sig)
 {
     // check for old "is everything ok?"
-    if((thread==NULL) && (sig==0))
-        return real_phtread_kill_old(pthread_self(), 0);
+	if(!thread)
+		thread = (void*)pthread_self();
     return real_phtread_kill_old((pthread_t)thread, sig);
+}
+
+EXPORT int my_pthread_join(x86emu_t* emu, void* thread, void** ret)
+{
+	if(!thread)
+		return ESRCH;
+	return pthread_join((pthread_t)thread, ret);
 }
 
 //EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)

@@ -91,7 +91,7 @@ GO(pthread_getspecific, pFu)
 GOM(pthread_getname_np, iFEppu)  //not present on Pandora
 GOM(__pthread_initialize, vFv)  //%noE doesn't exist anymore...
 // __pthread_initialize_minimal
-GO(pthread_join, iFup)
+GOM(pthread_join, iFEup)
 GOM(__pthread_key_create, iFEpp)
 GOM(pthread_key_create, iFEpp)
 GO(pthread_key_delete, iFu)
