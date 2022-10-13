@@ -206,9 +206,15 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             }
         head->multiblock_n = n; // might be less in fact
         for (int i=0; i<head->multiblock_n; ++i) {
-            
-            printf_dump(log_level, "Allocating 0x%x memory %p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
-            void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
+
+            uintptr_t sz = head->multiblock_size[i];
+            if(my_context->elfsize==1) {
+                if(head->multiblock_n==1)
+                    head->reserve = 2*1024*1024;   // reserve 2Mb after bss
+                sz+=head->reserve;
+            }
+            printf_dump(log_level, "Allocating 0x%x memory %p for Elf \"%s\"\n", sz, (void*)head->multiblock_offs[i], head->name);
+            void* p = mmap((void*)head->multiblock_offs[i], sz
                 , PROT_READ | PROT_WRITE | PROT_EXEC
                 , MAP_PRIVATE | MAP_ANONYMOUS /*| ((wine_preloaded)?MAP_FIXED:0)*/
                 , -1, 0);
@@ -276,8 +282,11 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 void FreeElfMemory(elfheader_t* head)
 {
     if(head->multiblock_n) {
-        for(int i=0; i<head->multiblock_n; ++i)
-            munmap(head->multiblock[i], head->multiblock_size[i]);
+        if(head->multiblock_n==1)
+            munmap(head->multiblock[0], head->multiblock_size[0]+head->reserve);
+        else
+            for(int i=0; i<head->multiblock_n; ++i)
+                munmap(head->multiblock[i], head->multiblock_size[i]);
         free(head->multiblock);
         free(head->multiblock_size);
         free(head->multiblock_offs);
@@ -1267,14 +1276,15 @@ void RefreshElfTLS(elfheader_t* h)
 {
     if(h->tlsfilesize) {
         char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
-        printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
+        printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%x\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
         tlsdatasize_t* ptr;
-        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL)
+        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL) {
             // refresh in tlsdata too
             dest = (char*)(ptr->data+h->tlsbase);
-            printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
+            printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%x\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
             memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
+        }
     }
 }
 
@@ -1525,7 +1535,7 @@ void* ElfGetBrk(elfheader_t* h)
 {
     if(!h)
         return NULL;
-    return (void*)(h->bss+h->bsssz);
+    return (void*)(h->bss+h->delta+h->bsssz);
 }
 
 void* ElfSetBrk(void* newbrk)
@@ -1535,11 +1545,11 @@ void* ElfSetBrk(void* newbrk)
     if(!my_context->elfsize)
         return NULL;
     elfheader_t* h = my_context->elfs[0];
-    void* ret = my_context->brk;
+    void* ret = my_context->brk + my_context->brksz;
     if(!newbrk)
         return ret;
     // compute the added size
-    intptr_t added = (intptr_t)newbrk - (intptr_t)ret;
+    intptr_t added = (intptr_t)newbrk - (intptr_t)my_context->brk;
     if(added<=0) // cannot remove bss
         return ret;
     //check if elf is 1 big memory and splitted
@@ -1547,15 +1557,22 @@ void* ElfSetBrk(void* newbrk)
         // meh
         printf_log(LOG_NONE, "Error, using brk on multi-part memory elf is not allowed for now");
     } else {
-        void* newmem = mremap(h->memory, h->memsz+my_context->brksz, h->memsz+added, 0);
+        printf_log(LOG_DEBUG, "brk change, start=%p with reserve=0x%x, was 0x%x long, will be 0x%x now => %p\n", my_context->brk, h->reserve, my_context->brksz, added, my_context->brk+added);
+        if(added>0 && added<h->reserve) {
+            my_context->brksz = added;
+            return newbrk;
+        }
+        void* newmem = mremap(h->memory, h->memsz+h->reserve+my_context->brksz, h->memsz+h->reserve+added, 0);
         if(newmem!=(void*)-1) {
             if(added>my_context->brksz)
                 setProtection((uintptr_t)my_context->brk + my_context->brksz, added-my_context->brksz, PROT_READ|PROT_WRITE);
             else
                 freeProtection((uintptr_t)my_context->brk + added, my_context->brksz - added);
+            my_context->brksz = added;
+            ret = my_context->brk + added;
+        } else {
+            printf_log(LOG_DEBUG, "failed to remap\n");
         }
-        ret = newmem;
-        my_context->brksz = added;
     }
     return ret;
 }
@@ -1724,7 +1741,7 @@ void CreateMemorymapFile(box86context_t* context, int fd)
     // create stack entry
     sprintf(buff, "%08x-%08x %c%c%c%c %08x %02x:%02x %ld %s\n", 
         (uintptr_t)context->stack, (uintptr_t)context->stack+context->stacksz,
-        'r','w','-','p', 0, 0, 0, 0, "[stack]");
+        'r','w','-','p', 0, 0, 0, 0L, "[stack]");
     dummy = write(fd, buff, strlen(buff));
 }
 
@@ -1746,8 +1763,8 @@ int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* dat
 
     for(int j = 0; j<info->dlpi_phnum; ++j) {
         if (info->dlpi_phdr[j].p_type == PT_DYNAMIC) {
-            ElfW(Sym)* sym = NULL;
-            ElfW(Word) sym_cnt = 0;
+            //ElfW(Sym)* sym = NULL;
+            //ElfW(Word) sym_cnt = 0;
             ElfW(Verdef)* verdef = NULL;
             ElfW(Word) verdef_cnt = 0;
             char *strtab = NULL;

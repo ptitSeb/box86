@@ -73,6 +73,7 @@ struct elfheader_s {
     uintptr_t   vaddr;
     int         align;
     uint32_t    memsz;
+    uint32_t    reserve;
     uint32_t    stacksz;
     int         stackalign;
     uintptr_t   tlsaddr;
