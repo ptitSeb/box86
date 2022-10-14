@@ -12,6 +12,16 @@ sudo apt update && sudo apt install box86 -y
 
 Alternatively, you can generate your own package using the [instructions below](https://github.com/ptitSeb/box86/blob/master/docs/COMPILE.md#debian-packaging). 
 
+#### Repository mirror for CN Users
+Users from China can use [@shenmo]([https://github.com/Itai-Nelken](https://www.gitlink.org.cn/shenmo7192))'s mirror repository to install precompiled box86 debs. The mirror updates daily.
+
+```
+sudo wget https://code.gitlink.org.cn/shenmo7192/weekly-box86-debs/raw/branch/main/debian/box86-CN.list -O /etc/apt/sources.list.d/box86.list
+wget -qO- https://code.gitlink.org.cn/shenmo7192/weekly-box86-debs/raw/branch/main/debian/KEY.gpg | sudo apt-key add -
+sudo apt update && sudo apt install box86 -y
+```
+
+
 #### for Pandora
 
  `mkdir build; cd build; cmake .. -DPANDORA=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make`
