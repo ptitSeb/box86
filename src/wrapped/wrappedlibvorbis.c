@@ -221,12 +221,10 @@ EXPORT void* my_vorbis_window(x86emu_t *emu, void* v, int W)
 #endif  //!NOALIGN
 
 #define CUSTOM_INIT \
-    box86->vorbis = lib; \
     getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMy(); \
-    lib->context->vorbis = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

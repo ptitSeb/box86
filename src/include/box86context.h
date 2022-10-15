@@ -137,22 +137,16 @@ typedef struct box86context_s {
     pthread_mutex_t     mutex_bridge;
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
-    library_t           *sdl1lib;       // shortcut to SDL1 library (if loaded)
-    void*               sdl1allocrw;
-    void*               sdl1freerw;
     library_t           *sdl1mixerlib;
     library_t           *sdl2lib;       // shortcut to SDL2 library (if loaded)
-    void*               sdl2allocrw;
-    void*               sdl2freerw;
     library_t           *sdl2mixerlib;
-    library_t           *x11lib;
-    library_t           *zlib;
-    library_t           *vorbisfile;
-    library_t           *vorbis;
-    library_t           *asound;
-    library_t           *pulse;
-    library_t           *d3dadapter9;
+
     linkmap_t           *linkmap;
+
+    void*               sdl1allocrw;    // AllocRW/FreeRW functions from SDL1
+    void*               sdl1freerw;
+    void*               sdl2allocrw;    // AllocRW/FreeRW functions from SDL2
+    void*               sdl2freerw;
 
     int                 deferedInit;
     elfheader_t         **deferedInitList;

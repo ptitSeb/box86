@@ -816,7 +816,7 @@ static void* my_io_new(void* api, int fd, int events, void* cb, void *userdata)
         return ((pFpiipp_t)fnc)(api, fd, events, cb, userdata);
     }
 
-    bridge_t* bridge = my_context->pulse->w.bridge;
+    bridge_t* bridge = my_lib->w.bridge;
     if(cb)
         b = AddCheckBridge(bridge, vFppiip, cb, 0, NULL);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
@@ -847,7 +847,7 @@ static void my_io_set_destroy(void* e, void* cb)
     if(fnc)
         return ((vFpp_t)fnc)(e, cb);
 
-    bridge_t* bridge = my_context->pulse->w.bridge;
+    bridge_t* bridge = my_lib->w.bridge;
     uintptr_t b = 0;
     if(cb) {
         b = CheckBridged(bridge, cb);
@@ -868,7 +868,7 @@ static void* my_time_new(void* api, void* tv, void* cb, void* data)
     }
 
     // need to bridge the callback!
-    bridge_t* bridge = my_context->pulse->w.bridge;
+    bridge_t* bridge = my_lib->w.bridge;
     if(cb)
         b = AddCheckBridge(bridge, vFpppp, cb, 0, NULL);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
@@ -899,7 +899,7 @@ static void my_time_set_destroy(void* e, void* cb)
     if(fnc)
         return ((vFpp_t)fnc)(e, cb);
 
-    bridge_t* bridge = my_context->pulse->w.bridge;
+    bridge_t* bridge = my_lib->w.bridge;
     uintptr_t b = 0;
     if(cb)
             b = AddCheckBridge(bridge, vFppp, cb, 0, NULL);
@@ -917,7 +917,7 @@ static void* my_defer_new(void* api, void* cb, void* data)
     }
 
     // need to bridge the callback!
-    bridge_t* bridge = my_context->pulse->w.bridge;
+    bridge_t* bridge = my_lib->w.bridge;
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
@@ -951,7 +951,7 @@ static void my_defer_set_destroy(void* e, void* cb)
     if(fnc)
         return ((vFpp_t)fnc)(e, cb);
 
-    bridge_t* bridge = my_context->pulse->w.bridge;
+    bridge_t* bridge = my_lib->w.bridge;
     uintptr_t b = 0;
     if(cb)
         b = AddCheckBridge(bridge, vFppp, cb, 0, NULL);
@@ -1261,8 +1261,6 @@ EXPORT void my_pa_stream_set_read_callback(x86emu_t* emu, void* stream, void* cb
 
 EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nbytes, void* cb, int64_t offset, int seek)
 {
-    if(!emu->context->pulse)
-        return 0;
     if(!my)
         return 0;
     return my->pa_stream_write(stream, d, nbytes, findFreeFct(cb), offset, seek);
@@ -1480,11 +1478,9 @@ EXPORT void* my_pa_context_get_source_output_info(x86emu_t* emu, void* c, uint32
 
 #define CUSTOM_INIT     \
     getMy(lib);         \
-    box86->pulse = lib; \
 
 
 #define CUSTOM_FINI \
-    lib->context->pulse = NULL;     \
     freeMy();
 
 #include "wrappedlib_init.h"

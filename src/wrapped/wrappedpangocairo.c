@@ -67,7 +67,6 @@ static void* find_ShapeRenderer_Fct(void* fct)
 static void* reverse_ShapeRenderer_Fct(void* fct)
 {
     if(!fct) return fct;
-    library_t* my_lib = my_context->sdl1lib;
     if(CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
     #define GO(A) if(my_ShapeRenderer_##A == fct) return (void*)my_ShapeRenderer_fct_##A;

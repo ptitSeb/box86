@@ -131,11 +131,9 @@ EXPORT int my_deflateInit2_(x86emu_t* emu, void* str, int level, int method, int
 
 
 #define CUSTOM_INIT \
-    box86->zlib = lib; \
     getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMy(); \
-    ((box86context_t*)(lib->context))->zlib = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

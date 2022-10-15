@@ -410,11 +410,9 @@ EXPORT void* my_D3DAdapter9GetProc(x86emu_t* emu, void *ptr)
 }
 
 #define CUSTOM_INIT \
-    box86->d3dadapter9 = lib; \
     getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMy(); \
-    ((box86context_t*)(lib->context))->d3dadapter9 = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"

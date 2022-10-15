@@ -205,8 +205,6 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
                 return; // non blocker...
             }
             printf_log(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
-            lib->w.box86lib = context->box86lib;
-            lib->context = context;
             lib->fini = wrappedlibs[i].fini;
             lib->get = wrappedlibs[i].get;
             lib->getnoweak = wrappedlibs[i].getnoweak;
@@ -362,7 +360,6 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     else
         lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
-    lib->context = context;
     lib->type = LIB_UNNKNOW;
     printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box86_nopulse) {
@@ -418,7 +415,7 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x86emu_t* emu)
 {
     lib->active = 1;
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = lib->context->elfs[lib->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
         // add symbols
         AddSymbols(maplib, lib->n.mapsymbols, lib->n.weaksymbols, lib->n.localsymbols, elf_header);
     }
@@ -463,15 +460,15 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
 {
     lib->active = 1;
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = lib->context->elfs[lib->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
         // reload image in memory and re-run the mapping
         char libname[MAX_PATH];
         strcpy(libname, lib->path);
         int found = FileExist(libname, IS_FILE);
         if(!found && !strchr(lib->path, '/'))
-            for(int i=0; i<lib->context->box86_ld_lib.size; ++i)
+            for(int i=0; i<my_context->box86_ld_lib.size; ++i)
             {
-                strcpy(libname, lib->context->box86_ld_lib.paths[i]);
+                strcpy(libname, my_context->box86_ld_lib.paths[i]);
                 strcat(libname, lib->path);
                 if(FileExist(libname, IS_FILE))
                     break;
@@ -485,18 +482,18 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
             printf_log(LOG_NONE, "Error: cannot open file to re-load elf %s (errno=%d/%s)\n", libname, errno, strerror(errno));
             return 1;   // failed to reload...
         }
-        if(ReloadElfMemory(f, lib->context, elf_header)) {
+        if(ReloadElfMemory(f, my_context, elf_header)) {
             printf_log(LOG_NONE, "Error: re-loading in memory elf %s\n", libname);
             fclose(f);
             return 1;
         }
         // can close the file now
         fclose(f);
-        if(RelocateElf(lib->context->maplib, lib->maplib, 0, elf_header)) {
+        if(RelocateElf(my_context->maplib, lib->maplib, 0, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(lib->context->maplib, lib->maplib, 0, elf_header);
+        RelocateElfPlt(my_context->maplib, lib->maplib, 0, elf_header);
         // init (will use PltRelocator... because some other libs are not yet resolved)
         RunElfInit(elf_header, emu);
     }
@@ -509,7 +506,7 @@ void InactiveLibrary(library_t* lib)
     #ifdef DYNAREC
     // free Dynablocks associated with this lib
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = lib->context->elfs[lib->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
         cleanDBFromAddressRange((uintptr_t)GetBaseAddress(elf_header), GetBaseSize(elf_header), 1);
     }
     #endif
@@ -521,7 +518,7 @@ void Free1Library(library_t **lib, x86emu_t* emu)
     printf_log(LOG_DEBUG, "Freeing %s\n", (*lib)->name);
 
     if((*lib)->type==LIB_EMULATED && emu) {
-        elfheader_t *elf_header = (*lib)->context->elfs[(*lib)->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[(*lib)->n.elf_index];
         RunElfFini(elf_header, emu);
     }
 
@@ -719,7 +716,7 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
         else
             strcpy(buff, "my_");
         strcat(buff, name);
-        symbol = dlsym(lib->w.box86lib, buff);
+        symbol = dlsym(my_context->box86lib, buff);
         if(!symbol)
             printf_log(LOG_NONE, "Warning, data %s not found\n", buff);
         if(symbol) {
@@ -744,11 +741,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         else
             strcpy(buff, "my_");
         strcat(buff, name);
-        symbol = dlsym(lib->w.box86lib, buff);
+        symbol = dlsym(my_context->box86lib, buff);
         if(!symbol) {
             printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
         } else 
-            AddOffsetSymbol(lib->context->maplib, symbol, name);
+            AddOffsetSymbol(my_context->maplib, symbol, name);
         *addr = AddBridge(lib->w.bridge, kh_value(lib->w.mysymbolmap, k), symbol, 0, name);
         *size = sizeof(void*);
         return 1;
@@ -762,11 +759,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         else
             strcpy(buff, "my_");
         strcat(buff, name);
-        symbol = dlsym(lib->w.box86lib, buff);
+        symbol = dlsym(my_context->box86lib, buff);
         if(!symbol) {
             printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
         } else 
-            AddOffsetSymbol(lib->context->maplib, symbol, name);
+            AddOffsetSymbol(my_context->maplib, symbol, name);
         *addr = AddBridge(lib->w.bridge, kh_value(lib->w.stsymbolmap, k), symbol, 4, name);    // all of this for this little "4"
         *size = sizeof(void*);
         return 1;
@@ -793,7 +790,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
             return 0;
         } else 
-            AddOffsetSymbol(lib->context->maplib, symbol, name);
+            AddOffsetSymbol(my_context->maplib, symbol, name);
         *addr = AddBridge(lib->w.bridge, kh_value(lib->w.symbolmap, k), symbol, 0, name);
         *size = sizeof(void*);
         return 1;
@@ -807,11 +804,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             else
                 strcpy(buff, "my_");
             strcat(buff, name);
-            symbol = dlsym(lib->w.box86lib, buff);
+            symbol = dlsym(my_context->box86lib, buff);
             if(!symbol) {
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
             } else 
-                AddOffsetSymbol(lib->context->maplib, symbol, name);
+                AddOffsetSymbol(my_context->maplib, symbol, name);
             *addr = AddBridge(lib->w.bridge, kh_value(lib->w.wmysymbolmap, k), symbol, 0, name);
             *size = sizeof(void*);
             return 1;
@@ -824,11 +821,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             else
                 strcpy(buff, "my_");
             strcat(buff, name);
-            symbol = dlsym(lib->w.box86lib, buff);
+            symbol = dlsym(my_context->box86lib, buff);
             if(!symbol) {
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
             } else 
-                AddOffsetSymbol(lib->context->maplib, symbol, name);
+                AddOffsetSymbol(my_context->maplib, symbol, name);
             *addr = AddBridge(lib->w.bridge, kh_value(lib->w.wstsymbolmap, k), symbol, 4, name); // all of this for this little "4"
             *size = sizeof(void*);
             return 1;
@@ -854,7 +851,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                 return 0;
             } else 
-                AddOffsetSymbol(lib->context->maplib, symbol, name);
+                AddOffsetSymbol(my_context->maplib, symbol, name);
             *addr = AddBridge(lib->w.bridge, kh_value(lib->w.wsymbolmap, k), symbol, 0, name);
             *size = sizeof(void*);
             return 1;
@@ -874,7 +871,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
                 return 0;
             } else 
-                AddOffsetSymbol(lib->context->maplib, symbol, name);
+                AddOffsetSymbol(my_context->maplib, symbol, name);
             *addr = AddBridge(lib->w.bridge, kh_value(lib->w.symbol2map, k).w, symbol, 0, name);
             *size = sizeof(void*);
             return 1;

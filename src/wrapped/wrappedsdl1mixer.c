@@ -219,7 +219,7 @@ EXPORT int my_Mix_UnregisterEffect(x86emu_t* emu, int channel, void* f)
 
 #define CUSTOM_FINI \
     freeMy(); \
-    ((box86context_t*)(lib->context))->sdl1mixerlib = NULL;
+    my_context->sdl1mixerlib = NULL;
 
 #include "wrappedlib_init.h"
 

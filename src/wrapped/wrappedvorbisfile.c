@@ -438,12 +438,10 @@ EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, v
 #endif
 
 #define CUSTOM_INIT \
-    box86->vorbisfile = lib;\
     getMy(lib);
 
 #define CUSTOM_FINI \
-    freeMy();   \
-    lib->context->vorbisfile = NULL;
+    freeMy();
 
 #include "wrappedlib_init.h"
 

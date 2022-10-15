@@ -35,7 +35,6 @@ typedef struct wlib_s {
     bridge_t        *bridge;
     void*           lib;        // dlopen result
     void*           priv;       // actual private
-    void*           box86lib;   // ref to the dlopen on box86 itself from context
     char*           altprefix;  // if function names are mangled..
     int             needed;
     char**          neededlibs;
@@ -74,7 +73,6 @@ typedef struct library_s {
         wlib_t  w;     
         nlib_t  n;
     };  // private lib data
-    box86context_t      *context;   // parent context
     kh_bridgemap_t      *bridgemap;
     needed_libs_t       needed;
     needed_libs_t       dependedby;
