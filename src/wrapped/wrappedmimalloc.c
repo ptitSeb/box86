@@ -20,7 +20,7 @@ const char* mimallocName = "libmimalloc.so";
 
 // this preinit basically open "box86" as dlopen (actually not using libmimalloc in fact)
 #define PRE_INIT\
-    lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     if(0)
 
 #include "wrappedlib_init.h"

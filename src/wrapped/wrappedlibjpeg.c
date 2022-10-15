@@ -305,8 +305,7 @@ EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
 {
     jpeg_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
-    wrapErrorMgr(my_lib->priv.w.bridge, ret);
-trace_end = 0;
+    wrapErrorMgr(my_lib->w.bridge, ret);
 
     return ret;
 }
@@ -314,15 +313,15 @@ trace_end = 0;
 #define WRAP(T, A)          \
     is_jmpbuf = 1;          \
     my_jpegcb_emu = emu;    \
-    unwrapErrorMgr(my_lib->priv.w.bridge, cinfo->err);  \
+    unwrapErrorMgr(my_lib->w.bridge, cinfo->err);  \
     if(setjmp(&jmpbuf)) {   \
-        wrapErrorMgr(my_lib->priv.w.bridge, cinfo->err);\
+        wrapErrorMgr(my_lib->w.bridge, cinfo->err);\
         is_jmpbuf = 0;      \
         return (T)R_EAX;    \
     }                       \
     A;                      \
     is_jmpbuf = 0;          \
-    wrapErrorMgr(my_lib->priv.w.bridge, cinfo->err)
+    wrapErrorMgr(my_lib->w.bridge, cinfo->err)
 
 
 EXPORT void my_jpeg_CreateDecompress(x86emu_t* emu, jpeg_common_struct_t* cinfo, int version, unsigned long structsize)
@@ -362,7 +361,7 @@ EXPORT void my_jpeg_set_marker_processor(x86emu_t* emu, jpeg_common_struct_t* ci
 #undef WRAP
 
 #define CUSTOM_INIT \
-    my_bridge = lib->priv.w.bridge;     \
+    my_bridge = lib->w.bridge;     \
     getMy(lib);
 
 #define CUSTOM_FINI \

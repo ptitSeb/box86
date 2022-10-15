@@ -1223,7 +1223,7 @@ EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
                 errno = EINVAL;
                 return -1;
             }
-            f = (iFiip_t)dlsym(lib->priv.w.lib, "__fxstat");
+            f = (iFiip_t)dlsym(lib->w.lib, "__fxstat");
         }
 
         return f(vers, fd, buf);
@@ -1271,7 +1271,7 @@ EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
                 errno = EINVAL;
                 return -1;
             }
-            f = (iFipp_t)dlsym(lib->priv.w.lib, "__xstat");
+            f = (iFipp_t)dlsym(lib->w.lib, "__xstat");
         }
 
         return f(v, path, buf);
@@ -1303,7 +1303,7 @@ EXPORT int my___lxstat(x86emu_t* emu, int v, void* name, void* buf)
                 errno = EINVAL;
                 return -1;
             }
-            f = (iFipp_t)dlsym(lib->priv.w.lib, "__lxstat");
+            f = (iFipp_t)dlsym(lib->w.lib, "__lxstat");
         }
 
         return f(v, name, buf);
@@ -1477,7 +1477,7 @@ EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
         if(!f) {
             library_t* lib = my_lib;
             if(!lib) return NULL;
-            f = (pFp_t)dlsym(lib->priv.w.lib, "readdir");
+            f = (pFp_t)dlsym(lib->w.lib, "readdir");
         }
 
         return f(dirp);
@@ -1497,7 +1497,7 @@ EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** resul
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir64_r");
+            f = (iFppp_t)dlsym(lib->w.lib, "readdir64_r");
         }
 
         int r = f(dirp, &d64, &dp64);
@@ -1533,7 +1533,7 @@ EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** resul
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir_r");
+            f = (iFppp_t)dlsym(lib->w.lib, "readdir_r");
         }
 
         return f(dirp, entry, result);
@@ -1914,7 +1914,7 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "mkstemps64");
+    void* f = dlsym(lib->w.lib, "mkstemps64");
     if(f)
         return ((iFpi_t)f)(template, suffixlen);
     // implement own version...
@@ -1937,7 +1937,7 @@ EXPORT int32_t my_ftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd)
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFppi_t)dlsym(lib->priv.w.lib, "ftw");
+        f = (iFppi_t)dlsym(lib->w.lib, "ftw");
     }
 
     return f(pathname, findftwFct(B), nopenfd);
@@ -1949,7 +1949,7 @@ EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, 
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFppii_t)dlsym(lib->priv.w.lib, "nftw");
+        f = (iFppii_t)dlsym(lib->w.lib, "nftw");
     }
 
     return f(pathname, findnftwFct(B), nopenfd, flags);
@@ -1994,7 +1994,7 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFpipp_t)dlsym(lib->priv.w.lib, "glob");
+        f = (iFpipp_t)dlsym(lib->w.lib, "glob");
     }
 
     return f(pat, flags, findgloberrFct(errfnc), pglob);
@@ -2018,7 +2018,7 @@ EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void*
     if(!f) {
         library_t* lib = my_lib;
         if(!lib) return 0;
-        f = (iFpppp_t)dlsym(lib->priv.w.lib, "scandir");
+        f = (iFpppp_t)dlsym(lib->w.lib, "scandir");
     }
 
     return f(dir, namelist, findfilter_dirFct(sel), findcompare_dirFct(comp));
@@ -2235,7 +2235,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
     // not always implemented on old linux version...
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getrandom");
+    void* f = dlsym(lib->w.lib, "getrandom");
     if(f)
         return ((iFpuu_t)f)(buf, buflen, flags);
     // do what should not be done, but it's better then nothing....
@@ -2251,7 +2251,7 @@ EXPORT void* my_getpwuid(x86emu_t* emu, uint32_t uid)
     void *ret = NULL;
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getpwuid");
+    void* f = dlsym(lib->w.lib, "getpwuid");
     if(f)
         ret = ((pFu_t)f)(uid);
     
@@ -2274,7 +2274,7 @@ EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vle
     // Implemented starting glibc 2.12+
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "recvmmsg");
+    void* f = dlsym(lib->w.lib, "recvmmsg");
     if(f)
         return ((iFipuup_t)f)(fd, msgvec, vlen, flags, timeout);
     // Use the syscall
@@ -2286,7 +2286,7 @@ EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t v
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "__sendmmsg");
+    void* f = dlsym(lib->w.lib, "__sendmmsg");
     if(f)
         return ((iFipuu_t)f)(fd, msgvec, vlen, flags);
     // Use the syscall
@@ -2330,7 +2330,7 @@ EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
-    iFiiV_t f = dlsym(lib->priv.w.lib, "fcntl64");
+    iFiiV_t f = dlsym(lib->w.lib, "fcntl64");
     if(b==F_SETFL)
         d1 = of_convert(d1);
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
@@ -2384,7 +2384,7 @@ EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "preadv64");
+    void* f = dlsym(lib->w.lib, "preadv64");
     if(f)
         return ((iFipiI_t)f)(fd, v, c, o);
     return syscall(__NR_preadv, fd, v, c,(uint32_t)(o&0xffffffff), (uint32_t)((o>>32)&0xffffffff));
@@ -2394,7 +2394,7 @@ EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "pwritev64");
+    void* f = dlsym(lib->w.lib, "pwritev64");
     if(f)
         return ((iFipiI_t)f)(fd, v, c, o);
     #ifdef __arm__
@@ -2409,7 +2409,7 @@ EXPORT int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t f
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "accept4");
+    void* f = dlsym(lib->w.lib, "accept4");
     if(f)
         return ((iFippi_t)f)(fd, a, l, flags);
     if(!flags)
@@ -2423,7 +2423,7 @@ EXPORT  int32_t my_fallocate64(int fd, int mode, int64_t offs, int64_t len)
     static int done = 0;
     if(!done) {
         library_t* lib = my_lib;
-        f = (iFiiII_t)dlsym(lib->priv.w.lib, "fallocate64");
+        f = (iFiiII_t)dlsym(lib->w.lib, "fallocate64");
         done = 1;
     }
     if(f)
@@ -2877,7 +2877,7 @@ EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
     // not always implemented on old linux version...
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "__libc_alloca_cutoff");
+    void* f = dlsym(lib->w.lib, "__libc_alloca_cutoff");
     if(f)
         return ((iFL_t)f)(size);
     // approximate version but it's better than nothing....
@@ -2982,7 +2982,7 @@ EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
 {
     library_t* lib = my_lib;
     if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getentropy");
+    void* f = dlsym(lib->w.lib, "getentropy");
     if(f)
         return ((iFpL_t)f)(buffer, length);
     // custom implementation
@@ -3088,7 +3088,7 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #define PRE_INIT\
     if(1)                                                           \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
 #ifdef ANDROID

@@ -48,7 +48,7 @@ EXPORT void* my__r_debug[5];
 
 #define PRE_INIT\
     if(1)                                                           \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
 #include "wrappedlib_init.h"

@@ -182,10 +182,10 @@ EXPORT void my_glProgramCallbackMESA(x86emu_t* emu, void* f, void* data)
     ProgramCallbackMESA(find_program_callback_Fct(f), data);
 }
 
-#define PRE_INIT if(libGL) {lib->priv.w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
+#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(libGL);} else
 #define CUSTOM_INIT \
-    lib->priv.w.priv = dlsym(lib->priv.w.lib, "glXGetProcAddress");             \
-    box86->glxprocaddress = lib->priv.w.priv;                                   \
+    lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress");             \
+    box86->glxprocaddress = lib->w.priv;                                   \
     setNeededLibs(lib, 1, "libdl.so.2");
 
 

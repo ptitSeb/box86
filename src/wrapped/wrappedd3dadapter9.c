@@ -214,7 +214,7 @@ GOR((r || !ppQuery), my_CreateQuery, (x86emu_t* emu, void* This, int Type, void*
 
 static void getMy(library_t* lib)
 {
-    my->D3DAdapter9GetProc = (pFp_t)dlsym(lib->priv.w.lib, "D3DAdapter9GetProc");
+    my->D3DAdapter9GetProc = (pFp_t)dlsym(lib->w.lib, "D3DAdapter9GetProc");
 }
 
 static void freeMy()

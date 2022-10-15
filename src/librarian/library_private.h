@@ -39,6 +39,17 @@ typedef struct wlib_s {
     char*           altprefix;  // if function names are mangled..
     int             needed;
     char**          neededlibs;
+    kh_symbolmap_t  *symbolmap;
+    kh_symbolmap_t  *wsymbolmap;
+    kh_symbolmap_t  *mysymbolmap;
+    kh_symbolmap_t  *wmysymbolmap;
+    kh_symbolmap_t  *stsymbolmap;
+    kh_symbolmap_t  *wstsymbolmap;
+    kh_symbol2map_t *symbol2map;
+    kh_datamap_t    *datamap;
+    kh_datamap_t    *wdatamap;
+    kh_datamap_t    *mydatamap;
+    char            *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
 } wlib_t;
 
 typedef struct nlib_s {
@@ -62,20 +73,9 @@ typedef struct library_s {
     union {
         wlib_t  w;     
         nlib_t  n;
-    }                   priv;  // private lib data
+    };  // private lib data
     box86context_t      *context;   // parent context
     kh_bridgemap_t      *bridgemap;
-    kh_symbolmap_t      *symbolmap;
-    kh_symbolmap_t      *wsymbolmap;
-    kh_symbolmap_t      *mysymbolmap;
-    kh_symbolmap_t      *wmysymbolmap;
-    kh_symbolmap_t      *stsymbolmap;
-    kh_symbolmap_t      *wstsymbolmap;
-    kh_symbol2map_t     *symbol2map;
-    kh_datamap_t        *datamap;
-    kh_datamap_t        *wdatamap;
-    kh_datamap_t        *mydatamap;
-    char                *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
     needed_libs_t       needed;
     needed_libs_t       dependedby;
     lib_t               *maplib;    // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)

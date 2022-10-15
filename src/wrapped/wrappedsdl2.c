@@ -177,12 +177,12 @@ static void* find_eventfilter_Fct(void* fct)
 static void* reverse_eventfilter_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_context->sdl2lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(my_context->sdl2lib->priv.w.bridge, fct);
+    if(CheckBridged(my_context->sdl2lib->w.bridge, fct))
+        return (void*)CheckBridged(my_context->sdl2lib->w.bridge, fct);
     #define GO(A) if(my_eventfilter_##A == fct) return (void*)my_eventfilter_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, iFpp, fct, 0, NULL);
+    return (void*)AddBridge(my_context->sdl2lib->w.bridge, iFpp, fct, 0, NULL);
 }
 
 // LogOutput
@@ -210,12 +210,12 @@ static void* find_LogOutput_Fct(void* fct)
 static void* reverse_LogOutput_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_context->sdl2lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(my_context->sdl2lib->priv.w.bridge, fct);
+    if(CheckBridged(my_context->sdl2lib->w.bridge, fct))
+        return (void*)CheckBridged(my_context->sdl2lib->w.bridge, fct);
     #define GO(A) if(my_LogOutput_##A == fct) return (void*)my_LogOutput_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_context->sdl2lib->priv.w.bridge, vFpiip, fct, 0, NULL);
+    return (void*)AddBridge(my_context->sdl2lib->w.bridge, vFpiip, fct, 0, NULL);
 }
 
 #undef SUPER
@@ -536,14 +536,14 @@ static int get_sdl_priv(x86emu_t* emu, const char *sym_str, void **w, void **f)
         else if (strcmp(#sym, sym_str) == 0) \
         { \
             *w = _w; \
-            *f = dlsym(emu->context->sdl2lib->priv.w.lib, #sym); \
+            *f = dlsym(emu->context->sdl2lib->w.lib, #sym); \
             return *f != NULL; \
         }
     #define GO2(sym, _w, sym2) \
         else if (strcmp(#sym, sym_str) == 0) \
         { \
             *w = _w; \
-            *f = dlsym(emu->context->sdl2lib->priv.w.lib, #sym2); \
+            *f = dlsym(emu->context->sdl2lib->w.lib, #sym2); \
             return *f != NULL; \
         }
     #define GOM(sym, _w) \
@@ -579,7 +579,7 @@ int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *tabl
             void *w = NULL; \
             void *f = NULL; \
             if (get_sdl_priv(emu, #sym, &w, &f)) { \
-                table[i] = AddCheckBridge(my_context->sdl2lib->priv.w.bridge, w, f, 0, #sym); \
+                table[i] = AddCheckBridge(my_context->sdl2lib->w.bridge, w, f, 0, #sym); \
             } \
             else \
                 table[i] = (uintptr_t)NULL; \
@@ -612,7 +612,7 @@ EXPORT void *my2_SDL_CreateWindow(x86emu_t* emu, const char *title, int x, int y
         if (!isdigit(force_es[0]) || (force_es[1] != '\0' && !isdigit(force_es[1]))) {
             printf_log(LOG_NONE, "Warning: ignoring malformed BOX86_FORCE_ES.\n");
         } else {
-            int (*SDL_GL_SetAttribute_p)(uint32_t, int) = dlsym(emu->context->sdl2lib->priv.w.lib, "SDL_GL_SetAttribute");
+            int (*SDL_GL_SetAttribute_p)(uint32_t, int) = dlsym(emu->context->sdl2lib->w.lib, "SDL_GL_SetAttribute");
             SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
             SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_MAJOR_VERSION, force_es[0] - '0');
             SDL_GL_SetAttribute_p(SDL_GL_CONTEXT_MINOR_VERSION, force_es[1] ? (force_es[1] - '0') : 0);
@@ -958,7 +958,7 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
         emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
 
     if(emu->context->vkprocaddress)
-        return (void*)AddCheckBridge(my_context->sdl2lib->priv.w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");
+        return (void*)AddCheckBridge(my_context->sdl2lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");
     return NULL;
 }
 

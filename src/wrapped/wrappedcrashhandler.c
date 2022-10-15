@@ -24,7 +24,7 @@ const char* crashhandlerName = "crashhandler.so";
     if(!box86_steam)                                            \
         return -1;                                              \
     if(1)                                                       \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
     else
 
 

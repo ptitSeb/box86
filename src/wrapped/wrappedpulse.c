@@ -816,7 +816,7 @@ static void* my_io_new(void* api, int fd, int events, void* cb, void *userdata)
         return ((pFpiipp_t)fnc)(api, fd, events, cb, userdata);
     }
 
-    bridge_t* bridge = my_context->pulse->priv.w.bridge;
+    bridge_t* bridge = my_context->pulse->w.bridge;
     if(cb)
         b = AddCheckBridge(bridge, vFppiip, cb, 0, NULL);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
@@ -847,7 +847,7 @@ static void my_io_set_destroy(void* e, void* cb)
     if(fnc)
         return ((vFpp_t)fnc)(e, cb);
 
-    bridge_t* bridge = my_context->pulse->priv.w.bridge;
+    bridge_t* bridge = my_context->pulse->w.bridge;
     uintptr_t b = 0;
     if(cb) {
         b = CheckBridged(bridge, cb);
@@ -868,7 +868,7 @@ static void* my_time_new(void* api, void* tv, void* cb, void* data)
     }
 
     // need to bridge the callback!
-    bridge_t* bridge = my_context->pulse->priv.w.bridge;
+    bridge_t* bridge = my_context->pulse->w.bridge;
     if(cb)
         b = AddCheckBridge(bridge, vFpppp, cb, 0, NULL);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
@@ -899,7 +899,7 @@ static void my_time_set_destroy(void* e, void* cb)
     if(fnc)
         return ((vFpp_t)fnc)(e, cb);
 
-    bridge_t* bridge = my_context->pulse->priv.w.bridge;
+    bridge_t* bridge = my_context->pulse->w.bridge;
     uintptr_t b = 0;
     if(cb)
             b = AddCheckBridge(bridge, vFppp, cb, 0, NULL);
@@ -917,7 +917,7 @@ static void* my_defer_new(void* api, void* cb, void* data)
     }
 
     // need to bridge the callback!
-    bridge_t* bridge = my_context->pulse->priv.w.bridge;
+    bridge_t* bridge = my_context->pulse->w.bridge;
     if(cb) {
         b = CheckBridged(bridge, cb);
         if(!b)
@@ -951,7 +951,7 @@ static void my_defer_set_destroy(void* e, void* cb)
     if(fnc)
         return ((vFpp_t)fnc)(e, cb);
 
-    bridge_t* bridge = my_context->pulse->priv.w.bridge;
+    bridge_t* bridge = my_context->pulse->w.bridge;
     uintptr_t b = 0;
     if(cb)
         b = AddCheckBridge(bridge, vFppp, cb, 0, NULL);
@@ -1017,7 +1017,7 @@ EXPORT void my_pa_mainloop_free(x86emu_t* emu, void* mainloop)
 EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
     my_pa_mainloop_api_t* api = my->pa_mainloop_get_api(mainloop);
-    bridgeMainloopAPI(my_lib->priv.w.bridge, api);
+    bridgeMainloopAPI(my_lib->w.bridge, api);
     return my_mainloop_ref;
 }
 
@@ -1030,7 +1030,7 @@ EXPORT void my_pa_threaded_mainloop_free(x86emu_t* emu, void* mainloop)
 EXPORT void* my_pa_threaded_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
     my_pa_mainloop_api_t* api = my->pa_threaded_mainloop_get_api(mainloop);
-    bridgeMainloopAPI(my_lib->priv.w.bridge, api);
+    bridgeMainloopAPI(my_lib->w.bridge, api);
     return my_mainloop_ref;
 }
 

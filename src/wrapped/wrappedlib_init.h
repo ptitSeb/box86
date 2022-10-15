@@ -139,16 +139,16 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     PRE_INIT
 #endif
     {
-        lib->priv.w.lib = dlopen(MAPNAME(Name), RTLD_LAZY | RTLD_GLOBAL);
-        if(!lib->priv.w.lib) {
+        lib->w.lib = dlopen(MAPNAME(Name), RTLD_LAZY | RTLD_GLOBAL);
+        if(!lib->w.lib) {
 #ifdef ALTNAME
-        lib->priv.w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
-        if(!lib->priv.w.lib)
+        lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
+        if(!lib->w.lib)
 #endif
 #ifdef ALTNAME2
             {
-            lib->priv.w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
-            if(!lib->priv.w.lib)
+            lib->w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
+            if(!lib->w.lib)
 #endif
                 return -1;
 #ifdef ALTNAME2
@@ -165,17 +165,17 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
 
     // populates maps...
 #define DOIT(mapname) \
-    cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                         \
-    for (int i = 0; i < cnt; ++i) {                                                 \
-        if (MAPNAME(mapname)[i].weak) {                                             \
-            k = kh_put(symbolmap, lib->w##mapname, MAPNAME(mapname)[i].name, &ret); \
-            kh_value(lib->w##mapname, k) = MAPNAME(mapname)[i].w;                   \
-        } else {                                                                    \
-            k = kh_put(symbolmap, lib->mapname, MAPNAME(mapname)[i].name, &ret);    \
-            kh_value(lib->mapname, k) = MAPNAME(mapname)[i].w;                      \
-        }                                                                           \
-        if (strchr(MAPNAME(mapname)[i].name, '@'))                                  \
-            AddDictionnary(box86->versym, MAPNAME(mapname)[i].name);                \
+    cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                             \
+    for (int i = 0; i < cnt; ++i) {                                                     \
+        if (MAPNAME(mapname)[i].weak) {                                                 \
+            k = kh_put(symbolmap, lib->w.w##mapname, MAPNAME(mapname)[i].name, &ret);   \
+            kh_value(lib->w.w##mapname, k) = MAPNAME(mapname)[i].w;                     \
+        } else {                                                                        \
+            k = kh_put(symbolmap, lib->w.mapname, MAPNAME(mapname)[i].name, &ret);      \
+            kh_value(lib->w.mapname, k) = MAPNAME(mapname)[i].w;                        \
+        }                                                                               \
+        if (strchr(MAPNAME(mapname)[i].name, '@'))                                      \
+            AddDictionnary(box86->versym, MAPNAME(mapname)[i].name);                    \
 	}
 	DOIT(symbolmap)
 	DOIT(mysymbolmap)
@@ -183,27 +183,27 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
 #undef DOIT
     cnt = sizeof(MAPNAME(symbol2map))/sizeof(map_onesymbol2_t);
     for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbol2map, lib->symbol2map, MAPNAME(symbol2map)[i].name, &ret);
-        kh_value(lib->symbol2map, k).name = MAPNAME(symbol2map)[i].name2;
-        kh_value(lib->symbol2map, k).w = MAPNAME(symbol2map)[i].w;
-        kh_value(lib->symbol2map, k).weak = MAPNAME(symbol2map)[i].weak;
+        k = kh_put(symbol2map, lib->w.symbol2map, MAPNAME(symbol2map)[i].name, &ret);
+        kh_value(lib->w.symbol2map, k).name = MAPNAME(symbol2map)[i].name2;
+        kh_value(lib->w.symbol2map, k).w = MAPNAME(symbol2map)[i].w;
+        kh_value(lib->w.symbol2map, k).weak = MAPNAME(symbol2map)[i].weak;
         if(strchr(MAPNAME(symbol2map)[i].name, '@'))
             AddDictionnary(box86->versym, MAPNAME(symbol2map)[i].name);
     }
     cnt = sizeof(MAPNAME(datamap))/sizeof(map_onedata_t);
     for (int i=0; i<cnt; ++i) {
         if(MAPNAME(datamap)[i].weak) {
-            k = kh_put(datamap, lib->wdatamap, MAPNAME(datamap)[i].name, &ret);
-            kh_value(lib->wdatamap, k) = MAPNAME(datamap)[i].sz;
+            k = kh_put(datamap, lib->w.wdatamap, MAPNAME(datamap)[i].name, &ret);
+            kh_value(lib->w.wdatamap, k) = MAPNAME(datamap)[i].sz;
         } else {
-            k = kh_put(datamap, lib->datamap, MAPNAME(datamap)[i].name, &ret);
-            kh_value(lib->datamap, k) = MAPNAME(datamap)[i].sz;
+            k = kh_put(datamap, lib->w.datamap, MAPNAME(datamap)[i].name, &ret);
+            kh_value(lib->w.datamap, k) = MAPNAME(datamap)[i].sz;
         }
     }
     cnt = sizeof(MAPNAME(mydatamap))/sizeof(map_onedata_t);
     for (int i=0; i<cnt; ++i) {
-        k = kh_put(datamap, lib->mydatamap, MAPNAME(mydatamap)[i].name, &ret);
-        kh_value(lib->mydatamap, k) = MAPNAME(mydatamap)[i].sz;
+        k = kh_put(datamap, lib->w.mydatamap, MAPNAME(mydatamap)[i].name, &ret);
+        kh_value(lib->w.mydatamap, k) = MAPNAME(mydatamap)[i].sz;
     }
 #ifdef CUSTOM_INIT
     CUSTOM_INIT

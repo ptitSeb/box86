@@ -10,6 +10,10 @@ typedef struct box86context_s  box86context_t;
 typedef struct x86emu_s        x86emu_t;
 typedef struct needed_libs_s   needed_libs_t;
 
+#define LIB_NATIVE      0
+#define LIB_EMULATED    1
+#define LIB_UNNKNOW     -1
+
 library_t *NewLibrary(const char* path, box86context_t* box86);
 int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x86emu_t* emu);
 int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x86emu_t* emu);

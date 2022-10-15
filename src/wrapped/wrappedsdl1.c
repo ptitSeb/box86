@@ -140,12 +140,12 @@ static void* reverse_EvtFilterFct(void* fct)
 {
     if(!fct) return fct;
     library_t* my_lib = my_context->sdl1lib;
-    if(CheckBridged(my_lib->priv.w.bridge, fct))
-        return (void*)CheckBridged(my_lib->priv.w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
     #define GO(A) if(my_EvtFilter_##A == fct) return (void*)my_EvtFilter_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->priv.w.bridge, iFp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, iFp, fct, 0, NULL);
 }
 #undef SUPER
 

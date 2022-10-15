@@ -54,7 +54,7 @@ EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
     if(need_load) {
         library_t* lib = GetLibInternal(libpthreadName);
         if(!lib) return 0;
-        f = dlsym(lib->priv.w.lib, "pthread_setname_np");
+        f = dlsym(lib->w.lib, "pthread_setname_np");
         need_load = 0;
     }
     if(f)
@@ -68,7 +68,7 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
     if(need_load) {
         library_t* lib = GetLibInternal(libpthreadName);
         if(!lib) return 0;
-        f = dlsym(lib->priv.w.lib, "pthread_getname_np");
+        f = dlsym(lib->w.lib, "pthread_getname_np");
         need_load = 0;
     }
     if(f)
@@ -130,7 +130,7 @@ EXPORT void my___pthread_initialize()
 
 #define PRE_INIT\
     if(1)                                                           \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
 #include "wrappedlib_init.h"

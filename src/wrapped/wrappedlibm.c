@@ -89,7 +89,7 @@ EXPORT R my___##N##_finite P        \
     static int check = 0;           \
     static T f = NULL;              \
     if(!check) {                    \
-        f = (T)dlsym(my_lib->priv.w.lib, "__" #N "_finite");  \
+        f = (T)dlsym(my_lib->w.lib, "__" #N "_finite");  \
         ++check;                    \
     }                               \
     if(f)                           \
@@ -140,7 +140,7 @@ F1D(log)
 
 #define PRE_INIT\
     if(1)                                                           \
-        lib->priv.w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
 #define CUSTOM_INIT     \
