@@ -51,13 +51,13 @@ typedef struct wlib_s {
     char            *altmy;      // to avoid duplicate symbol, like with SDL1/SDL2
 } wlib_t;
 
-typedef struct nlib_s {
+typedef struct elib_s {
     int             elf_index;
     int             finalized;
     kh_mapsymbols_t *mapsymbols;
     kh_mapsymbols_t *weaksymbols;
     kh_mapsymbols_t *localsymbols;
-} nlib_t;
+} elib_t;
 
 typedef struct library_s {
     char*               name;   // <> path
@@ -71,7 +71,7 @@ typedef struct library_s {
     wrappedlib_get_t    getlocal;
     union {
         wlib_t  w;     
-        nlib_t  n;
+        elib_t  e;
     };  // private lib data
     kh_bridgemap_t      *bridgemap;
     needed_libs_t       needed;

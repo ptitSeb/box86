@@ -100,8 +100,8 @@ void NativeLib_CommonInit(library_t* lib)
 
 void EmuLib_Fini(library_t* lib)
 {
-    kh_destroy(mapsymbols, lib->n.mapsymbols);
-    kh_destroy(mapsymbols, lib->n.localsymbols);
+    kh_destroy(mapsymbols, lib->e.mapsymbols);
+    kh_destroy(mapsymbols, lib->e.localsymbols);
 }
 void NativeLib_FinishFini(library_t* lib)
 {
@@ -136,14 +136,14 @@ int EmuLib_Get(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, 
 {
     // symbols...
     uintptr_t start, end;
-    if(GetSymbolStartEnd(lib->n.mapsymbols, name, &start, &end, version, vername, local))
+    if(GetSymbolStartEnd(lib->e.mapsymbols, name, &start, &end, version, vername, local))
     {
         *offs = start;
         *sz = end-start;
         return 1;
     }
     // weak symbols...
-    if(GetSymbolStartEnd(lib->n.weaksymbols, name, &start, &end, version, vername, local))
+    if(GetSymbolStartEnd(lib->e.weaksymbols, name, &start, &end, version, vername, local))
     {
         *offs = start;
         *sz = end-start;
@@ -168,7 +168,7 @@ int NativeLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, ui
 int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
     uintptr_t start, end;
-    if(GetSymbolStartEnd(lib->n.mapsymbols, name, &start, &end, version, vername, local))
+    if(GetSymbolStartEnd(lib->e.mapsymbols, name, &start, &end, version, vername, local))
     {
         *offs = start;
         *sz = end-start;
@@ -179,7 +179,7 @@ int EmuLib_GetNoWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t
 int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
 {
     uintptr_t start, end;
-    if(GetSymbolStartEnd(lib->n.localsymbols, name, &start, &end, version, vername, local))
+    if(GetSymbolStartEnd(lib->e.localsymbols, name, &start, &end, version, vername, local))
     {
         *offs = start;
         *sz = end-start;
@@ -285,10 +285,10 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         lib->get = EmuLib_Get;
         lib->getnoweak = EmuLib_GetNoWeak;
         lib->getlocal = EmuLib_GetLocal;
-        lib->n.elf_index = mainelf;
-        lib->n.mapsymbols = kh_init(mapsymbols);
-        lib->n.weaksymbols = kh_init(mapsymbols);
-        lib->n.localsymbols = kh_init(mapsymbols);
+        lib->e.elf_index = mainelf;
+        lib->e.mapsymbols = kh_init(mapsymbols);
+        lib->e.weaksymbols = kh_init(mapsymbols);
+        lib->e.localsymbols = kh_init(mapsymbols);
 
         if(lib->path && strcmp(lib->path, libname)) {
             free(lib->path);
@@ -415,9 +415,9 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x86emu_t* emu)
 {
     lib->active = 1;
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
         // add symbols
-        AddSymbols(maplib, lib->n.mapsymbols, lib->n.weaksymbols, lib->n.localsymbols, elf_header);
+        AddSymbols(maplib, lib->e.mapsymbols, lib->e.weaksymbols, lib->e.localsymbols, elf_header);
     }
     return 0;
 }
@@ -426,10 +426,10 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x86emu_t* 
     if(!lib)
         return 0;
     if(lib->type==LIB_EMULATED) {
-        if(lib->n.finalized)
+        if(lib->e.finalized)
             return 0;
-        lib->n.finalized = 1;
-        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
+        lib->e.finalized = 1;
+        elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
         // finalize relocations
         if(RelocateElf(my_context->maplib, local_maplib, bindnow, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
@@ -460,7 +460,7 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
 {
     lib->active = 1;
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
         // reload image in memory and re-run the mapping
         char libname[MAX_PATH];
         strcpy(libname, lib->path);
@@ -506,7 +506,7 @@ void InactiveLibrary(library_t* lib)
     #ifdef DYNAREC
     // free Dynablocks associated with this lib
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = my_context->elfs[lib->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
         cleanDBFromAddressRange((uintptr_t)GetBaseAddress(elf_header), GetBaseSize(elf_header), 1);
     }
     #endif
@@ -518,7 +518,7 @@ void Free1Library(library_t **lib, x86emu_t* emu)
     printf_log(LOG_DEBUG, "Freeing %s\n", (*lib)->name);
 
     if((*lib)->type==LIB_EMULATED && emu) {
-        elfheader_t *elf_header = my_context->elfs[(*lib)->n.elf_index];
+        elfheader_t *elf_header = my_context->elfs[(*lib)->e.elf_index];
         RunElfFini(elf_header, emu);
     }
 
@@ -679,7 +679,7 @@ int GetElfIndex(library_t* lib)
 {
     if(!lib || lib->type!=LIB_EMULATED)
         return -1;
-    return lib->n.elf_index;
+    return lib->e.elf_index;
 }
 
 static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size)
