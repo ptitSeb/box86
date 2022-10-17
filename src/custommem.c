@@ -32,7 +32,7 @@
 
 // init inside dynablocks.c
 KHASH_MAP_INIT_INT(dynablocks, dynablock_t*)
-static dynablocklist_t*    dynmap[DYNAMAP_SIZE];     // 4G of memory mapped by 4K block
+static dynablocklist_t*    dynmap[DYNAMAP_SIZE] = {0};     // 4G of memory mapped by 4K block
 static mmaplist_t          *mmaplist = NULL;
 static int                 mmapsize = 0;
 static int                 mmapcap = 0;
