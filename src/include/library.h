@@ -9,6 +9,7 @@ typedef struct kh_symbolmap_s  kh_symbolmap_t;
 typedef struct box86context_s  box86context_t;
 typedef struct x86emu_s        x86emu_t;
 typedef struct needed_libs_s   needed_libs_t;
+typedef struct elfheader_s     elfheader_t;
 
 #define LIB_NATIVE      0
 #define LIB_EMULATED    1
@@ -23,9 +24,9 @@ void Free1Library(library_t **lib, x86emu_t* emu);
 
 char* GetNameLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
-int GetLibSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local);
-int GetLibNoWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local);
-int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int local);
+int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int *weak, int version, const char* vername, int local);
+int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int* weak, int version, const char* vername, int local);
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int* weak, int version, const char* vername, int local);
 void fillGLProcWrapper(box86context_t* context);
 void freeGLProcWrapper(box86context_t* context);
 void fillALProcWrapper(box86context_t* context);
@@ -35,7 +36,8 @@ int GetNeededLibN(library_t* lib);
 library_t* GetNeededLib(library_t* lib, int idx);
 lib_t* GetMaplib(library_t* lib);
 
-int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. native)
-void* GetHandle(library_t* lib);    // NULL if not native
+int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. wrapped)
+elfheader_t* GetElf(library_t* lib);    // NULL if no elf (i.e. wrapped)
+void* GetHandle(library_t* lib);    // NULL if not wrapped
 
 #endif //__LIBRARY_H_

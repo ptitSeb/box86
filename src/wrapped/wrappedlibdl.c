@@ -68,7 +68,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     // TODO, handling special values for filename, like RTLD_SELF?
     // TODO, handling flags?
     library_t *lib = NULL;
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     int dlopened = 0;
     int is_local = (flag&0x100)?0:1;  // if not global, then local, and that means symbols are not put in the global "pot" for other libs
     CLEARERR
@@ -132,7 +132,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
         int old_missing = allow_missing_libs;
         if(flag&0x01)   // RTLD_LAZY
             allow_missing_libs = 1;
-        if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, emu->context, emu)) {
+        if(AddNeededLib(NULL, NULL, NULL, is_local, bindnow, libs, 1, my_context, emu)) {
             allow_missing_libs = old_missing;
             printf_dlsym(strchr(rfilename,'/')?LOG_DEBUG:LOG_INFO, "Warning: Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             if(!dl->last_error)
@@ -179,7 +179,7 @@ void* my_dlmopen(x86emu_t* emu, void* lmid, void *filename, int flag)
 }
 char* my_dlerror(x86emu_t* emu)
 {
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     return dl->last_error;
 }
 
@@ -194,8 +194,12 @@ int recursive_dlsym_lib(kh_libs_t* collection, library_t* lib, const char* rsymb
         return 0;
     int ret;
     kh_put(libs, collection, (uintptr_t)lib, &ret);
+    // TODO: should use librarian functions instead!
+    int weak;
     // look in the library itself
-    if(lib->get(lib, rsymbol, start, end, version, vername, 1))
+    if(lib->getglobal(lib, rsymbol, start, end, &weak, version, vername, 1))
+        return 1;
+    if(lib->getweak(lib, rsymbol, start, end, &weak, version, vername, 1))
         return 1;
     // look in other libs
     int n = GetNeededLibN(lib);
@@ -218,14 +222,14 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
 }
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
-    dlprivate_t *dl = emu->context->dlprivate;
-    uintptr_t start, end;
+    dlprivate_t *dl = my_context->dlprivate;
+    uintptr_t start = 0, end = 0;
     char* rsymbol = (char*)symbol;
     CLEARERR
     printf_dlsym(LOG_DEBUG, "Call to dlsym(%p, \"%s\")%s", handle, rsymbol, dlsym_error?"":"\n");
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, NULL, -1, NULL)) {
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, NULL)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -237,8 +241,8 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
     }
     if(handle==(void*)0xFFFFFFFF) {
         // special case, look globably but no self (RTLD_NEXT)
-        elfheader_t *elf = FindElfAddress(emu->context, *(uint32_t*)R_ESP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf, -1, NULL)) {
+        elfheader_t *elf = FindElfAddress(my_context, *(uint32_t*)R_ESP); // use return address to guess "self"
+        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, -1, NULL)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -275,15 +279,9 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
             return NULL;
         }
     } else {
-        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, -1, NULL, 0)) {
+        const char* defver = GetDefaultVersion(my_context->globaldefver, rsymbol);
+        if(!defver) defver = GetDefaultVersion(my_context->weakdefver, rsymbol);
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, defver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -301,7 +299,7 @@ void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 int my_dlclose(x86emu_t* emu, void *handle)
 {
         printf_dlsym(LOG_DEBUG, "Call to dlclose(%p)\n", handle);
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     CLEARERR
     int nlib = (int)handle;
     --nlib;
@@ -324,7 +322,7 @@ int my_dlclose(x86emu_t* emu, void *handle)
         int idx = GetElfIndex(dl->libs[nlib]);
         if(idx!=-1) {
             printf_dlsym(LOG_DEBUG, "dlclose: Call to Fini for %p\n", handle);
-            RunElfFini(emu->context->elfs[idx], emu);
+            RunElfFini(my_context->elfs[idx], emu);
             InactiveLibrary(dl->libs[nlib]);
         }
     }
@@ -333,7 +331,7 @@ int my_dlclose(x86emu_t* emu, void *handle)
 int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 {
     //int dladdr(void *addr, Dl_info *info);
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     CLEARERR
     Dl_info *info = (Dl_info*)i;
     printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr/dladdr1(%p, %p, %p, %d)\n", addr, info, extra_info, flags);
@@ -342,7 +340,7 @@ int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     library_t* lib = NULL;
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
-    info->dli_sname = FindSymbolName(emu->context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase, &lib);
+    info->dli_sname = FindSymbolName(my_context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase, &lib);
     #ifndef RTLD_DL_SYMENT
     #define RTLD_DL_SYMENT 1
     #endif
@@ -364,7 +362,7 @@ int my_dladdr(x86emu_t* emu, void *addr, void *i)
 }
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
 {
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     int version = (vername)?2:-1;
     uintptr_t start, end;
     char* rsymbol = (char*)symbol;
@@ -372,7 +370,7 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
     printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", dlsym_error?"":"\n");
     if(handle==NULL) {
         // special case, look globably
-        if(GetGlobalSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, NULL, version, vername)) {
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, version, vername)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -384,8 +382,8 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
     }
     if(handle==(void*)0xFFFFFFFF) {
         // special case, look globably but no self (RTLD_NEXT)
-        elfheader_t *elf = FindElfAddress(emu->context, *(uint32_t*)R_ESP); // use return address to guess "self"
-        if(GetNoSelfSymbolStartEnd(emu->context->maplib, rsymbol, &start, &end, elf, version, vername)) {
+        elfheader_t *elf = FindElfAddress(my_context, *(uint32_t*)R_ESP); // use return address to guess "self"
+        if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, version, vername)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -422,15 +420,9 @@ void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
         }
     } else {
         // still usefull?
-        if(GetSymbolStartEnd(GetLocalSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        if(GetSymbolStartEnd(GetWeakSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
-            printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
-            return (void*)start;
-        }
-        if(GetSymbolStartEnd(GetMapSymbol(emu->context->maplib), rsymbol, &start, &end, version, vername, 1)) {
+        const char* defver = GetDefaultVersion(my_context->globaldefver, rsymbol);
+        if(!defver) defver = GetDefaultVersion(my_context->weakdefver, rsymbol);
+        if(GetGlobalSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, NULL, -1, defver)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
         }
@@ -454,7 +446,7 @@ typedef struct link_map_s {
 int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info)
 {
         printf_dlsym(LOG_DEBUG, "Call to dlinfo(%p, %d, %p)\n", handle, request, info);
-    dlprivate_t *dl = emu->context->dlprivate;
+    dlprivate_t *dl = my_context->dlprivate;
     CLEARERR
     int nlib = (int)handle;
     --nlib;

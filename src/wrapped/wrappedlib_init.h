@@ -2,6 +2,8 @@
 #error Meh
 #endif
 
+#include "librarian/library_inner.h"
+
 #define FUNC3(M,N) wrapped##M##N
 #define FUNC2(M,N) FUNC3(M,N)
 #define FUNC(N) FUNC2(LIBNAME,N)
@@ -130,7 +132,6 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef DOIT
 #undef _DOIT
 
-void NativeLib_CommonInit(library_t* lib);
 int FUNC(_init)(library_t* lib, box86context_t* box86)
 {
 // Init first
@@ -212,51 +213,10 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
     return 0;
 }
 
-void NativeLib_FinishFini(library_t* lib);
 void FUNC(_fini)(library_t* lib)
 {
 #ifdef CUSTOM_FINI
     CUSTOM_FINI
 #endif
     return NativeLib_FinishFini(lib);
-}
-
-int NativeLib_defget(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
-int FUNC(_get)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
-{
-#ifdef CUSTOM_FAIL
-    uintptr_t addr = 0;
-    uint32_t size = 0;
-    void* symbol = NULL;
-    if (!getSymbolInMaps(lib, name, 0, &addr, &size, version, vername, local)) {
-        CUSTOM_FAIL
-    }
-    if(!addr && !size)
-        return 0;
-    *offs = addr;
-    *sz = size;
-    return 1;
-#else
-    return NativeLib_defget(lib, name, offs, sz, version, vername, local);
-#endif
-}
-
-int NativeLib_defgetnoweak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
-int FUNC(_getnoweak)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local)
-{
-#ifdef CUSTOM_FAIL
-    uintptr_t addr = 0;
-    uint32_t size = 0;
-    void* symbol = NULL;
-    if (!getSymbolInMaps(lib, name, 1, &addr, &size, version, vername, local)) {
-        CUSTOM_FAIL
-    }
-    if(!addr && !size)
-        return 0;
-    *offs = addr;
-    *sz = size;
-    return 1;
-#else
-    return NativeLib_defgetnoweak(lib, name, offs, sz, version, vername, local);
-#endif
 }

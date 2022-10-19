@@ -7,7 +7,7 @@ typedef struct box86context_s  box86context_t;
 
 typedef int (*wrappedlib_init_t)(library_t * lib, box86context_t* box86);  // 0 = success
 typedef void (*wrappedlib_fini_t)(library_t * lib);
-typedef int (*wrappedlib_get_t)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int version, const char* vername, int local);
+typedef int (*wrappedlib_get_t)(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int* weak, int version, const char* vername, int local);
 
 void setNeededLibs(library_t* lib, int n, ...);
 #define SETALT(A)       lib->w.altmy = strdup(#A)
@@ -17,9 +17,6 @@ typedef struct wrappedlib_s {
     const char*         name;
     wrappedlib_init_t   init;
     wrappedlib_fini_t   fini;
-    wrappedlib_get_t    get;
-    wrappedlib_get_t    getnoweak;
-    wrappedlib_get_t    getlocal;
 } wrappedlib_t;
 
 #endif //__WRAPPEDLIBS_H__

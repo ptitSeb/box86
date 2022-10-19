@@ -7,6 +7,7 @@ typedef struct dynablocklist_s dynablocklist_t;
 
 typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
+typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 
 #include <pthread.h>
 
@@ -94,6 +95,10 @@ struct elfheader_s {
 
     library_t   *lib;
     needed_libs_t *neededlibs;
+
+    kh_mapsymbols_t   *mapsymbols;
+    kh_mapsymbols_t   *weaksymbols;
+    kh_mapsymbols_t   *localsymbols;
 };
 
 #define R_386_NONE	0
