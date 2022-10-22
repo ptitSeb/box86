@@ -83,7 +83,7 @@ int NbDot(const char* name)
     return ret;
 }
 
-void NativeLib_CommonInit(library_t* lib)
+void WrappedLib_CommonInit(library_t* lib)
 {
     lib->w.bridge = NewBridge();
 // Create maps
@@ -102,7 +102,7 @@ void NativeLib_CommonInit(library_t* lib)
 void EmuLib_Fini(library_t* lib)
 {
 }
-void NativeLib_FinishFini(library_t* lib)
+void WrappedLib_FinishFini(library_t* lib)
 {
     if(lib->w.lib)
         dlclose(lib->w.lib);
@@ -117,7 +117,7 @@ void NativeLib_FinishFini(library_t* lib)
     FreeBridge(&lib->w.bridge);
 }
 
-int NativeLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int *weak, int version, const char* vername, int local)
+int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int *weak, int version, const char* vername, int local)
 {
     uintptr_t addr = 0;
     uint32_t size = 0;
@@ -149,7 +149,7 @@ int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *
     }
     return 0;
 }
-int NativeLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int* weak, int version, const char* vername, int local)
+int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int* weak, int version, const char* vername, int local)
 {
     uintptr_t addr = 0;
     uint32_t size = 0;
@@ -195,12 +195,12 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
     return 0;
 }
 
-int NativeLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int* weak, int version, const char* vername, int local)
+int WrappedLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, int* weak, int version, const char* vername, int local)
 {
     return 0;
 }
 
-static void initNativeLib(library_t *lib, box86context_t* context) {
+static void initWrappedLib(library_t *lib, box86context_t* context) {
     int nb = sizeof(wrappedlibs) / sizeof(wrappedlib_t);
     for (int i=0; i<nb; ++i) {
         if(strcmp(lib->name, wrappedlibs[i].name)==0) {
@@ -213,10 +213,10 @@ static void initNativeLib(library_t *lib, box86context_t* context) {
             }
             printf_log(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
             lib->fini = wrappedlibs[i].fini;
-            lib->getglobal = NativeLib_GetGlobal;
-            lib->getweak = NativeLib_GetWeak;
-            lib->getlocal = NativeLib_GetLocal;
-            lib->type = LIB_NATIVE;
+            lib->getglobal = WrappedLib_GetGlobal;
+            lib->getweak = WrappedLib_GetWeak;
+            lib->getlocal = WrappedLib_GetLocal;
+            lib->type = LIB_WRAPPED;
             // Call librarian to load all dependant elf
             if(AddNeededLib(context->maplib, &lib->needed, lib, 0, 0, (const char**)lib->w.neededlibs, lib->w.needed, context, NULL)) {  // probably all native, not emulated, so that's fine
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
@@ -396,13 +396,13 @@ library_t *NewLibrary(const char* path, box86context_t* context)
     // And now, actually loading a library
     // look for native(wrapped) libs first
     if(!notwrapped && !precise)
-        initNativeLib(lib, context);
+        initWrappedLib(lib, context);
     // then look for a native one
     if(lib->type==LIB_UNNKNOW)
         initEmulatedLib(path, lib, context);
     // still not loaded but notwrapped indicated: use wrapped...
     if(lib->type==LIB_UNNKNOW && notwrapped && !precise)
-        initNativeLib(lib, context);
+        initWrappedLib(lib, context);
     // nothing loaded, so error...
     if(lib->type==LIB_UNNKNOW)
     {
@@ -560,7 +560,7 @@ void Free1Library(library_t **lib, x86emu_t* emu)
         );
         kh_destroy(bridgemap, (*lib)->lbridgemap);
     }
-    if((*lib)->type==LIB_NATIVE) {
+    if((*lib)->type==LIB_WRAPPED) {
         free((*lib)->w.altmy);
         if((*lib)->w.symbolmap)
             kh_destroy(symbolmap, (*lib)->w.symbolmap);
@@ -600,7 +600,7 @@ int IsSameLib(library_t* lib, const char* path)
     if(!lib) 
         return 0;
     char* name = Path2Name(path);
-    if(!strchr(path, '/') || lib->type==LIB_NATIVE || !lib->path) {
+    if(!strchr(path, '/') || lib->type==LIB_WRAPPED || !lib->path) {
         if(strcmp(name, lib->name)==0)
             ret=1;
     } else {
@@ -967,7 +967,7 @@ void* GetHandle(library_t* lib)
 {
     if(!lib)
         return NULL;
-    if(lib->type!=LIB_NATIVE)
+    if(lib->type!=LIB_WRAPPED)
         return NULL;
     return lib->w.lib;
 }
@@ -1084,7 +1084,7 @@ void free_dependedbylib(needed_libs_t* dependedby)
 
 void setNeededLibs(library_t* lib, int n, ...)
 {
-    if(lib->type!=LIB_NATIVE && lib->type!=LIB_UNNKNOW)
+    if(lib->type!=LIB_WRAPPED && lib->type!=LIB_UNNKNOW)
         return;
     lib->w.needed = n;
     lib->w.neededlibs = (char**)calloc(n, sizeof(char*));

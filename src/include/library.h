@@ -11,7 +11,7 @@ typedef struct x86emu_s        x86emu_t;
 typedef struct needed_libs_s   needed_libs_t;
 typedef struct elfheader_s     elfheader_t;
 
-#define LIB_NATIVE      0
+#define LIB_WRAPPED     0
 #define LIB_EMULATED    1
 #define LIB_UNNKNOW     -1
 

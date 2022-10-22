@@ -90,12 +90,12 @@ void FreeElfHeader(elfheader_t** head)
     free(h->SymTab);
     free(h->DynSym);
 
-    FreeElfMemory(h);
-    free(h);
-
     FreeMapSymbols(&h->mapsymbols);
     FreeMapSymbols(&h->weaksymbols);
     FreeMapSymbols(&h->localsymbols);
+
+    FreeElfMemory(h);
+    free(h);
 
     *head = NULL;
 }

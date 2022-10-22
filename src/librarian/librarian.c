@@ -424,7 +424,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         // should check weak here?
         for(int i=0; i<go; ++i) {
             if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]==self))
-                if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, &weak, end, version, vername, 1))
+                if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1))
                     if(*start)
                         return 1;
         }
@@ -596,7 +596,7 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
     }
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetElfIndex(maplib->libraries[i])!=-1 && (!self || my_context->elfs[GetElfIndex(maplib->libraries[i])]==self)) {
-            if(GetLibLocalSymbolStartEnd(maplib->libraries[i], name, start, &weak, end, version, vername, 1))
+            if(GetLibLocalSymbolStartEnd(maplib->libraries[i], name, start, end, &weak, version, vername, 1))
                 if(*start)
                     return 1;
             if(self)

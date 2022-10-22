@@ -158,7 +158,7 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
 #endif
         } else lib->path = strdup(MAPNAME(Name));
     }
-    NativeLib_CommonInit(lib);
+    WrappedLib_CommonInit(lib);
 
     khint_t k;
     int ret;
@@ -218,5 +218,5 @@ void FUNC(_fini)(library_t* lib)
 #ifdef CUSTOM_FINI
     CUSTOM_FINI
 #endif
-    return NativeLib_FinishFini(lib);
+    return WrappedLib_FinishFini(lib);
 }
