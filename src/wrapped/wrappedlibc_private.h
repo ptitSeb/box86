@@ -612,7 +612,7 @@ GOW(getutline, pFp)
 GOW(getutline_r, iFppp)
 // getutmp
 // getutmpx
-// getutxent
+GO(getutxent, pFv)
 // getutxid
 // getutxline
 // getw
@@ -1562,7 +1562,7 @@ GOW(settimeofday, iFpp)
 GOW(setuid, iFu)
 // setusershell
 GOW(setutent, vFv)
-// setutxent
+GO(setutxent, vFv)
 GOW(setvbuf, iFppiL)
 GO(setxattr, iFpppui)
 // sgetspent
