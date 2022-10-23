@@ -37,6 +37,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t wback, wb1, wb2;
     int fixedaddress;
     int lock;
+    int cacheupd;
 
     opcode = F8;
     MAYUSE(eb1);
@@ -44,6 +45,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(tmp);
     MAYUSE(j32);
     MAYUSE(lock);
+    MAYUSE(cacheupd);
 
     switch(opcode) {
         case 0x00:
@@ -704,11 +706,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x86.barrier)                  \
+                    if(!(dyn->insts[ninst].x86.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
                     Bcond(c__, i32);                                    \
                 }                                                       \
@@ -2079,11 +2081,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x86.barrier)                  \
+                    if(!(dyn->insts[ninst].x86.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
                     Bcond(c__, i32);                                    \
                 }                                                       \
@@ -2239,7 +2241,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 jump_to_next(dyn, addr+i32, 0, ninst);
             } else {
                 // inside the block
-                fpuCacheTransform(dyn, ninst, x1, x2, x3);
+                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
                 tmp = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);
                 if(tmp==-4) {
                     NOP;
@@ -2295,7 +2297,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xAF:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
-                        SETFLAGS(X_ALL, SF_MAYSET);
+                        MAYSETFLAGS();
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3, 2);
@@ -2390,7 +2393,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xA6:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
-                        SETFLAGS(X_ALL, SF_MAYSET);
+                        MAYSETFLAGS();
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
@@ -2414,7 +2418,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xA7:
                         if(opcode==0xF2) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
-                        SETFLAGS(X_ALL, SF_MAYSET);
+                        MAYSETFLAGS();
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
@@ -2479,7 +2484,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xAE:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
-                        SETFLAGS(X_ALL, SF_MAYSET);
+                        MAYSETFLAGS();
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
@@ -2503,7 +2509,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         break;
                     case 0xAF:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
-                        SETFLAGS(X_ALL, SF_MAYSET);
+                        MAYSETFLAGS();
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);

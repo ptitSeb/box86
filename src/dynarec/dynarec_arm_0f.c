@@ -66,6 +66,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int s0;
     int fixedaddress;
     int parity;
+    int cacheupd;
     MAYUSE(s0);
     MAYUSE(q1);
     MAYUSE(v2);
@@ -75,6 +76,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     MAYUSE(eb1);
     MAYUSE(wb2);
     MAYUSE(j32);
+    MAYUSE(cacheupd);
     #if STEP == 3
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
     #endif
@@ -1178,11 +1180,11 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x86.barrier)                  \
+                    if(!(dyn->insts[ninst].x86.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i32_, 0, ninst);             \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
                     Bcond(c__, i32);                                    \
                 }                                                       \

@@ -30,9 +30,11 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint32_t u32;
     uint8_t gd, ed;
     int fixedaddress;
+    int cacheupd;
 
     MAYUSE(i32);
     MAYUSE(j32);
+    MAYUSE(cacheupd);
     
     nextop = F8;
 
@@ -142,11 +144,11 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 i32 = dyn->insts[ninst].epilog-(dyn->arm_size+8);       \
                 Bcond(NO, i32);                                         \
                 if(dyn->insts[ninst].x86.jmp_insts==-1) {               \
-                    if(!dyn->insts[ninst].x86.barrier)                  \
+                    if(!(dyn->insts[ninst].x86.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
                     jump_to_next(dyn, addr+i8, 0, ninst);               \
                 } else {                                                \
-                    fpuCacheTransform(dyn, ninst, x1, x2, x3);          \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x86.jmp_insts].address-(dyn->arm_size+8);\
                     Bcond(c__, i32);                                    \
                 }                                                       \

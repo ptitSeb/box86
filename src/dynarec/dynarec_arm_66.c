@@ -943,7 +943,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
                 case 0xA7:
                     if(opcode==0xF2) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
-                    SETFLAGS(X_ALL, SF_MAYSET);
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                     B_NEXT(cEQ);    // end of loop
                     GETDIR(x3, 2);
@@ -979,7 +980,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
                 case 0xAF:
                     if(opcode==0xF2) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
-                    SETFLAGS(X_ALL, SF_MAYSET);
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                     B_NEXT(cEQ);    // end of loop
                     GETDIR(x3, 2);

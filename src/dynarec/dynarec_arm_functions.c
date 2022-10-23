@@ -491,7 +491,7 @@ int getNominalPred(dynarec_arm_t* dyn, int ninst) {
     return dyn->insts[ninst].pred[0];
 }
 
-int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
+static int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     int i2 = dyn->insts[ninst].x86.jmp_insts;
     if(i2<0)
         return 1;
@@ -753,4 +753,46 @@ int isInstClean(dynarec_arm_t* dyn, int ninst)
         if(n->neoncache[i].v)
             return 0;
     return 1;
+}
+
+static int flagsCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
+    int jmp = dyn->insts[ninst].x86.jmp_insts;
+    if(jmp<0)
+        return 0;
+    if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
+        return 0;
+/*    if((dyn->f.pending!=SF_SET)
+    && (dyn->f.pending!=SF_SET_PENDING)) {
+        if(dyn->f.pending!=SF_PENDING) {*/
+    switch (dyn->insts[jmp].f_entry.pending) {
+        case SF_UNKNOWN: return 0;
+        case SF_SET: 
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING) 
+                return 1; 
+            else 
+                return 0;
+        case SF_SET_PENDING:
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET 
+            && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
+            && dyn->insts[ninst].f_exit.pending!=SF_PENDING) 
+                return 1; 
+            else 
+                return 0;
+        case SF_PENDING:
+            if(dyn->insts[ninst].f_exit.pending!=SF_SET 
+            && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
+            && dyn->insts[ninst].f_exit.pending!=SF_PENDING)
+                return 1;
+            else
+                return (dyn->insts[jmp].f_entry.dfnone  == dyn->insts[ninst].f_exit.dfnone)?0:1;
+    }
+    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone)
+        return 1;
+    return 0;
+}
+int CacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
+    int ret = 0;
+    if (fpuCacheNeedsTransform(dyn, ninst)) ret|=1;
+    if (flagsCacheNeedsTransform(dyn, ninst)) ret|=2;
+    return ret;
 }
