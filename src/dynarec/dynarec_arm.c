@@ -311,9 +311,13 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
         need |= dyn->insts[ninst].x86.need_after;
-        if((need&X_PEND) && !(dyn->insts[ninst].x86.state_flags&SF_PENDING)) {
+        if((need&X_PEND) && (dyn->insts[ninst].x86.state_flags==SF_SUBSET)) {
             need &=~X_PEND;
             need |= X_ALL;
+        }
+        if((need&X_PEND) && (dyn->insts[ninst].x86.state_flags==SF_SET)) {
+            need &=~X_PEND;
+            need |= dyn->insts[ninst].x86.set_flags;    // SF_SET will compute all flags, it's not SUBSET!
         }
         if((need&X_PEND) && dyn->insts[ninst].x86.state_flags==SF_SUBSET_PENDING) {
             need |= X_ALL&~(dyn->insts[ninst].x86.set_flags);
