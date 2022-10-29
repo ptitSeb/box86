@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <pthread.h>
+#include <sys/mman.h>
 
 #include "custommem.h"
 #include "bridge.h"
@@ -20,8 +21,7 @@
 
 KHASH_MAP_INIT_INT(bridgemap, uintptr_t)
 
-//onebrigde is 16 bytes
-#define NBRICK  4096/16
+#define NBRICK  (4096/sizeof(onebridge_t))
 typedef struct brick_s brick_t;
 typedef struct brick_s {
     onebridge_t *b;
@@ -35,18 +35,28 @@ typedef struct bridge_s {
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
-brick_t* NewBrick()
+void* my_mmap(x86emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int offset);
+int my_munmap(x86emu_t* emu, void* addr, unsigned long length);
+brick_t* NewBrick(void* old)
 {
     brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
-    if(posix_memalign((void**)&ret->b, box86_pagesize, NBRICK*sizeof(onebridge_t)))
+    if(old)
+        old = old + NBRICK * sizeof(onebridge_t);
+    void* ptr = my_mmap(thread_get_emu(), old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if(ptr == MAP_FAILED)
+        ptr = my_mmap(thread_get_emu(), NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%x aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
+    }
+    dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%x)\n", ptr, NBRICK*sizeof(onebridge_t));
+    ret->b = ptr;
     return ret;
 }
 
 bridge_t *NewBridge()
 {
     bridge_t *b = (bridge_t*)calloc(1, sizeof(bridge_t));
-    b->head = NewBrick();
+    b->head = NewBrick(NULL);
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
 
@@ -61,13 +71,14 @@ void FreeBridge(bridge_t** bridge)
     *bridge = NULL;
 
     brick_t *b = br->head;
+    x86emu_t* emu = thread_get_emu();
     while(b) {
         brick_t *n = b->next;
         #ifdef DYNAREC
         if(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))
             unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
         #endif
-        free(b->b);
+        my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
         free(b);
         b = n;
     }
@@ -91,7 +102,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
         pthread_mutex_lock(&my_context->mutex_bridge);
         b = bridge->last;
         if(b->sz == NBRICK) {
-            b->next = NewBrick();
+            b->next = NewBrick(b->b);
             b = b->next;
             bridge->last = b;
         }
@@ -101,9 +112,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
         if(box86_dynarec) {
             prot=(getProtection((uintptr_t)&b->b[sz])&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
             if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 1);
-            else    // only add DB if there is no protection
-                addDBFromAddressRange((uintptr_t)&b->b[sz].CC, sizeof(onebridge_t));
+                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);    // don't mark blocks, it's only new one
         }
     } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
     pthread_mutex_lock(&my_context->mutex_bridge);
@@ -120,10 +129,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
     pthread_mutex_unlock(&my_context->mutex_bridge);
-    #ifdef DYNAREC
-    if(box86_dynarec)
-        protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-    #endif
+    // no need to reprotect the block, it will be protected later if needed
     #ifdef HAVE_TRACE
     if(name)
         addBridgeName(fnc, name);
