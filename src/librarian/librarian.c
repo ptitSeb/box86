@@ -410,6 +410,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     // loop done, weak symbol found
     if(weak && *start)
         return 1;
+    #if 0
     // if self defined, give it another chance with self...
     defver = GetDefaultVersion(my_context->weakdefver, name);
     if(self) {
@@ -429,6 +430,7 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                         return 1;
         }
     }
+    #endif
     // nope, not found
     return 0;
 }
