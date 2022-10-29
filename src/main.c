@@ -1334,19 +1334,21 @@ int main(int argc, const char **argv, char **env) {
     }
     if(!(my_context->fullpath = realpath(my_context->argv[0], NULL)))
         my_context->fullpath = strdup(my_context->argv[0]);
-    FILE *f = fopen64(my_context->argv[0], "rb");
+    if(getenv("BOX86_ARG0"))
+        my_context->argv[0] = strdup(getenv("BOX86_ARG0"));
+    FILE *f = fopen64(my_context->fullpath, "rb");
     if(!f) {
-        printf_log(LOG_NONE, "Error: Cannot open %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: Cannot open %s\n", my_context->fullpath);
         free_contextargv();
         FreeBox86Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->argv[0], 1);
+    elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {
-        int x64 = my_context->box64path?FileIsX64ELF(my_context->argv[0]):0;
-        int script = my_context->bashpath?FileIsShell(my_context->argv[0]):0;
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->argv[0], x64?"using box64":(script?"using bash":"natively"));
+        int x64 = my_context->box64path?FileIsX64ELF(my_context->fullpath):0;
+        int script = my_context->bashpath?FileIsShell(my_context->fullpath):0;
+        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->fullpath, x64?"using box64":(script?"using bash":"natively"));
         fclose(f);
         FreeCollection(&ld_preload);
         int ret;
@@ -1379,7 +1381,7 @@ int main(int argc, const char **argv, char **env) {
     AddElfHeader(my_context, elf_header);
 
     if(CalcLoadAddr(elf_header)) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->fullpath);
         fclose(f);
         free_contextargv();
         FreeBox86Context(&my_context);
@@ -1388,7 +1390,7 @@ int main(int argc, const char **argv, char **env) {
     }
     // allocate memory
     if(AllocElfMemory(my_context, elf_header, 1)) {
-        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", my_context->fullpath);
         fclose(f);
         free_contextargv();
         FreeBox86Context(&my_context);
@@ -1397,7 +1399,7 @@ int main(int argc, const char **argv, char **env) {
     }
     // Load elf into memory
     if(LoadElfMemory(f, my_context, elf_header)) {
-        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", my_context->fullpath);
         fclose(f);
         free_contextargv();
         FreeBox86Context(&my_context);
@@ -1462,11 +1464,11 @@ int main(int argc, const char **argv, char **env) {
 #endif
     // change process name
     {
-        char* p = strrchr(my_context->argv[0], '/');
+        char* p = strrchr(my_context->fullpath, '/');
         if(p)
             ++p;
         else
-            p = my_context->argv[0];
+            p = my_context->fullpath;
         if(prctl(PR_SET_NAME, p)==-1)
             printf_log(LOG_NONE, "Error setting process name (%s)\n", strerror(errno));
         else
@@ -1553,14 +1555,14 @@ int main(int argc, const char **argv, char **env) {
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
     if(LoadNeededLibs(elf_header, my_context->maplib, &my_context->neededlibs, NULL, 0, 0, my_context, emu)) {
-        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->fullpath);
         FreeBox86Context(&my_context);
         return -1;
     }
     // reloc...
     printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
     if(RelocateElf(my_context->maplib, NULL, 0, elf_header)) {
-        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", my_context->fullpath);
         FreeBox86Context(&my_context);
         return -1;
     }

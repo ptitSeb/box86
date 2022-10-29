@@ -2074,7 +2074,7 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, my_context->envv, environ);
+    printf_log(/*LOG_DEBUG*/LOG_NONE, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, my_context->envv, environ);
     if (x86 || x64 || self || script) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
@@ -2083,14 +2083,20 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
         int n=skip_first;
         while(argv[n]) ++n;
         int toadd = script?2:1;
-        const char** newargv = (const char**)calloc(n+1+toadd, sizeof(char*));
+        const char** newargv = (const char**)alloca((n+1+toadd-skip_first)*sizeof(char*));
+        memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
         if(self) newargv[toadd] = emu->context->fullpath;
-        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = path;
+        }
+        printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], (n+toadd-skip_first)?newargv[1]:"", ((n+toadd-skip_first)>1)?newargv[2]:"",n, envp);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
-        free(newargv);
         return ret;
     }
     if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
