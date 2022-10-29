@@ -523,6 +523,8 @@ void InactiveLibrary(library_t* lib)
 void Free1Library(library_t **lib, x86emu_t* emu)
 {
     if(!(*lib)) return;
+    if(--(*lib)->refcnt)
+        return;
     printf_log(LOG_DEBUG, "Freeing %s\n", (*lib)->name);
 
     if((*lib)->type==LIB_EMULATED && emu) {
@@ -1039,6 +1041,7 @@ static int is_neededlib_present(needed_libs_t* needed, library_t* lib)
 
 void add_neededlib(needed_libs_t* needed, library_t* lib)
 {
+    ++lib->refcnt;
     if(!needed)
         return;
     if(is_neededlib_present(needed, lib))
