@@ -39,7 +39,7 @@ void* my_mmap(x86emu_t* emu, void* addr, unsigned long length, int prot, int fla
 int my_munmap(x86emu_t* emu, void* addr, unsigned long length);
 brick_t* NewBrick(void* old)
 {
-    brick_t* ret = (brick_t*)calloc(1, sizeof(brick_t));
+    brick_t* ret = (brick_t*)box_calloc(1, sizeof(brick_t));
     if(old)
         old = old + NBRICK * sizeof(onebridge_t);
     void* ptr = my_mmap(thread_get_emu(), old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -55,7 +55,7 @@ brick_t* NewBrick(void* old)
 
 bridge_t *NewBridge()
 {
-    bridge_t *b = (bridge_t*)calloc(1, sizeof(bridge_t));
+    bridge_t *b = (bridge_t*)box_calloc(1, sizeof(bridge_t));
     b->head = NewBrick(NULL);
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
@@ -79,11 +79,11 @@ void FreeBridge(bridge_t** bridge)
             unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
         #endif
         my_munmap(emu, b->b, NBRICK*sizeof(onebridge_t));
-        free(b);
+        box_free(b);
         b = n;
     }
     kh_destroy(bridgemap, br->bridgemap);
-    free(br);
+    box_free(br);
 }
 
 #ifdef HAVE_TRACE

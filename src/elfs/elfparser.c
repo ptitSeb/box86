@@ -23,7 +23,7 @@ int LoadSH(FILE *f, Elf32_Shdr *s, void** SH, const char* name, uint32_t type)
     if (type==SHT_SYMTAB && s->sh_size%sizeof(Elf32_Sym)) {
         printf_dump(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has size (not multiple of %d)\n", name, s->sh_offset, s->sh_size, sizeof(Elf32_Sym));
     }
-    *SH = calloc(1, s->sh_size);
+    *SH = box_calloc(1, s->sh_size);
     fseeko64(f, s->sh_offset ,SEEK_SET);
     if(fread(*SH, s->sh_size, 1, f)!=1) {
             printf_dump(LOG_INFO, "Cannot read Section Header \"%s\" (off=%d, size=%d)\n", name, s->sh_offset, s->sh_size);
@@ -114,8 +114,8 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         return NULL;
     }
 
-    elfheader_t *h = calloc(1, sizeof(elfheader_t));
-    h->name = strdup(name);
+    elfheader_t *h = box_calloc(1, sizeof(elfheader_t));
+    h->name = box_strdup(name);
     h->entrypoint = header.e_entry;
     h->numPHEntries = header.e_phnum;
     h->numSHEntries = header.e_shnum;
@@ -129,7 +129,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             fseeko64(f, header.e_shoff, SEEK_SET);
             Elf32_Shdr section;
             if(fread(&section, sizeof(Elf32_Shdr), 1, f)!=1) {
-                free(h);
+                box_free(h);
                 printf_dump(LOG_INFO, "Cannot read Initial Section Header\n");
                 return NULL;
             }
@@ -137,7 +137,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         }
         // now read all section headers
         printf_dump(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
-        h->SHEntries = (Elf32_Shdr*)calloc(h->numSHEntries, sizeof(Elf32_Shdr));
+        h->SHEntries = (Elf32_Shdr*)box_calloc(h->numSHEntries, sizeof(Elf32_Shdr));
         fseeko64(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
                 FreeElfHeader(&h);
@@ -153,7 +153,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     }
 
     printf_dump(LOG_DEBUG, "Read %d Program header\n", h->numPHEntries);
-    h->PHEntries = (Elf32_Phdr*)calloc(h->numPHEntries, sizeof(Elf32_Phdr));
+    h->PHEntries = (Elf32_Phdr*)box_calloc(h->numPHEntries, sizeof(Elf32_Phdr));
     fseeko64(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries, sizeof(Elf32_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
             FreeElfHeader(&h);

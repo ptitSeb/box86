@@ -252,6 +252,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/box86context.c"
     "${BOX86_ROOT}/src/build_info.c"
     "${BOX86_ROOT}/src/custommem.c"
+    "${BOX86_ROOT}/src/mallochook.c"
     "${BOX86_ROOT}/src/tools/bridge.c"
     "${BOX86_ROOT}/src/tools/pathcoll.c"
     "${BOX86_ROOT}/src/tools/fileutils.c"
@@ -460,6 +461,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedcap.c"
     "${BOX86_ROOT}/src/wrapped/wrappedpcap.c"
     "${BOX86_ROOT}/src/wrapped/wrappedfaudio.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedtbbmallocproxy.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS

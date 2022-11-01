@@ -1161,12 +1161,11 @@ EXPORT void* my_g_build_path(x86emu_t *emu, void* sep, void* first, void** data)
         p = data[n++];
     }
     ++n;    // final NULL
-    void** args = (void**)malloc(n *sizeof(void*));
+    void** args = (void**)alloca(n *sizeof(void*));
     args[0] = first;
     for(int i=1; i<n; ++i)
         args[i] = data[i-1];
     p = my->g_build_pathv(sep, args);
-    free(args);
     return p;
 }
 

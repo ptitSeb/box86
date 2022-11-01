@@ -9,7 +9,8 @@ typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 
-#include <pthread.h>
+#include <elf.h>
+#include "elfloader.h"
 
 struct elfheader_s {
     char*       name;

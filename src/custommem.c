@@ -259,7 +259,7 @@ void* customMalloc(size_t size)
     }
     // add a new block
     int i = n_blocks++;
-    p_blocks = (blocklist_t*)realloc(p_blocks, n_blocks*sizeof(blocklist_t));
+    p_blocks = (blocklist_t*)box_realloc(p_blocks, n_blocks*sizeof(blocklist_t));
     size_t allocsize = MMAPSIZE;
     if(size+2*sizeof(blockmark_t)>allocsize)
         allocsize = size+2*sizeof(blockmark_t);
@@ -268,7 +268,7 @@ void* customMalloc(size_t size)
     memset(p, 0, allocsize);
     setProtection((uintptr_t)p, allocsize, PROT_READ|PROT_WRITE);
     #else
-    void* p = calloc(1, allocsize);
+    void* p = box_calloc(1, allocsize);
     #endif
     p_blocks[i].block = p;
     p_blocks[i].size = allocsize;
@@ -399,7 +399,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     dynarec_log(LOG_DEBUG, "Ask for DynaRec Block Alloc #%zu/%zu\n", mmapsize, mmapcap);
     if(mmapsize>mmapcap) {
         mmapcap += 32;
-        mmaplist = (mmaplist_t*)realloc(mmaplist, mmapcap*sizeof(mmaplist_t));
+        mmaplist = (mmaplist_t*)box_realloc(mmaplist, mmapcap*sizeof(mmaplist_t));
     }
     #ifndef USE_MMAP
     void *p = NULL;
@@ -422,7 +422,7 @@ uintptr_t AddNewDynarecMap(dynablock_t* db, int size)
     mmaplist[i].locked = 1;
     mmaplist[i].block = p;
     mmaplist[i].size = MMAPSIZE;
-    mmaplist[i].helper = (uint8_t*)calloc(1, MMAPSIZE);
+    mmaplist[i].helper = (uint8_t*)box_calloc(1, MMAPSIZE);
     mmaplist[i].first = p;
     // setup marks
     blockmark_t* m = (blockmark_t*)p;
@@ -543,7 +543,7 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size)
         return;
     if(size>MMAPSIZE-2*sizeof(blockmark_t)) {
         #ifndef USE_MMAP
-        free((void*)addr);
+        box_free((void*)addr);
         #else
         munmap((void*)addr, size);
         #endif
@@ -603,11 +603,11 @@ void addJumpTableIfDefault(void* addr, void* jmp)
 {
     const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
     if(box86_jumptable[idx] == box86_jmptbl_default) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)arm_next;
         if(arm_lock_storeifref(&box86_jumptable[idx], tbl, box86_jmptbl_default)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
     const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
     arm_lock_storeifref(&box86_jumptable[idx][off], jmp, arm_next);
@@ -639,11 +639,11 @@ uintptr_t getJumpTableAddress(uintptr_t addr)
 {
     const uintptr_t idx = ((uintptr_t)addr>>JMPTABL_SHIFT);
     if(box86_jumptable[idx] == box86_jmptbl_default) {
-        uintptr_t* tbl = (uintptr_t*)malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
+        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT); ++i)
             tbl[i] = (uintptr_t)arm_next;
         if(arm_lock_storeifref(&box86_jumptable[idx], tbl, box86_jmptbl_default)!=tbl)
-            free(tbl);
+            box_free(tbl);
     }
     const uintptr_t off = (uintptr_t)addr&((1<<JMPTABL_SHIFT)-1);
     return (uintptr_t)&box86_jumptable[idx][off];
@@ -721,7 +721,7 @@ void addMapMem(uintptr_t begin, uintptr_t end)
         newm = m;
     } else {
     // create a new block
-        newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+        newm = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
         newm->next = m->next;
         newm->begin = begin;
         newm->end = end;
@@ -733,7 +733,7 @@ void addMapMem(uintptr_t begin, uintptr_t end)
             newm->end = newm->next->end;
         mapmem_t* tmp = newm->next;
         newm->next = tmp->next;
-        free(tmp);
+        box_free(tmp);
     }
     // all done!
 }
@@ -761,9 +761,9 @@ void removeMapMem(uintptr_t begin, uintptr_t end)
                 m = mapmem;
                 prev = NULL;
             }
-            free(tmp);
+            box_free(tmp);
         } else if(begin>m->begin && end<m->end) { // the zone is totaly inside the block => split it!
-            mapmem_t* newm = (mapmem_t*)calloc(1, sizeof(mapmem_t));    // create a new "next"
+            mapmem_t* newm = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));    // create a new "next"
             newm->end = m->end;
             m->end = begin - 1;
             newm->begin = end + 1;
@@ -971,7 +971,7 @@ void init_custommem_helper(box86context_t* ctx)
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapmem list
-    mapmem = (mapmem_t*)calloc(1, sizeof(mapmem_t));
+    mapmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
     mapmem->begin = 0x0;
     mapmem->end = (uintptr_t)LOWEST - 1;
     loadProtectionFromMap();
@@ -990,14 +990,14 @@ void fini_custommem_helper(box86context_t *ctx)
                 #ifdef USE_MMAP
                 munmap(mmaplist[i].block, mmaplist[i].size);
                 #else
-                free(mmaplist[i].block);
+                box_free(mmaplist[i].block);
                 #endif
             if(mmaplist[i].dblist) {
                 kh_destroy(dynablocks, mmaplist[i].dblist);
                 mmaplist[i].dblist = NULL;
             }
             if(mmaplist[i].helper) {
-                free(mmaplist[i].helper);
+                box_free(mmaplist[i].helper);
                 mmaplist[i].helper = NULL;
             }
         }
@@ -1013,10 +1013,10 @@ void fini_custommem_helper(box86context_t *ctx)
         for (uintptr_t i=idx; i<=end; ++i)
             if(dynmap[i])
                 FreeDynablockList(&dynmap[i]);
-        free(mmaplist);
+        box_free(mmaplist);
         for (int i=0; i<DYNAMAP_SIZE; ++i)
             if(box86_jumptable[i]!=box86_jmptbl_default)
-                free(box86_jumptable[i]);
+                box_free(box86_jumptable[i]);
     }
     kh_destroy(lockaddress, lockaddress);
     lockaddress = NULL;
@@ -1025,14 +1025,14 @@ void fini_custommem_helper(box86context_t *ctx)
         #ifdef USE_MMAP_MORE
         munmap(p_blocks[i].block, p_blocks[i].size);
         #else
-        free(p_blocks[i].block);
+        box_free(p_blocks[i].block);
         #endif
-    free(p_blocks);
+    box_free(p_blocks);
     pthread_mutex_destroy(&mutex_blocks);
     while(mapmem) {
         mapmem_t *tmp = mapmem;
         mapmem = mapmem->next;
-        free(tmp);
+        box_free(tmp);
     }
 }
 

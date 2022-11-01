@@ -473,11 +473,11 @@ void LoadLogEnv()
     }
     p = getenv("BOX86_LIBGL");
     if(p)
-        libGL = strdup(p);
+        libGL = box_strdup(p);
     if(!libGL) {
         p = getenv("SDL_VIDEO_GL_DRIVER");
         if(p)
-            libGL = strdup(p);
+            libGL = box_strdup(p);
     }
     if(libGL) {
         printf_log(LOG_INFO, "BOX86 using \"%s\" as libGL.so.1\n", p);
@@ -619,19 +619,19 @@ int GatherEnv(char*** dest, char** env, const char* prog)
     char* ld_path = NULL;
     while(*p) {
         if(strncmp(*p, "BOX86_PATH=", 11)==0) {
-            (*dest)[idx++] = strdup(*p);
+            (*dest)[idx++] = box_strdup(*p);
             box86_path = 1;
         } else if(strncmp(*p, "BOX86_LD_LIBRARY_PATH=", 22)==0) {
-            (*dest)[idx++] = strdup(*p);
+            (*dest)[idx++] = box_strdup(*p);
             box86_ld_path = 1;
         } else if(strncmp(*p, "_=", 2)==0) {
             /*int l = strlen(prog);
             char tmp[l+3];
             strcpy(tmp, "_=");
             strcat(tmp, prog);
-            (*dest)[idx++] = strdup(tmp);*/
+            (*dest)[idx++] = box_strdup(tmp);*/
         } else if(strncmp(*p, "BOX86_", 6)!=0) {
-            (*dest)[idx++] = strdup(*p);
+            (*dest)[idx++] = box_strdup(*p);
             /*if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
             }*/
         }
@@ -639,10 +639,10 @@ int GatherEnv(char*** dest, char** env, const char* prog)
     }
     // update the calloc of envv when adding new variables here
     if(!box86_path) {
-        (*dest)[idx++] = strdup("BOX86_PATH=.:bin");
+        (*dest)[idx++] = box_strdup("BOX86_PATH=.:bin");
     }
     if(!box86_ld_path) {
-        (*dest)[idx++] = strdup("BOX86_LD_LIBRARY_PATH=.:lib");
+        (*dest)[idx++] = box_strdup("BOX86_LD_LIBRARY_PATH=.:lib");
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -650,7 +650,7 @@ int GatherEnv(char*** dest, char** env, const char* prog)
         char tmp[l+3];
         strcpy(tmp, "_=");
         strcat(tmp, prog);
-        (*dest)[idx++] = strdup(tmp);
+        (*dest)[idx++] = box_strdup(tmp);
     }
     // and a final NULL
     (*dest)[idx++] = 0;
@@ -720,17 +720,17 @@ void addNewEnvVar(const char* s)
 {
     if(!s)
         return;
-    char* p = strdup(s);
+    char* p = box_strdup(s);
     char* e = strchr(p, '=');
     if(!e) {
         printf_log(LOG_INFO, "Invalid speicifc env. var. '%s'\n", s);
-        free(p);
+        box_free(p);
         return;
     }
     *e='\0';
     ++e;
     setenv(p, e, 1);
-    free(p);
+    box_free(p);
 }
 
 EXPORTDYN
@@ -842,8 +842,8 @@ void LoadEnvVars(box86context_t *context)
 #endif
 #ifdef BUILD_LIB
     context->argc = 1;  // need 1
-    context->argv = (char**)malloc(sizeof(char*));
-    context->argv[0] = strdup("dummy");
+    context->argv = (char**)box_malloc(sizeof(char*));
+    context->argv[0] = box_strdup("dummy");
 #endif
 }
 
@@ -915,7 +915,7 @@ void setupTrace(box86context_t* context)
             } else {
                 printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
-                trace_func = strdup(p);
+                trace_func = box_strdup(p);
             }
         }
     }
@@ -976,7 +976,7 @@ void endBox86()
     // all done, free context
     FreeBox86Context(&my_context);
     if(libGL) {
-        free(libGL);
+        box_free(libGL);
         libGL = NULL;
     }
 }
@@ -1023,13 +1023,14 @@ void init_library()
 static void free_contextargv()
 {
     for(int i=0; i<my_context->argc; ++i)
-        free(my_context->argv[i]);
+        box_free(my_context->argv[i]);
 }
 
 extern char **environ;
 
-int main(int argc, const char **argv, char **env) {
-
+int main(int argc, const char **argv, char **env)
+{
+    init_malloc_hook();
     init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
     if(argc==1) {
@@ -1144,16 +1145,16 @@ int main(int argc, const char **argv, char **env) {
     {
         my_context->box64path = getenv("BOX86_BOX64");
         if(!my_context->box64path) {
-            my_context->box64path = strdup(my_context->box86path);
+            my_context->box64path = box_strdup(my_context->box86path);
             char* p = strrchr(my_context->box64path, '8');  // get the 8 of box86
             p[0] = '6'; p[1] = '4'; // change 86 to 64
         }
         if(!FileExist(my_context->box64path, IS_FILE)) {
-            free(my_context->box64path);
+            box_free(my_context->box64path);
             my_context->box64path = ResolveFile("box64", &my_context->box86_path);
         }
         if(!FileExist(my_context->box64path, IS_FILE)) {
-            free(my_context->box64path);
+            box_free(my_context->box64path);
             my_context->box64path = NULL;
             if(bashpath && FileIsX64ELF(bashpath)) {
                 printf_log(LOG_INFO, "The bash binary given is an x86_64 version, but box64 is not found\n");
@@ -1166,7 +1167,7 @@ int main(int argc, const char **argv, char **env) {
     my_context->envc = CountEnv(environ?environ:env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
     // allocate extra space for new environment variables such as BOX86_PATH
-    my_context->envv = (char**)calloc(my_context->envc+4, sizeof(char*));
+    my_context->envv = (char**)box_calloc(my_context->envc+4, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box86path);
     if(box86_dump) {
         for (int i=0; i<my_context->envc; ++i)
@@ -1208,7 +1209,7 @@ int main(int argc, const char **argv, char **env) {
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
     if(strchr(prog, '/'))
-        my_context->argv[0] = strdup(prog);
+        my_context->argv[0] = box_strdup(prog);
     else
         my_context->argv[0] = ResolveFile(prog, &my_context->box86_path);
 
@@ -1260,8 +1261,8 @@ int main(int argc, const char **argv, char **env) {
     }
     // special case for UnrealLinux.bin, it doesn't like "full path resolution"
     if(!strcmp(prog, "UnrealLinux.bin") && my_context->argv[0]) {
-        free(my_context->argv[0]);
-        my_context->argv[0] = strdup("./UnrealLinux.bin");
+        box_free(my_context->argv[0]);
+        my_context->argv[0] = box_strdup("./UnrealLinux.bin");
     }
     #if defined(RPI) || defined(RK3399) || defined(RK3288) || defined(GOA_CLONE) || defined(PYRA) || defined(PANDORA)
     // special case for TokiTori 2+, that check if texture max size is > = 8192
@@ -1302,7 +1303,7 @@ int main(int argc, const char **argv, char **env) {
         }
     }
     if(bashpath)
-        my_context->bashpath = strdup(bashpath);
+        my_context->bashpath = box_strdup(bashpath);
 
     /*if(strstr(prgname, "awesomium_process")==prgname) {
         printf_log(LOG_INFO, "awesomium_process detected, forcing emulated libpng12\n");
@@ -1313,7 +1314,7 @@ int main(int argc, const char **argv, char **env) {
     }*/
 
     for(int i=1; i<my_context->argc; ++i) {
-        my_context->argv[i] = strdup(argv[i+nextarg]);
+        my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
     }
 
@@ -1332,10 +1333,10 @@ int main(int argc, const char **argv, char **env) {
         FreeCollection(&ld_preload);
         return -1;
     }
-    if(!(my_context->fullpath = realpath(my_context->argv[0], NULL)))
-        my_context->fullpath = strdup(my_context->argv[0]);
+    if(!(my_context->fullpath = box_realpath(my_context->argv[0], NULL)))
+        my_context->fullpath = box_strdup(my_context->argv[0]);
     if(getenv("BOX86_ARG0"))
-        my_context->argv[0] = strdup(getenv("BOX86_ARG0"));
+        my_context->argv[0] = box_strdup(getenv("BOX86_ARG0"));
     FILE *f = fopen64(my_context->fullpath, "rb");
     if(!f) {
         printf_log(LOG_NONE, "Error: Cannot open %s\n", my_context->fullpath);
@@ -1354,7 +1355,7 @@ int main(int argc, const char **argv, char **env) {
         int ret;
         if(x64) {
            // duplicate the array and insert 1st arg as box86
-            const char** newargv = (const char**)calloc(my_context->argc+2, sizeof(char*));
+            const char** newargv = (const char**)box_calloc(my_context->argc+2, sizeof(char*));
             newargv[0] = my_context->box64path;
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i+1] = my_context->argv[i];
@@ -1362,14 +1363,14 @@ int main(int argc, const char **argv, char **env) {
             ret = execvp(newargv[0], (char * const*)newargv);
         } else if (script) {
             // duplicate the array and insert 1st arg as box64, 2nd is bash
-            const char** newargv = (const char**)calloc(my_context->argc+3, sizeof(char*));
+            const char** newargv = (const char**)box_calloc(my_context->argc+3, sizeof(char*));
             newargv[0] = my_context->box86path;
             newargv[1] = my_context->bashpath;
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i+2] = my_context->argv[i];
             ret = execvp(newargv[0], (char * const*)newargv);
         } else {
-            const char** newargv = (const char**)calloc(my_context->argc+1, sizeof(char*));
+            const char** newargv = (const char**)box_calloc(my_context->argc+1, sizeof(char*));
             for(int i=0; i<my_context->argc; ++i)
                 newargv[i] = my_context->argv[i];
             ret = execvp(newargv[0], (char * const*)newargv);
@@ -1418,10 +1419,10 @@ int main(int argc, const char **argv, char **env) {
             int nenv = 0;
             while(env[nenv]) nenv++;
             // alloc + "LD_PRELOAD" if needd + last NULL ending
-            char** newenv = (char**)calloc(nenv+1+((preload)?0:1), sizeof(char*));
+            char** newenv = (char**)box_calloc(nenv+1+((preload)?0:1), sizeof(char*));
             // copy strings
             for (int i=0; i<nenv; ++i)
-                newenv[i] = strdup(env[i]);
+                newenv[i] = box_strdup(env[i]);
             // add ld_preload
             if(preload) {
                 // find the line
@@ -1430,24 +1431,24 @@ int main(int argc, const char **argv, char **env) {
                     if(strstr(newenv[l], "LD_PRELOAD=")==newenv[l]) {
                         // found it!
                         char *old = newenv[l];
-                        newenv[l] = (char*)calloc(strlen(old)+strlen("libtcmalloc_minimal.so.4:")+1, sizeof(char));
+                        newenv[l] = (char*)box_calloc(strlen(old)+strlen("libtcmalloc_minimal.so.4:")+1, sizeof(char));
                         strcpy(newenv[l], "LD_PRELOAD=libtcmalloc_minimal.so.4:");
                         strcat(newenv[l], old + strlen("LD_PRELOAD="));
-                        free(old);
+                        box_free(old);
                         // done, end loop
                         l = nenv;
                     } else ++l;
                 }
             } else {
                 //move last one
-                newenv[nenv] = strdup(newenv[nenv-1]);
-                free(newenv[nenv-1]);
-                newenv[nenv-1] = strdup("LD_PRELOAD=libtcmalloc_minimal.so.4");
+                newenv[nenv] = box_strdup(newenv[nenv-1]);
+                box_free(newenv[nenv-1]);
+                newenv[nenv-1] = box_strdup("LD_PRELOAD=libtcmalloc_minimal.so.4");
             }
             // duplicate argv too
-            char** newargv = calloc(argc+1, sizeof(char*));
+            char** newargv = box_calloc(argc+1, sizeof(char*));
             int narg = 0;
-            while(argv[narg]) {newargv[narg] = strdup(argv[narg]); narg++;}
+            while(argv[narg]) {newargv[narg] = box_strdup(argv[narg]); narg++;}
             // launch with new env...
             if(execve(newargv[0], newargv, newenv)<0)
                 printf_log(LOG_NONE, "Failed to relaunch, error is %d/%s\n", errno, strerror(errno));
@@ -1594,7 +1595,7 @@ int main(int argc, const char **argv, char **env) {
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
 
     if(trace_func)  {
-        free(trace_func);
+        box_free(trace_func);
         trace_func = NULL;
     }
 

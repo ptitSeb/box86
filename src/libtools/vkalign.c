@@ -621,7 +621,7 @@ static my_vksave_t* saveVk(my_vkhead_t* src)
 {
     if(!src)
         return NULL;
-    my_vksave_t* ret = malloc(sizeof(my_vksave_t));
+    my_vksave_t* ret = box_malloc(sizeof(my_vksave_t));
     ret->pHead = src;
     ret->pNext = saveVk(src->pNext);
     return ret;
@@ -631,7 +631,7 @@ static void freeVk(my_vksave_t* save)
     if(!save)
         return;
     freeVk(save->pNext);
-    free(save);
+    box_free(save);
 }
 
 //--------------------------------------------------------------
@@ -639,7 +639,7 @@ static void freeVk(my_vksave_t* save)
 //--------------------------------------------------------------
 static void alignVkComputePipelineCreateInfo(my_vkhead_t* src, my_vkhead_t** dst)
 {
-    my_VkComputePipelineCreateInfo_arm_t* vkdst = (my_VkComputePipelineCreateInfo_arm_t*)malloc(sizeof(my_VkPipelineShaderStageCreateInfo_arm_t));
+    my_VkComputePipelineCreateInfo_arm_t* vkdst = (my_VkComputePipelineCreateInfo_arm_t*)box_malloc(sizeof(my_VkPipelineShaderStageCreateInfo_arm_t));
     my_VkComputePipelineCreateInfo_x86_t* vksrc = (my_VkComputePipelineCreateInfo_x86_t*)src;
     vkdst->sType = vksrc->sType;
     vkdst->pNext = vksrc->pNext;
@@ -713,7 +713,7 @@ void* vkalignStruct(void* src, const char* desc, int cnt)
 {
     int sz = vkalignSize(desc);
     int count=(cnt)?cnt:1;
-    void* dst = (void*)malloc(sz*count);
+    void* dst = (void*)box_malloc(sz*count);
     int c = 0;
     int a = 0;
     uint32_t* psrc = (uint32_t*)src;
@@ -825,7 +825,7 @@ static void unalignVkComputePipelineCreateInfo(my_vkhead_t* src, my_vkhead_t** d
     vkdst->basePipelineHandle = vksrc->basePipelineHandle;
     vkdst->basePipelineIndex = vksrc->basePipelineIndex;
 
-    free(src);
+    box_free(src);
 }
 
 void vkunalignStruct(void* dst, void* src, const char* desc, int cnt)
@@ -888,7 +888,7 @@ void vkunalignStruct(void* dst, void* src, const char* desc, int cnt)
             ++psrc;
         }
     }
-    free(src);
+    box_free(src);
 }
 
 int vkunalignSize(const char* desc)
@@ -931,7 +931,7 @@ void* vkStructUnalign(void* src, const char* desc, int cnt)
     int count=cnt;
     if(!cnt && !src)
         return src;
-    void* dst = (void*)malloc(sz*count);
+    void* dst = (void*)box_malloc(sz*count);
     int c = 0;
     int a = 1;
     uint32_t* psrc = (uint32_t*)src;

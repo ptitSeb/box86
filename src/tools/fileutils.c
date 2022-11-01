@@ -46,7 +46,7 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
 {
     char p[MAX_PATH];
     if(filename[0]=='/')
-        return strdup(filename);
+        return box_strdup(filename);
     for (int i=0; i<paths->size; ++i) {
         if(paths->paths[i][0]!='/') {
             // not an absolute path...
@@ -58,10 +58,10 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
             strcpy(p, paths->paths[i]);
         strcat(p, filename);
         if(FileExist(p, IS_FILE))
-            return realpath(p, NULL);
+            return box_realpath(p, NULL);
     }
 
-    return strdup(filename);//NULL; // not found, still return the name instead of null?
+    return box_strdup(filename);//NULL; // not found, still return the name instead of null?
 }
 
 int FileIsX64ELF(const char* filename)

@@ -2252,6 +2252,7 @@ GOM(fstatat64, iFippi)  //%%,noE
 GOM(fstat64, iFip)  //%%,noE
 
 GOWM(_Unwind_Find_FDE, pFEpp)    // this is a libgcc_s function, I think. Create a dummy weak one, just in case
+GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
 
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)

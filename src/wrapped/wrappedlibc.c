@@ -565,7 +565,7 @@ int EXPORT my_uname(struct utsname *buf)
     static int box64_tested = 0;
     static int box64_available = 0;
     if(!box64_tested) {
-        char* box64path = strdup(my_context->box86path);
+        char* box64path = box_strdup(my_context->box86path);
         char* p = strrchr(box64path, '/');
         if(p) {
             p[1] = '\0';
@@ -574,7 +574,7 @@ int EXPORT my_uname(struct utsname *buf)
                 box64_available = 1;
         }
         box64_tested = 1;
-        free(box64path);
+        box_free(box64path);
     }
     // sizeof(struct utsname)==390 on i686, and also on ARM, so this seem safe
     int ret = uname(buf);
@@ -1370,7 +1370,7 @@ typedef int (*__compar_d_fn_t)(const void*, const void*, void*);
 
 static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar, void* arg, size_t lo, size_t hi)
 {
-    void* tmp = malloc(size);
+    void* tmp = alloca(size);
     void* pivot = ((char*)base) + lo * size;
     size_t i = lo;
     for (size_t j = lo; j <= hi; j++)
@@ -1390,7 +1390,6 @@ static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar,
     memcpy(tmp, base_i, size);
     memcpy(base_i, base_hi, size);
     memcpy(base_hi, tmp, size);
-    free(tmp);
     return i;
 }
 
@@ -1919,7 +1918,7 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
         return ((iFpi_t)f)(template, suffixlen);
     // implement own version...
     // TODO: check size of template, and if really XXXXXX is there
-    char* fname = strdup(template);
+    char* fname = box_strdup(template);
     do {
         strcpy(fname, template);
         char num[8];
@@ -1927,7 +1926,7 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
         memcpy(fname+strlen(fname)-suffixlen-6, num, 6);
     } while(!FileExist(fname, -1));
     int ret = open64(fname, O_EXCL);
-    free(fname);
+    box_free(fname);
     return ret;
 }
 
@@ -2050,14 +2049,14 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
         int n=skip_first;
         while(argv[n]) ++n;
         int toadd = script?2:1;
-        const char** newargv = (const char**)calloc(n+toadd+1, sizeof(char*));
+        const char** newargv = (const char**)alloca((n+toadd+1)*sizeof(char*));
+        memset(newargv, 0, (n+toadd+1)*sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
         if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
         printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
         int ret = execv(newargv[0], (char* const*)newargv);
-        free(newargv);
         return ret;
     }
     return execv(path, argv);
@@ -2113,7 +2112,8 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
         // special case of a bash script shell running grep on cpuinfo to extract capacities...
         int n=0;
         while(argv[n]) ++n;
-        const char** newargv = (const char**)calloc(n+1, sizeof(char*));
+        const char** newargv = (const char**)alloca((n+1)*sizeof(char*));
+        memset(newargv, 0, (n+1)*sizeof(char*));
         memcpy(newargv, argv, sizeof(char*)*(n));
         // create a dummy cpuinfo in temp (that will stay there, sorry)
         const char* tmpdir = GetTmpDir();
@@ -2130,7 +2130,6 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
         newargv[2] = cpuinfo_file;
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", path, newargv, newargv[0], newargv[1], newargv[2],n, envp);
         int ret = execve(path, (char* const*)newargv, envp);
-        free(newargv);
         return ret;
     }
     #endif
@@ -2155,7 +2154,8 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         int i=0;
         while(argv[i]) ++i;
         int toadd = script?2:1;
-        char** newargv = (char**)calloc(i+toadd+1, sizeof(char*));
+        char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
+        memset(newargv, 0, (i+toadd+1)*sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for (int j=0; j<i; ++j)
@@ -2164,11 +2164,10 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
         if(script) newargv[2] = emu->context->bashpath;
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         int ret = execvp(newargv[0], newargv);
-        free(newargv);
-        free(fullpath);
+        box_free(fullpath);
         return ret;
     }
-    free(fullpath);
+    box_free(fullpath);
     if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
      && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
      && !argv[2]) {
@@ -2200,7 +2199,8 @@ EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path,
         int i=0;
         while(argv[i]) ++i;
         int toadd = script?2:1;
-        char** newargv = (char**)calloc(i+toadd+1, sizeof(char*));
+        char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
+        memset(newargv, 0, (i+toadd+1)*sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         for (int j=0; j<i; ++j)
@@ -2210,10 +2210,9 @@ EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path,
         printf_log(LOG_DEBUG, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
         ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
         printf_log(LOG_DEBUG, "posix_spawnp returned %d\n", ret);
-        //free(newargv);
     } else 
         ret = posix_spawnp(pid, fullpath, actions, attrp, argv, envp);
-    free(fullpath);
+    box_free(fullpath);
     return ret;
 }
 
@@ -2304,7 +2303,7 @@ EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, 
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
-        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
+        my_context->atforks = (atfork_fnc_t*)box_realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
     }
     my_context->atforks[my_context->atfork_sz].prepare = (uintptr_t)prepare;
     my_context->atforks[my_context->atfork_sz].parent = (uintptr_t)parent;
@@ -2951,14 +2950,13 @@ EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath
     }
     if((flags&RENAME_EXCHANGE) && (olddirfd==-1) && (newdirfd==-1)) {
         // cannot do atomically...
-        char* tmp = (char*)malloc(strlen(oldpath)+10); // create a temp intermediary
+        char* tmp = (char*)alloca(strlen(oldpath)+10); // create a temp intermediary
         tmp = strcat(oldpath, ".tmp");
         int ret = renameat(-1, oldpath, -1, tmp);
         if(ret==-1) return -1;
         ret = renameat(-1, newpath, -1, oldpath);
         if(ret==-1) return -1;
         ret = renameat(-1, tmp, -1, newpath);
-        free(tmp);
         return ret;
     }
     return -1; // unknown flags

@@ -74,8 +74,8 @@ void free_tlsdatasize(void* p)
     if(!p)
         return;
     tlsdatasize_t *data = (tlsdatasize_t*)p;
-    free(data->ptr);
-    free(p);
+    box_free(data->ptr);
+    box_free(p);
 }
 
 int unlockMutex()
@@ -161,12 +161,12 @@ box86context_t *NewBox86Context(int argc)
     }
 #endif
     // init and put default values
-    box86context_t *context = my_context = (box86context_t*)calloc(1, sizeof(box86context_t));
+    box86context_t *context = my_context = (box86context_t*)box_calloc(1, sizeof(box86context_t));
 
     if(cycle_log)
         for(int i=0; i<CYCLE_LOG; ++i) {
-            context->log_call[i] = (char*)calloc(256, 1);
-            context->log_ret[i] = (char*)calloc(128, 1);
+            context->log_call[i] = (char*)box_calloc(256, 1);
+            context->log_ret[i] = (char*)box_calloc(128, 1);
         }
 #ifdef BUILD_LIB
     context->deferedInit = 0;
@@ -194,7 +194,7 @@ box86context_t *NewBox86Context(int argc)
     context->dlprivate = NewDLPrivate();
 
     context->argc = argc;
-    context->argv = (char**)calloc(context->argc+1, sizeof(char*));
+    context->argv = (char**)box_calloc(context->argc+1, sizeof(char*));
 
     init_mutexes(context);
     pthread_atfork(NULL, NULL, atfork_child_box64context);
@@ -236,7 +236,7 @@ void FreeBox86Context(box86context_t** context)
     for(int i=0; i<ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);
     }
-    free(ctx->elfs);
+    box_free(ctx->elfs);
 
     FreeFTSMap(ctx);
 
@@ -250,16 +250,16 @@ void FreeBox86Context(box86context_t** context)
         DeleteX86Trace(ctx);
 
     if(ctx->deferedInitList)
-        free(ctx->deferedInitList);
+        box_free(ctx->deferedInitList);
 
-    /*free(ctx->argv);*/
+    /*box_free(ctx->argv);*/
     
     /*for (int i=0; i<ctx->envc; ++i)
-        free(ctx->envv[i]);
-    free(ctx->envv);*/
+        box_free(ctx->envv[i]);
+    box_free(ctx->envv);*/
 
     if(ctx->atfork_sz) {
-        free(ctx->atforks);
+        box_free(ctx->atforks);
         ctx->atforks = NULL;
         ctx->atfork_sz = ctx->atfork_cap = 0;
     }
@@ -280,11 +280,11 @@ void FreeBox86Context(box86context_t** context)
 
     FreeDLPrivate(&ctx->dlprivate);
 
-//    free(ctx->stack); // don't free the stack, it's owned by main emu!
+//    box_free(ctx->stack); // don't free the stack, it's owned by main emu!
 
-    free(ctx->fullpath);
-    free(ctx->box86path);
-    free(ctx->bashpath);
+    box_free(ctx->fullpath);
+    box_free(ctx->box86path);
+    box_free(ctx->bashpath);
 
     FreeBridge(&ctx->system);
 
@@ -292,7 +292,7 @@ void FreeBox86Context(box86context_t** context)
     freeALProcWrapper(ctx);
 
     if(ctx->stack_clone)
-        free(ctx->stack_clone);
+        box_free(ctx->stack_clone);
 
     void* ptr;
     if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {
@@ -302,7 +302,7 @@ void FreeBox86Context(box86context_t** context)
     pthread_key_delete(ctx->tlskey);
 
     if(ctx->tlsdata)
-        free(ctx->tlsdata);
+        box_free(ctx->tlsdata);
 
     for(int i=0; i<3; ++i) {
         if(ctx->segtls[i].present) {
@@ -334,11 +334,11 @@ void FreeBox86Context(box86context_t** context)
 
     if(cycle_log)
         for(int i=0; i<CYCLE_LOG; ++i) {
-            free(ctx->log_call[i]);
-            free(ctx->log_ret[i]);
+            box_free(ctx->log_call[i]);
+            box_free(ctx->log_ret[i]);
         }
 
-    free(ctx);
+    box_free(ctx);
 }
 
 int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
@@ -346,7 +346,7 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
     if(idx==ctx->elfcap) {
         // resize...
         ctx->elfcap += 16;
-        ctx->elfs = (elfheader_t**)realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
+        ctx->elfs = (elfheader_t**)box_realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
     }
     ctx->elfs[idx] = head;
     ctx->elfsize++;
@@ -357,7 +357,7 @@ int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
 int AddTLSPartition(box86context_t* context, int tlssize) {
     int oldsize = context->tlssize;
     context->tlssize += tlssize;
-    context->tlsdata = realloc(context->tlsdata, context->tlssize);
+    context->tlsdata = box_realloc(context->tlsdata, context->tlssize);
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
     memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
     // clean GS segment for current emu

@@ -56,8 +56,8 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     if(!h)
         return NULL;
 
-    if ((h->path = realpath(name, NULL)) == NULL) {
-        h->path = (char*)malloc(1);
+    if ((h->path = box_realpath(name, NULL)) == NULL) {
+        h->path = (char*)box_malloc(1);
         h->path[0] = '\0';
     }
 
@@ -79,23 +79,23 @@ void FreeElfHeader(elfheader_t** head)
         cleanDBFromAddressRange(my_context, h->text, h->textsz, 1);
     }*/ // will be free at the end, no need to free it now
 #endif
-    free(h->name);
-    free(h->path);
-    free(h->PHEntries);
-    free(h->SHEntries);
-    free(h->SHStrTab);
-    free(h->StrTab);
-    free(h->Dynamic);
-    free(h->DynStr);
-    free(h->SymTab);
-    free(h->DynSym);
+    box_free(h->name);
+    box_free(h->path);
+    box_free(h->PHEntries);
+    box_free(h->SHEntries);
+    box_free(h->SHStrTab);
+    box_free(h->StrTab);
+    box_free(h->Dynamic);
+    box_free(h->DynStr);
+    box_free(h->SymTab);
+    box_free(h->DynSym);
 
     FreeMapSymbols(&h->mapsymbols);
     FreeMapSymbols(&h->weaksymbols);
     FreeMapSymbols(&h->localsymbols);
 
     FreeElfMemory(h);
-    free(h);
+    box_free(h);
 
     *head = NULL;
 }
@@ -175,9 +175,9 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         for (int i=0; i<head->numPHEntries; ++i) 
             if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
                 ++head->multiblock_n;
-        head->multiblock_size = (uint32_t*)calloc(head->multiblock_n, sizeof(uint32_t));
-        head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
-        head->multiblock = (void**)calloc(head->multiblock_n, sizeof(void*));
+        head->multiblock_size = (uint32_t*)box_calloc(head->multiblock_n, sizeof(uint32_t));
+        head->multiblock_offs = (uintptr_t*)box_calloc(head->multiblock_n, sizeof(uintptr_t));
+        head->multiblock = (void**)box_calloc(head->multiblock_n, sizeof(void*));
         // and now, create all individual blocks
         head->memory = (char*)0xffffffff;
         int n = 0;
@@ -275,9 +275,9 @@ int AllocElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         printf_dump(log_level, "Got %p (delta=%p)\n", p, (void*)head->delta);
 
         head->multiblock_n = 1;
-        head->multiblock_size = (uint32_t*)calloc(head->multiblock_n, sizeof(uint32_t));
-        head->multiblock_offs = (uintptr_t*)calloc(head->multiblock_n, sizeof(uintptr_t));
-        head->multiblock = (void**)calloc(head->multiblock_n, sizeof(void*));
+        head->multiblock_size = (uint32_t*)box_calloc(head->multiblock_n, sizeof(uint32_t));
+        head->multiblock_offs = (uintptr_t*)box_calloc(head->multiblock_n, sizeof(uintptr_t));
+        head->multiblock = (void**)box_calloc(head->multiblock_n, sizeof(void*));
         head->multiblock_size[0] = head->memsz;
         head->multiblock_offs[0] = (uintptr_t)p;
         head->multiblock[0] = p;
@@ -296,9 +296,9 @@ void FreeElfMemory(elfheader_t* head)
         else
             for(int i=0; i<head->multiblock_n; ++i)
                 munmap(head->multiblock[i], head->multiblock_size[i]);
-        free(head->multiblock);
-        free(head->multiblock_size);
-        free(head->multiblock_offs);
+        box_free(head->multiblock);
+        box_free(head->multiblock_size);
+        box_free(head->multiblock_offs);
     }
 }
 
@@ -912,6 +912,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
     }
     return bindnow?ret_ok:0;
 }
+void checkHookedSymbols(lib_t *maplib, elfheader_t* h); // in mallochook.c
 int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* head)
 {
     if(head->rel) {
@@ -928,7 +929,7 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t* he
         if(RelocateElfRELA(maplib, local_maplib, bindnow, head, cnt, (Elf32_Rela *)(head->rela + head->delta), NULL))
             return -1;
     }
-   
+    checkHookedSymbols(maplib, head);
     return 0;
 }
 
@@ -1039,22 +1040,6 @@ uintptr_t GetLastByte(elfheader_t* h)
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
 {
     if(box86_dump && h->DynSym) DumpDynSym(h);
-    int libcef = (strstr(h->name, "libcef.so") || strstr(h->name, "libnode.so"))?1:0;
-    //libcef.so is linked with tcmalloc staticaly, but this cannot be easily supported in box86, so hacking some "unlink" here
-    const char* avoid_libcef[] = {"malloc", "realloc", "free", "calloc", "cfree",
-        "__libc_calloc", "__libc_cfree", "__libc_memallign", "__liv_pvalloc",
-        "__libcrealloc", "__libc_valloc", "__posix_memalign",
-        "valloc", "pvalloc", "posix_memalign", "malloc_stats", "malloc_usable_size",
-        /*"mallopt", "localtime_r",*/
-        //c++ symbol from libstdc++ too
-        //"_ZnwmRKSt9nothrow_t", "_ZdaPv",    // operator new(unsigned long, std::nothrow_t const&), operator delete[](void*)
-        //"_Znwm", "_ZdlPv", "_Znam",         // operator new(unsigned long), operator delete(void*), operator new[](unsigned long)
-        //"_ZnwmSt11align_val_t", "_ZnwmSt11align_val_tRKSt9nothrow_t",   // operator new(unsigned long, std::align_val_t)
-        //"_ZnamSt11align_val_t", "_ZnamSt11align_val_tRKSt9nothrow_t",   // operator new[](unsigned long, std::align_val_t)
-        //"_ZdlPvRKSt9nothrow_t", "_ZdaPvSt11align_val_tRKSt9nothrow_t",  // more delete operators
-        //"_ZdlPvmSt11align_val_t", "_ZdaPvRKSt9nothrow_t",
-        //"_ZdaPvSt11align_val_t", "_ZdlPvSt11align_val_t",
-    };
     printf_dump(LOG_NEVER, "Will look for Symbol to add in SymTable(%zu)\n", h->numSymTab);
     for (size_t i=0; i<h->numSymTab; ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
@@ -1100,13 +1085,6 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                     }
             } else {
                 int to_add = 1;
-                if(libcef) {
-                    if(strstr(symname, "_Zn")==symname || strstr(symname, "_Zd")==symname)
-                        to_add = 0;
-                    for(int j=0; j<sizeof(avoid_libcef)/sizeof(avoid_libcef[0]) && to_add; ++j)
-                        if(!strcmp(symname, avoid_libcef[j]))
-                            to_add = 0;
-                }
                 if(!to_add || (bind==STB_GNU_UNIQUE && FindGlobalSymbol(maplib, symname, -1, NULL)))
                     continue;
                 uintptr_t offs = (type==STT_TLS)?h->SymTab[i].st_value:(h->SymTab[i].st_value + h->delta);
@@ -1142,13 +1120,6 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
                 printf_dump(LOG_NEVER, "Adding Default Version \"%s\" for Symbol\"%s\"\n", vername, symname);
             }
             int to_add = 1;
-            if(libcef) {
-                if(strstr(symname, "_Zn")==symname || strstr(symname, "_Zd")==symname)
-                    to_add = 0;
-                for(int j=0; j<sizeof(avoid_libcef)/sizeof(avoid_libcef[0]) && to_add; ++j)
-                    if(!strcmp(symname, avoid_libcef[j]))
-                        to_add = 0;
-            }
             if(!to_add || (bind==STB_GNU_UNIQUE && FindGlobalSymbol(maplib, symname, version, vername)))
                 continue;
             printf_dump(LOG_NEVER, "Adding Versionned Symbol(bind=%s) \"%s\" (ver=%d/%s) with offset=%p sz=%zu\n", (bind==STB_LOCAL)?"LOCAL":((bind==STB_WEAK)?"WEAK":"GLOBAL"), symname, version, vername?vername:"(none)", (void*)offs, sz);
@@ -1189,33 +1160,33 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
             char* rpath = rpathref;
             int is_origin = 0;
             while(strstr(rpath, "$ORIGIN")) {
-                char* origin = strdup(h->path);
+                char* origin = box_strdup(h->path);
                 char* p = strrchr(origin, '/');
                 if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
+                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
                 p = strstr(rpath, "$ORIGIN");
                 memcpy(tmp, rpath, p-rpath);
                 strcat(tmp, origin);
                 strcat(tmp, p+strlen("$ORIGIN"));
                 if(rpath!=rpathref)
-                    free(rpath);
+                    box_free(rpath);
                 rpath = tmp;
-                free(origin);
+                box_free(origin);
                 is_origin = 1;
             }
             while(strstr(rpath, "${ORIGIN}")) {
-                char* origin = strdup(h->path);
+                char* origin = box_strdup(h->path);
                 char* p = strrchr(origin, '/');
                 if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
+                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
                 p = strstr(rpath, "${ORIGIN}");
                 memcpy(tmp, rpath, p-rpath);
                 strcat(tmp, origin);
                 strcat(tmp, p+strlen("${ORIGIN}"));
                 if(rpath!=rpathref)
-                    free(rpath);
+                    box_free(rpath);
                 rpath = tmp;
-                free(origin);
+                box_free(origin);
                 is_origin = 1;
             }
             if(strchr(rpath, '$')) {
@@ -1232,7 +1203,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
                 PrependList(&box86->box86_ld_lib, rpath, 1);
             }
             if(rpath!=rpathref)
-                free(rpath);
+                box_free(rpath);
         }
 
     if(!h->neededlibs && neededlibs)
@@ -1291,6 +1262,12 @@ void RefreshElfTLS(elfheader_t* h)
     }
 }
 
+
+void MarkElfInitDone(elfheader_t* h)
+{
+    if(h)
+        h->init_done = 1;
+}
 void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
     if(!h || h->init_done)
@@ -1305,12 +1282,13 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
     if(context->deferedInit) {
         if(context->deferedInitSz==context->deferedInitCap) {
             context->deferedInitCap += 4;
-            context->deferedInitList = (elfheader_t**)realloc(context->deferedInitList, context->deferedInitCap*sizeof(elfheader_t*));
+            context->deferedInitList = (elfheader_t**)box_realloc(context->deferedInitList, context->deferedInitCap*sizeof(elfheader_t*));
         }
         context->deferedInitList[context->deferedInitSz++] = h;
         return;
     }
     printf_log(LOG_DEBUG, "Calling Init for %s %p\n", ElfName(h), (void*)p);
+    h->init_done = 1;
     if(h->initentry)
         RunFunctionWithEmu(emu, 0, p, 3, context->argc, context->argv, context->envv);
     printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
@@ -1321,7 +1299,6 @@ void RunElfInit(elfheader_t* h, x86emu_t *emu)
         RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
     }
 
-    h->init_done = 1;
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
     printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
     return;
@@ -1342,7 +1319,7 @@ void RunDeferedElfInit(x86emu_t *emu)
     context->deferedInitCap = context->deferedInitSz = 0;
     for (int i=0; i<Sz; ++i)
         RunElfInit(List[i], emu);
-    free(List);
+    box_free(List);
 }
 
 void RunElfFini(elfheader_t* h, x86emu_t *emu)

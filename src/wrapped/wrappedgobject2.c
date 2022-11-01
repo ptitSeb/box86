@@ -118,7 +118,7 @@ static void signal_delete(my_signal_t* sig, void* b)
         RunFunction(my_context, d, 2, sig->data, b);
     }
     printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, (void*)d);
-    free(sig);
+    box_free(sig);
 }
 
 static void addGObject2Alternate(library_t* lib)
@@ -419,7 +419,7 @@ static void my_marshal_##A(void* closure, void* return_value, uint32_t n, void* 
 {                                                                                                                   \
     void* newvalues = vkStructUnalign(values, "idd", n);                                                              \
     RunFunction(my_context, my_marshal_fct_##A, 6, closure, return_value, n, newvalues, hint, data);                \
-    free(newvalues);                                                                                                \
+    box_free(newvalues);                                                                                                \
 }
 SUPER()
 #undef GO

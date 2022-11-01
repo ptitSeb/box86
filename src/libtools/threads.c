@@ -86,7 +86,7 @@ void CleanStackSize(box86context_t* context)
 	if(!context || !context->stacksizes)
 		return;
 	pthread_mutex_lock(&context->mutex_thread);
-	kh_foreach_value(context->stacksizes, ts, free(ts));
+	kh_foreach_value(context->stacksizes, ts, box_free(ts));
 	kh_destroy(threadstack, context->stacksizes);
 	context->stacksizes = NULL;
 	pthread_mutex_unlock(&context->mutex_thread);
@@ -97,7 +97,7 @@ void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
 	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(threadstack, map, attr);
 	if(k!=kh_end(map)) {
-		free(kh_value(map, k));
+		box_free(kh_value(map, k));
 		kh_del(threadstack, map, k);
 	}
 	pthread_mutex_unlock(&my_context->mutex_thread);
@@ -109,7 +109,7 @@ void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t sta
 	int ret;
 	pthread_mutex_lock(&my_context->mutex_thread);
 	k = kh_put(threadstack, map, attr, &ret);
-	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)calloc(1, sizeof(threadstack_t));
+	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)box_calloc(1, sizeof(threadstack_t));
 	ts->stack = stack;
 	ts->stacksize = stacksize;
 	pthread_mutex_unlock(&my_context->mutex_thread);
@@ -149,7 +149,7 @@ static void FreeCancelThread(box86context_t* context)
 #ifndef ANDROID
 static __pthread_unwind_buf_t* AddCancelThread(x86_unwind_buff_t* buff)
 {
-	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)calloc(1, sizeof(__pthread_unwind_buf_t));
+	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)box_calloc(1, sizeof(__pthread_unwind_buf_t));
 	buff->__pad[3] = r;
 	return r;
 }
@@ -162,7 +162,7 @@ static __pthread_unwind_buf_t* GetCancelThread(x86_unwind_buff_t* buff)
 static void DelCancelThread(x86_unwind_buff_t* buff)
 {
 	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[3];
-	free(r);
+	box_free(r);
 	buff->__pad[3] = NULL;
 }
 #endif
@@ -178,7 +178,7 @@ static void emuthread_destroy(void* p)
 	emuthread_t *et = (emuthread_t*)p;
 	if(et) {
 		FreeX86Emu(&et->emu);
-		free(et);
+		box_free(et);
 	}
 }
 
@@ -195,7 +195,7 @@ void thread_set_emu(x86emu_t* emu)
 	pthread_once(&thread_key_once, thread_key_alloc);
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!et) {
-		et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+		et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
 	} else {
 		if(et->emu != emu)
 			FreeX86Emu(&et->emu);
@@ -221,7 +221,7 @@ x86emu_t* thread_get_emu()
 				stacksize = stack_size;
 			pthread_attr_destroy(&attr);
 		}
-		//void* stack = calloc(1, stacksize);
+		//void* stack = box_calloc(1, stacksize);
 		void* stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
 		x86emu_t *emu = NewX86Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
 		SetupX86Emu(emu);
@@ -307,12 +307,12 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 		stacksize = attr_stacksize;
 		own = 0;
 	} else {
-		//stack = malloc(stacksize);
+		//stack = box_malloc(stacksize);
 		stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
 		own = 1;
 	}
 
-	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x86emu_t *emuthread = NewX86Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX86Emu(emuthread);
 	SetFS(emuthread, GetFS(emu));
@@ -334,9 +334,9 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet)
 {
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
-	//void* stack = malloc(stacksize);
+	//void* stack = box_malloc(stacksize);
 	void* stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
-	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x86emu_t *emuthread = NewX86Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX86Emu(emuthread);
 	SetFS(emuthread, GetFS(emu));
@@ -545,7 +545,7 @@ static pthread_cond_t* add_cond(void* cond)
 	if(!ret)
 		c = kh_value(mapcond, k);	// already there... reinit an existing one?
 	else 
-		c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
+		c = kh_value(mapcond, k) = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
 	*(void**)cond = cond;
 	pthread_mutex_unlock(&my_context->mutex_thread);
 	return c;
@@ -560,7 +560,7 @@ static pthread_cond_t* get_cond(void* cond)
 		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
 		if(k==kh_end(mapcond)) {
 			printf_log(LOG_DEBUG, "BOX86: Note: phtread_cond not found, create a new empty one\n");
-			ret = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
+			ret = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
 			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
 			kh_value(mapcond, k) = ret;
 			*(void**)cond = cond;
@@ -579,7 +579,7 @@ static void del_cond(void* cond)
 	pthread_mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
 	if(k!=kh_end(mapcond)) {
-		free(kh_value(mapcond, k));
+		box_free(kh_value(mapcond, k));
 		kh_del(mapcond, mapcond, k);
 	}
 	pthread_mutex_unlock(&my_context->mutex_thread);
@@ -761,7 +761,7 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 		return kh_value(unaligned_mutex, k);
 	int r;
 	k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
-	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_t* ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)box_malloc(sizeof(pthread_mutex_t));
 	memcpy(ret, m, sizeof(pthread_mutex_t));
 	return ret;
 }
@@ -774,7 +774,7 @@ EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
 		kh_del(mutex, unaligned_mutex, k);
 		int ret = pthread_mutex_destroy(n);
-		free(n);
+		box_free(n);
 		return ret;
 	}
 	return pthread_mutex_destroy(m);
@@ -794,7 +794,7 @@ static pthread_mutex_t mutex_mutexes = PTHREAD_MUTEX_INITIALIZER;
 
 static mutexes_block_t* NewMutexesBlock()
 {
-	mutexes_block_t* ret = (mutexes_block_t*)calloc(1, sizeof(mutexes_block_t));
+	mutexes_block_t* ret = (mutexes_block_t*)box_calloc(1, sizeof(mutexes_block_t));
 	ret->n_free = MUTEXES_SIZE;
 	return ret;
 }
@@ -844,7 +844,7 @@ void FreeAllMutexes(mutexes_block_t* m)
 		return;
 	FreeAllMutexes(m->next);
 	// should destroy all mutexes also?
-	free(m);
+	box_free(m);
 }
 
 pthread_mutex_t* GetMutex(int k)
@@ -957,8 +957,8 @@ static void emujmpbuf_destroy(void* p)
 {
 	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
 	if(ej) {
-		free(ej->jmpbuf);
-		free(ej);
+		box_free(ej->jmpbuf);
+		box_free(ej);
 	}
 }
 
@@ -968,8 +968,8 @@ emu_jmpbuf_t* GetJmpBuf()
 {
 	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
 	if(!ejb) {
-		ejb = (emu_jmpbuf_t*)calloc(1, sizeof(emu_jmpbuf_t));
-		ejb->jmpbuf = calloc(1, sizeof(jmp_buf));
+		ejb = (emu_jmpbuf_t*)box_calloc(1, sizeof(emu_jmpbuf_t));
+		ejb->jmpbuf = box_calloc(1, sizeof(jmp_buf));
 		pthread_setspecific(jmpbuf_key, ejb);
 	}
 	return ejb;
@@ -1008,7 +1008,7 @@ void fini_pthread_helper(box86context_t* context)
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
 		pthread_cond_destroy(cond);
-		free(cond);
+		box_free(cond);
 	);
 	kh_destroy(mapcond, mapcond);
 	mapcond = NULL;
@@ -1017,7 +1017,7 @@ void fini_pthread_helper(box86context_t* context)
 	pthread_mutex_t *m;
 	kh_foreach_value(unaligned_mutex, m, 
 		pthread_mutex_destroy(m);
-		free(m);
+		box_free(m);
 	);
 	kh_destroy(mutex, unaligned_mutex);
 #else

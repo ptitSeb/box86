@@ -754,6 +754,8 @@ def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions,
 							 \
 							 or match("libc",        "tcmallocminimal") \
 							 or match("libc",        "ldlinux") 	\
+							 or match("libc",        "tbbmallocproxy") \
+							 or match("tcmallocminimal","tbbmallocproxy") \
 							:
 								# libc and ldlinux have some "__libc_" data symbols in common... TODO check if ok
 								continue

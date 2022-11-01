@@ -111,7 +111,7 @@ x86_ftsent_t* getFtsent(kh_ftsent_t* ftsentMap, FTSENT* ftsent, int dolink)
         return kh_value(ftsentMap, k);
     // new value... so need convertion & alignment
     k = kh_put(ftsent, ftsentMap, (uintptr_t)ftsent, &ret);
-    x86_ftsent_t *x86ftsent = kh_value(ftsentMap, k) = (x86_ftsent_t*)malloc(sizeof(x86_ftsent_t));
+    x86_ftsent_t *x86ftsent = kh_value(ftsentMap, k) = (x86_ftsent_t*)box_malloc(sizeof(x86_ftsent_t));
     UnalignFTSENT(x86ftsent, ftsent);   // unalign
     // handle the 3 embedded ftsent...
     if(ftsent->fts_info<=14 && ftsent->fts_info!=7) {   //14 is max value, 7 is err
@@ -138,7 +138,7 @@ void freeFts(box86context_t* context, void* ftsp)
 
     kh_ftsent_t *ftsentMap = kh_value(ftsmap, k);
     x86_ftsent_t* x86ftsent;
-    kh_foreach_value(ftsentMap, x86ftsent, free(x86ftsent));
+    kh_foreach_value(ftsentMap, x86ftsent, box_free(x86ftsent));
     kh_destroy(ftsent, ftsentMap);
     kh_del(fts, ftsmap, k);
 }

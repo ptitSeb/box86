@@ -531,6 +531,7 @@
 #() pFUpi
 #() pFdUU
 #() pFddd
+#() pFLLp
 #() pFpii
 #() pFpiu
 #() pFpiU
@@ -4284,6 +4285,19 @@ wrappedssl3:
   - SSL_AuthCertificateHook
   - SSL_BadCertHook
 wrappedtbbmalloc:
+wrappedtbbmallocproxy:
+- vFp:
+  - _ZdaPv
+  - _ZdlPv
+- pFL:
+  - _Znam
+  - _Znwm
+- vFpp:
+  - _ZdaPvRKSt9nothrow_t
+  - _ZdlPvRKSt9nothrow_t
+- pFLp:
+  - _ZnamRKSt9nothrow_t
+  - _ZnwmRKSt9nothrow_t
 wrappedtcmallocminimal:
 - iFpL:
   - munmap

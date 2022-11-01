@@ -167,6 +167,7 @@ GO("libgomp.so.1", gomp)
 GO("libcap.so.2", cap)
 GO("libpcap.so.0", pcap)
 GO("libFAudio.so.0", faudio)
+GO("libtbbmalloc_proxy.so.2", tbbmallocproxy)
 
 #ifdef ANDROID
 GO("libc.so", libc)

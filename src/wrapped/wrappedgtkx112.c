@@ -877,15 +877,13 @@ EXPORT void my_gtk_binding_entry_add_signal(x86emu_t* emu, void* binding, uint32
         return;
     }
     // build the list
-    my_GSList_t *list = calloc(n, sizeof(my_GSList_t));
+    my_GSList_t *list = alloca(n*sizeof(my_GSList_t));
     for(uint32_t i=0; i<n; ++i) {
         list[i].data = st[i];
         list[i].next = (i==(n-1))?NULL:&list[i+1];
     }
 
     my->gtk_binding_entry_add_signall(binding, keyval, mod, name, list);
-
-    free(list);
 }
 
 EXPORT void my_gtk_container_foreach(x86emu_t* emu, void* container, void* f, void* data)

@@ -37,6 +37,7 @@ void RefreshElfTLS(elfheader_t* h);
 void RunElfInit(elfheader_t* h, x86emu_t* emu);
 void RunElfFini(elfheader_t* h, x86emu_t* emu);
 void RunDeferedElfInit(x86emu_t* emu);
+void MarkElfInitDone(elfheader_t* h);
 void* GetBaseAddress(elfheader_t* h);
 void* GetElfDelta(elfheader_t* h);
 uint32_t GetBaseSize(elfheader_t* h);

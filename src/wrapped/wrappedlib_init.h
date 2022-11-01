@@ -2,6 +2,7 @@
 #error Meh
 #endif
 
+#include "debug.h"
 #include "librarian/library_inner.h"
 
 #define FUNC3(M,N) wrapped##M##N
@@ -135,7 +136,7 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 int FUNC(_init)(library_t* lib, box86context_t* box86)
 {
 // Init first
-    free(lib->path); lib->path=NULL;
+    box_free(lib->path); lib->path=NULL;
 #ifdef PRE_INIT
     PRE_INIT
 #endif
@@ -153,10 +154,10 @@ int FUNC(_init)(library_t* lib, box86context_t* box86)
 #endif
                 return -1;
 #ifdef ALTNAME2
-                else lib->path = strdup(ALTNAME2);
-            } else lib->path = strdup(ALTNAME);
+                else lib->path = box_strdup(ALTNAME2);
+            } else lib->path = box_strdup(ALTNAME);
 #endif
-        } else lib->path = strdup(MAPNAME(Name));
+        } else lib->path = box_strdup(MAPNAME(Name));
     }
     WrappedLib_CommonInit(lib);
 
