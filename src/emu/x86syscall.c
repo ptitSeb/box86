@@ -551,10 +551,10 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 PushExit(newemu);
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
-                    mystack = __libc_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                    mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
                 } else {
                     if(!my_context->stack_clone)
-                        my_context->stack_clone = __libc_malloc(1024*1024);
+                        my_context->stack_clone = box_malloc(1024*1024);
                     mystack = my_context->stack_clone;
                     my_context->stack_clone_used = 1;
                 }
@@ -755,10 +755,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
                 PushExit(newemu);
                 void* mystack = NULL;
                 if(my_context->stack_clone_used) {
-                    mystack = __libc_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
+                    mystack = box_malloc(1024*1024);  // stack for own process... memory leak, but no practical way to remove it
                 } else {
                     if(!my_context->stack_clone)
-                        my_context->stack_clone = __libc_malloc(1024*1024);
+                        my_context->stack_clone = box_malloc(1024*1024);
                     mystack = my_context->stack_clone;
                     my_context->stack_clone_used = 1;
                 }
