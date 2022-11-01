@@ -369,8 +369,6 @@ void CancelBlock()
     box_free(helper->next);
     box_free(helper->insts);
     box_free(helper->predecessor);
-    box_free(helper->sons_x86);
-    box_free(helper->sons_arm);
     if(helper->dynablock && helper->dynablock->block)
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
 }
@@ -487,8 +485,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     helper.block = p;
     helper.arm_start = (uintptr_t)p;
     if(helper.sons_size) {
-        helper.sons_x86 = (uintptr_t*)box_calloc(helper.sons_size, sizeof(uintptr_t));
-        helper.sons_arm = (void**)box_calloc(helper.sons_size, sizeof(void*));
+        helper.sons_x86 = (uintptr_t*)alloca(helper.sons_size*sizeof(uintptr_t));
+        helper.sons_arm = (void**)alloca(helper.sons_size*sizeof(void*));
     }
     // pass 3, emit (log emit arm opcode)
     if(box86_dynarec_dump) {
@@ -571,10 +569,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     box_free(helper.predecessor);
     helper.predecessor = NULL;
-    box_free(helper.sons_x86);
-    helper.sons_x86 = NULL;
-    box_free(helper.sons_arm);
-    helper.sons_arm = NULL;
     current_helper = NULL;
     block->done = 1;
     return (void*)block;
