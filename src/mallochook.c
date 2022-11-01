@@ -201,7 +201,7 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
     return 0;
 }
 
-EXPORT size_t malloc_usable_size(const void* p)
+EXPORT size_t malloc_usable_size(void* p)
 {
     return box_malloc_usable_size(p);
 }
