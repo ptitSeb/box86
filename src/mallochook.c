@@ -118,14 +118,9 @@ typedef void* (*pFLLp_t)(size_t, size_t, void* p);
 typedef void  (*vFpLp_t)(void*, size_t, void*);
 typedef void  (*vFpLL_t)(void*, size_t, size_t);
 
-#ifdef ANDROID
-void*(*__libc_malloc)(size_t) = NULL;
-void*(*__libc_realloc)(void*, size_t) = NULL;
-void*(*__libc_calloc)(size_t, size_t) = NULL;
-void (*__libc_free)(void*) = NULL;
-void*(*__libc_memalign)(size_t, size_t) = NULL;
-#endif
+#ifndef ANDROID
 size_t(*box_malloc_usable_size)(void*) = NULL;
+#endif
 
 int GetTID();
 
@@ -158,7 +153,7 @@ static size_t pot(size_t l) {
     while (l>(1<<ret))  ++ret;
     return 1<<ret;
 }
-
+#ifndef ANDROID
 // redefining all libc memory allocation routines
 EXPORT void* malloc(size_t l)
 {
@@ -220,7 +215,7 @@ EXPORT size_t malloc_usable_size(const void* p)
 {
     return box_malloc_usable_size(p);
 }
-
+#endif
 EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
 {
     return box_malloc(sz);
@@ -538,14 +533,9 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
 }
 
 void init_malloc_hook() {
-#ifdef ANDROID
-    __libc_malloc = dlsym(RTLD_NEXT, "malloc");
-    __libc_realloc = dlsym(RTLD_NEXT, "realloc");
-    __libc_calloc = dlsym(RTLD_NEXT, "calloc");
-    __libc_free = dlsym(RTLD_NEXT, "free");
-    __libc_memalign = dlsym(RTLD_NEXT, "memalign");
-#endif
+#ifndef ANDROID
     box_malloc_usable_size = dlsym(RTLD_NEXT, "malloc_usable_size");
+#endif
     #if 0
     #define GO(A, B)
     #define GO2(A, B)   box_##A = (B##_t)dlsym(RTLD_NEXT, #A); if(box_##A == (B##_t)A) box_##A = NULL;
