@@ -5,6 +5,9 @@
 #include <errno.h>
 #include <sys/param.h>
 #include <dlfcn.h>
+#ifdef ANDROID
+#include <malloc.h>
+#endif
 
 #include "box86context.h"
 #include "debug.h"
@@ -118,7 +121,9 @@ typedef void* (*pFLLp_t)(size_t, size_t, void* p);
 typedef void  (*vFpLp_t)(void*, size_t, void*);
 typedef void  (*vFpLL_t)(void*, size_t, size_t);
 
-#ifndef ANDROID
+#ifdef ANDROID
+#define box_malloc_usable_size malloc_usable_size
+#else
 size_t(*box_malloc_usable_size)(void*) = NULL;
 #endif
 
