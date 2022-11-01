@@ -55,6 +55,29 @@ static void* find_PK11PasswordFunc_Fct(void* fct)
     return NULL;
 }
 
+// NSS_ShutdownFunc ...
+#define GO(A)   \
+static uintptr_t my_NSS_ShutdownFunc_fct_##A = 0;                               \
+static int my_NSS_ShutdownFunc_##A(void* a, void* b)                            \
+{                                                                               \
+    return (int)RunFunction(my_context, my_NSS_ShutdownFunc_fct_##A, 2, a, b);  \
+}
+SUPER()
+#undef GO
+static void* find_NSS_ShutdownFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_NSS_ShutdownFunc_fct_##A == (uintptr_t)fct) return my_NSS_ShutdownFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_NSS_ShutdownFunc_fct_##A == 0) {my_NSS_ShutdownFunc_fct_##A = (uintptr_t)fct; return my_NSS_ShutdownFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for nss3 NSS_ShutdownFunc callback\n");
+    return NULL;
+}
+
 // CERT_StringFromCertFcn ...
 #define GO(A)   \
 static uintptr_t my_CERT_StringFromCertFcn_fct_##A = 0;                             \
@@ -101,6 +124,11 @@ EXPORT int my_CERT_RegisterAlternateOCSPAIAInfoCallBack(x86emu_t* emu, void* f, 
     if(old)
         *old = reverse_CERT_StringFromCertFcn_Fct(my_lib, *old);
     return ret;
+}
+
+EXPORT int my_NSS_RegisterShutdown(x86emu_t* emu, void* f, void* data)
+{
+    return my->NSS_RegisterShutdown(find_NSS_ShutdownFunc_Fct(f), data);
 }
 
 #define CUSTOM_INIT \

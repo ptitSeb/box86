@@ -16,6 +16,7 @@ typedef int32_t (*iFpp_t)(void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(PK11_SetPasswordFunc, vFp_t) \
-	GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFpp_t)
+	GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFpp_t) \
+	GO(NSS_RegisterShutdown, iFpp_t)
 
 #endif // __wrappednss3TYPES_H_

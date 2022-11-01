@@ -1270,7 +1270,7 @@ GOM(g_thread_create_full, pFEppLiiip)
 //GO(g_thread_error_quark, 
 GO(g_thread_exit, vFp)
 GOM(g_thread_foreach, vFEpp)
-//GO(g_thread_get_initialized, 
+GO(g_thread_get_initialized, iFv)
 //GO(g_thread_init_glib, 
 GO(g_thread_join, pFp)
 //GO(g_thread_new, 

@@ -36,6 +36,7 @@
 #() IFd
 #() IFp
 #() IFG
+#() CFv
 #() CFC
 #() CFp
 #() CFG
@@ -51,6 +52,7 @@
 #() uFG
 #() UFv
 #() UFu
+#() UFU
 #() UFp
 #() UFG
 #() UFs
@@ -244,6 +246,7 @@
 #() pFiu
 #() pFip
 #() pFiV
+#() pFII
 #() pFui
 #() pFuC
 #() pFuu
@@ -532,6 +535,7 @@
 #() pFdUU
 #() pFddd
 #() pFLLp
+#() pFLpp
 #() pFpii
 #() pFpiu
 #() pFpiU
@@ -539,6 +543,7 @@
 #() pFpil
 #() pFpiL
 #() pFpip
+#() pFpIi
 #() pFpCu
 #() pFpWW
 #() pFpui
@@ -754,6 +759,7 @@
 #() iFupup
 #() iFuppi
 #() iFuppp
+#() iFLppp
 #() iFpwww
 #() iFpwpp
 #() iFpiii
@@ -911,6 +917,7 @@
 #() pFdddd
 #() pFlfff
 #() pFLiip
+#() pFLppp
 #() pFpiii
 #() pFpiiu
 #() pFpiip
@@ -1118,6 +1125,7 @@
 #() iFipppi
 #() iFipppp
 #() iFuppup
+#() iFLpppp
 #() iFpwwww
 #() iFpwppp
 #() iFpiiii
@@ -1159,6 +1167,7 @@
 #() iFpLLpp
 #() iFppiiu
 #() iFppiip
+#() iFppiIp
 #() iFppiup
 #() iFppiLL
 #() iFppipi
@@ -1249,8 +1258,10 @@
 #() pFpiipp
 #() pFpiCCC
 #() pFpiuuu
+#() pFpiLip
 #() pFpippi
 #() pFpippp
+#() pFpIiip
 #() pFpuiii
 #() pFpuiip
 #() pFpuuip
@@ -1258,6 +1269,7 @@
 #() pFpUdii
 #() pFpdddd
 #() pFplppp
+#() pFpLpip
 #() pFppiii
 #() pFppiip
 #() pFppiup
@@ -1267,6 +1279,7 @@
 #() pFppuuu
 #() pFppuup
 #() pFppddi
+#() pFppLLi
 #() pFpppii
 #() pFpppip
 #() pFpppui
@@ -1530,6 +1543,8 @@
 #() pFpippip
 #() pFpuuuuu
 #() pFplpppp
+#() pFpLiLpp
+#() pFpLpLLi
 #() pFppiiii
 #() pFppiipp
 #() pFppiCCC
@@ -1697,6 +1712,7 @@
 #() uFEiipppp
 #() uFEpiippp
 #() uFEpuuppp
+#() uFEpppppp
 #() uFuippppp
 #() uFppiuppp
 #() uFppuuuup
@@ -1716,11 +1732,15 @@
 #() pFuupupup
 #() pFdiiiIiI
 #() pFpiiUdii
+#() pFpipippp
 #() pFplppppp
+#() pFpLpLLiL
 #() pFpLppiip
+#() pFpLppLLi
 #() pFppiiipp
 #() pFppiiCCC
 #() pFppiippp
+#() pFppiLLip
 #() pFppipipp
 #() pFppuuuuu
 #() pFppuuppp
@@ -1858,6 +1878,7 @@
 #() pFpupupuuu
 #() pFpdwwWWui
 #() pFplpppppp
+#() pFpLppLLiL
 #() pFppiiiiii
 #() pFpppuuuuu
 #() pFpppppupp
@@ -2082,6 +2103,7 @@
 #() pFEppppppppppp
 #() pFWWiCCCCiipup
 #() pFppiiuuuiupup
+#() pFppippLLLiLpp
 #() pFpppppppppppp
 #() vFEpppppppiippp
 #() vFuiiiiiiiiiuup
@@ -2100,6 +2122,7 @@
 #() iFpuppppppppppp
 #() iFppppppppppppp
 #() uFppppuuupppppp
+#() pFppLppppiiLpip
 #() pFppppppppppppp
 #() vFuffiiffiiffiip
 #() vFuddiiddiiddiip
@@ -2333,6 +2356,8 @@ wrappedfreetype:
 - iFpuuLppp:
   - FTC_Manager_New
 wrappedgconf2:
+- uFpppppp:
+  - gconf_client_notify_add
 wrappedgcrypt:
 wrappedgdk3:
 - vFpp:
@@ -3785,6 +3810,10 @@ wrappedmpg123:
   - mpg123_replace_reader_handle_64
 wrappednsl:
 wrappednspr4:
+- iFpp:
+  - PR_CallOnce
+- pFip:
+  - PR_CreateIOLayerStub
 - pFpp:
   - PR_FindFunctionSymbol
 - iFppp:
@@ -3794,6 +3823,7 @@ wrappednss3:
   - PK11_SetPasswordFunc
 - iFpp:
   - CERT_RegisterAlternateOCSPAIAInfoCallBack
+  - NSS_RegisterShutdown
 wrappednssutil3:
 wrappedopenal:
 - vFv:

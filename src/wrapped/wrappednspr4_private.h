@@ -30,7 +30,7 @@ GO(PR_AttachThread, pFiip)
 //GO(PR_BlockClockInterrupts, 
 GO(PR_BlockInterrupt, vFv)
 //GO(PR_Calloc, 
-//GO(PR_CallOnce, 
+GOM(PR_CallOnce, iFEpp)
 GOM(PR_CallOnceWithArg, iFEppp)
 //GO(PR_CancelJob, 
 //GO(PR_CancelWaitFileDesc, 
@@ -57,7 +57,7 @@ GO(PR_ConvertIPv4AddrToIPv6, vFup)
 //GO(PR_CreateCounter, 
 //GO(PR_CreateFileMap, 
 //GO(PR_CreateIOLayer, 
-//GO(PR_CreateIOLayerStub, 
+GOM(PR_CreateIOLayerStub, pFEip)
 //GO(PR_CreateMWaitEnumerator, 
 //GO(PR_CreateOrderedLock, 
 //GO(PR_CreatePipe, 
@@ -143,15 +143,15 @@ GO(PR_FreeLibraryName, vFp)
 //GO(PR_GetCounter, 
 //GO(PR_GetCounterHandleFromName, 
 //GO(PR_GetCounterNameFromHandle, 
-//GO(PR_GetCurrentThread, 
+GO(PR_GetCurrentThread, pFv)
 GO(PR_GetDefaultIOMethods, pFv)
 //GO(PR_GetDescType, 
-//GO(PR_GetDirectorySeparator, 
+GO(PR_GetDirectorySeparator, CFv)
 //GO(PR_GetDirectorySepartor, 
-//GO(PR_GetEnv, 
+GO(PR_GetEnv, pFp)
 //GO(PR_GetEnvSecure, 
 GO(PR_GetError, iFv)
-//GO(PR_GetErrorText, 
+GO(PR_GetErrorText, iFp)
 GO(PR_GetErrorTextLength, iFv)
 //GO(PR_GetFileInfo, 
 //GO(PR_GetFileInfo64, 
@@ -208,7 +208,7 @@ GO(PR_GetUniqueIdentity, iFp)
 //GO(PR_GetVersion, 
 //GO(PR_GMTParameters, 
 //GO(PR_htonl, 
-//GO(PR_htonll, 
+GO(PR_htonll, UFU)
 //GO(PR_htons, 
 //GO(PR_ImplodeTime, 
 //GO(PR_ImportFile, 
@@ -242,7 +242,7 @@ GO(PR_Lock, vFp)
 //GO(PR_LogFlush, 
 //GO(PR_LogPrint, 
 //GO(PR_MakeDir, 
-//GO(PR_Malloc, 
+GO(PR_Malloc, pFL)
 //GO(PR_MemMap, 
 //GO(PR_MemUnmap, 
 GO(PR_MicrosecondsToInterval, iFu)
@@ -287,7 +287,7 @@ GO(PR_OpenSemaphore, pFpiiu)
 //GO(PRP_NakedWait, 
 //GO(PRP_NewNakedCondVar, 
 //GO(PR_Poll, 
-//GO(PR_PopIOLayer, 
+GO(PR_PopIOLayer, pFpi)
 GO(PR_PostSem, vFp)
 GO(PR_PostSemaphore, iFp)
 //GO(PR_ProcessAttrSetCurrentDirectory, 
@@ -296,7 +296,7 @@ GO(PR_PostSemaphore, iFp)
 //GO(PR_ProcessAttrSetStdioRedirect, 
 GO(PR_ProcessExit, vFi)
 //GO(PRP_TryLock, 
-//GO(PR_PushIOLayer, 
+GO(PR_PushIOLayer, iFpip)
 //GO(_pr_push_ipv6toipv4_layer, 
 //GO(PR_QueueJob, 
 //GO(PR_QueueJob_Accept, 

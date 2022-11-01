@@ -34,7 +34,7 @@
 //GO(gconf_change_set_unref, 
 //GO(gconf_change_set_unset, 
 //GO(gconf_clear_cache, 
-//GO(gconf_client_add_dir, 
+GO(gconf_client_add_dir, vFppip)
 //GO(gconf_client_all_dirs, 
 //GO(gconf_client_all_entries, 
 //GO(gconf_client_change_set_from_current, 
@@ -44,23 +44,23 @@
 //GO(gconf_client_dir_exists, 
 //GO(gconf_client_error, 
 //GO(gconf_client_error_handling_mode_get_type, 
-//GO(gconf_client_get, 
+GO(gconf_client_get, pFppp)
 //GO(gconf_client_get_bool, 
-//GO(gconf_client_get_default, 
+GO(gconf_client_get_default, pFv)
 //GO(gconf_client_get_default_from_schema, 
 //GO(gconf_client_get_entry, 
 //GO(gconf_client_get_float, 
 //GO(gconf_client_get_for_engine, 
-//GO(gconf_client_get_int, 
-//GO(gconf_client_get_list, 
+GO(gconf_client_get_int, iFppp)
+GO(gconf_client_get_list, pFppip)
 //GO(gconf_client_get_pair, 
 //GO(gconf_client_get_schema, 
-//GO(gconf_client_get_string, 
+GO(gconf_client_get_string, pFppp)
 //GO(gconf_client_get_type, 
 //GO(gconf_client_get_without_default, 
 //GO(gconf_client_key_is_writable, 
 //GO(gconf_client_notify, 
-//GO(gconf_client_notify_add, 
+GOM(gconf_client_notify_add, uFEpppppp)
 //GO(gconf_client_notify_remove, 
 //GO(gconf_client_preload, 
 //GO(gconf_client_preload_type_get_type, 
@@ -146,7 +146,7 @@
 //GO(gconf_entry_free, 
 //GO(gconf_entry_get_is_default, 
 //GO(gconf_entry_get_is_writable, 
-//GO(gconf_entry_get_key, 
+GO(gconf_entry_get_key, pFp)
 //GO(gconf_entry_get_schema_name, 
 //GO(gconf_entry_get_type, 
 //GO(gconf_entry_get_value, 
@@ -278,8 +278,8 @@
 //GO(gconf_value_copy, 
 //GO(gconf_value_decode, 
 //GO(gconf_value_encode, 
-//GO(gconf_value_free, 
-//GO(gconf_value_get_bool, 
+GO(gconf_value_free, vFp)
+GO(gconf_value_get_bool, iFp)
 //GO(gconf_value_get_car, 
 //GO(gconf_value_get_cdr, 
 //GO(gconf_value_get_float, 

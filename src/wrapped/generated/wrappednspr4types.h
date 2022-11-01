@@ -11,10 +11,14 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpp_t)(void*, void*);
+typedef void* (*pFip_t)(int32_t, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(PR_CallOnce, iFpp_t) \
+	GO(PR_CreateIOLayerStub, pFip_t) \
 	GO(PR_FindFunctionSymbol, pFpp_t) \
 	GO(PR_CallOnceWithArg, iFppp_t)
 
