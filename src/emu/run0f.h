@@ -300,6 +300,17 @@
                     }
                     break;
 
+                case 0xF0: /* MOVBE Gd, Ed*/
+                    nextop = F8;
+                    GET_ED;
+                    GD.dword[0] = __builtin_bswap32(ED->dword[0]);
+                    break;
+                case 0xF1: /* MOVBE Ed, Gd*/
+                    nextop = F8;
+                    GET_ED;
+                    ED->dword[0] = __builtin_bswap32(GD.dword[0]);
+                    break;
+
                 default:
                     goto _default;
             }
