@@ -120,7 +120,7 @@ typedef void  (*vFpLL_t)(void*, size_t, size_t);
 
 #ifdef ANDROID
 void*(*__libc_malloc)(size_t) = NULL;
-void*(*__libc_realloc)(size_t, void*) = NULL;
+void*(*__libc_realloc)(void*, size_t) = NULL;
 void*(*__libc_calloc)(size_t, size_t) = NULL;
 void (*__libc_free)(void*) = NULL;
 void*(*__libc_memalign)(size_t, size_t) = NULL;
@@ -216,7 +216,7 @@ EXPORT void cfree(void* p)
     box_free(p);
 }
 
-EXPORT size_t malloc_usable_size(void* p)
+EXPORT size_t malloc_usable_size(const void* p)
 {
     return box_malloc_usable_size(p);
 }
