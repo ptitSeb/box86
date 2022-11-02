@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <stddef.h>
 
 #include "wrappedlibs.h"
 
@@ -86,8 +87,8 @@ typedef uintptr_t (*LFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFpiiL_t)(void*, int32_t, int32_t, uintptr_t);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
 
-#define ADDED_FUNCTIONS()       \
-    GO(XInitThreads, uFv_t)     \
+#define ADDED_FUNCTIONS()   \
+    GO(XInitThreads, uFv_t) \
 
 #include "generated/wrappedlibx11types.h"
 
@@ -1191,6 +1192,133 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
     #undef GO2
 
     return ret;
+}
+
+typedef struct my_XGenericEventCookie_s {
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    int extension;
+    int evtype;
+    unsigned int cookie;
+    void* data;
+} my_XGenericEventCookie_t;
+
+typedef struct my_XIButtonState_s {
+    int           mask_len;
+    unsigned char *mask;
+} my_XIButtonState_t;
+
+typedef struct my_XIValuatorState_s {
+    int           mask_len;
+    unsigned char *mask;
+    double        *values;
+} my_XIValuatorState_t;
+
+typedef struct my_XIModifierState_s {
+    int    base;
+    int    latched;
+    int    locked;
+    int    effective;
+} my_XIModifierState_t;
+
+typedef struct my_XIDeviceEvent_s {
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;
+    int           extension;
+    int           evtype;
+    unsigned long time;
+    int           deviceid;
+    int           sourceid;
+    int           detail;
+    void*         root;
+    void*         event;
+    void*         child;
+    double        root_x;
+    double        root_y;
+    double        event_x;
+    double        event_y;
+    int           flags;
+    my_XIButtonState_t    buttons;
+    my_XIValuatorState_t  valuators;
+    my_XIModifierState_t  mods;
+    my_XIModifierState_t  group;
+} my_XIDeviceEvent_t;
+
+typedef struct __attribute__((packed)) x86_XIDeviceEvent_s {
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;
+    int           extension;
+    int           evtype;
+    unsigned long time;
+    int           deviceid;
+    int           sourceid;
+    int           detail;
+    void*         root;
+    void*         event;
+    void*         child;
+    double        root_x;
+    double        root_y;
+    double        event_x;
+    double        event_y;
+    int           flags;
+    my_XIButtonState_t    buttons;
+    my_XIValuatorState_t  valuators;
+    my_XIModifierState_t  mods;
+    my_XIModifierState_t  group;
+} x86_XIDeviceEvent_t;
+
+static int xi_opcode = -2;
+static my_XGenericEventCookie_t* saved_cookie = NULL;
+static x86_XIDeviceEvent_t unaligned_xideviceevent = {0};
+static void* saved_xideviceevent = NULL;
+static void UnalignedXIDeviceEvent(void* data)
+{
+    my_XIDeviceEvent_t *cookie = (my_XIDeviceEvent_t*)data;
+    memcpy(&unaligned_xideviceevent.type, &cookie->type, offsetof(my_XIDeviceEvent_t, detail)+4); // unaligned with the doubles
+    memcpy(&unaligned_xideviceevent.root_x, &cookie->root_x, 4*sizeof(double));
+    memcpy(&unaligned_xideviceevent.buttons, &cookie->buttons, sizeof(my_XIButtonState_t));
+    memcpy(&unaligned_xideviceevent.valuators, &cookie->valuators, sizeof(my_XIValuatorState_t));
+    memcpy(&unaligned_xideviceevent.mods, &cookie->mods, sizeof(my_XIModifierState_t));
+    memcpy(&unaligned_xideviceevent.group, &cookie->group, sizeof(my_XIModifierState_t));
+}
+EXPORT int my_XGetEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t* cookie)
+{
+    if(xi_opcode==-2) {
+        int event, error;
+        if(!my->XQueryExtension(dpy, "XInputExtension", &xi_opcode, &event, &error)) {
+            xi_opcode = -1;
+        }
+    }
+    int ret = my->XGetEventData(dpy, cookie);
+    if(ret && xi_opcode>-1 && cookie) {
+        if(cookie->type==0x23 && cookie->extension==xi_opcode) {
+            if(saved_cookie) {
+                printf_log(LOG_INFO, "Warning, saved cookie not freed before new call to XGetEventData\n");
+                saved_cookie = cookie;
+                saved_xideviceevent = cookie->data;
+                UnalignedXIDeviceEvent(cookie->data);
+                cookie->data = &unaligned_xideviceevent;
+            }
+        }
+    }
+
+    return ret;
+}
+
+EXPORT void my_XFreeEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t* cookie)
+{
+    if(cookie && cookie==saved_cookie) {
+        cookie->data = saved_xideviceevent;
+        saved_xideviceevent = NULL;
+        saved_cookie = NULL;
+    }
+    my->XFreeEventData(dpy, cookie);
 }
 
 #define CUSTOM_INIT                 \

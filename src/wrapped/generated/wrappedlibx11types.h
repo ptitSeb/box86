@@ -14,6 +14,7 @@
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFiV_t)(int32_t, ...);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
@@ -37,7 +38,9 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint3
 	GO(XOpenDisplay, pFp_t) \
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
+	GO(XFreeEventData, vFpp_t) \
 	GO(_XDeqAsyncHandler, vFpp_t) \
+	GO(XGetEventData, iFpp_t) \
 	GO(XVaCreateNestedList, pFiV_t) \
 	GO(XSynchronize, pFpi_t) \
 	GO(XLoadQueryFont, pFpp_t) \

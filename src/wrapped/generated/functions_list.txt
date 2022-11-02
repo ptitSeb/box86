@@ -3420,7 +3420,10 @@ wrappedlibx11:
   - XSetErrorHandler
   - XSetIOErrorHandler
 - vFpp:
+  - XFreeEventData
   - _XDeqAsyncHandler
+- iFpp:
+  - XGetEventData
 - pFiV:
   - XVaCreateNestedList
 - pFpi:
