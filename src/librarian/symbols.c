@@ -114,6 +114,7 @@ static versymbol_t* MatchVersion(versymbols_t* s, int ver, const char* vername, 
         if(local) ret = FindVersionLocal(s);
         if(!ret) ret = FindNoVersion(s);
         if(!ret) ret = FindVersionGlobal(s);
+        if(!ret && defver) ret = FindVersion(s, defver);
         return ret;
     }
     if(ver==-1) {
