@@ -35,7 +35,6 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     uintptr_t init_addr = addr;
     MAYUSE(init_addr);
     int need_epilog = 1;
-    dyn->sons_size = 0;
     // Clean up (because there are multiple passes)
     dyn->f.pending = 0;
     dyn->f.dfnone = 0;
@@ -229,6 +228,6 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }
     FINI;
-    MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d, %d sons)\n", dyn->size, dyn->sons_size);
+    MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d)\n", dyn->size);
     return addr;
 }

@@ -5,6 +5,7 @@
 
 typedef struct x86emu_s x86emu_t;
 typedef struct dynablock_s dynablock_t;
+typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
@@ -95,16 +96,15 @@ typedef struct dynarec_arm_s {
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;
-    uintptr_t*          sons_x86;   // the x86 address of potential dynablock sons
-    void**              sons_arm;   // the arm address of potential dynablock sons
-    int                 sons_size;  // number of potential dynablock sons
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
+    instsize_t*         instsize;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
+void CreateJmpNextTo(void* addr, void* tonext);
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

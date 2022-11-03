@@ -16,6 +16,11 @@
 .global arm_lock_xchg
 .global arm_lock_storeifnull
 .global arm_lock_storeifref
+.global arm_lock_store_xchg
+.global arm_lock_dec
+.global arm_lock_dec_b
+.global arm_lock_store
+.global arm_lock_store_b
 
 
 arm_lock_read_b:
@@ -112,4 +117,47 @@ arm_lock_storeifref_loop:
 arm_lock_storeifref_exit:
     mov     r0, r3
     pop     {r4}
+    bx      lr
+
+arm_lock_store_xchg:
+    // address is r0, value is r1, r1 store to r0 only if [r0] is 0. return new [r0] value (so r1 or old value)
+    // r0 needs to be aligned
+    ldrex   r2, [r0]
+    cmp     r2, #0
+    bne     arm_lock_store_xchg_exit
+    mov     r2, r1
+    strex   r3, r2, [r0]
+    cmp     r3, #1
+    beq     arm_lock_store_xchg
+    mov     r2, #0
+arm_lock_store_xchg_exit:
+    mov     r0, r2
+    bx      lr
+
+arm_lock_dec:
+    dmb     ish
+    ldrex   r1, [r0]
+    sub     r1, r1, #1
+    strex   r2, r1, [r0]
+    cmp     r2, #1
+    beq     arm_lock_dec
+    bx      lr
+
+arm_lock_dec_b:
+    dmb     ish
+    ldrexb  r1, [r0]
+    sub     r1, r1, #1
+    strexb  r2, r1, [r0]
+    cmp     r2, #1
+    beq     arm_lock_dec_b
+    bx      lr
+
+arm_lock_store:
+    str     r1, [r0]
+    dmb     ish
+    bx      lr
+
+arm_lock_store_b:
+    strb    r1, [r0]
+    dmb     ish
     bx      lr

@@ -18,7 +18,6 @@ void customFree(void* p);
 
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
-typedef struct dynablocklist_s dynablocklist_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose
 uintptr_t AllocDynarecMap(dynablock_t* db, int size);
 void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size);
@@ -26,12 +25,15 @@ void FreeDynarecMap(dynablock_t* db, uintptr_t addr, uint32_t size);
 void addDBFromAddressRange(uintptr_t addr, uintptr_t size);
 void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy);
 
-dynablocklist_t* getDB(uintptr_t idx);
-void addJumpTableIfDefault(void* addr, void* jmp);
+dynablock_t* getDB(uintptr_t addr);
+int addJumpTableIfDefault(void* addr, void* jmp); // return 1 if write was succesfull
+void setJumpTableIfRef(void* addr, void* jmp, void* ref); // return 1 if write was succesfull
 void setJumpTableDefault(void* addr);
+void setJumpTableDefaultRef(void* addr, void* jmp);
 int isJumpTableDefault(void* addr);
 uintptr_t getJumpTable();
 uintptr_t getJumpTableAddress(uintptr_t addr);
+uintptr_t getJumpAddress(uintptr_t addr);
 #endif
 
 #define PROT_DYNAREC    0x80
@@ -47,6 +49,9 @@ void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size, int mark); // if mark==0, the blocks are not marked as potentially dirty
+int IsInHotPage(uintptr_t addr);
+int AreaInHotPage(uintptr_t start, uintptr_t end);
+void AddHotPage(uintptr_t addr);
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);

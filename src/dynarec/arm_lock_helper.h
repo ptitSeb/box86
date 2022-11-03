@@ -31,4 +31,19 @@ extern void* arm_lock_storeifnull(void* p, void* val);
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern void* arm_lock_storeifref(void* p, void* val, void* ref);
 
+// Atomically store value to [p] only if [p] is NULL. Return old [p] value
+extern void* arm_lock_store_xchg(void* p, void* val);
+
+// will decrease *p atomicaly
+extern void arm_lock_dec_b(uint8_t* p);
+
+// will decrease *p atomicaly
+extern void arm_lock_dec(int* p);
+
+// store value, with data memory barrier
+extern void arm_lock_store_b(uint8_t* p, uint8_t val);
+
+// store value, with data memory barrier
+extern void arm_lock_store(int* p, int val);
+
 #endif  //__ARM_LOCK_HELPER__H__

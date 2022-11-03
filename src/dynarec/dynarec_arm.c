@@ -23,6 +23,7 @@
 #include "dynarec_arm_private.h"
 #include "dynarec_arm_functions.h"
 #include "elfloader.h"
+#include "dynarec_next.h"
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -368,16 +369,46 @@ void CancelBlock()
         return;
     box_free(helper->next);
     box_free(helper->insts);
+    box_free(helper->instsize);
     box_free(helper->predecessor);
-    if(helper->dynablock && helper->dynablock->block)
-        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
+    if(helper->dynablock && helper->dynablock->actual_block)
+        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->actual_block, helper->dynablock->size);
+    else if(helper->dynablock && helper->block)
+        FreeDynarecMap(helper->dynablock, (uintptr_t)helper->block-sizeof(void*), helper->dynablock->size);
+}
+
+void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
+    block->isize = 0;
+    block->done = 0;
+    size_t sz = 4*sizeof(void*);
+    void* actual_p = (void*)AllocDynarecMap(block, sz);
+    void* p = actual_p + sizeof(void*);
+    if(actual_p==NULL) {
+        dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, cancelling block\n", block, sz);
+        CancelBlock();
+        return NULL;
+    }
+    block->size = sz;
+    block->actual_block = actual_p;
+    block->block = p;
+    block->jmpnext = p;
+    *(dynablock_t**)actual_p = block;
+    CreateJmpNextTo(block->jmpnext, arm_epilog);
+    block->need_test = 0;
+    // all done...
+    __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
+    return block;
 }
 
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
 dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
-    if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
-        dynarec_log(LOG_DEBUG, "Asked to fill a block in fobidden zone\n");
+    if(IsInHotPage(addr)) {
+        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock on hotpage for %p\n", (void*)addr);
         return NULL;
+    }
+    if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
+        dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
+        return CreateEmptyBlock(block, addr);
     }
     if(!isJumpTableDefault((void*)addr)) {
         dynarec_log(LOG_DEBUG, "Asked to fill a block at %p, but JumpTable is not default\n", (void*)addr);
@@ -401,7 +432,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         CancelBlock();
-        return (void*)block;
+        return CreateEmptyBlock(block, addr);
     }
     // already protect the block and compute hash signature
     protectDB(addr, end-addr);  //end is 1byte after actual end
@@ -427,44 +458,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         }
     // fill predecessors with the jump address
     fillPredecessors(&helper);
-    // check for the optionnal barriers now
-    /*for(int i=helper.size-1; i>=0; --i) {
-        if(helper.insts[i].barrier_maybe) {
-            // out-of-block jump
-            if(helper.insts[i].x86.jmp_insts == -1) {
-                // nothing for now
-            } else {
-                // inside block jump
-                int k = helper.insts[i].x86.jmp_insts;
-                if(k>i) {
-                    // jump in the future
-                    if(helper.insts[k].pred_sz>1) {
-                        // with multiple flow, put a barrier
-                        helper.insts[k].x86.barrier|=BARRIER_FLAGS;
-                    }
-                } else {
-                    // jump back
-                    helper.insts[k].x86.barrier|=BARRIER_FLAGS;
-                }
-            }
-	}
-    }*/
-    // check to remove useless barrier, in case of jump when destination doesn't needs flags
-    /*for(int i=helper.size-1; i>=0; --i) {
-        int k;
-        if(helper.insts[i].x86.jmp
-        && ((k=helper.insts[i].x86.jmp_insts)>=0)
-        && helper.insts[k].x86.barrier&BARRIER_FLAGS) {
-            //TODO: optimize FPU barrier too
-            if((!helper.insts[k].x86.need_flags)
-             ||(helper.insts[k].x86.set_flags==X_ALL
-                  && helper.insts[k].x86.state_flags==SF_SET)
-             ||(helper.insts[k].x86.state_flags==SF_SET_PENDING)) {
-                //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Removed barrier for inst %d\n", k);
-                helper.insts[k].x86.barrier &= ~BARRIER_FLAGS; // remove flag barrier
-             }
-        }
-    }*/
+
     int pos = helper.size;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
@@ -474,29 +468,44 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
 
     // pass 2, instruction size
     arm_pass2(&helper, addr);
-    // ok, now allocate mapped memory, with executable flag on
-    int sz = helper.arm_size;
-    void* p = (void*)AllocDynarecMap(block, sz);
-    if(p==NULL) {
+    // keep size of instructions for signal handling
+    size_t insts_rsize = 0;
+    {
+        size_t insts_size = 0;
+        size_t cap = 1;
+        for(int i=0; i<helper.size; ++i)
+            cap += 1 + ((helper.insts[i].x86.size>helper.insts[i].size)?helper.insts[i].x86.size:helper.insts[i].size)/15;
+        helper.instsize = (instsize_t*)box_calloc(cap, sizeof(instsize_t));
+        for(int i=0; i<helper.size; ++i)
+            helper.instsize = addInst(helper.instsize, &insts_size, &cap, helper.insts[i].x86.size, helper.insts[i].size/4);
+        helper.instsize = addInst(helper.instsize, &insts_size, &cap, 0, 0);    // add a "end of block" mark, just in case
+        insts_rsize = insts_size*sizeof(instsize_t);
+    }
+    insts_rsize = (insts_rsize+7)&~7;   // round the size...
+    size_t sz = sizeof(void*) + helper.arm_size + 4*sizeof(void*) + insts_rsize;
+    //           dynablock_t*     block (arm insts)    jmpnext code       instsize
+    void* actual_p = (void*)AllocDynarecMap(block, sz);
+    void* p = actual_p + sizeof(void*);
+    void* next = p + helper.arm_size;
+    void* instsize = next + 4*sizeof(void*);
+    if(actual_p==NULL) {
         dynarec_log(LOG_DEBUG, "AllocDynarecMap(%p, %d) failed, cancelling block\n", block, sz);
         CancelBlock();
         return NULL;
     }
     helper.block = p;
     helper.arm_start = (uintptr_t)p;
-    if(helper.sons_size) {
-        helper.sons_x86 = (uintptr_t*)alloca(helper.sons_size*sizeof(uintptr_t));
-        helper.sons_arm = (void**)alloca(helper.sons_size*sizeof(void*));
-    }
+    *(dynablock_t**)actual_p = block;
     // pass 3, emit (log emit arm opcode)
     if(box86_dynarec_dump) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %d bytes for %d x86 bytes", (box86_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.arm_size, helper.isize); 
         printFunctionAddr(helper.start, " => ");
         dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
     }
+    size_t oldarmsize = helper.arm_size;
     helper.arm_size = 0;
     arm_pass3(&helper, addr);
-    if(sz!=helper.arm_size) {
+    if(oldarmsize!=helper.arm_size) {
         printf_log(LOG_NONE, "BOX86: Warning, size difference in block between pass2 (%d) & pass3 (%d)!\n", sz, helper.arm_size);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x86 opcodes:\n", helper.size);
@@ -508,32 +517,32 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         }
         printf_log(LOG_NONE, " ------------\n");
     }
-    // all done...
-    __clear_cache(p, p+sz);   // need to clear the cache before execution...
     // keep size of instructions for signal handling
-    {
-        size_t cap = 1;
-        for(int i=0; i<helper.size; ++i)
-            cap += 1 + ((helper.insts[i].x86.size>helper.insts[i].size)?helper.insts[i].x86.size:helper.insts[i].size)/15;
-        size_t size = 0;
-        block->instsize = (instsize_t*)box_calloc(cap, sizeof(instsize_t));
-        for(int i=0; i<helper.size; ++i)
-            block->instsize = addInst(block->instsize, &size, &cap, helper.insts[i].x86.size, helper.insts[i].size/4);
-        block->instsize = addInst(block->instsize, &size, &cap, 0, 0);    // add a "end of block" mark, just in case
-    }
+    memcpy(instsize, helper.instsize, insts_rsize);
+    block->instsize = instsize;
     // ok, free the helper now
     box_free(helper.insts);
     helper.insts = NULL;
     box_free(helper.next);
     helper.next = NULL;
+    box_free(helper.instsize);
+    helper.instsize = NULL;
+    box_free(helper.predecessor);
+    helper.predecessor = NULL;
     block->size = sz;
     block->isize = helper.size;
+    block->actual_block = actual_p;
     block->block = p;
+    block->jmpnext = next+sizeof(void*);
+    *(dynablock_t**)next = block;
+    CreateJmpNextTo(block->jmpnext, arm_next);
     block->need_test = 0;
     //block->x86_addr = (void*)start;
     block->x86_size = end-start;
     if(box86_dynarec_largest<block->x86_size)
         box86_dynarec_largest = block->x86_size;
+    // all done...
+    __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
     block->hash = X31_hash_code(block->x86_addr, block->x86_size);
     // Check if something changed, to abbort if it as
     if(block->hash != hash) {
@@ -541,34 +550,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         CancelBlock();
         return NULL;
     }
-    // fill sons if any
-    dynablock_t** sons = NULL;
-    int sons_size = 0;
-    if(helper.sons_size) {
-        sons = (dynablock_t**)box_calloc(helper.sons_size, sizeof(dynablock_t*));
-        for (int i=0; i<helper.sons_size; ++i) {
-            int created = 1;
-            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], &created);
-            if(created) {    // avoid breaking a working block!
-                son->block = helper.sons_arm[i];
-                son->x86_addr = (void*)helper.sons_x86[i];
-                son->x86_size = end-helper.sons_x86[i];
-                if(!son->x86_size) {printf_log(LOG_NONE, "Warning, son with null x86 size! (@%p / ARM=%p)", son->x86_addr, son->block);}
-                son->father = block;
-                son->done = 1;
-                sons[sons_size++] = son;
-                if(!son->parent)
-                    son->parent = block->parent;
-            }
-        }
-        if(sons_size) {
-            block->sons = sons;
-            block->sons_size = sons_size;
-        } else
-            box_free(sons);
-    }
-    box_free(helper.predecessor);
-    helper.predecessor = NULL;
     current_helper = NULL;
     block->done = 1;
     return (void*)block;

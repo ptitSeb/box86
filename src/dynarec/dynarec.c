@@ -20,12 +20,7 @@
 #include "dynablock.h"
 #include "dynablock_private.h"
 #include "bridge.h"
-#endif
-
-#ifdef ARM
-void arm_prolog(x86emu_t* emu, void* addr) EXPORTDYN;
-void arm_epilog() EXPORTDYN;
-void arm_epilog_fast() EXPORTDYN;
+#include "dynarec_next.h"
 #endif
 
 #ifdef DYNAREC
@@ -44,9 +39,8 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
         printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p/%s)\n", x2, db, x86addr, pcname);
     }
     #endif
-    dynablock_t* current = NULL;
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
+    dynablock_t* block = DBGetBlock(emu, addr, 1);
     if(!block) {
         // no block, let link table as is...
         if(hasAlternate((void*)addr)) {
@@ -54,7 +48,7 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
             addr = (uintptr_t)getAlternate((void*)addr);
             R_EIP = addr;
             printf_log(LOG_INFO, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1, &current);
+            block = DBGetBlock(emu, addr, 1);
         }
         if(!block) {
             #ifdef HAVE_TRACE
@@ -114,18 +108,15 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         PushExit(emu);
         R_EIP = addr;
         emu->df = d_none;
-        dynablock_t* block = NULL;
-        dynablock_t* current = NULL;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_EIP, 1, &current);
-            current = block;
+            dynablock_t* block = DBGetBlock(emu, R_EIP, 1);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
@@ -200,17 +191,15 @@ int DynaRun(x86emu_t* emu)
 #ifdef DYNAREC
     else {
         dynablock_t* block = NULL;
-        dynablock_t* current = NULL;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_EIP, 1, &current);
-            current = block;
+            block = DBGetBlock(emu, R_EIP, 1);
             if(!block || !block->block || !block->done) {
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);

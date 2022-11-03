@@ -6,8 +6,6 @@
 #define NEW_INST                                                                                        \
         if(ninst) {                                                                                     \
                 dyn->insts[ninst].address = (dyn->insts[ninst-1].address+dyn->insts[ninst-1].size);     \
-                if(ninst && isInstClean(dyn, ninst))                                                    \
-                        ++dyn->sons_size;                                                               \
         }
 #define INST_EPILOG dyn->insts[ninst].epilog = dyn->arm_size; 
 #define INST_NAME(name) 

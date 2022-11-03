@@ -516,6 +516,7 @@ if(ARM_DYNAREC)
         "${BOX86_ROOT}/src/dynarec/dynarec_arm.c"
         "${BOX86_ROOT}/src/dynarec/dynarec_arm_functions.c"
         "${BOX86_ROOT}/src/dynarec/arm_printer.c"
+        "${BOX86_ROOT}/src/dynarec/arm_jmpnext.c"
 
         "${BOX86_ROOT}/src/dynarec/arm_prolog.S"
         "${BOX86_ROOT}/src/dynarec/arm_epilog.S"

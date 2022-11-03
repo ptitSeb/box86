@@ -8,12 +8,6 @@
 
 #define MESSAGE(A, ...)  if(box86_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
-    if(ninst && isInstClean(dyn, ninst)) {                      \
-        dyn->sons_x86[dyn->sons_size] = (uintptr_t)ip;          \
-        dyn->sons_arm[dyn->sons_size] = dyn->block;             \
-        MESSAGE(LOG_DUMP, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);  \
-        ++dyn->sons_size;                                       \
-    }
 
 #define INST_EPILOG     
 #define INST_NAME(name) \

@@ -10,7 +10,7 @@ typedef struct box86context_s box86context_t;
 typedef struct x86emu_s x86emu_t;
 typedef struct needed_libs_s needed_libs_t;
 #ifdef DYNAREC
-typedef struct dynablocklist_s dynablocklist_t;
+typedef struct dynablock_s dynablock_t;
 #endif
 
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
@@ -49,8 +49,7 @@ uint32_t GetTLSSize(elfheader_t* h);
 void* GetTLSPointer(box86context_t* context, elfheader_t* h);
 void* GetDTatOffset(box86context_t* context, int index, int offset);
 #ifdef DYNAREC
-dynablocklist_t* GetDynablocksFromAddress(box86context_t* context, uintptr_t addr);
-dynablocklist_t* GetDynablocksFromElf(elfheader_t* h);
+dynablock_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr);
 #endif
 void ResetSpecialCaseMainElf(elfheader_t* h);
 void CreateMemorymapFile(box86context_t* context, int fd);
