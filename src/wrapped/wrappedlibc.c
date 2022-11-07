@@ -2688,7 +2688,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     if(!addr && ret!=new_addr && ret!=(void*)-1) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = findBlockNearHint(addr, length);
+        new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length):find32bitBlock(length));
         ret = mmap64(new_addr, length, prot, flags, fd, offset);
     } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
       ((uintptr_t)ret&0xffff) && !(flags&MAP_FIXED) && box86_wine) {
