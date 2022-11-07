@@ -887,8 +887,8 @@ void loadProtectionFromMap()
 }
 
 #define LOWEST (void*)0x10000
-#define MEDIAN (void*)0x30000000
-void* findBlockNearHint(void* hint, size_t size)
+#define MEDIAN (void*)0x40000000
+static void* findBlockHinted(void* hint, size_t size)
 {
     mapmem_t* m = mapmem;
     uintptr_t h = (uintptr_t)hint;
@@ -901,14 +901,20 @@ void* findBlockNearHint(void* hint, size_t size)
             return hint;
         if(addr>=h && end-addr+1>=size)
             return (void*)addr;
+        if(end>=0xc0000000 & h<0xc0000000)
+            return NULL;
         m = m->next;
     }
-    return hint;
+    return NULL;
+}
+void* findBlockNearHint(void* hint, size_t size)
+{   void* ret = findBlockHinted(hint, size);
+    return ret?ret:hint;
 }
 void* find32bitBlock(size_t size)
 {
-    void* ret = findBlockNearHint(MEDIAN, size);
-    if(!ret) ret = findBlockNearHint(LOWEST, size);
+    void* ret = findBlockHinted(MEDIAN, size);
+    if(!ret) ret = findBlockHinted(LOWEST, size);
     return ret;
 }
 
