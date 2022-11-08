@@ -434,9 +434,12 @@ uintptr_t FindFreeDynarecMap(dynablock_t* db, int size)
                     arm_lock_store(&mmaplist[i].locked, 0);
                     return ret;
                 } else {
-                    printf_log(LOG_INFO, "BOX86: Warning, sub not found, corrupted mmaplist[%d] info?\n", i);
+                    printf_log(LOG_INFO, "BOX86: Warning, sub not found, corrupted mmaplist[%d] info (requested size=%d)?\n", i, size);
                     if(box86_log >= LOG_DEBUG)
                         printBlock(mmaplist[i].block, mmaplist[i].first);
+                    // reset block meta info
+                    mmaplist[i].first = getFirstBlock(mmaplist[i].block, 1, &rsize, NULL);
+                    mmaplist[i].maxfree = getMaxFreeBlock(mmaplist[i].block, mmaplist[i].size, NULL);
                     arm_lock_store(&mmaplist[i].locked, 0);
                 }
             }
@@ -508,8 +511,11 @@ void ActuallyFreeDynarecMap(dynablock_t* db, uintptr_t addr, int size)
         if ((addr>(uintptr_t)mmaplist[i].block) 
          && (addr<((uintptr_t)mmaplist[i].block+mmaplist[i].size))) {
             // wait the map is free
-            while(my_context && arm_lock_store_xchg(&mmaplist[i].locked, (void*)1))
+            int cnt = 100;
+            while(my_context && cnt && arm_lock_store_xchg(&mmaplist[i].locked, (void*)1)) {
+                --cnt;
                 sched_yield();
+            }
             void* sub = (void*)(addr-sizeof(blockmark_t));
             size_t newfree = freeBlock(mmaplist[i].block, sub, &mmaplist[i].first);
             if(mmaplist[i].maxfree < newfree) mmaplist[i].maxfree = newfree;
