@@ -211,9 +211,20 @@ GO(vkCmdNextSubpass2, vFpPP)
 GOM(vkCreateRenderPass2, iFEpPpp)
 GO(vkCmdDrawIndexedIndirectCount, vFpUUUUuu)
 GO(vkCmdDrawIndirectCount, vFpUUUUuu)
+GO(vkGetBufferDeviceAddress, UFpp)
+GO(vkGetBufferOpaqueCaptureAddress, UFpp)
+GO(vkGetDeviceMemoryOpaqueCaptureAddress, UFpp)
 GO(vkGetSemaphoreCounterValue, iFpUp)
 GO(vkSignalSemaphore, iFpP)
 GO(vkWaitSemaphores, iFpPU)
+
+// VK_VERSION_1_3
+GO(vkCmdBlitImage2, vFpP)
+GO(vkCmdCopyBuffer2, vFpP)
+GO(vkCmdCopyBufferToImage2, vFpP)
+GO(vkCmdCopyImage2, vFpP)
+GO(vkCmdCopyImageToBuffer2, vFpP)
+GO(vkCmdResolveImage2, vFpP)
 
 // VK_EXT_debug_report
 GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -509,3 +520,19 @@ GO(vkGetRandROutputDisplayEXT, iFppLp)
 GO(vkGetSemaphoreCounterValueKHR, iFpUp)
 GO(vkSignalSemaphoreKHR, iFpP)
 GO(vkWaitSemaphoresKHR, iFpPU)
+
+// VK_KHR_copy_commands2
+GO(vkCmdBlitImage2KHR, vFpP)
+GO(vkCmdCopyBuffer2KHR, vFpP)
+GO(vkCmdCopyBufferToImage2KHR, vFpP)
+GO(vkCmdCopyImage2KHR, vFpP)
+GO(vkCmdCopyImageToBuffer2KHR, vFpP)
+GO(vkCmdResolveImage2KHR, vFpP)
+
+// VK_KHR_buffer_device_address
+GO(vkGetBufferDeviceAddressKHR, UFpp)
+GO(vkGetBufferOpaqueCaptureAddressKHR, UFpp)
+GO(vkGetDeviceMemoryOpaqueCaptureAddressKHR, UFpp)
+
+// VK_EXT_buffer_device_address
+GO(vkGetBufferDeviceAddressEXT, UFpp)
