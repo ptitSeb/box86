@@ -469,7 +469,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     // pass 2, instruction size
     arm_pass2(&helper, addr);
     // keep size of instructions for signal handling
-    size_t insts_rsize = 0;
+    size_t insts_ursize = 0;
     {
         size_t insts_size = 0;
         size_t cap = 1;
@@ -479,9 +479,9 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         for(int i=0; i<helper.size; ++i)
             helper.instsize = addInst(helper.instsize, &insts_size, &cap, helper.insts[i].x86.size, helper.insts[i].size/4);
         helper.instsize = addInst(helper.instsize, &insts_size, &cap, 0, 0);    // add a "end of block" mark, just in case
-        insts_rsize = insts_size*sizeof(instsize_t);
+        insts_ursize = insts_size*sizeof(instsize_t);
     }
-    insts_rsize = (insts_rsize+7)&~7;   // round the size...
+    size_t insts_rsize = (insts_ursize+7)&~7;   // round the size...
     size_t sz = sizeof(void*) + helper.arm_size + 4*sizeof(void*) + insts_rsize;
     //           dynablock_t*     block (arm insts)    jmpnext code       instsize
     void* actual_p = (void*)AllocDynarecMap(block, sz);
@@ -518,7 +518,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         printf_log(LOG_NONE, " ------------\n");
     }
     // keep size of instructions for signal handling
-    memcpy(instsize, helper.instsize, insts_rsize);
+    memcpy(instsize, helper.instsize, insts_ursize);
     block->instsize = instsize;
     // ok, free the helper now
     box_free(helper.insts);
