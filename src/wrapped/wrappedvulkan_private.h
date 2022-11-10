@@ -33,6 +33,7 @@
 // VkSwapchainKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
 
 // P = Vulkan input Param Structure
+// Warning with vkGetXXX function, the structure that get the asnwer cannot be 'P'
 
 // VK_VERSION_1_0
 GO(vkAllocateCommandBuffers, iFpPp)
@@ -182,21 +183,21 @@ GOM(vkCreateDescriptorUpdateTemplate, iFEpPpp)
 GOM(vkCreateSamplerYcbcrConversion, iFEpPpp)
 GOM(vkDestroyDescriptorUpdateTemplate, vFEpUp)
 GO(vkEnumerateInstanceVersion, iFp)
-GO(vkEnumeratePhysicalDeviceGroups, iFppp)  //VkPhysicalDeviceGroupProperties seems OK
-GO(vkGetBufferMemoryRequirements2, iFpPP)
-GO(vkGetImageMemoryRequirements2, vFpPP)
+GO(vkEnumeratePhysicalDeviceGroups, iFppP)
+GOM(vkGetBufferMemoryRequirements2, iFEpPp)
+GOM(vkGetImageMemoryRequirements2, vFEpPp)
 GO(vkGetImageSparseMemoryRequirements2, vFpppp)
 GO(vkGetDescriptorSetLayoutSupport, vFpPp)
 GO(vkGetDeviceGroupPeerMemoryFeatures, vFpuuup)
 GO(vkGetDeviceQueue2, vFpPp)
-GO(vkGetPhysicalDeviceExternalBufferProperties, vFpPP)
-GO(vkGetPhysicalDeviceExternalFenceProperties, vFpPP)
-GO(vkGetPhysicalDeviceExternalSemaphoreProperties, vFpPP)
-GO(vkGetPhysicalDeviceFeatures2, vFpP)
-GO(vkGetPhysicalDeviceFormatProperties2, vFpiP)
-GO(vkGetPhysicalDeviceImageFormatProperties2, vFpPP)
-GO(vkGetPhysicalDeviceMemoryProperties2, vFpP)
-GO(vkGetPhysicalDeviceProperties2, vFpP)
+GO(vkGetPhysicalDeviceExternalBufferProperties, vFpPp)
+GO(vkGetPhysicalDeviceExternalFenceProperties, vFpPp)
+GO(vkGetPhysicalDeviceExternalSemaphoreProperties, vFpPp)
+GO(vkGetPhysicalDeviceFeatures2, vFpp)  // VkPhysicalDeviceFeatures seems OK
+GO(vkGetPhysicalDeviceFormatProperties2, vFpip)
+GOM(vkGetPhysicalDeviceImageFormatProperties2, iFEpPp)
+GO(vkGetPhysicalDeviceMemoryProperties2, vFpp)
+GOM(vkGetPhysicalDeviceProperties2, vFEpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)    //VkQueueFamilyProperties2 seems OK
 GO(vkGetPhysicalDeviceSparseImageFormatProperties2, vFpPpp) //VkSparseImageFormatProperties2 seems OK
 GO(vkGetPhysicalDeviceToolProperties, iFppp)
@@ -245,19 +246,19 @@ GO(vkSetDebugUtilsObjectTagEXT, iFpp)
 //GOM(vkSubmitDebugUtilsMessageEXT, vFEpppp)    // callback in last arguments
 
 // VK_KHR_external_memory_capabilities
-GO(vkGetPhysicalDeviceExternalBufferPropertiesKHR, vFpPP)
+GO(vkGetPhysicalDeviceExternalBufferPropertiesKHR, vFpPp)
 
 // VK_KHR_get_physical_device_properties2
-GO(vkGetPhysicalDeviceFeatures2KHR, vFpP)
-GO(vkGetPhysicalDeviceFormatProperties2KHR, vFpiP)
-GO(vkGetPhysicalDeviceImageFormatProperties2KHR, vFpPP)
-GO(vkGetPhysicalDeviceMemoryProperties2KHR, vFpP)
-GO(vkGetPhysicalDeviceProperties2KHR, vFpP)
+GO(vkGetPhysicalDeviceFeatures2KHR, vFpp)
+GO(vkGetPhysicalDeviceFormatProperties2KHR, vFpip)
+GOM(vkGetPhysicalDeviceImageFormatProperties2KHR, iFEpPp)
+GO(vkGetPhysicalDeviceMemoryProperties2KHR, vFpp)
+GOM(vkGetPhysicalDeviceProperties2KHR, vFEpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2KHR, vFppp)
 GO(vkGetPhysicalDeviceSparseImageFormatProperties2KHR, vFpPpp)  //VkSparseImageFormatProperties2 seems OK
 
 // VK_KHR_get_surface_capabilities2
-GO(vkGetPhysicalDeviceSurfaceCapabilities2KHR, iFpPP)
+GOM(vkGetPhysicalDeviceSurfaceCapabilities2KHR, iFEpPp)
 GO(vkGetPhysicalDeviceSurfaceFormats2KHR, iFpPpp)   //VkSurfaceFormat2KHR seems OK (but array)
 
 // VK_KHR_surface
@@ -280,7 +281,7 @@ GO(vkAcquireNextImageKHR, iFpUUUUp)
 GO(vkAcquireNextImage2KHR, iFpPp)
 GOM(vkCreateSwapchainKHR, iFEpPpp)
 GOM(vkDestroySwapchainKHR, vFEpUp)
-GO(vkGetDeviceGroupPresentCapabilitiesKHR, iFpP)
+GO(vkGetDeviceGroupPresentCapabilitiesKHR, iFpp)
 GO(vkGetDeviceGroupSurfacePresentModesKHR, iFpUp)
 GO(vkGetPhysicalDevicePresentRectanglesKHR, iFpUpp)
 GO(vkGetSwapchainImagesKHR, iFpUpp)
@@ -306,7 +307,7 @@ GO(vkUpdateDescriptorSetWithTemplateKHR, vFpUUp)
 GO(vkCmdPushDescriptorSetWithTemplateKHR, vFpUUup)
 
 // VK_EXT_display_surface_counter
-GO(vkGetPhysicalDeviceSurfaceCapabilities2EXT, iFpUP)
+GOM(vkGetPhysicalDeviceSurfaceCapabilities2EXT, iFEpUp)
 
 // VK_KHR_get_display_properties2
 GO(vkGetDisplayModeProperties2KHR, iFpUpp)
@@ -334,15 +335,15 @@ GO(vkGetPhysicalDeviceWaylandPresentationSupportKHR, iFpup)
 GO(vkEnumeratePhysicalDeviceGroupsKHR, iFppp)
 
 // VK_KHR_get_memory_requirements2
-GO(vkGetBufferMemoryRequirements2KHR, iFpPP)
-GO(vkGetImageMemoryRequirements2KHR, vFpPP)
+GOM(vkGetBufferMemoryRequirements2KHR, iFEpPp)
+GOM(vkGetImageMemoryRequirements2KHR, vFEpPp)
 GO(vkGetImageSparseMemoryRequirements2KHR, vFpppp)
 
 // VK_KHR_external_fence_capabilities
-GO(vkGetPhysicalDeviceExternalFencePropertiesKHR, vFpPP)
+GO(vkGetPhysicalDeviceExternalFencePropertiesKHR, vFpPp)
 
 // VK_KHR_external_semaphore_capabilities
-GO(vkGetPhysicalDeviceExternalSemaphorePropertiesKHR, vFpPP)
+GO(vkGetPhysicalDeviceExternalSemaphorePropertiesKHR, vFpPp)
 
 // VK_KHR_maintenance1
 GO(vkTrimCommandPoolKHR, vFpUi)
@@ -405,7 +406,7 @@ GO(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, iFppp)
 
 // VK_EXT_sample_locations
 GO(vkCmdSetSampleLocationsEXT, vFpP)
-GO(vkGetPhysicalDeviceMultisamplePropertiesEXT, vFpiP)
+GO(vkGetPhysicalDeviceMultisamplePropertiesEXT, vFpip)
 
 // VK_EXT_headless_surface
 GOM(vkCreateHeadlessSurfaceEXT, iFEpPpp)
@@ -480,7 +481,7 @@ GOM(vkRegisterDeviceEventEXT, iFEpPpp)
 GOM(vkRegisterDisplayEventEXT, iFEpUPpp)
 
 // VK_EXT_external_memory_host
-GO(vkGetMemoryHostPointerPropertiesEXT, iFpupP)
+GO(vkGetMemoryHostPointerPropertiesEXT, iFpupp)
 
 // VK_EXT_hdr_metadata
 GO(vkSetHdrMetadataEXT, vFpupp)
