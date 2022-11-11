@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/mman.h>
 
 #include "debug.h"
 #include "box86context.h"
@@ -21,6 +22,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "custommem.h"
 
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
@@ -2156,7 +2158,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             #if STEP < 2
             if (i32==0)
                 tmp = dyn->insts[ninst].pass2choice = 1;
-            else if (((u32)>0x10000) && (PKa(u32+0)==0x8B) && (((PKa(u32+1))&0xC7)==0x04) && (PKa(u32+2)==0x24) && (PKa(u32+3)==0xC3))
+            else if ((getProtection(u32)&PROT_READ) && (PKa(u32+0)==0x8B) && (((PKa(u32+1))&0xC7)==0x04) && (PKa(u32+2)==0x24) && (PKa(u32+3)==0xC3))
                 tmp = dyn->insts[ninst].pass2choice = 2;
             /*else if(isNativeCall(dyn, u32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;*/
