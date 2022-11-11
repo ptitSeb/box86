@@ -1,6 +1,8 @@
+#define _GNU_SOURCE 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sched.h>
 
 #include "my_cpuid.h"
 #include "../emu/x86emu_private.h"
@@ -22,9 +24,13 @@ int get_cpuMhz()
 		MHz = 1000; // default to 1Ghz...
 	return MHz;
 }
+int getNCpu();  // defined in wrappedlibc.c
 
 void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
 {
+    int ncpu = getNCpu();
+    if(ncpu>255) ncpu = 255;
+    if(!ncpu) ncpu = 1;
     switch(tmp32u) {
         case 0x0:
             // emulate a P4
@@ -36,7 +42,12 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
             break;
         case 0x1:
             R_EAX = 0x00000601; // familly and all
-            R_EBX = 0;          // Brand indexe, CLFlush, Max APIC ID, Local APIC ID
+            R_EBX = 0 | (8<<0x8) | (ncpu<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            {
+                int cpu = sched_getcpu();
+                if(cpu<0) cpu=0;
+                R_EAX |= cpu<<24;
+            }
             R_EDX =   1         // fpu 
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
@@ -66,7 +77,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
         case 0x4:   // Cache info
             switch (R_ECX) {
                 case 0: // L1 data cache
-                    R_EAX = (1 | (1<<5) | (1<<8));   //type
+                    R_EAX = (1 | (1<<5) | (1<<8) | ((ncpu-1)<<26));   //type + (26-31):max cores per packages-1
                     R_EBX = (63 | (7<<22)); // size
                     R_ECX = 63;
                     R_EDX = 1;
@@ -115,6 +126,7 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
         case 0xB:   // Extended Topology Enumaretion Leaf
             //TODO!
             R_EAX = 0;
+            R_EBX = 0;
             break;
         case 0xC:   //?
             R_EAX = 0;

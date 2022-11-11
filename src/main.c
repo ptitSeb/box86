@@ -163,6 +163,7 @@ void my_child_fork()
 }
 
 #ifdef DYNAREC
+int getNCpu();
 void GatherDynarecExtensions()
 {
     if(box86_dynarec==0)    // no need to check if no dynarec
@@ -221,7 +222,9 @@ void GatherDynarecExtensions()
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
 
-    printf_log(LOG_INFO, " PageSize:%d\n", box86_pagesize);
+    printf_log(LOG_INFO, " PageSize:%d", box86_pagesize);
+    int ncpu = getNCpu();
+    printf_log(LOG_INFO, " Cores:%d\n", ncpu);
 #endif
 }
 #endif
