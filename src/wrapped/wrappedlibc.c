@@ -1564,7 +1564,6 @@ EXPORT int32_t my_readlink(x86emu_t* emu, void* path, void* buf, uint32_t sz)
     }
     return readlink((const char*)path, (char*)buf, sz);
 }
-#ifndef NOALIGN
 
 static int nCPU = 0;
 static double bogoMips = 100.;
@@ -1601,6 +1600,7 @@ int getNCpu()
     return nCPU;
 }
 
+#ifndef NOALIGN
 void CreateCPUInfoFile(int fd)
 {
     size_t dummy;
