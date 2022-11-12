@@ -383,7 +383,7 @@ int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
     // TLS data are just a copy, no need to re-load it
     return 0;
 }
-int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t** p, int version, const char* vername)
+int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t** p, size_t size, int version, const char* vername)
 {
     if(!h)
         return 0;
@@ -396,7 +396,7 @@ int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t*
             int t = ELF32_R_TYPE(rel[i].r_info);
             Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel[i].r_info)];
             const char* symname = SymName(h, sym);
-            if(t==R_386_COPY && symname && !strcmp(symname, name)) {
+            if(t==R_386_COPY && symname && !strcmp(symname, name) && sym->st_size==size) {
                 int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
                 if(version2!=-1) version2 &= 0x7fff;
                 if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
@@ -416,7 +416,7 @@ int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t*
             int t = ELF32_R_TYPE(rela[i].r_info);
             Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rela[i].r_info)];
             const char* symname = SymName(h, sym);
-            if(t==R_386_COPY && symname && !strcmp(symname, name)) {
+            if(t==R_386_COPY && symname && !strcmp(symname, name) && sym->st_size==size) {
                 int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rela[i].r_info)]:-1;
                 if(version2!=-1) version2 &= 0x7fff;
                 if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
@@ -444,6 +444,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
         uint32_t *p = (uint32_t*)(rel[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
+        size_t size = sym->st_size;
         elfheader_t* h_tls = NULL;//head;
         int version = head->VerSym?((Elf32_Half*)((uintptr_t)head->VerSym+head->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
@@ -494,11 +495,11 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 globoffs = offs;
                 globend = end;
                 offs = end = 0;
-                GetSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, version, vername, 1, defver); // try globaldata symbols first
+                GetSizedSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, size, version, vername, 1, defver); // try globaldata symbols first
                 if(!offs && local_maplib)
-                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, size, version, vername);
                 if(!offs)
-                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, size, version, vername);
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
@@ -510,7 +511,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 }
                 break;
             case R_386_GLOB_DAT:
-                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, version, vername)) {
+                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
@@ -685,6 +686,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         uint32_t *p = (uint32_t*)(rela[i].r_offset + head->delta);
         uintptr_t offs = 0;
         uintptr_t end = 0;
+        size_t size = sym->st_size;
         elfheader_t* h_tls = NULL;//head;
         int version = head->VerSym?((Elf32_Half*)((uintptr_t)head->VerSym+head->delta))[ELF32_R_SYM(rela[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
@@ -736,9 +738,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 offs = end = 0;
                 GetSymbolStartEnd(GetGlobalData(maplib), symname, &offs, &end, version, vername, 1, defver); // try globaldata symbols first
                 if(!offs && local_maplib)
-                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                    GetNoSelfSymbolStartEnd(local_maplib, symname, &offs, &end, head, size, version, vername);
                 if(!offs)
-                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+                    GetNoSelfSymbolStartEnd(maplib, symname, &offs, &end, head, size, version, vername);
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
@@ -750,7 +752,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 }
                 break;
             case R_386_GLOB_DAT:
-                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, version, vername)) {
+                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;

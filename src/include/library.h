@@ -24,9 +24,9 @@ void Free1Library(library_t **lib, x86emu_t* emu);
 
 char* GetNameLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
-int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int *weak, int version, const char* vername, int local);
-int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int* weak, int version, const char* vername, int local);
-int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, int* weak, int version, const char* vername, int local);
+int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int *weak, int version, const char* vername, int local);
+int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local);
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local);
 void fillGLProcWrapper(box86context_t* context);
 void freeGLProcWrapper(box86context_t* context);
 void fillALProcWrapper(box86context_t* context);
