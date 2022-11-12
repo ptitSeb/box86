@@ -645,21 +645,8 @@ EXPORT int my_vkGetBufferMemoryRequirements2(x86emu_t* emu, void* device, void* 
 {
     static const char* desc = "uPSUUu";
     void* m = vkalignStruct(pMemoryRequirement, desc, 1);
-printf_log(LOG_INFO, "\nwill call vkGetBufferMemoryRequirements2 with %p, converted from %p (struct size=%d)\n", m, pMemoryRequirement, vkalignSize(desc));
-printf_log(LOG_INFO, "pMemoryRequirement is\n");
-for(int i=0; i<8; ++i)
-printf_log(LOG_INFO, "%i: %08X\n", i, ((uint32_t*)pMemoryRequirement)[i]);
-printf_log(LOG_INFO, "-------------\nconverted it is\n");
-for(int i=0; i<9; ++i)
-printf_log(LOG_INFO, "%i: %08X\n", i, ((uint32_t*)m)[i]);
     int ret = my->vkGetBufferMemoryRequirements2(device, pInfo, m);
-printf_log(LOG_INFO, "-------------\nafter the call it is\n");
-for(int i=0; i<9; ++i)
-printf_log(LOG_INFO, "%i: %08X\n", i, ((uint32_t*)m)[i]);
     vkunalignStruct(m, desc, 1);
-printf_log(LOG_INFO, "-------------\npMemoryRequirement now is\n");
-for(int i=0; i<8; ++i)
-printf_log(LOG_INFO, "%i: %08X\n", i, ((uint32_t*)pMemoryRequirement)[i]);
     return ret;
 }
 EXPORT int my_vkGetBufferMemoryRequirements2KHR(x86emu_t* emu, void* device, void* pInfo, void* pMemoryRequirement) 
