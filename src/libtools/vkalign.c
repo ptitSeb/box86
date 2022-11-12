@@ -894,7 +894,6 @@ typedef struct my_vkhead_s {
     case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:              \
     case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:               \
     case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:               \
-    case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:               \
     case VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO:            \
     case VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO:      \
     case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:     \
@@ -998,6 +997,11 @@ typedef struct my_vkhead_s {
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR:     \
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES:   \
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_PROPERTIES_EXT: \
+    case VK_STRUCTURE_TYPE_SHADER_MODULE_IDENTIFIER_EXT:                \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:         \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:         \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:         \
+    case VK_STRUCTURE_TYPE_BUFFER_COPY_2:                               \
 
 #define CH(C, B, A) \
     case C:         \
@@ -1011,7 +1015,7 @@ typedef struct my_vkhead_s {
     CH(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,"uPiiiiuuUiuuuu", A)                  \
     CH(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO, "uPiUupuuu", A)                   \
     CH(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO, "uPiuppppppppppUUuUi", A)   \
-    CH(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, "uPiUiiiiiiiuuuu", A)              \
+    CH(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO, "uPiUiiSiiiiSiuuuu", A)            \
     CH(VK_STRUCTURE_TYPE_SUBMIT_INFO, "uPuppupup", A)           \
     CH(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, "uPUuuuippp", A) \
     CH(VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET, "uPUuuUuuu", A)   \
@@ -1019,7 +1023,7 @@ typedef struct my_vkhead_s {
     CH(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, "uP"     \
     "uuuuiYB"                                                   \
     "SuuuuuuuuuuuUUuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuffuuuffuLUUUiuiuffuuuuiiiiuiiiiiuifuuuuffffffiiUUU"\
-    "Siiiii",A)                                                 \
+    "iiiii",A)                                                 \
     CH(VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR, "uPipu", A)                   \
     CH(VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR, "uPipu", A)                  \
     CH(VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR, "uPUUUUu", A)                 \
@@ -1052,6 +1056,19 @@ typedef struct my_vkhead_s {
     CH(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES, "uPBBBuiuiiiiuuiuU", A)         \
     CH(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES, "uPiYYSuiiiiiiiiiiiiiiiiiuiiiiiiiuuuuuuuuuuuuuuuuuiiiiUu", A)\
     CH(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES, "uPuuuuuuuuuuiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiUiUiU", A)\
+    CH(VK_STRUCTURE_TYPE_RENDERING_INFO, "uPiiiuuuuuPPP", A)                        \
+    CH(VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS, "uPP", A)               \
+    CH(VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS, "uPPi", A)               \
+    CH(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO, "uPiiiuuuuuiiiiupi", A)                 \
+    CH(VK_STRUCTURE_TYPE_DEPENDENCY_INFO, "uPiuQuQuQ", A)                           \
+    CH(VK_STRUCTURE_TYPE_MEMORY_BARRIER_2, "uPUUUU", A)                             \
+    CH(VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2, "uPUUUUuuUUU", A)                 \
+    CH(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2, "uPUUUUiiuuUSiuuuu", A)            \
+    CH(VK_STRUCTURE_TYPE_SUBMIT_INFO_2, "upiuQuQuQ", A)                             \
+    CH(VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO, "uPUUUu", A)                        \
+    CH(VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2, "uPUuuSiuuuiiiuuu", A)              \
+    CH(VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, "uPpu", A)                     \
+    CH(VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO, "uPUiiUiiiffff", A)         \
 
 
 //--------------------------------------------------------------
@@ -1183,8 +1200,10 @@ static my_vkhead_t* alignFromx86(my_vkhead_t* src, uint32_t cnt);
 
 void* vkalignStruct(void* src, const char* desc, int cnt)
 {
+    if(!src)
+        return src;
     int sz = vkalignSize(desc);
-    int count=(cnt)?cnt:1;
+    int count=cnt;
     void* dst = (void*)box_malloc(sz*count+sizeof(void*)*count);
     int c = 0;
     int a = 0;
@@ -1268,6 +1287,7 @@ static my_vkhead_t* alignFromx86(my_vkhead_t* src, uint32_t cnt)
 {
     if(!src)
         return src;
+    //printf_log(LOG_INFO, "alignFromx86(%p:%d, %d)\n", src, src->sType, cnt);
     my_vkhead_t *dst = src;
     const char* s;
     switch(src->sType) {
@@ -1275,7 +1295,7 @@ static my_vkhead_t* alignFromx86(my_vkhead_t* src, uint32_t cnt)
             // no need to align, but follow next...
             dst->pNext = alignFromx86(src->pNext, 1);
             break;
-        CHANGE(dst=vkalignStruct(src, s, 1)) // will follow next
+        CHANGE(dst=vkalignStruct(src, s, cnt)) // will follow next
         default:
             // unknow
             printf_log(LOG_INFO, "BOX86: Warning, unknown Vulkan structure type %d\n", src->sType);
@@ -1298,6 +1318,8 @@ void* VulkanFromx86(void* src)
 static void* unalignTox86(my_vkhead_t* src, int cnt);
 void* vkunalignStruct(void* src, const char* desc, int cnt)
 {
+    if(!src)
+        return src;
     int c = 0;
     int a = 1;
     int sz = vkalignSize(desc);
@@ -1564,6 +1586,7 @@ static void* unalignTox86(my_vkhead_t* src, int cnt)
 {
     if(!cnt || !src)
         return src;
+    //printf_log(LOG_INFO, "unalignTox86(%p:%d, %d)\n", src, src->sType, cnt);
     void* ret = NULL;
     const char* s;
     switch(src->sType) {

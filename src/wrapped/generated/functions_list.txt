@@ -330,6 +330,7 @@
 #() vFpUu
 #() vFpUU
 #() vFpUp
+#() vFpUP
 #() vFpff
 #() vFpdd
 #() vFpll
@@ -668,10 +669,12 @@
 #() vFpuuV
 #() vFpudd
 #() vFpupp
+#() vFpupP
 #() vFpUui
 #() vFpUuu
 #() vFpUup
 #() vFpUUi
+#() vFpUUu
 #() vFpUUp
 #() vFpUpp
 #() vFpfff
@@ -962,6 +965,7 @@
 #() vFEppiV
 #() vFEppup
 #() vFEpppp
+#() vFEpPpp
 #() vFiiiii
 #() vFiiiiu
 #() vFiiuup
@@ -1037,6 +1041,7 @@
 #() vFpiipp
 #() vFpiIiI
 #() vFpiIII
+#() vFpiUUp
 #() vFpipii
 #() vFpipiu
 #() vFpuiip
@@ -1097,6 +1102,7 @@
 #() iFEpipi
 #() iFEpipp
 #() iFEpipV
+#() iFEpupU
 #() iFEpupp
 #() iFEpupV
 #() iFEpUup
@@ -1139,6 +1145,7 @@
 #() iFpiIip
 #() iFpiuwp
 #() iFpiupu
+#() iFpiUUU
 #() iFpipii
 #() iFpipiL
 #() iFpipip
@@ -4424,6 +4431,8 @@ wrappedvulkan:
   - vkDestroyPipeline
   - vkDestroyPipelineCache
   - vkDestroyPipelineLayout
+  - vkDestroyPrivateDataSlot
+  - vkDestroyPrivateDataSlotEXT
   - vkDestroyQueryPool
   - vkDestroyRenderPass
   - vkDestroySampler
@@ -4452,6 +4461,12 @@ wrappedvulkan:
   - vkGetPhysicalDeviceSurfaceCapabilities2KHR
 - iFPpp:
   - vkCreateInstance
+- vFpPpp:
+  - vkGetDeviceImageSparseMemoryRequirements
+  - vkGetDeviceImageSparseMemoryRequirementsKHR
+- iFpupU:
+  - vkQueueSubmit2
+  - vkQueueSubmit2KHR
 - iFpUup:
   - vkGetDisplayPlaneCapabilitiesKHR
 - iFpUpP:
@@ -4479,6 +4494,8 @@ wrappedvulkan:
   - vkCreateImageView
   - vkCreatePipelineCache
   - vkCreatePipelineLayout
+  - vkCreatePrivateDataSlot
+  - vkCreatePrivateDataSlotEXT
   - vkCreateQueryPool
   - vkCreateRenderPass
   - vkCreateRenderPass2

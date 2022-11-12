@@ -521,6 +521,11 @@ DESTROY64(vkDestroySamplerYcbcrConversionKHR)
 
 DESTROY64(vkDestroyValidationCacheEXT)
 
+CREATE(vkCreatePrivateDataSlot)
+CREATE(vkCreatePrivateDataSlotEXT)
+DESTROY64(vkDestroyPrivateDataSlot)
+DESTROY64(vkDestroyPrivateDataSlotEXT)
+
 EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
 {
     static const char* desc = 
@@ -562,7 +567,7 @@ EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint
 {
     static const char* desc = "iuuuuuuuuuuuuuuuu";
 
-    void* aligned = vkalignStruct(pCap, desc, 0);
+    void* aligned = vkalignStruct(pCap, desc, 1);
     int ret = my->vkGetDisplayPlaneCapabilitiesKHR(device, mode, index, aligned);
     vkunalignStruct(aligned, desc, 0);
     return ret;
@@ -590,7 +595,7 @@ EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, 
     "u" //uint32_t        memoryHeapCount;
     "UiUiUiUiUiUiUiUiUiUiUiUiUiUiUiUi"; //VkMemoryHeap    memoryHeaps[VK_MAX_MEMORY_HEAPS]; //16
 
-    void* aligned = vkalignStruct(pProps, desc, 0);
+    void* aligned = vkalignStruct(pProps, desc, 1);
     my->vkGetPhysicalDeviceMemoryProperties(device, aligned);
     vkunalignStruct(aligned, desc, 0);
 }
@@ -679,7 +684,7 @@ EXPORT void my_vkGetPhysicalDeviceProperties2(x86emu_t* emu, void* device, void*
     static const char* desc = "uP"
         "uuuuiYB"
         "SuuuuuuuuuuuUUuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuffuuuffuLUUUiuiuffuuuuiiiiuiiiiiuifuuuuffffffiiUUU"
-        "Siiiii";
+        "iiiii";
     void* m = vkalignStruct(pProp, desc, 1);
     my->vkGetPhysicalDeviceProperties2(device, m);
     vkunalignStruct(m, desc, 1);
@@ -690,7 +695,7 @@ __attribute__((alias("my_vkGetPhysicalDeviceProperties2")));
 
 EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2EXT(x86emu_t* emu, void* device, uint64_t surface, void* pSurfaceCapabilities)
 {
-    static const char* desc = "uPuuSuuSuuSuuuiiiii";
+    static const char* desc = "uPuuuuuuuuuiiiii";
     void* m = vkalignStruct(pSurfaceCapabilities, desc, 1);
     int ret = my->vkGetPhysicalDeviceSurfaceCapabilities2EXT(device, surface, m);
     vkunalignStruct(m, desc, 1);
@@ -699,9 +704,30 @@ EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2EXT(x86emu_t* emu, void* de
 
 EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2KHR(x86emu_t* emu, void* device, void* pInfo, void* pSurfaceCapabilities) 
 {
-    static const char* desc = "uPSuuSuuSuuSuuuiiii";
+    static const char* desc = "uPuuuuuuuuuiiii";
     void* m = vkalignStruct(pSurfaceCapabilities, desc, 1);
     int ret = my->vkGetPhysicalDeviceSurfaceCapabilities2KHR(device, pInfo, m);
     vkunalignStruct(m, desc, 1);
     return ret;
 }
+
+EXPORT void my_vkGetDeviceImageSparseMemoryRequirements(x86emu_t* emu, void* device, void* pInfo, uint32_t* count, void* pSparseMemoryRequirements)
+{
+    static const char* desc = "uPiuuuiuUUU";
+    void* m = vkalignStruct(pSparseMemoryRequirements, desc, *count);
+    my->vkGetDeviceImageSparseMemoryRequirements(device, pInfo, count, m);
+    vkunalignStruct(m, desc, *count);   // bad things will happens if *count is changed while pSparseMemoryRequirements is not NULL
+}
+EXPORT void vkGetDeviceImageSparseMemoryRequirementsKHR(x86emu_t* emu, void* device, void* pInfo, uint32_t* count, void* pSparseMemoryRequirements)
+__attribute__((alias("my_vkGetDeviceImageSparseMemoryRequirements")));
+
+EXPORT int my_vkQueueSubmit2(x86emu_t* emu, void* queue, uint32_t count, void* pSubmits, uint64_t fence)
+{
+    static const char* desc = "uPiuQuQuQ";
+    void* m = vkalignStruct(pSubmits, desc, count);
+    int ret = my->vkQueueSubmit2(queue, count, m, fence);
+    vkunalignStruct(m, desc, count);
+    return ret;
+}
+EXPORT int my_vkQueueSubmit2EXT(x86emu_t* emu, void* queue, uint32_t count, void* pSubmits, uint64_t fence)
+__attribute__((alias("my_vkQueueSubmit2")));

@@ -220,12 +220,44 @@ GO(vkSignalSemaphore, iFpP)
 GO(vkWaitSemaphores, iFpPU)
 
 // VK_VERSION_1_3
+GO(vkCmdBeginRendering, vFpP)
+GO(vkCmdEndRendering, vFp)
 GO(vkCmdBlitImage2, vFpP)
 GO(vkCmdCopyBuffer2, vFpP)
 GO(vkCmdCopyBufferToImage2, vFpP)
 GO(vkCmdCopyImage2, vFpP)
 GO(vkCmdCopyImageToBuffer2, vFpP)
 GO(vkCmdResolveImage2, vFpP)
+GO(vkCmdSetDepthBiasEnable, vFpi)
+GO(vkCmdSetLogicOp, vFpi)
+GO(vkCmdSetPatchControlPoints, vFpu)
+GO(vkCmdSetPrimitiveRestartEnable, vFpi)
+GO(vkCmdSetRasterizerDiscardEnable, vFpi)
+GOM(vkCreatePrivateDataSlot, iFEpPpp)
+GOM(vkDestroyPrivateDataSlot, vFEpUp)
+GO(vkGetPrivateData, vFpiUUp)
+GO(vkSetPrivateData, iFpiUUU)
+GO(vkGetDeviceBufferMemoryRequirements, vFpPP)
+GO(vkGetDeviceImageMemoryRequirements, vFpPP)
+GOM(vkGetDeviceImageSparseMemoryRequirements, vFEpPpp)
+GO(vkCmdPipelineBarrier2, vFpP)
+GO(vkCmdResetEvent2, vFpUU)
+GO(vkCmdSetEvent2, vFpUP)
+GO(vkCmdWaitEvents2, vFpupP)
+GO(vkCmdWriteTimestamp2, vFpUUu)
+GOM(vkQueueSubmit2, iFEpupU)
+GO(vkCmdBindVertexBuffers2, vFpuupppp)
+GO(vkCmdSetCullMode, vFpu)
+GO(vkCmdSetDepthBoundsTestEnable, vFpu)
+GO(vkCmdSetDepthCompareOp, vFpu)
+GO(vkCmdSetDepthTestEnable, vFpu)
+GO(vkCmdSetDepthWriteEnable, vFpu)
+GO(vkCmdSetFrontFace, vFpu)
+GO(vkCmdSetPrimitiveTopology, vFpi)
+GO(vkCmdSetScissorWithCount, vFpup)
+GO(vkCmdSetStencilOp, vFpuiiii)
+GO(vkCmdSetStencilTestEnable, vFpu)
+GO(vkCmdSetViewportWithCount, vFpup)
 
 // VK_EXT_debug_report
 GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
@@ -436,20 +468,6 @@ GO(vkCmdEndRenderPass2KHR, vFpP)
 GO(vkCmdNextSubpass2KHR, vFpPP)
 GOM(vkCreateRenderPass2KHR, iFEpPpp)
 
-// VK_EXT_extended_dynamic_state
-GO(vkCmdBindVertexBuffers2EXT, vFpuupppp)
-GO(vkCmdSetCullModeEXT, vFpu)
-GO(vkCmdSetDepthBoundsTestEnableEXT, vFpu)
-GO(vkCmdSetDepthCompareOpEXT, vFpu)
-GO(vkCmdSetDepthTestEnableEXT, vFpu)
-GO(vkCmdSetDepthWriteEnableEXT, vFpu)
-GO(vkCmdSetFrontFaceEXT, vFpu)
-GO(vkCmdSetPrimitiveTopologyEXT, vFpi)
-GO(vkCmdSetScissorWithCountEXT, vFup)
-GO(vkCmdSetStencilOpEXT, vFpuiiii)
-GO(vkCmdSetStencilTestEnableEXT, vFpu)
-GO(vkCmdSetViewportWithCountEXT, vFpup)
-
 // VK_KHR_draw_indirect_count
 GO(vkCmdDrawIndexedIndirectCountKHR, vFpUUUUuu)
 GO(vkCmdDrawIndirectCountKHR, vFpUUUUuu)
@@ -537,3 +555,51 @@ GO(vkGetDeviceMemoryOpaqueCaptureAddressKHR, UFpp)
 
 // VK_EXT_buffer_device_address
 GO(vkGetBufferDeviceAddressEXT, UFpp)
+
+// VK_KHR_dynamic_rendering
+GO(vkCmdBeginRenderingKHR, vFpP)
+GO(vkCmdEndRenderingKHR, vFp)
+
+// VK_EXT_extended_dynamic_state2
+GO(vkCmdSetDepthBiasEnableEXT, vFpi)
+GO(vkCmdSetLogicOpEXT, vFpi)
+GO(vkCmdSetPatchControlPointsEXT, vFpu)
+GO(vkCmdSetPrimitiveRestartEnableEXT, vFpi)
+GO(vkCmdSetRasterizerDiscardEnableEXT, vFpi)
+
+// VK_EXT_private_data
+GOM(vkCreatePrivateDataSlotEXT, iFEpPpp)
+GOM(vkDestroyPrivateDataSlotEXT, vFEpUp)
+GO(vkGetPrivateDataEXT, vFpiUUp)
+GO(vkSetPrivateDataEXT, iFpiUUU)
+
+// VK_KHR_maintenance4
+GO(vkGetDeviceBufferMemoryRequirementsKHR, vFpPP)
+GO(vkGetDeviceImageMemoryRequirementsKHR, vFpPP)
+GOM(vkGetDeviceImageSparseMemoryRequirementsKHR, vFEpPpp)
+
+// VK_KHR_synchronization2
+GO(vkCmdPipelineBarrier2KHR, vFpP)
+GO(vkCmdResetEvent2KHR, vFpUU)
+GO(vkCmdSetEvent2KHR, vFpUP)
+GO(vkCmdWaitEvents2KHR, vFpupP)
+GO(vkCmdWriteTimestamp2KHR, vFpUUu)
+GOM(vkQueueSubmit2KHR, iFEpupU)
+
+// VK_EXT_extended_dynamic_state
+GO(vkCmdBindVertexBuffers2EXT, vFpuupppp)
+GO(vkCmdSetCullModeEXT, vFpu)
+GO(vkCmdSetDepthBoundsTestEnableEXT, vFpu)
+GO(vkCmdSetDepthCompareOpEXT, vFpu)
+GO(vkCmdSetDepthTestEnableEXT, vFpu)
+GO(vkCmdSetDepthWriteEnableEXT, vFpu)
+GO(vkCmdSetFrontFaceEXT, vFpu)
+GO(vkCmdSetPrimitiveTopologyEXT, vFpi)
+GO(vkCmdSetScissorWithCountEXT, vFpup)
+GO(vkCmdSetStencilOpEXT, vFpuiiii)
+GO(vkCmdSetStencilTestEnableEXT, vFpu)
+GO(vkCmdSetViewportWithCountEXT, vFpup)
+
+// VK_EXT_shader_module_identifier
+GO(vkGetShaderModuleCreateInfoIdentifierEXT, vFpPP)
+GO(vkGetShaderModuleIdentifierEXT, vFpUp)
