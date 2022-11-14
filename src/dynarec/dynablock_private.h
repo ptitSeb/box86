@@ -4,8 +4,8 @@
 typedef struct dynablocklist_s  dynablocklist_t;
 
 typedef struct instsize_s {
-    unsigned int x86:4;
-    unsigned int nat:4;
+    unsigned char x86:4;
+    unsigned char nat:4;
 } instsize_t;
 
 typedef struct dynablock_s {
