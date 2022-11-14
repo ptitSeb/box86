@@ -1169,6 +1169,7 @@
 #() iFpupup
 #() iFpuppu
 #() iFpuppp
+#() iFpUiUi
 #() iFplluu
 #() iFpLlpp
 #() iFpLLpp
@@ -4428,6 +4429,7 @@ wrappedvulkan:
   - vkDestroyFramebuffer
   - vkDestroyImage
   - vkDestroyImageView
+  - vkDestroyOpticalFlowSessionNV
   - vkDestroyPipeline
   - vkDestroyPipelineCache
   - vkDestroyPipelineLayout
@@ -4492,6 +4494,7 @@ wrappedvulkan:
   - vkCreateHeadlessSurfaceEXT
   - vkCreateImage
   - vkCreateImageView
+  - vkCreateOpticalFlowSessionNV
   - vkCreatePipelineCache
   - vkCreatePipelineLayout
   - vkCreatePrivateDataSlot
@@ -4509,6 +4512,7 @@ wrappedvulkan:
   - vkCreateValidationCacheEXT
   - vkCreateXcbSurfaceKHR
   - vkCreateXlibSurfaceKHR
+  - vkGetPhysicalDeviceOpticalFlowImageFormatsNV
   - vkRegisterDeviceEventEXT
 - vFpupup:
   - vkUpdateDescriptorSets

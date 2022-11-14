@@ -54,6 +54,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroyFramebuffer, vFpUp_t) \
 	GO(vkDestroyImage, vFpUp_t) \
 	GO(vkDestroyImageView, vFpUp_t) \
+	GO(vkDestroyOpticalFlowSessionNV, vFpUp_t) \
 	GO(vkDestroyPipeline, vFpUp_t) \
 	GO(vkDestroyPipelineCache, vFpUp_t) \
 	GO(vkDestroyPipelineLayout, vFpUp_t) \
@@ -106,6 +107,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateHeadlessSurfaceEXT, iFpPpp_t) \
 	GO(vkCreateImage, iFpPpp_t) \
 	GO(vkCreateImageView, iFpPpp_t) \
+	GO(vkCreateOpticalFlowSessionNV, iFpPpp_t) \
 	GO(vkCreatePipelineCache, iFpPpp_t) \
 	GO(vkCreatePipelineLayout, iFpPpp_t) \
 	GO(vkCreatePrivateDataSlot, iFpPpp_t) \
@@ -123,6 +125,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateValidationCacheEXT, iFpPpp_t) \
 	GO(vkCreateXcbSurfaceKHR, iFpPpp_t) \
 	GO(vkCreateXlibSurfaceKHR, iFpPpp_t) \
+	GO(vkGetPhysicalDeviceOpticalFlowImageFormatsNV, iFpPpp_t) \
 	GO(vkRegisterDeviceEventEXT, iFpPpp_t) \
 	GO(vkUpdateDescriptorSets, vFpupup_t) \
 	GO(vkCreateSharedSwapchainsKHR, iFpuppp_t) \

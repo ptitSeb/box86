@@ -603,3 +603,10 @@ GO(vkCmdSetViewportWithCountEXT, vFpup)
 // VK_EXT_shader_module_identifier
 GO(vkGetShaderModuleCreateInfoIdentifierEXT, vFpPP)
 GO(vkGetShaderModuleIdentifierEXT, vFpUp)
+
+// VK_NV_optical_flow
+GO(vkBindOpticalFlowSessionImageNV, iFpUiUi)
+GO(vkCmdOpticalFlowExecuteNV, vFpUP)
+GOM(vkCreateOpticalFlowSessionNV, iFEpPpp)
+GOM(vkDestroyOpticalFlowSessionNV, vFEpUp)
+GOM(vkGetPhysicalDeviceOpticalFlowImageFormatsNV, iFEpPpp)

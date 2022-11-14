@@ -526,6 +526,9 @@ CREATE(vkCreatePrivateDataSlotEXT)
 DESTROY64(vkDestroyPrivateDataSlot)
 DESTROY64(vkDestroyPrivateDataSlotEXT)
 
+CREATE(vkCreateOpticalFlowSessionNV)
+DESTROY64(vkDestroyOpticalFlowSessionNV)
+
 EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
 {
     static const char* desc = 
@@ -731,3 +734,11 @@ EXPORT int my_vkQueueSubmit2(x86emu_t* emu, void* queue, uint32_t count, void* p
 }
 EXPORT int my_vkQueueSubmit2EXT(x86emu_t* emu, void* queue, uint32_t count, void* pSubmits, uint64_t fence)
 __attribute__((alias("my_vkQueueSubmit2")));
+
+EXPORT int my_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(x86emu_t* emu, void* device, void* pInfo, uint32_t* count, void* pImageFormatProperties)
+{
+    static const char* desc = "uPiuuuiuUUU";
+    void* m = vkalignStruct(pImageFormatProperties, desc, *count);
+    my->vkGetPhysicalDeviceOpticalFlowImageFormatsNV(device, pInfo, count, m);
+    vkunalignStruct(m, desc, *count);   // bad things will happens if *count is changed while pSparseMemoryRequirements is not NULL
+}
