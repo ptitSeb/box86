@@ -307,7 +307,7 @@ GO(_XEatDataWords, vFpu)
 //GO(XEHeadOfExtensionList
 GO(XEmptyRegion, iFp)
 //GO(XEnableAccessControl
-// _XEnq
+GO(_XEnq, vFpp)
 GO(XEqualRegion, iFpp)
 // _XError
 DATAB(_XErrorFunction, 4)
