@@ -3698,3 +3698,7 @@ GO(glGetFogLayersSGIX, vFp)
 
 // GL_SGIX_fog_texture
 GO(glTextureFogSGIX, vFu)
+
+// GL_ANGLE_request_extension
+GO(glDisableExtensionANGLE, vFp)
+GO(glRequestExtensionANGLE, vFp)
