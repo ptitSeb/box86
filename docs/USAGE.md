@@ -19,7 +19,8 @@ Controls the Dump of elf content
 #### BOX86_ROLLING_LOG
 Show last few wrapped function call when a Signal is caught
  * 0: No last function call printed (Default.)
- * 1: Last few wrapped function call printed when a signal is printed. Incompatible with BOX86_LOG>1 (may need BOX86_SHOWSEGV=1 also)
+ * 1: Last 16 wrapped functions calls printed when a signal is printed. Incompatible with BOX86_LOG>1 (may need BOX86_SHOWSEGV=1 also)
+ * N: Last N wrapped functions calls printed when a signal is printed. Incompatible with BOX86_LOG>1 (may need BOX86_SHOWSEGV=1 also)
 
 #### BOX86_NOBANNER
 Disables Box86 printing its version and build

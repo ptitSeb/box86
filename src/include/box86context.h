@@ -40,7 +40,6 @@ typedef void* (*procaddess_t)(const char* name);
 typedef void* (*vkprocaddess_t)(void* instance, const char* name);
 
 #define MAX_SIGNAL 64
-#define CYCLE_LOG  16
 
 typedef struct tlsdatasize_s {
     int         tlssize;
@@ -188,8 +187,8 @@ typedef struct box86context_s {
     int                 stack_clone_used;
 
     // rolling logs
-    char*               log_call[CYCLE_LOG];
-    char*               log_ret[CYCLE_LOG];
+    char*               *log_call;
+    char*               *log_ret;
     int                 current_line;
 } box86context_t;
 
@@ -197,6 +196,11 @@ extern box86context_t *my_context; // global context
 
 box86context_t *NewBox86Context(int argc);
 void FreeBox86Context(box86context_t** context);
+
+// Cycle log handling
+void freeCycleLog(box86context_t* ctx);
+void initCycleLog(box86context_t* context);
+void print_cycle_log(int loglevel);
 
 // return the index of the added header
 int AddElfHeader(box86context_t* ctx, elfheader_t* head);

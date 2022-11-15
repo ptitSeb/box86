@@ -151,6 +151,31 @@ static void atfork_child_box64context(void)
     init_mutexes(my_context);
 }
 
+void freeCycleLog(box86context_t* ctx)
+{
+    if(cycle_log) {
+        for(int i=0; i<cycle_log; ++i) {
+            box_free(ctx->log_call[i]);
+            box_free(ctx->log_ret[i]);
+        }
+        box_free(ctx->log_call);
+        box_free(ctx->log_ret);
+        ctx->log_call = NULL;
+        ctx->log_ret = NULL;
+    }
+}
+void initCycleLog(box86context_t* context)
+{
+    if(cycle_log) {
+        context->log_call = (char**)box_calloc(cycle_log, sizeof(char*));
+        context->log_ret = (char**)box_calloc(cycle_log, sizeof(char*));
+        for(int i=0; i<cycle_log; ++i) {
+            context->log_call[i] = (char*)box_calloc(256, 1);
+            context->log_ret[i] = (char*)box_calloc(128, 1);
+        }
+    }
+}
+
 EXPORTDYN
 box86context_t *NewBox86Context(int argc)
 {
@@ -163,11 +188,8 @@ box86context_t *NewBox86Context(int argc)
     // init and put default values
     box86context_t *context = my_context = (box86context_t*)box_calloc(1, sizeof(box86context_t));
 
-    if(cycle_log)
-        for(int i=0; i<CYCLE_LOG; ++i) {
-            context->log_call[i] = (char*)box_calloc(256, 1);
-            context->log_ret[i] = (char*)box_calloc(128, 1);
-        }
+    initCycleLog(context);
+
 #ifdef BUILD_LIB
     context->deferedInit = 0;
 #else
@@ -332,11 +354,7 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
 
-    if(cycle_log)
-        for(int i=0; i<CYCLE_LOG; ++i) {
-            box_free(ctx->log_call[i]);
-            box_free(ctx->log_ret[i]);
-        }
+    freeCycleLog(ctx);
 
     box_free(ctx);
 }

@@ -94,7 +94,7 @@ void x86Int3(x86emu_t* emu)
                 char* buffret = cycle_log?my_context->log_ret[my_context->current_line]:NULL;
                 if(buffret) buffret[0] = '\0';
                 if(cycle_log)
-                    my_context->current_line = (my_context->current_line+1)&(CYCLE_LOG-1);
+                    my_context->current_line = (my_context->current_line+1)%cycle_log;
                 char *tmp;
                 int post = 0;
                 int perr = 0;
@@ -294,9 +294,11 @@ void x86Int3(x86emu_t* emu)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
-                pthread_mutex_lock(&emu->context->mutex_trace);
-                if(!cycle_log) printf_log(LOG_NONE, "%s =>", buff);
-                pthread_mutex_unlock(&emu->context->mutex_trace);
+                if(!cycle_log) {
+                    pthread_mutex_lock(&emu->context->mutex_trace);
+                    printf_log(LOG_NONE, "%s =>", buff);
+                    pthread_mutex_unlock(&emu->context->mutex_trace);
+                }
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 if(post)
                     switch(post) {
@@ -325,12 +327,13 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==3 && ((int)R_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                pthread_mutex_lock(&emu->context->mutex_trace);
                 if(cycle_log)
                     snprintf(buffret, 127, "0x%X%s%s", R_EAX, buff2, buff3);
-                else
+                else {
+                    pthread_mutex_lock(&emu->context->mutex_trace);
                     printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
-                pthread_mutex_unlock(&emu->context->mutex_trace);
+                    pthread_mutex_unlock(&emu->context->mutex_trace);
+                }
             } else
                 w(emu, addr);
         }
@@ -346,4 +349,17 @@ void x86Int3(x86emu_t* emu)
 int GetTID()
 {
     return syscall(SYS_gettid);
+}
+
+void print_cycle_log(int loglevel) {
+    if(cycle_log) {
+        printf_log(LOG_INFO, "Last calls\n");
+        int j = (my_context->current_line+1)%cycle_log;
+        for (int i=0; i<cycle_log; ++i) {
+            int k = (i+j)%cycle_log;
+            if(my_context->log_call[k][0]) {
+                printf_log(loglevel, "%s => return %s\n", my_context->log_call[k], my_context->log_ret[k]);
+            }
+        }
+    }
 }
