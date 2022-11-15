@@ -20,6 +20,7 @@
 #include "dynablock_private.h"
 #include "dynarec_private.h"
 #include "elfloader.h"
+#include "bridge.h"
 #ifdef ARM
 #include "dynarec_arm.h"
 #include "arm_lock_helper.h"
@@ -312,6 +313,8 @@ void cancelFillBlock()
 */
 static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr, int create, dynablock_t* current, int need_lock)
 {
+    if(hasAlternate((void*)addr))
+        return NULL;
     // try the quickest way first: get parent of current and check if ok!
     dynablocklist_t *dynablocks = NULL;
     dynablock_t* block = NULL;
