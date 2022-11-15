@@ -44,7 +44,7 @@ GO(AES_wrap_key, iFppppi)
 //GO(asn1_add_error, 
 GO(ASN1_add_oid_module, vFv)
 //GO(ASN1_BIT_STRING_check, 
-//GO(ASN1_BIT_STRING_free, 
+GO(ASN1_BIT_STRING_free, vFp)
 //GO(ASN1_BIT_STRING_get_bit, 
 //GO(ASN1_BIT_STRING_name_print, 
 //GO(ASN1_BIT_STRING_new, 
