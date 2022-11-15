@@ -23,6 +23,7 @@ typedef void (*vFipp_t)(int32_t, void*, void*);
 	GO(glDebugMessageCallback, vFpp_t) \
 	GO(glDebugMessageCallbackAMD, vFpp_t) \
 	GO(glDebugMessageCallbackARB, vFpp_t) \
+	GO(glDebugMessageCallbackKHR, vFpp_t) \
 	GO(glProgramCallbackMESA, vFipp_t)
 
 #endif // __wrappedlibglTYPES_H_
