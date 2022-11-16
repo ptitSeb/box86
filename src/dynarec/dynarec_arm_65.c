@@ -416,6 +416,15 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xA2:
+            INST_NAME("MOV GS:Od, AL");
+            grab_tlsdata(dyn, addr, ninst, x1);
+            u32 = F32;
+            MOV32(x2, u32);
+            ADD_REG_LSL_IMM5(x2, x1, x2, 0);
+            STRB_IMM9(xEAX, x2, 0);
+            break;
+
         case 0xA3:
             INST_NAME("MOV GS:Od, EAX");
             grab_tlsdata(dyn, addr, ninst, x1);
