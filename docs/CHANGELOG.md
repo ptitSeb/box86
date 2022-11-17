@@ -1,3 +1,22 @@
+v0.2.8
+======
+* Wrapped more vulkan function, dxvk 2.0 now works
+* Added support for overriden malloc/free functions
+* Improved elf loader
+* Improved dlsym handling with RTLD_NEXT
+* Added BOX86_DYNAREC_SAFEFLAGS to allow finetuning Dynarec generated code handling of flags accross function calls and returns.
+* Added BOX86_BASH to setup x86 bash binary, so shell script can be run in x86 world 
+* Added BOX86_ROLLING_LOG to have details log only on crash
+* Improved TLS Size handling (Unity3D games now works)
+* Improved `execv` family of function to have better box86 integration
+* Added a few more wrapped libs, like FAudio
+* Improved gtk, SDL2, GL, vulkan (and more) wrapping
+* Improved Signal Handling and memory protection traking
+* Added some basic support for statically linked program. Thread are not working yet, but memory allocation and file access does.
+=> with the use of the new SafeFlags, some C# Windows program now runs fine (it's forced when the Vara family of software is detected)
+=> With the basic support of statcaly linked program, old emulator like modeler for linux works. Program with threads like mugen for linux still doesn't
+=> The bash integration is usefull for device with no binfmt integration or for script that check the machine it's running on
+
 v0.2.6
 ======
 * Added an option to get generated -NAN on SSE2 operation

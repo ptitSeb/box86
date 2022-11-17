@@ -12,13 +12,13 @@ Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, 
 
 You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit only systems. Also, you *NEED* a 32-bit toolchain to build Box86. A toolchain that only supports 64-bit will not compile Box86, and you'll get errors (typically on aarch64, you get "-marm" not recognized, and you'll need a multiarch or chroot environment).
 
-Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at those bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
+Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at those bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/). That also means that you will need a 32bits userspace on 64bits OS, like `armhf` on top an ̀`aarch64` 64bits OS.
 
-Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) is usually necessary. (Most ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
+Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) might be necessary. (Some ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
 
 Box86 now integrates a DynaRec (dynamic recompiler) for the ARM platform, providing a speed boost between 5 to 10 times faster than only using the interpreter. Some high level information on how the Dynarec work can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
 
-Many games already work without much tweaking, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL. Many of the GameMaker Linux games also run fine. (there's a long list, among them are UNDERTALE, A Risk of Rain, and Cook Serve Delicious)
+Many games just work without much tweaking, for example: WorldOfGoo, Airline Tycoon Deluxe, and FTL. Many of the GameMaker Linux games also run fine. (there's a long list, among them are UNDERTALE, A Risk of Rain, and Cook Serve Delicious). Unity3D games also works fine, but the OpenGL requirement might be an issue on some ARM platforms.
 
 If you are serious about developing Box86, you should install ccache and build Box86 with it. (Use ccmake for example.)
 To enable TRACE (i.e. dumping to stdout all individual x86 instructions executed, with dump of registers), you'll also need [Zydis library](https://github.com/zyantific/zydis) available on your system.
@@ -56,7 +56,7 @@ There are a few environment variables to control the behaviour of Box86.
 
 See [here](USAGE.md) for all environment variables and what they do.
 
-Note: Box86's Dynarec uses a mechanism with Memory Protection and a SegFault signal handler to handle JIT code. In simpler terms, if you want to use GDB to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. It is suggested to use something like `handle SIGSEGV nostop` in GDB to not stop at each segfault, and maybe put a breakpoint inside `my_memprotectionhandler` in `signals.c` if you want to trap SegFaults.
+Note: Box86's Dynarec uses a mechanism with Memory Protection and a SegFault signal handler to handle JIT code. In simpler terms, if you want to use GDB to debug a running program that use JIT'd code (like mono/Unity3D), you will still have many "normal" segfaults triggering. It is suggested to use something like `handle SIGSEGV nostop` in GDB to not stop at each segfault, and maybe put a breakpoint inside `my_box86signalhandler` in `signals.c` if you want to trap SegFaults.
 
 ----
 
@@ -79,10 +79,8 @@ If you look at a 64bits version of box86, look at [Box64](https://github.com/pti
 Notes about Unity game emulation
 ----
 
-Running Unity games is a hit or miss for now. Unity uses Mono (which uses signals that are not well emulated enough), and a runtime embedded in the main binary. A solution would be to use a native version of the libmono library used by Unity (it can be found here: https://github.com/Unity-Technologies/mono and needs to be built from source). But the wrapping of this lib is tricky, and not done for now, so the only solution is to emulate everything. The tricky part is to emulate the "JIT" code emitted by Mono, however with the new "protected memory" mechanism implemented it should be running with correct performance now.
-You should also note that some Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers) for now.
-
-TL;DR: Not all Unity games work and can require a high OpenGL profile, but the speed, for the ones running, should be correct now.
+Running Unity games shoudl generaly work now, but you should also note that many Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers) for now.
+Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
 
 ----
 
@@ -112,7 +110,7 @@ Note: if you plan to use box86 with Wine on Raspberry Pi 3 or earlier, those mod
 Notes about Vulkan
 ----
 
-Box86 already wrap Vulkan. If your system has a 32bits Vulkan driver, box86 will use it when needed. Note that Vulkan wrapping has not been tested much, due to the limited Vulkan support on the hardware I currently own. Profile 1.0 and 1.1, with some extension, should be OK. 1.2 is not really wrapped. I know some demos work on Pi4 (Sascha Willems demos build for x86 work the same as if build on armhf directly). Note that the Vulkan driver of the Pi4 DOES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardware support) and a few other things that make dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
+Box86 already wrap Vulkan. If your system has a 32bits Vulkan driver, box86 will use it when needed. Profile 1.0, 1.1, 1.2 and 1.3, with some extensions, should be OK. DXVK, including the 2.0, works. I know some demos work on Pi4 (Sascha Willems demos build for x86 work the same as if build on armhf directly). Note that the Vulkan driver of the Pi4 DOES NOT support dxvk for now (wine DirectX->Vulkan wrapper). It's not a box86 issue, it's missing extensions (hardware support) and a few other things that make dxvk not working on pi4. On Panfrost side, PanVK is a bit young and I haven't tested dxvk with it yet.
 
 ----
 Final word
