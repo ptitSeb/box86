@@ -754,16 +754,9 @@ void AlignVorbisBlock(void* dest, void* source)
 
 #undef TRANSFERT
 
-typedef union __attribute__((packed)) x86_epoll_data {
-    void    *ptr;
-    int      fd;
-    uint32_t u32;
-    uint64_t u64;
-} x86_epoll_data_t;
-
 struct __attribute__((packed)) x86_epoll_event {
-    uint32_t            events;
-    x86_epoll_data_t    data;
+    uint32_t    events;
+    uint64_t    data;
 };
 // Arm -> x86
 void UnalignEpollEvent(void* dest, void* source, int nbr)
@@ -772,7 +765,7 @@ void UnalignEpollEvent(void* dest, void* source, int nbr)
     struct epoll_event *arm_struct = (struct epoll_event*)source;
     while(nbr) {
         x86_struct->events = arm_struct->events;
-        x86_struct->data.u64 = arm_struct->data.u64;
+        x86_struct->data = arm_struct->data.u64;
         ++x86_struct;
         ++arm_struct;
         --nbr;
@@ -786,7 +779,7 @@ void AlignEpollEvent(void* dest, void* source, int nbr)
     struct epoll_event *arm_struct = (struct epoll_event*)dest;
     while(nbr) {
         arm_struct->events = x86_struct->events;
-        arm_struct->data.u64 = x86_struct->data.u64;
+        arm_struct->data.u64 = x86_struct->data;
         ++x86_struct;
         ++arm_struct;
         --nbr;
