@@ -12,10 +12,12 @@
 #endif
 
 typedef void* (*pFp_t)(void*);
+typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFiip_t)(int32_t, int32_t, void*);
+typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFipV_t)(int32_t, void*, ...);
@@ -39,11 +41,13 @@ typedef uint32_t (*uFpiippppiup_t)(void*, int32_t, int32_t, void*, void*, void*,
 	GO(g_param_spec_get_default_value, pFp_t) \
 	GO(g_type_class_peek_parent, pFp_t) \
 	GO(g_value_reset, pFp_t) \
+	GO(g_closure_set_marshal, vFpp_t) \
 	GO(g_param_type_register_static, iFpp_t) \
 	GO(g_value_init, pFpi_t) \
 	GO(g_value_array_sort, pFpp_t) \
 	GO(g_type_add_interface_static, vFiip_t) \
 	GO(g_value_register_transform_func, vFiip_t) \
+	GO(g_closure_add_finalize_notifier, vFppp_t) \
 	GO(g_object_get, vFppV_t) \
 	GO(g_object_set, vFppV_t) \
 	GO(g_boxed_type_register_static, iFppp_t) \

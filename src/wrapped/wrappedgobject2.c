@@ -437,6 +437,29 @@ static void* findMarshalFct(void* fct)
     return NULL;
 }
 
+// GClosureNotify
+#define GO(A)   \
+static uintptr_t my_GClosureNotify_fct_##A = 0;   \
+static int my_GClosureNotify_func_##A(void* a, void* b)     \
+{                                       \
+    return RunFunction(my_context, my_GClosureNotify_fct_##A, 2, a, b);\
+}
+SUPER()
+#undef GO
+static void* findGClosureNotify_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GClosureNotify_fct_##A == (uintptr_t)fct) return my_GClosureNotify_func_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GClosureNotify_fct_##A == 0) {my_GClosureNotify_fct_##A = (uintptr_t)fct; return my_GClosureNotify_func_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject GClosureNotify callback\n");
+    return NULL;
+}
+
 // GValueTransform
 #define GO(A)   \
 static uintptr_t my_valuetransform_fct_##A = 0;                             \
@@ -831,6 +854,16 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
     static my_GValue_t value[4];
     unalignNGValue(&value[cnt], &v, 1);
     return &value[cnt++];
+}
+
+EXPORT void my_g_closure_set_marshal(x86emu_t* emu, void* closure, void* marshal)
+{
+    my->g_closure_set_marshal(closure, findMarshalFct(marshal));
+}
+
+EXPORT void my_g_closure_add_finalize_notifier(x86emu_t* emu, void* closure, void* data, void* f)
+{
+    my->g_closure_add_finalize_notifier(closure, data, findGClosureNotify_Fct(f));
 }
 
 #define PRE_INIT    \

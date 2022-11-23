@@ -418,6 +418,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedpangocairo.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgthread2.c"
     "${BOX86_ROOT}/src/wrapped/wrappedcairo.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedcairogobject.c"
     "${BOX86_ROOT}/src/wrapped/wrappedpango.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbusglib1.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgudev1.c"

@@ -9,7 +9,7 @@ GO(gdk_pixbuf_alpha_mode_get_type, iFv)
 //GO(gdk_pixbuf_animation_get_height, 
 //GO(gdk_pixbuf_animation_get_iter, 
 //GO(gdk_pixbuf_animation_get_static_image, 
-//GO(gdk_pixbuf_animation_get_type, 
+GO(gdk_pixbuf_animation_get_type, lFv)
 //GO(gdk_pixbuf_animation_get_width, 
 //GO(gdk_pixbuf_animation_is_static_image, 
 //GO(gdk_pixbuf_animation_iter_advance, 

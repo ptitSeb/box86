@@ -2289,6 +2289,7 @@ wrappedcairo:
   - cairo_scaled_font_set_user_data
   - cairo_set_user_data
   - cairo_surface_set_user_data
+wrappedcairogobject:
 wrappedcap:
 wrappedcrashhandler:
 wrappedcrypto:
@@ -2671,6 +2672,8 @@ wrappedgobject2:
   - g_param_spec_get_default_value
   - g_type_class_peek_parent
   - g_value_reset
+- vFpp:
+  - g_closure_set_marshal
 - iFpp:
   - g_param_type_register_static
 - pFpi:
@@ -2680,6 +2683,8 @@ wrappedgobject2:
 - vFiip:
   - g_type_add_interface_static
   - g_value_register_transform_func
+- vFppp:
+  - g_closure_add_finalize_notifier
 - vFppV:
   - g_object_get
   - g_object_set
