@@ -366,7 +366,7 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
         return -1;
     }
 	i386_stack_t *new_ss = (i386_stack_t*)pthread_getspecific(sigstack_key);
-    if(!ss) {
+    if(oss) {
         if(!new_ss) {
             oss->ss_flags = SS_DISABLE;
             oss->ss_sp = emu->init_stack;
@@ -376,6 +376,8 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
             oss->ss_sp = new_ss->ss_sp;
             oss->ss_size = new_ss->ss_size;
         }
+    }
+    if(!ss) {
         return 0;
     }
     printf_log(LOG_DEBUG, "%04d|sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%x], oss=%p\n", GetTID(), ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
@@ -391,19 +393,9 @@ EXPORT int my_sigaltstack(x86emu_t* emu, const i386_stack_t* ss, i386_stack_t* o
 
         return 0;
     }
-    if(oss) {
-        if(!new_ss) {
-            oss->ss_flags = SS_DISABLE;
-            oss->ss_sp = emu->init_stack;
-            oss->ss_size = emu->size_stack;
-        } else {
-            oss->ss_flags = new_ss->ss_flags;
-            oss->ss_sp = new_ss->ss_sp;
-            oss->ss_size = new_ss->ss_size;
-        }
-    }
     if(!new_ss)
         new_ss = (i386_stack_t*)box_calloc(1, sizeof(i386_stack_t));
+    new_ss->ss_flags = 0;
     new_ss->ss_sp = ss->ss_sp;
     new_ss->ss_size = ss->ss_size;
 
@@ -571,7 +563,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
         sigcontext->uc_stack.ss_sp = new_ss->ss_sp;
         sigcontext->uc_stack.ss_size = new_ss->ss_size;
         sigcontext->uc_stack.ss_flags = new_ss->ss_flags;
-    }
+    } else
+        sigcontext->uc_stack.ss_flags = SS_DISABLE;
     // Try to guess some REG_TRAPNO
     /*
     TRAP_x86_DIVIDE     = 0,   // Division by zero exception
@@ -638,6 +631,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     else
         ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
+    if(used_stack)  // release stack
+        new_ss->ss_flags = 0;
     #define GO(R) R_##R = old_##R
     GO(EAX);
     GO(ECX);
@@ -709,8 +704,6 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     }
     if(restorer)
         RunFunctionHandler(&exits, NULL, restorer, 0);
-    if(used_stack)  // release stack
-        new_ss->ss_flags = 0;
     relockMutex(Locks);
 }
 
