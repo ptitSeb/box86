@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <signal.h>
+#include <wait.h>
 
 #include "debug.h"
 #include "box86stack.h"
@@ -53,7 +54,10 @@ x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].parent)
                 EmuCall(emu, my_context->atforks[i].parent);
-
+        if(forktype==3) {
+            // vfork, the parent wait the end or execve of the son
+            waitpid(v, NULL, WEXITED);
+        }
     } else if(v==0) {
         // execute atforks child functions
         for (int i=0; i<my_context->atfork_sz; --i)

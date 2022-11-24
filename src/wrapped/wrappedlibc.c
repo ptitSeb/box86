@@ -553,7 +553,7 @@ pid_t EXPORT my_vfork(x86emu_t* emu)
 {
     #if 1
     emu->quit = 1;
-    emu->fork = 1;  // use regular fork...
+    emu->fork = 3;  // use regular fork...
     return 0;
     #else
     return 0;
