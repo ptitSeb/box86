@@ -10,6 +10,8 @@ wget -qO- https://itai-nelken.github.io/weekly-box86-debs/debian/KEY.gpg | sudo 
 sudo apt update && sudo apt install box86 -y
 ```
 
+**Note:** On a 64bit OS, install the `box86:armhf` package.
+
 Alternatively, you can generate your own package using the [instructions below](https://github.com/ptitSeb/box86/blob/master/docs/COMPILE.md#debian-packaging). 
 
 #### for Pandora
