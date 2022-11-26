@@ -251,6 +251,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     }
     PASS3(void* epilog = arm_epilog);
     MOV32_(2, (uintptr_t)epilog);
+    SMEND();
     BX(2);
 }
 
@@ -277,6 +278,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     #ifdef HAVE_TRACE
     MOV_REG(x2, 15);    // move current PC to x2, for tracing
     #endif
+    SMEND();
     BX(x3);
 }
 
@@ -293,6 +295,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         #ifdef HAVE_TRACE
         MOV_REG(x2, 15);    // move current PC to x2, for tracing
         #endif
+        SMEND();
         BX(x3);
 }
 
@@ -315,6 +318,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         #ifdef HAVE_TRACE
         MOV_REG(x2, 15);    // move current PC to x2, for tracing
         #endif
+        SMEND();
         BX(x3);
 }
 
@@ -337,6 +341,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
     SET_DFNONE(x1);
     // Ret....
     MOV32_(x2, (uintptr_t)arm_epilog);  // epilog on purpose, CS might have changed!
+    SMEND();
     BX(x2);
 }
 

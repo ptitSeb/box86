@@ -41,7 +41,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x81:
         case 0x83:
             nextop = F8;
-            DMB_ISH();
+            SMDMB();
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     if(opcode==0x81) {
@@ -50,7 +50,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         INST_NAME("LOCK ADD Ew, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    DMB_ISH();
+                    SMDMB();
                     if((nextop&0xC0)==0xC0) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xEAX+(nextop&7);
@@ -71,7 +71,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                             B_MARKLOCK(cNE);
                         }
                         if(!fixedaddress) {
-                            DMB_ISH();
+                            SMDMB();
                             B_NEXT(c__);
                         }
                         if(!fixedaddress || (fixedaddress && (fixedaddress&1))) {
@@ -85,17 +85,17 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                             B_MARK(cNE);
                             STRH_IMM8(x1, wback, 0); // put the whole value
                         }
-                        DMB_ISH();
+                        SMDMB();
                     }
                     break;
                 default:
                   DEFAULT;
             }
-            DMB_ISH();
+            SMDMB();
             break;
         case 0xFF:
             nextop = F8;
-            DMB_ISH();
+            SMDMB();
             switch((nextop>>3)&7)
             {
                 case 0: // INC Ew
@@ -120,7 +120,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                             B_MARKLOCK(cNE);
                         }
                         if(!fixedaddress) {
-                            DMB_ISH();
+                            SMDMB();
                             B_NEXT(c__);
                         }
                         if(!fixedaddress || (fixedaddress && (fixedaddress&1))) {
@@ -158,7 +158,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                             B_MARKLOCK(cNE);
                         }
                         if(!fixedaddress) {
-                            DMB_ISH();
+                            SMDMB();
                             B_NEXT(c__);
                         }
                         if(!fixedaddress || (fixedaddress && (fixedaddress&3))) {
@@ -178,7 +178,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     // default to NO LOCK
                     addr-=2;
             }
-            DMB_ISH();
+            SMDMB();
             break;
         default:
             DEFAULT;

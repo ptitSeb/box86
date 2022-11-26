@@ -27,6 +27,30 @@
 #define PKip(a) *(uint8_t*)(ip+a)
 #define PKa(a)  *(uint8_t*)(a)
 
+// Strong mem emulation helpers
+// Sequence of Read will trigger a DMB on "first" read if strongmem is 2
+// Squence of Write will trigger a DMB on "last" write if strongmem is 1
+// Opcode will read
+#define SMREAD()    if(!dyn->smread && box86_dynarec_strongmem>1) {DMB_ISH(); dyn->smread=1;}
+// Opcode will read with option forced lock
+#define SMREADLOCK(lock)    if(lock) {SMDMB();} else if(!dyn->smread && box86_dynarec_strongmem>1) {DMB_ISH(); dyn->smread=1;}
+// Opcode migh read (depend on nextop)
+#define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
+// Opcode has wrote
+#define SMWRITE()   dyn->smwrite=1
+// Opcode has wrote (strongmem>1 only)
+#define SMWRITE2()   if(box86_dynarec_strongmem>1) dyn->smwrite=1
+// Opcode has wrote with option forced lock
+#define SMWRITELOCK(lock)   if(lock) {SMDMB();} else dyn->smwrite=1
+// Opcode migh have wrote (depend on nextop)
+#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
+// Start of sequence
+#define SMSTART()   SMEND()
+// End of sequence
+#define SMEND()     if(dyn->smwrite && box86_dynarec_strongmem) {DMB_ISH();} dyn->smwrite=0; dyn->smread=0;
+// Force a Data memory barrier (for LOCK: prefix)
+#define SMDMB()     DMB_ISH(); if(dyn->smwrite) dyn->smwrite=0; dyn->smread=1
+
 //LOCK_* define
 #define LOCK_LOCK   (int*)1
 
@@ -37,6 +61,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 4095, 0, 0, NULL); \
                     LDR_IMM9(x1, wback, fixedaddress); \
                     ed = x1;                \
@@ -46,6 +71,7 @@
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, (hint==x2)?x1:x2, &fixedaddress, 4095, 0, 0, NULL); \
                     LDR_IMM9(hint, wback, fixedaddress); \
                     ed = hint;              \
@@ -56,19 +82,23 @@
                     MOV_REG(ret, ed);       \
                     wback = 0;              \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, hint, &fixedaddress, 4095, 0, 0, NULL); \
                     ed = ret;               \
                     LDR_IMM9(ed, wback, fixedaddress); \
                 }
 // Write back ed in wback (if wback not 0)
-#define WBACK       if(wback) {STR_IMM9(ed, wback, fixedaddress);}
+#define WBACK       if(wback) {STR_IMM9(ed, wback, fixedaddress); SMWRITE();}
+// Write back ed in wback (if wback not 0) (SMWRITE2 version)
+#define WBACK2      if(wback) {STR_IMM9(ed, wback, fixedaddress); SMWRITE2();}
 // Send back wb to either ed or wback
-#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress);} else {MOV_REG(ed, wb);}
+#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress); SMWRITE();} else {MOV_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
                     ed = xEAX+(nextop&7);   \
                     wback = 0;              \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL); \
                     LDR_REG_LSL_IMM5(x1, wback, O, 0);  \
                     ed = x1;                 \
@@ -78,13 +108,14 @@
                     ed = xEAX+(nextop&7);               \
                     wback = 0;                          \
                 } else {                                \
+                    SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL); \
                     ADD_REG_LSL_IMM5(x2, wback, O, 0);  \
                     if(wback != x2) wback = x2;         \
                     LDR_IMM9(x1, wback, 0);             \
                     ed = x1;                            \
                 }
-#define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0);}
+#define WBACKO(O)   if(wback) {STR_REG_LSL_IMM5(ed, wback, O, 0); SMWRITE();}
 //FAKEELike GETED, but doesn't get anything
 #define FAKEED  if((nextop&0xC0)!=0xC0) {   \
                     addr = fakeed(dyn, addr, ninst, nextop); \
@@ -98,6 +129,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, w, &fixedaddress, 255, 0, 0, NULL); \
                     LDRH_IMM8(i, wback, fixedaddress); \
                     ed = i;                 \
@@ -110,6 +142,7 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL); \
                     LDRH_IMM8(i, wback, fixedaddress); \
                     ed = i;                 \
@@ -122,15 +155,16 @@
                     ed = i;                 \
                     wb1 = 0;                \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL); \
                     LDRSH_IMM8(i, wback, fixedaddress);\
                     ed = i;                 \
                     wb1 = 1;                \
                 }
 // Write ed back to original register / memory
-#define EWBACK   if(wb1) {STRH_IMM8(ed, wback, fixedaddress);} else {BFI(wback, ed, 0, 16);}
+#define EWBACK   if(wb1) {STRH_IMM8(ed, wback, fixedaddress); SMWRITE();} else {BFI(wback, ed, 0, 16);}
 // Write w back to original register / memory
-#define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, fixedaddress);} else {BFI(wback, w, 0, 16);}
+#define EWBACKW(w)   if(wb1) {STRH_IMM8(w, wback, fixedaddress); SMWRITE();} else {BFI(wback, w, 0, 16);}
 // Write back gd in correct register
 #define GWBACK       BFI((xEAX+((nextop&0x38)>>3)), gd, 0, 16);
 //GETEB will use i for ed, and can use r3 for wback.
@@ -142,6 +176,7 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0, 0, NULL); \
                     LDRB_IMM9(i, wback, fixedaddress); \
                     wb1 = 1;                \
@@ -156,6 +191,7 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0, NULL); \
                     ADD_REG_LSL_IMM5(x3, wback, i, 0);  \
                     if(wback!=x3) wback = x3;           \
@@ -172,13 +208,16 @@
                     wb1 = 0;                \
                     ed = i;                 \
                 } else {                    \
+                    SMREAD();               \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL); \
                     LDRSB_IMM8(i, wback, fixedaddress);\
                     wb1 = 1;                \
                     ed = i;                 \
                 }
 // Write eb (ed) back to original register / memory
-#define EBBACK   if(wb1) {STRB_IMM9(ed, wback, fixedaddress);} else {BFI(wback, ed, wb2*8, 8);}
+#define EBBACK   if(wb1) {STRB_IMM9(ed, wback, fixedaddress); SMWRITE();} else {BFI(wback, ed, wb2*8, 8);}
+// Write eb (ed) back to original register / memory (SMWRITE2 version)
+#define EBBACK2   if(wb1) {STRB_IMM9(ed, wback, fixedaddress); SMWRITE2();} else {BFI(wback, ed, wb2*8, 8);}
 //GETGB will use i for gd
 #define GETGB(i)    gd = (nextop&0x38)>>3;  \
                     gb2 = ((gd&4)>>2);      \

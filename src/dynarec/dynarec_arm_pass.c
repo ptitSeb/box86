@@ -119,6 +119,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         dyn->n.stack_push = 0;
         dyn->n.swapped = 0;
         NEW_INST;
+        if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
         fpu_reset_scratch(dyn);
         if((dyn->insts[ninst].x86.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x86.need_before&~X_PEND);

@@ -27,9 +27,10 @@
     if((nextop&0xC0)==0xC0) {   \
         a = sse_get_reg(dyn, ninst, x1, nextop&7, w);  \
     } else {                    \
+        SMREAD();               \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL); \
         a = fpu_get_scratch_quad(dyn); \
-        VLD1Q_8(a, ed);       \
+        VLD1Q_8(a, ed);         \
     }
 #define GETGX(a, w)         \
     gd = (nextop&0x38)>>3;  \
@@ -70,6 +71,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
+                SMREAD();
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095-12, 0, 0, NULL);
                 LDR_IMM9(x2, ed, fixedaddress+0);
@@ -96,6 +98,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVfrV_D(x2, x3, v0+1);
                 STR_IMM9(x2, ed, fixedaddress+8);
                 STR_IMM9(x3, ed, fixedaddress+12);
+                SMWRITE2();
             }
             break;
         case 0x12:
@@ -108,6 +111,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 return addr;
             }
             parity = getedparity(dyn, ninst, addr, nextop, 3);
+            SMREAD();
             if(parity) {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0, NULL);
                 VLDR_64(v0, ed, fixedaddress);
@@ -137,6 +141,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 STR_IMM9(x2, ed, fixedaddress);
                 STR_IMM9(x3, ed, fixedaddress+4);
             }
+            SMWRITE2();
             break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
@@ -146,6 +151,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(v0+1, v1);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0, NULL);
                 VLDR_64(v0+1, ed, fixedaddress);
             }
@@ -159,6 +165,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(v0+1, v1+1);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023-4, 3, 0, NULL);
                 VLDR_64(v0+1, ed, fixedaddress+4);
             }
@@ -173,6 +180,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 return addr;
             }
             parity = getedparity(dyn, ninst, addr, nextop, 3);
+            SMREAD();
             if(parity) {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0, NULL);
                 VLDR_64(v0+1, ed, fixedaddress);    // vfpu opcode here
@@ -202,6 +210,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 STR_IMM9(x2, ed, fixedaddress);
                 STR_IMM9(x3, ed, fixedaddress+4);
             }
+            SMWRITE2();
             break;
 
         case 0x1F:
@@ -222,6 +231,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                 VLD1Q_32(v0, ed);
+                SMWRITE2();
             }
             break;
         case 0x29:
@@ -235,6 +245,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                 VST1Q_32(v0, ed);
+                SMWRITE2();
             }
             break;
 
@@ -262,6 +273,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         v0 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         VLD1Q_64(q1, ed);
                         v0 = q1;
@@ -469,6 +481,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {   \
                 ed = xEAX+(nextop&7);   \
             } else { \
+                SMREAD(); \
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, NULL);\
                 LDRH_IMM8_COND(YES, x1, ed, fixedaddress); \
                 ed = x1;                        \
@@ -893,6 +906,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(v0+1, v1);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0, NULL);
                 VLDR_64(v0+1, ed, fixedaddress);
             }
@@ -906,6 +920,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 q1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(q0+1, q1+1);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023-8, 3, 0, NULL);
                 VLDR_64(q0+1, ed, fixedaddress+8);
             }
@@ -928,6 +943,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
             } else {
+                SMREAD();
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                 VLD1Q_64(v0, ed);
@@ -1043,6 +1059,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVQ(v0, q0);
                 }
             } else {
+                SMREAD();
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                 u8 = F8;
@@ -1071,6 +1088,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_16(q0, ed);
@@ -1084,6 +1102,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_16(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1092,6 +1111,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_16(q0, ed);
@@ -1102,6 +1122,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1Q_16(q0, ed);
+                        SMWRITE2();
                     }
                     break;
                 case 6:
@@ -1109,6 +1130,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_16(q0, ed);
@@ -1122,6 +1144,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_16(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1138,6 +1161,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_32(q0, ed);
@@ -1151,6 +1175,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_32(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1159,6 +1184,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_32(q0, ed);
@@ -1169,6 +1195,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     if((nextop&0xC0)!=0xC0) {
                         VST1Q_32(q0, ed);
+                        SMWRITE2();
                     }
                     break;
                 case 6:
@@ -1176,6 +1203,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_32(q0, ed);
@@ -1189,6 +1217,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_32(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1204,6 +1233,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_64(q0, ed);
@@ -1217,6 +1247,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_64(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1225,6 +1256,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_64(q0, ed);
@@ -1240,6 +1272,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_64(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1248,6 +1281,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_64(q0, ed);
@@ -1261,6 +1295,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_64(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1269,6 +1304,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         q0 = fpu_get_scratch_quad(dyn);
                         VLD1Q_64(q0, ed);
@@ -1284,6 +1320,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         }
                         if((nextop&0xC0)!=0xC0) {
                             VST1Q_64(q0, ed);
+                            SMWRITE2();
                         }
                     }
                     break;
@@ -1325,6 +1362,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVfrDx_32(x2, v0, 0); // to avoid Bus Error, using regular store
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 4095, 0, 0, NULL);
                 STR_IMM9(x2, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0x7F:
@@ -1337,6 +1375,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                 VST1Q_32(v0, ed);
+                SMWRITE2();
             }
             break;
 
@@ -1349,6 +1388,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);   // no need for extract
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 255, 0, 0, NULL);
                 SBFX(x1, gd, 4, 12);    // r1 = (gw>>4);
                 ADD_REG_LSL_IMM5(x1, ed, x1, 1); //(&ed)+=r1*2;
@@ -1391,6 +1431,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 ed = xEAX+(nextop&7);
                 wback = 0;   // no need for extract
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                 SBFX(x14, gd, 4, 12);    // r14 = (gw>>4);
                 ADD_REG_LSL_IMM5(x3, wback, x14, 1); //(&ew)+=r14*2;
@@ -1407,6 +1448,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             ORR_REG_LSL_REG(ed, ed, x1, x2);
             if(wback) {
                 STRH_IMM8(ed, wback, fixedaddress);
+                SMWRITE();
             }
             break;
         case 0xAC:
@@ -1459,6 +1501,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 ed = xEAX+(nextop&7);
                 wback = 0;   // no need for extract
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                 SBFX(x14, gd, 4, 12);    // r14 = (gw>>4);
                 ADD_REG_LSL_IMM5(x3, wback, x14, 1); //(&ew)+=r14*2;
@@ -1475,6 +1518,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             XOR_REG_LSL_REG(ed, ed, x1, x2);
             if(wback) {
                 STRH_IMM8(ed, wback, fixedaddress);
+                SMWRITE();
             }
             break;
 
@@ -1488,6 +1532,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 eb2 = (ed&4)>>2;    // L or H
                 UXTB(x1, eb1, eb2);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, 0, NULL);
                 LDRB_IMM9(x1, ed, fixedaddress);
             }
@@ -1501,6 +1546,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 ed = xEAX + (nextop&7);
                 UXTH(x1, ed, 0);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, NULL);
                 LDRH_IMM8(x1, ed, fixedaddress);
             }
@@ -1517,6 +1563,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     if((nextop&0xC0)==0xC0) {
                         ed = xEAX+(nextop&7);
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
@@ -1537,6 +1584,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
@@ -1555,6 +1603,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8);
                     if(wback) {
                         STRH_IMM8(ed, wback, fixedaddress);
+                        SMWRITE();
                     }
                     MARK3;
                     break;
@@ -1566,6 +1615,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
@@ -1584,6 +1634,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8);
                     if(wback) {
                         STRH_IMM8(ed, wback, fixedaddress);
+                        SMWRITE();
                     }
                     MARK3;
                     break;
@@ -1595,6 +1646,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                         LDRH_IMM8(x1, wback, fixedaddress);
                         ed = x1;
@@ -1612,6 +1664,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     XOR_REG_LSL_IMM5(ed, ed, x14, u8);
                     if(wback) {
                         STRH_IMM8(ed, wback, fixedaddress);
+                        SMWRITE();
                     }
                     MARK3;
                     break;
@@ -1629,6 +1682,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 ed = xEAX+(nextop&7);
                 wback = 0;   // no need for extract
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                 SBFX(x14, gd, 4, 12);    // r14 = (gw>>4);
                 ADD_REG_LSL_IMM5(x3, wback, x14, 1); //(&ew)+=r14*2;
@@ -1643,6 +1697,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             XOR_REG_LSL_REG(ed, ed, x1, x2);
             if(wback) {
                 STRH_IMM8(ed, wback, fixedaddress);
+                SMWRITE();
             }
             break;
         case 0xBC:
@@ -1688,6 +1743,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 eb2 = (ed&4)>>2;    // L or H
                 SXTB(x1, eb1, eb2);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, NULL);
                 LDRSB_IMM8(x1, ed, fixedaddress);
             }
@@ -1759,6 +1815,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 ed = xEAX+(nextop&7);
                 VMOVtoDx_16(v0+(u8/4), u8&3, ed);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0, NULL);
                 u8 = (F8)&7;
                 VLD1LANE_16(v0+(u8/4), wback, u8&3);
@@ -1773,6 +1830,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 u8 = (F8)&7;
                 VMOVfrDx_U16(gd, v0+(u8/4), (u8&3));
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255-14, 0, 0, NULL);
                 u8 = (F8)&7;
                 LDRH_IMM8(gd, wback, fixedaddress+u8*2);
@@ -1894,6 +1952,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     STR_IMM9(x2, ed, fixedaddress+0);
                     STR_IMM9(x3, ed, fixedaddress+4);
                 }
+                SMWRITE2();
             }
             break;
         case 0xD7:

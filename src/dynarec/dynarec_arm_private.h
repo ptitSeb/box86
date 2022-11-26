@@ -100,6 +100,8 @@ typedef struct dynarec_arm_s {
     int                 sons_size;  // number of potential dynablock sons
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
+    uint8_t             smread;    // for strongmem model emulation
+    uint8_t             smwrite;    // for strongmem model emulation
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

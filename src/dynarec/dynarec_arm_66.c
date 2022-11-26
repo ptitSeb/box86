@@ -505,7 +505,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0x87:
-            INST_NAME("XCHG Ew, Gw");
+            INST_NAME("(LOCK) XCHG Ew, Gw");
             nextop = F8;
             if((nextop&0xC0)==0xC0) {
                 GETGD;
@@ -518,6 +518,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 GETGD;
                 UXTH(x14, gd, 0);
+                SMDMB();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, LOCK_LOCK);
                 #if 0
                 MARKLOCK;
@@ -531,6 +532,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 LDRH_IMM8(x1, ed, fixedaddress);
                 STRH_IMM8(x14, ed, fixedaddress);
                 #endif
+                SMDMB();
                 BFI(gd, x1, 0, 16);
             }
             break;
@@ -547,7 +549,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, &lock);
                 STRH_IMM8(gd, ed, fixedaddress);
-                if(lock) {DMB_ISH();}
+                SMWRITELOCK(lock);
             }
             break;
         case 0x8B:
@@ -561,7 +563,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, &lock);
-                if(lock) {DMB_ISH();}
+                SMREADLOCK(lock);
                 LDRH_IMM8(x1, ed, fixedaddress);
                 BFI(gd, x1, 0, 16);
             }
@@ -577,6 +579,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, NULL);
                 STRH_IMM8(x1, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
 
@@ -588,6 +591,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
                 STRH_REG(ed, xEmu, x2);
             } else {
+                SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, NULL);
                 LDRH_IMM8(x1, ed, fixedaddress);
                 MOV32(x2, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
@@ -645,6 +649,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV, AX, Od");
             u32 = F32;
             MOV32(x2, u32);
+            SMREAD();
             LDRH_IMM8(x2, x2, 0);
             BFI(xEAX, x2, 0, 16);
             break;
@@ -653,6 +658,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             u32 = F32;
             MOV32(x2, u32);
             STRH_IMM8(xEAX, x2, 0);
+            SMWRITE();
             break;
         case 0xA5:
             INST_NAME("MOVSW");

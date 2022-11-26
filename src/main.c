@@ -1251,7 +1251,7 @@ int main(int argc, const char **argv, char **env)
         AddPath("libSDL2-2.0.so.0", &my_context->box86_emulated_libs, 0);
         unsetenv("BOX86_NOGTK");
         #ifdef DYNAREC
-        box86_dynarec_strongmem = 2;
+        box86_dynarec_strongmem = 1;
         #endif
         #ifdef PANDORA
         x11color16 = 1;
