@@ -1042,6 +1042,7 @@ typedef struct my_vkhead_s {
     case VK_STRUCTURE_TYPE_BUFFER_COPY_2:                               \
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_EXECUTE_INFO_NV:                \
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:           \
+    case VK_STRUCTURE_TYPE_IMAGE_COPY_2:                                \
 
 #define CH(C, B, A) \
     case C:         \
