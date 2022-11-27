@@ -16,8 +16,6 @@
 #include "librarian.h"
 #include "callback.h"
 
-extern char* libGL;
-
 const char* libglName = "libGL.so.1";
 #define LIBNAME libgl
 
@@ -183,7 +181,7 @@ EXPORT void my_glProgramCallbackMESA(x86emu_t* emu, void* f, void* data)
     ProgramCallbackMESA(find_program_callback_Fct(f), data);
 }
 
-#define PRE_INIT if(libGL) {lib->w.lib = dlopen(libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = box_strdup(libGL);} else
+#define PRE_INIT if(box86_libGL) {lib->w.lib = dlopen(box86_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = box_strdup(box86_libGL);} else
 #define CUSTOM_INIT \
     lib->w.priv = dlsym(lib->w.lib, "glXGetProcAddress");             \
     box86->glxprocaddress = lib->w.priv;                                   \

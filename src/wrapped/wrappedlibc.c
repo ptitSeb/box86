@@ -57,6 +57,7 @@
 #include "elfloader.h"
 #include "bridge.h"
 #include "globalsymbols.h"
+#include "rcfile.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -3100,18 +3101,7 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
 {
     if(option==PR_SET_NAME) {
         printf_log(LOG_DEBUG, "BOX86: set process name to \"%s\"\n", (char*)arg2);
-#ifdef DYNAREC
-        if(!strcasecmp((char*)arg2, "Crysis.exe")) {
-            printf_log(LOG_INFO, "Crysis detected, forcing Dynarec X87 Double\n");
-            box86_dynarec_x87double = 1;
-        }
-        if(!strcasecmp((char*)arg2, "VARA.exe")
-        || !strcasecmp((char*)arg2, "VARAFM.exe")
-        || !strcasecmp((char*)arg2, "VARASAT.exe")) {
-            printf_log(LOG_INFO, "VARA familly detected, forcing Dynarec safe flags\n");
-            box86_dynarec_safeflags = 2;
-        }
-#endif
+        ApplyParams((char*)arg2);
     }
     return prctl(option, arg2, arg3, arg4, arg5);
 }

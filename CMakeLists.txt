@@ -260,6 +260,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/tools/box86stack.c"
     "${BOX86_ROOT}/src/tools/my_cpuid.c"
     "${BOX86_ROOT}/src/tools/gtkclass.c"
+    "${BOX86_ROOT}/src/tools/rcfile.c"
     "${BOX86_ROOT}/src/tools/wine_tools.c"
     "${BOX86_ROOT}/src/elfs/elfloader.c"
     "${BOX86_ROOT}/src/elfs/elfparser.c"
@@ -656,6 +657,7 @@ if(NOT _x86 AND NOT _x86_64)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
   install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libpng12.so.0 DESTINATION /usr/lib/i386-linux-gnu/)
+  install(FILES ${CMAKE_SOURCE_DIR}/system/box86.box86rc DESTINATION /etc/)
 endif()
 
 if(NOT TARGET uninstall)

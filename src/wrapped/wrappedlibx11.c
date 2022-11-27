@@ -20,9 +20,6 @@
 const char* libx11Name = "libX11.so.6";
 #define LIBNAME libx11
 
-extern int x11threads;
-extern int x11glx;
-
 typedef int (*XErrorHandler)(void *, void *);
 void* my_XSetErrorHandler(x86emu_t* t, XErrorHandler handler);
 typedef int (*XIOErrorHandler)(void *);
@@ -956,7 +953,7 @@ EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* maj
 {
 
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
-    if(!ret && name && !strcmp(name, "GLX") && x11glx) {
+    if(!ret && name && !strcmp(name, "GLX") && box86_x11glx) {
         // hack to force GLX to be accepted, even if not present
         // left major and first_XXX to default...
         ret = 1;
@@ -1324,7 +1321,7 @@ EXPORT void my_XFreeEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t
 #define CUSTOM_INIT                 \
     getMy(lib);                     \
     setNeededLibs(lib, 1, "libdl.so.2"); \
-    if(x11threads) my->XInitThreads();
+    if(box86_x11threads) my->XInitThreads();
 
 #define CUSTOM_FINI \
     freeMy();

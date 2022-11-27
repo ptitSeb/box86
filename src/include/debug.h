@@ -9,7 +9,7 @@ extern int box86_dynarec_log;
 extern int box86_dynarec;
 extern int box86_pagesize;
 extern uintptr_t box86_load_addr;
-extern int box86_backtrace;
+extern int box86_showbt;
 #ifdef DYNAREC
 extern int box86_dynarec_dump;
 extern int box86_dynarec_trace;
@@ -44,10 +44,16 @@ extern int box86_showsegv;
 extern int allow_missing_symbols;
 extern uintptr_t   trace_start, trace_end;
 extern char* trace_func;
+extern char* trace_init;
+extern char* box86_trace;
+extern uint64_t start_cnt;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
 extern uint32_t default_fs;
 extern int jit_gdb; // launch gdb when a segfault is trapped
 extern int box86_tcmalloc_minimal;  // when using tcmalloc_minimal
+extern int box86_x11threads;
+extern int box86_x11glx;
+extern char* box86_libGL;
 #define LOG_NONE 0
 #define LOG_INFO 1
 #define LOG_DEBUG 2

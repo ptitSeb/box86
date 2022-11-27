@@ -920,7 +920,7 @@ exit(-1);
         else
             printf_log(log_minimum, "\n");
 #ifndef ANDROID
-        if(box86_backtrace && (log_minimum<=box86_log)) {
+        if(box86_showbt && (log_minimum<=box86_log)) {
             int nptrs;
             void *buffer[200];
             char **strings;

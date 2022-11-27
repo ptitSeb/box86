@@ -76,6 +76,15 @@ If you look at a 64bits version of box86, look at [Box64](https://github.com/pti
 
 ----
 
+Notes about Box86 configuration
+----
+
+Box86 now have configurations files. There are 2 files loaded. `/etc/box4.box86rc` and `~/.box86rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](USAGE.md) for detail on what parameters can be put. Box86 comes with a default file that should be installed for better stability. The file in in `system/box86.box86rc` and should be installed to `/etc/box86.box86rc` If, for some reasons, you don't want to install that file here, at least copy it to `~/.box86rc` or some game may not function correctly.
+Note that the priority is: `~/.bashrc` > `/etc/box86.box86rc` > command line
+So, your settings in `~/.bashrc` may override the setting from your command line...
+
+----
+
 Notes about Unity game emulation
 ----
 
