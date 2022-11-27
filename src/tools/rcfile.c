@@ -70,7 +70,6 @@ IGNORE(BOX86_TRACE_EMM)                                 \
 ENTRYBOOL(BOX86_DYNAREC, box86_dynarec)                             \
 ENTRYINT(BOX86_DYNAREC_DUMP, box86_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX86_DYNAREC_LOG, box86_dynarec_log, 0, 3, 2)             \
-ENTRYBOOL(BOX86_DYNAREC_TRACE, box86_dynarec_trace)                 \
 ENTRYINT(BOX86_DYNAREC_BIGBLOCK, box86_dynarec_bigblock, 0, 3, 2)   \
 ENTRYINT(BOX86_DYNAREC_STRONGMEM, box86_dynarec_strongmem, 0, 2, 2) \
 ENTRYBOOL(BOX86_DYNAREC_X87DOUBLE, box86_dynarec_x87double)         \
@@ -83,7 +82,6 @@ ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
 IGNORE(BOX86_DYNAREC)                                               \
 IGNORE(BOX86_DYNAREC_DUMP)                                          \
 IGNORE(BOX86_DYNAREC_LOG)                                           \
-IGNORE(BOX86_DYNAREC_TRACE)                                         \
 IGNORE(BOX86_DYNAREC_BIGBLOCK)                                      \
 IGNORE(BOX86_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX86_DYNAREC_X87DOUBLE)                                     \
@@ -93,11 +91,22 @@ IGNORE(BOX86_NODYNAREC)                                             \
 
 #endif
 
+#if defined(HAVE_TRACE) && defined(DYNAREC)
+#define SUPER4()                                                    \
+ENTRYBOOL(BOX86_DYNAREC_TRACE, box86_dynarec_trace)                 \
+
+#else
+#define SUPER4()                                                    \
+IGNORE(BOX86_DYNAREC_TRACE)                                         \
+
+#endif
+
+
 #ifdef PANDORA
-#define SUPER4()                            \
+#define SUPER5()                            \
 ENTRYBOOL(BOX86_X11COLOR16, x11color16)            
 #else
-#define SUPER4()                            \
+#define SUPER5()                            \
 IGNORE(BOX86_X11COLOR16)       
 #endif
 
@@ -105,7 +114,8 @@ IGNORE(BOX86_X11COLOR16)
 SUPER1()        \
 SUPER2()        \
 SUPER3()        \
-SUPER4()
+SUPER4()        \
+SUPER5()
 
 typedef struct my_params_s {
 // is present part
