@@ -37,6 +37,7 @@
 #include <getopt.h>
 #include <pwd.h>
 #include <sys/prctl.h>
+#include <malloc.h>
 
 #include "wrappedlibs.h"
 
@@ -3104,6 +3105,12 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
         ApplyParams((char*)arg2);
     }
     return prctl(option, arg2, arg3, arg4, arg5);
+}
+
+EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
+{
+    *(struct mallinfo*)p=mallinfo();
+    return p;
 }
 
 EXPORT char** my_environ = NULL;

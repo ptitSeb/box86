@@ -1080,7 +1080,7 @@ GOM(__lxstat, iFEipp)       //%%
 GOM(__lxstat64, iFEipp)     //%%
 GO(madvise, iFpLi)
 GOM(makecontext, iFEppiV)   //%%
-GOW(mallinfo, pFv)
+GOWS(mallinfo, pFEp)        //%%
 #ifdef NOALIGN
 GO(malloc, pFL)
 #else
