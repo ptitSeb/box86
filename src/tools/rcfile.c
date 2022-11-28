@@ -436,7 +436,7 @@ void ApplyParams(const char* name)
             my_context->x86trace = 1;
             box86_trace = p;
         }
-        printf_log(LOG_INFO, "Applying %s=%d", "BOX86_TRACE", param->trace);
+        printf_log(LOG_INFO, "Applying %s=%s", "BOX86_TRACE", param->trace);
     }
     if(param->is_trace_init_present) {
         char* p = param->trace_init;
@@ -444,7 +444,7 @@ void ApplyParams(const char* name)
             my_context->x86trace = 1;
             trace_init = p;
         }
-        printf_log(LOG_INFO, "Applying %s=%d", "BOX86_TRACE_INIT", param->trace_init);
+        printf_log(LOG_INFO, "Applying %s=%s", "BOX86_TRACE_INIT", param->trace_init);
     }
     if(my_context->x86trace && !old_x86trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
