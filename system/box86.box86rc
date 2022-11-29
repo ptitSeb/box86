@@ -25,6 +25,9 @@ BOX86_PREFER_EMULATED=1
 # Little Inferno use an old libvorbis
 BOX86_EMULATED_LIBS=libvorbis.so.0
 
+[hl_linux]
+BOX86_PREFER_EMULATED=1
+
 [hl2_linux]
 BOX86_PREFER_EMULATED=1
 
