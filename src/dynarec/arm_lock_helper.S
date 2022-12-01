@@ -16,7 +16,8 @@
 .global arm_lock_xchg
 .global arm_lock_storeifnull
 .global arm_lock_storeifref
-
+.global arm_lock_decifnot0b
+.global arm_lock_storeb
 
 arm_lock_read_b:
     // address is r0, return is r0
@@ -112,4 +113,24 @@ arm_lock_storeifref_loop:
 arm_lock_storeifref_exit:
     mov     r0, r3
     pop     {r4}
+    bx      lr
+
+arm_lock_decifnot0b:
+    dmb     ish
+arm_lock_decifnot0b_0:
+    ldrexb  r1, [r0]
+    cmp     r1, #0
+    beq     arm_lock_decifnot0b_exit
+    sub     r1, r1, #1
+    strexb  r2, r1, [r0]
+    cmp     r2, #1
+    beq     arm_lock_decifnot0b_0
+arm_lock_decifnot0b_exit:
+    dmb     ish
+    bx      lr
+
+arm_lock_storeb:
+    dmb     ish
+    strb    r1, [r0]
+    dmb     ish
     bx      lr

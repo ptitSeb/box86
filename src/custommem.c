@@ -46,6 +46,9 @@ static kh_lockaddress_t    *lockaddress = NULL;
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
 static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags by 4K block
+#ifdef DYNAREC
+static uint8_t             hotpages[MEMPROT_SIZE] = {0};
+#endif
 static int inited = 0;
 
 typedef struct mapmem_s {
@@ -917,6 +920,48 @@ void* find32bitBlock(size_t size)
     if(!ret) ret = findBlockHinted(LOWEST, size);
     return ret;
 }
+
+#ifdef DYNAREC
+#define HOTPAGE_STEP 16
+int IsInHotPage(uintptr_t addr) {
+    if(addr<=(1LL<<48))
+        return 0;
+    int idx = (addr>>MEMPROT_SHIFT);
+    if(!hotpages[idx])
+        return 0;
+    // decrement hot
+    arm_lock_decifnot0b(&hotpages[idx]);
+    return 1;
+}
+
+int AreaInHotPage(uintptr_t start, uintptr_t end_) {
+    //dynarec_log(LOG_DEBUG, "AreaInHotPage %p -> %p => ", (void*)start, (void*)end_);
+    uintptr_t idx = (start>>MEMPROT_SHIFT);
+    uintptr_t end = (end_>>MEMPROT_SHIFT);
+    if(end<idx) { // memory addresses higher than 48bits are not tracked
+        //dynarec_log(LOG_DEBUG, "00\n");
+        return 0;
+    }
+    int ret = 0;
+    for (uintptr_t i=idx; i<=end; ++i) {
+        if(hotpages[idx]) {
+            // decrement hot
+            arm_lock_decifnot0b(&hotpages[idx]);
+            //dynarec_log(LOG_DEBUG, "1\n");
+            ret = 1;
+        }
+    }
+    //dynarec_log(LOG_DEBUG, "0\n");
+    return ret;
+
+}
+
+void AddHotPage(uintptr_t addr) {
+    int idx = (addr>>MEMPROT_SHIFT);
+    arm_lock_storeb(&hotpages[idx], HOTPAGE_STEP);
+}
+#endif
+
 
 int unlockCustommemMutex()
 {

@@ -743,6 +743,16 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
         dynarec_log(LOG_INFO/*LOG_DEBUG*/, "SIGSEGV with Access error on %p for %p , db=%p(%p)\n", pc, addr, db, db?((void*)db->x86_addr):NULL);
+        static uintptr_t repeated_page = 0;
+        static int repeated_count = 0;
+        if(repeated_page == ((uintptr_t)addr&~0xfff)) {
+            ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
+            dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
+            AddHotPage(repeated_page);
+        } else {
+            repeated_page = (uintptr_t)addr&~0xfff;
+            repeated_count = 0;
+        }
         if(db && ((addr>=db->x86_addr && addr<(db->x86_addr+db->x86_size)) || db->need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();

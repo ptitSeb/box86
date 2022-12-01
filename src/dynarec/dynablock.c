@@ -396,6 +396,10 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
 {
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current, 1);
     if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
+        if(AreaInHotPage((uintptr_t)db->x86_addr, (uintptr_t)db->x86_addr + db->x86_size - 1)) {
+            dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x86_addr, db->x86_addr+db->x86_size-1, (void*)addr);
+            return NULL;
+        }
         if(pthread_mutex_trylock(&my_context->mutex_dyndump))
             return NULL;
         dynablock_t *father = db->father?db->father:db;

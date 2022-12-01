@@ -375,6 +375,10 @@ void CancelBlock()
 
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
 dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
+    if(IsInHotPage(addr)) {
+        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock on hotpage for %p\n", (void*)addr);
+        return NULL;
+    }
     if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
         dynarec_log(LOG_DEBUG, "Asked to fill a block in fobidden zone\n");
         return NULL;
