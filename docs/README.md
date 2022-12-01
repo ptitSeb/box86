@@ -12,9 +12,9 @@ Box86 lets you run x86 Linux programs (such as games) on non-x86 Linux systems, 
 
 You *NEED* a 32-bit subsystem to run and build Box86. Box86 is useless on 64-bit only systems. Also, you *NEED* a 32-bit toolchain to build Box86. A toolchain that only supports 64-bit will not compile Box86, and you'll get errors (typically on aarch64, you get "-marm" not recognized, and you'll need a multiarch or chroot environment).
 
-Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at those bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/). That also means that you will need a 32bits userspace on 64bits OS, like `armhf` on top an ̀`aarch64` 64bits OS.
+Because Box86 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at those bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/). That also means that you will need a 32bits userspace on 64bits OS, like `armhf` on top an `aarch64` 64bits OS.
 
-Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) might be necessary. (Some ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy (see OpenGL on Android).)
+Most x86 Games need OpenGL, so on ARM platforms a solution like [gl4es](https://github.com/ptitSeb/gl4es) might be necessary. (Some ARM platforms only support OpenGL ES and/or their OpenGL implementation is dodgy. (see OpenGL on Android))
 
 Box86 now integrates a DynaRec (dynamic recompiler) for the ARM platform, providing a speed boost between 5 to 10 times faster than only using the interpreter. Some high level information on how the Dynarec work can be found [here](https://box86.org/2021/07/inner-workings-a-high%e2%80%91level-view-of-box86-and-a-low%e2%80%91level-view-of-the-dynarec/).
 
