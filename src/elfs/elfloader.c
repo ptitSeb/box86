@@ -576,8 +576,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 break;
             case R_386_32:
                 if (!offs) {
-                    printf_log(LOG_NONE, "Error: Symbol sym=%s(%s%s%s/version %d) not found, cannot apply R_386_32 %p (%p) in %s\n", symname, symname, vername?"@":"", vername?vername:"", version, p, *(void**)p, head->name);
-                    ret_ok = 1;
+                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start")) {
+                            printf_log(LOG_NONE, "Error: Symbol sym=%s(%s%s%s/version %d) not found, cannot apply R_386_32 %p (%p) in %s\n", symname, symname, vername?"@":"", vername?vername:"", version, p, *(void**)p, head->name);
+                            ret_ok = 1;
+                        }
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_386_32 %p with sym=%s (ver=%d/%s) (%p -> %p)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), p, symname, version, vername?vername:"(none)", *(void**)p, (void*)(offs+*(uint32_t*)p));
                     *p += offs;
