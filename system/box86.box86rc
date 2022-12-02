@@ -31,6 +31,13 @@ BOX86_PREFER_EMULATED=1
 [hl2_linux]
 BOX86_PREFER_EMULATED=1
 
+[retrocityrampage]
+BOX86_DYNAREC_SAFEFLAGS=0
+BOX86_DYNAREC_BIGBLOCK=2
+
+[sof-bin]
+BOX86_LD_PRELOAD=libX11.so.6
+
 [steam]
 BOX86_EMULATED_LIBS=libudev.so.0:libSDL2-2.0.so.0
 BOX86_NOGTK=1
@@ -40,9 +47,28 @@ BOX86_X11COLOR16=1
 [streaming_client]
 BOX86_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 
+[UnrealLinux.bin]
+BOX86_DYNAREC_SAFEFLAGS=0
+BOX86_DYNAREC_BIGBLOCK=2
+
+[WorldOfGoo.bin.x86]
+# This is the newer 1.53 version
+BOX86_DYNAREC_SAFEFLAGS=0
+BOX86_DYNAREC_BIGBLOCK=2
+
+[WorldOfGoo.bin32]
+# This is the old version of the game
+BOX86_DYNAREC_SAFEFLAGS=0
+BOX86_DYNAREC_BIGBLOCK=2
+
 [X3R_main]
 # X3Reunion needs emulated libjpeg
 BOX86_EMULATED_LIBS=libjpeg.so.62
+
+[zsnes]
+BOX86_DYNAREC_SAFEFLAGS=0
+BOX86_DYNAREC_BIGBLOCK=2
+
 
 #
 # Wine process
