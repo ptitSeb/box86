@@ -7,7 +7,7 @@ extern int box86_log;    // log level
 extern int box86_dump;   // dump elf or not
 extern int box86_dynarec_log;
 extern int box86_dynarec;
-extern int box86_pagesize;
+extern uintptr_t box86_pagesize;
 extern uintptr_t box86_load_addr;
 extern int box86_showbt;
 #ifdef DYNAREC
@@ -21,6 +21,7 @@ extern int box86_dynarec_x87double;
 extern int box86_dynarec_safeflags;
 extern uintptr_t box86_nodynarec_start, box86_nodynarec_end;
 extern int box86_dynarec_fastnan;
+extern int box86_dynarec_hotpage;
 #ifdef ARM
 extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 extern int arm_swap;

@@ -155,6 +155,11 @@ Handling of flags on CALL/RET opcodes
 * 1 : most of RET will need flags, most of CALLS will not (Default)
 * 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
 
+#### BOX86_DYNAREC_HOTPAGE *
+Handling of HotPage (Page beeing both executed and writen)
+* 0 : Don't track hotpage
+* 1-255 : Trak HotPage, and disable execution of a page beeing writen for N attempts (default is 16)
+
 #### BOX86_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

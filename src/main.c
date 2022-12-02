@@ -48,7 +48,7 @@ int box86_log = LOG_NONE;
 int box86_dump = 0;
 int box86_nobanner = 0;
 int box86_dynarec_log = LOG_NONE;
-int box86_pagesize;
+uintptr_t box86_pagesize;
 uintptr_t box86_load_addr = 0;
 int box86_showbt = 0;
 #ifdef DYNAREC
@@ -61,6 +61,7 @@ int box86_dynarec_strongmem = 0;
 int box86_dynarec_x87double = 0;
 int box86_dynarec_fastnan = 1;
 int box86_dynarec_safeflags = 1;
+int box86_dynarec_hotpage = 16;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -225,7 +226,7 @@ void GatherDynarecExtensions()
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
 
-    printf_log(LOG_INFO, " PageSize:%d", box86_pagesize);
+    printf_log(LOG_INFO, " PageSize:%zd", box86_pagesize);
     int ncpu = getNCpu();
     printf_log(LOG_INFO, " Cores:%d\n", ncpu);
 #endif
@@ -388,6 +389,18 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will not play it safe with x86 flags\n");
         else
             printf_log(LOG_INFO, "Dynarec will play %s safe with x86 flags\n", (box86_dynarec_safeflags==1)?"moderatly":"it");
+    }
+    p = getenv("BOX86_DYNAREC_HOTPAGE");
+    if(p) {
+        int val = -1;
+        if(sscanf("%d", p, &val)==1) {
+            if(val>=0)
+                box86_dynarec_hotpage = val;
+        }
+        if(!box86_dynarec_hotpage)
+            printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d ticks\n", box86_dynarec_hotpage);
+        else
+            printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {

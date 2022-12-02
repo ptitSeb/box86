@@ -387,6 +387,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         dynarec_log(LOG_DEBUG, "Asked to fill a block at %p, but JumpTable is not default\n", (void*)addr);
         return NULL;
     }
+    // protect the 1st page
+    protectDB(addr, 1);
     // init the helper
     dynarec_arm_t helper = {0};
     current_helper = &helper;
@@ -407,8 +409,16 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         CancelBlock();
         return (void*)block;
     }
+    if(!isprotectedDB(addr, 1)) {
+        dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
+        AddHotPage(addr);
+        CancelBlock();
+        return NULL;
+    }
     // already protect the block and compute hash signature
-    protectDB(addr, end-addr);  //end is 1byte after actual end
+    // protect the block of it goes over the 1st page
+    if((addr&~box86_pagesize)!=(end&~box86_pagesize)) // need to protect some other pages too
+        protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // calculate barriers
     for(int i=0; i<helper.size; ++i)
@@ -431,44 +441,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         }
     // fill predecessors with the jump address
     fillPredecessors(&helper);
-    // check for the optionnal barriers now
-    /*for(int i=helper.size-1; i>=0; --i) {
-        if(helper.insts[i].barrier_maybe) {
-            // out-of-block jump
-            if(helper.insts[i].x86.jmp_insts == -1) {
-                // nothing for now
-            } else {
-                // inside block jump
-                int k = helper.insts[i].x86.jmp_insts;
-                if(k>i) {
-                    // jump in the future
-                    if(helper.insts[k].pred_sz>1) {
-                        // with multiple flow, put a barrier
-                        helper.insts[k].x86.barrier|=BARRIER_FLAGS;
-                    }
-                } else {
-                    // jump back
-                    helper.insts[k].x86.barrier|=BARRIER_FLAGS;
-                }
-            }
-	}
-    }*/
-    // check to remove useless barrier, in case of jump when destination doesn't needs flags
-    /*for(int i=helper.size-1; i>=0; --i) {
-        int k;
-        if(helper.insts[i].x86.jmp
-        && ((k=helper.insts[i].x86.jmp_insts)>=0)
-        && helper.insts[k].x86.barrier&BARRIER_FLAGS) {
-            //TODO: optimize FPU barrier too
-            if((!helper.insts[k].x86.need_flags)
-             ||(helper.insts[k].x86.set_flags==X_ALL
-                  && helper.insts[k].x86.state_flags==SF_SET)
-             ||(helper.insts[k].x86.state_flags==SF_SET_PENDING)) {
-                //if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Removed barrier for inst %d\n", k);
-                helper.insts[k].x86.barrier &= ~BARRIER_FLAGS; // remove flag barrier
-             }
-        }
-    }*/
+
     int pos = helper.size;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
@@ -543,7 +516,14 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     if(block->hash != hash) {
         dynarec_log(LOG_INFO, "Warning, a block changed while beeing processed hash(%p:%d)=%x/%x\n", block->x86_addr, block->x86_size, block->hash, hash);
         CancelBlock();
+        AddHotPage(addr);
         return NULL;
+    }
+    if(!isprotectedDB(addr, end-addr)) {
+        dynarec_log(LOG_DEBUG, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x86_addr, block->x86_size);
+        AddHotPage(addr);
+        block->need_test = 1;
+        //protectDB(addr, end-addr);
     }
     // fill sons if any
     dynablock_t** sons = NULL;

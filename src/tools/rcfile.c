@@ -75,6 +75,7 @@ ENTRYINT(BOX86_DYNAREC_STRONGMEM, box86_dynarec_strongmem, 0, 2, 2) \
 ENTRYBOOL(BOX86_DYNAREC_X87DOUBLE, box86_dynarec_x87double)         \
 ENTRYBOOL(BOX86_DYNAREC_FASTNAN, box86_dynarec_fastnan)             \
 ENTRYINT(BOX86_DYNAREC_SAFEFLAGS, box86_dynarec_safeflags, 0, 2, 2) \
+ENTRYINT(BOX86_DYNAREC_HOTPAGE, box86_dynarec_hotpage, 0, 255, 8)   \
 ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
 
 #else
@@ -87,6 +88,7 @@ IGNORE(BOX86_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX86_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX86_DYNAREC_FASTNAN)                                       \
 IGNORE(BOX86_DYNAREC_SAFEFLAGS)                                     \
+IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX86_NODYNAREC)                                             \
 
 #endif

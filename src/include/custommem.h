@@ -47,6 +47,7 @@ void loadProtectionFromMap();
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, uintptr_t size);
 void unprotectDB(uintptr_t addr, uintptr_t size, int mark); // if mark==0, the blocks are not marked as potentially dirty
+int isprotectedDB(uintptr_t addr, size_t size);
 int IsInHotPage(uintptr_t addr);
 int AreaInHotPage(uintptr_t start, uintptr_t end);
 void AddHotPage(uintptr_t addr);

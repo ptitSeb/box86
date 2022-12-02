@@ -692,6 +692,28 @@ void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
     }
 }
 
+int isprotectedDB(uintptr_t addr, size_t size)
+{
+    dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
+    uintptr_t idx = (addr>>MEMPROT_SHIFT);
+    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
+    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
+        end = (1LL<<(48-MEMPROT_SHIFT))-1LL;
+    if(end<idx) { // memory addresses higher than 48bits are not tracked
+        dynarec_log(LOG_DEBUG, "00\n");
+        return 0;
+    }
+    for (uintptr_t i=idx; i<=end; ++i) {
+        uint32_t prot = memprot[i];
+        if(!(prot&(PROT_DYNAREC|PROT_DYNAREC_R))) {
+            dynarec_log(LOG_DEBUG, "0\n");
+            return 0;
+        }
+    }
+    dynarec_log(LOG_DEBUG, "1\n");
+    return 1;
+}
+
 #endif
 
 void printMapMem()
@@ -922,7 +944,6 @@ void* find32bitBlock(size_t size)
 }
 
 #ifdef DYNAREC
-#define HOTPAGE_STEP 16
 int IsInHotPage(uintptr_t addr) {
     if(addr<=(1LL<<48))
         return 0;
@@ -935,11 +956,9 @@ int IsInHotPage(uintptr_t addr) {
 }
 
 int AreaInHotPage(uintptr_t start, uintptr_t end_) {
-    //dynarec_log(LOG_DEBUG, "AreaInHotPage %p -> %p => ", (void*)start, (void*)end_);
     uintptr_t idx = (start>>MEMPROT_SHIFT);
     uintptr_t end = (end_>>MEMPROT_SHIFT);
     if(end<idx) { // memory addresses higher than 48bits are not tracked
-        //dynarec_log(LOG_DEBUG, "00\n");
         return 0;
     }
     int ret = 0;
@@ -947,18 +966,18 @@ int AreaInHotPage(uintptr_t start, uintptr_t end_) {
         if(hotpages[idx]) {
             // decrement hot
             arm_lock_decifnot0b(&hotpages[idx]);
-            //dynarec_log(LOG_DEBUG, "1\n");
             ret = 1;
         }
     }
-    //dynarec_log(LOG_DEBUG, "0\n");
+    if(ret && box86_dynarec_log>LOG_INFO)
+        dynarec_log(LOG_DEBUG, "BOX86: AreaInHotPage %p-%p\n", (void*)start, (void*)end_);
     return ret;
 
 }
 
 void AddHotPage(uintptr_t addr) {
     int idx = (addr>>MEMPROT_SHIFT);
-    arm_lock_storeb(&hotpages[idx], HOTPAGE_STEP);
+    arm_lock_storeb(&hotpages[idx], box86_dynarec_hotpage);
 }
 #endif
 
