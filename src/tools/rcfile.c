@@ -407,6 +407,8 @@ void ApplyParams(const char* name)
     #undef ENTRYADDR
     #undef ENTRYULONG
     // now handle the manuel entry (the one with ending underscore)
+    if(new_cycle_log==1)
+        new_cycle_log = 16;
     if(new_cycle_log!=cycle_log) {
         freeCycleLog(my_context);
         cycle_log = new_cycle_log;
