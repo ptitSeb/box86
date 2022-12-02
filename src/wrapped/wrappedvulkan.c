@@ -739,6 +739,7 @@ EXPORT int my_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(x86emu_t* emu, void* 
 {
     static const char* desc = "uPiuuuiuUUU";
     void* m = vkalignStruct(pImageFormatProperties, desc, *count);
-    my->vkGetPhysicalDeviceOpticalFlowImageFormatsNV(device, pInfo, count, m);
+    int ret = my->vkGetPhysicalDeviceOpticalFlowImageFormatsNV(device, pInfo, count, m);
     vkunalignStruct(m, desc, *count);   // bad things will happens if *count is changed while pSparseMemoryRequirements is not NULL
+    return ret;
 }
