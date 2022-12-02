@@ -683,12 +683,12 @@ void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         if(prot&PROT_DYNAREC) {
-            memprot[i] = prot&~PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_DYNAREC);
+            memprot[i] = prot&~PROT_CUSTOM;
+            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
             if(mark)
                 cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
         } else if(prot&PROT_DYNAREC_R)
-            memprot[i] = prot&~(PROT_CUSTOM);
+            memprot[i] = prot&~PROT_CUSTOM;
     }
 }
 
@@ -696,13 +696,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
-        end = (1LL<<(48-MEMPROT_SHIFT))-1LL;
-    if(end<idx) { // memory addresses higher than 48bits are not tracked
-        dynarec_log(LOG_DEBUG, "00\n");
-        return 0;
-    }
+    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         if(!(prot&(PROT_DYNAREC|PROT_DYNAREC_R))) {

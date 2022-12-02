@@ -306,7 +306,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         
         printf_log(LOG_INFO, "Using emulated %s\n", libname);
         #ifdef DYNAREC
-        if(libname && strstr(libname, "libmonobdwgc-2.0.so")) {
+        if(libname && box86_dynarec_bleeding_edge && strstr(libname, "libmonobdwgc-2.0.so")) {
             printf_log(LOG_INFO, "MonoBleedingEdge detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
             box86_dynarec_bigblock = 0;
             box86_dynarec_strongmem = 1;

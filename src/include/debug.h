@@ -22,6 +22,7 @@ extern int box86_dynarec_safeflags;
 extern uintptr_t box86_nodynarec_start, box86_nodynarec_end;
 extern int box86_dynarec_fastnan;
 extern int box86_dynarec_hotpage;
+extern int box86_dynarec_bleeding_edge;
 #ifdef ARM
 extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 extern int arm_swap;

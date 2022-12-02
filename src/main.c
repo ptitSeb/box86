@@ -62,6 +62,7 @@ int box86_dynarec_x87double = 0;
 int box86_dynarec_fastnan = 1;
 int box86_dynarec_safeflags = 1;
 int box86_dynarec_hotpage = 16;
+int box86_dynarec_bleeding_edge = 1;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 #ifdef ARM
@@ -398,9 +399,18 @@ void LoadLogEnv()
                 box86_dynarec_hotpage = val;
         }
         if(!box86_dynarec_hotpage)
-            printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d ticks\n", box86_dynarec_hotpage);
+            printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d attempts\n", box86_dynarec_hotpage);
         else
             printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
+    }
+    p = getenv("BOX86_DYNAREC_BLEEDING_EDGE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_bleeding_edge = p[0]-'0';
+        }
+        if(!box86_dynarec_bleeding_edge)
+            printf_log(LOG_INFO, "Dynarec will not detect MonoBleedingEdge\n");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {
