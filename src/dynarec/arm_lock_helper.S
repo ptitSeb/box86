@@ -17,7 +17,11 @@
 .global arm_lock_storeifnull
 .global arm_lock_storeifref
 .global arm_lock_decifnot0b
+.global arm_lock_incb
+.global arm_lock_incif0b
 .global arm_lock_storeb
+.global arm_lock_storeif0b
+.global arm_lock_readb
 
 arm_lock_read_b:
     // address is r0, return is r0
@@ -121,16 +125,65 @@ arm_lock_decifnot0b_0:
     ldrexb  r1, [r0]
     cmp     r1, #0
     beq     arm_lock_decifnot0b_exit
-    sub     r1, r1, #1
-    strexb  r2, r1, [r0]
+    sub     r3, r1, #1
+    strexb  r2, r3, [r0]
     cmp     r2, #1
     beq     arm_lock_decifnot0b_0
 arm_lock_decifnot0b_exit:
     dmb     ish
+    mov     r0, r1
+    bx      lr
+
+arm_lock_incb:
+    dmb     ish
+arm_lock_incb_0:
+    ldrexb  r1, [r0]
+    add     r1, r1, #1
+    strexb  r2, r1, [r0]
+    cmp     r2, #1
+    beq     arm_lock_incb_0
+arm_lock_incb_exit:
+    dmb     ish
+    bx      lr
+
+arm_lock_incif0b:
+    dmb     ish
+arm_lock_incif0b_0:
+    ldrexb  r1, [r0]
+    cmp     r1, #0
+    bne     arm_lock_incif0b_exit
+    add     r1, r1, #1
+    strexb  r2, r1, [r0]
+    cmp     r2, #1
+    beq     arm_lock_incif0b_0
+    mov     r1, #0
+    dmb     ish
+arm_lock_incif0b_exit:
+    mov     r0, r1
     bx      lr
 
 arm_lock_storeb:
     dmb     ish
     strb    r1, [r0]
     dmb     ish
+    bx      lr
+
+arm_lock_storeif0b:
+    dmb     ish
+arm_lock_storeif0b_0:
+    ldrexb  r2, [r0]
+    cmp     r2, #0
+    bne     arm_lock_storeif0b_exit
+    strexb  r3, r1, [r0]
+    cmp     r3, #1
+    beq     arm_lock_storeif0b_0
+    mov     r2, #0
+    dmb     ish
+arm_lock_storeif0b_exit:
+    mov     r0, r2
+    bx      lr
+
+arm_lock_readb:
+    dmb     ish
+    ldrb    r0, [r0]
     bx      lr

@@ -807,6 +807,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 glitch_addr = addr;
                 glitch_prot = prot;
                 relockMutex(Locks);
+                sched_yield();  // give time to the other process
                 return; // try again
             }
             glitch_pc = NULL;
@@ -814,21 +815,24 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             glitch_prot = 0;
         }
         if(addr && pc && ((prot&(PROT_READ|PROT_WRITE))==(PROT_READ|PROT_WRITE))) {
-            static void* glitch_pc = NULL;
-            static void* glitch_addr = NULL;
-            static int glitch_prot = 0;
-            if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
+            static void* glitch2_pc = NULL;
+            static void* glitch2_addr = NULL;
+            static int glitch2_prot = 0;
+            if((glitch2_pc!=pc || glitch2_addr!=addr || glitch2_prot!=prot)) {
                 dynarec_log(LOG_INFO, "Is that a multi process glitch too?\n");
-                glitch_pc = pc;
-                glitch_addr = addr;
-                glitch_prot = prot;
+                //printf_log(LOG_INFO, "Is that a multi process glitch too?\n");
+                glitch2_pc = pc;
+                glitch2_addr = addr;
+                glitch2_prot = prot;
+                sched_yield();  // give time to the other process
                 forceProtection((uintptr_t)addr, 1, prot); // force the protection
                 relockMutex(Locks);
+                sched_yield();  // give time to the other process
                 return; // try again
             }
-            glitch_pc = NULL;
-            glitch_addr = NULL;
-            glitch_prot = 0;
+            glitch2_pc = NULL;
+            glitch2_addr = NULL;
+            glitch2_prot = 0;
         }
     }
 #else
