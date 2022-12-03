@@ -514,7 +514,7 @@ int EXPORT my_pthread_once(x86emu_t* emu, int* once, void* cb)
 	#endif
 	if(old)
 		return 0;
-	EmuCall(emu, (uintptr_t)cb);  // avoid DynaCall for now, functions are only used once after all
+	DynaCall(emu, (uintptr_t)cb);  // using DynaCall now, speedup wine 7.21 (proabbly other too) init
 	return 0;
 }
 EXPORT int my___pthread_once(x86emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
