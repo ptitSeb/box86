@@ -879,12 +879,11 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
         uint32_t dyn=(PROT_GET(i)&(PROT_DYNAREC|PROT_DYNAREC_R));
         if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
             dyn = PROT_DYNAREC;
-            PROT_SET(i, prot|dyn);
             mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
         } else if(dyn && !(prot&PROT_WRITE)) {
             dyn = PROT_DYNAREC_R;
-            PROT_SET(i, prot|dyn);
         }
+        PROT_SET(i, prot|dyn);
     }
     PROT_UNLOCK();
 }
