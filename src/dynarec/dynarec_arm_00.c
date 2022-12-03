@@ -581,16 +581,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x57:
             INST_NAME("PUSH reg");
             gd = xEAX+(opcode&0x07);
-            #ifdef RPI2
             if(gd==xESP) {
                 MOV_REG(x1, gd);
                 PUSH1(x1);
             } else {
                 PUSH1(gd);    
             }
-            #else
-            PUSH1(gd);
-            #endif
             break;
         case 0x58:
         case 0x59:
