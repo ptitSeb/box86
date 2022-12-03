@@ -409,6 +409,33 @@ uintptr_t dynarecF20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VMOV_64(v0, v1);
             break;
 
+        case 0xE6:
+            INST_NAME("CVTPD2DQ Gx, Ex");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
+                v1 = fpu_get_scratch_quad(dyn);
+                VLD1Q_8(v1, ed);
+            }
+            u8 = sse_setround(dyn, ninst, x1, x2, x14);
+            if(v0<16) {
+                VCVTR_S32_F64(v0*2, v1);
+                VCVTR_S32_F64(v0*2+1, v1+1);
+            } else {
+                d0 = fpu_get_scratch_double(dyn);
+                VCVTR_S32_F64(d0*2, v1);
+                VCVTR_S32_F64(d0*2+1, v1+1);
+                VMOVD(v0, d0);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            VEOR(v0+1, v0+1, v0+1);
+            break;
+
         case 0xF0:
             INST_NAME("LDDQ Gx,Ex");
             nextop = F8;

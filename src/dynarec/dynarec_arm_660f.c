@@ -700,8 +700,26 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0);
-            // need rounding?
-            VCVTQ_S32_F32(v0, v1);
+            if(v0>15)
+                q0 = fpu_get_scratch_quad(dyn);
+            else
+                q0 = v0;
+            if(v1>15) {
+                q1 = fpu_get_scratch_quad(dyn);
+                VMOVQ(q1, v1);
+            } else
+                q1 = v1;
+            // need rounding!
+            //VCVTQ_S32_F32(v0, v1);
+            u8 = sse_setround(dyn, ninst, x1, x2, x14);
+            VCVTR_S32_F32(q0*2+0, q1*2+0);
+            VCVTR_S32_F32(q0*2+1, q1*2+1);
+            VCVTR_S32_F32(q0*2+2, q1*2+2);
+            VCVTR_S32_F32(q0*2+3, q1*2+3);
+            if(q0!=v0) {
+                VMOVQ(v0, q0);
+            }
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
