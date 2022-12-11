@@ -420,8 +420,8 @@ void ApplyParams(const char* name)
         if(ftrace_has_pid) {
             // open a new ftrace...
             fclose(ftrace);
-            openFTrace(param->trace_file);
         }
+        openFTrace(param->trace_file);
     }
     if(param->is_emulated_libs_present) {
         AppendList(&my_context->box86_emulated_libs, param->emulated_libs, 0);
