@@ -295,6 +295,11 @@ void x86Int3(x86emu_t* emu)
                 } else  if(!strcmp(s, "syscall")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(void**)(R_ESP+12), *(void**)(R_ESP+16));
                     perr = 1;
+                } else  if(strstr(s, "___tls_get_addr")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p[%d, %d])", tid, *(void**)(R_ESP), s, (void*)(R_EAX), ((int*)(R_EAX))[0], ((int*)(R_EAX))[1]);
+                } else  if(strstr(s, "__tls_get_addr")) {
+                    pu32 = *(uint32_t**)(R_ESP+4);
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p[%d, %d])", tid, *(void**)(R_ESP), s, pu32, pu32[0], pu32[1]);
                 } else {
                     snprintf(buff, 256, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }

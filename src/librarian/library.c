@@ -682,7 +682,7 @@ int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start
         return 0;
     khint_t k;
     // get a new symbol
-    if(lib->getlocal(lib, name, start, weak, size, end, version, vername, local)) {
+    if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local)) {
         *end += *start;     // lib->get(...) gives size, not end
         // check first if already in the map
         k = kh_get(bridgemap, lib->lbridgemap, VersionnedName(name, version, vername));

@@ -451,8 +451,15 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
         const char* vername = GetSymbolVersion(head, version);
         const char* defver = GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname);
         if(bind==STB_LOCAL) {
-            offs = sym->st_value + head->delta;
-            end = offs + sym->st_size;
+            if(!symname || !symname[0]) {
+                offs = sym->st_value + head->delta;
+                end = offs + sym->st_size;
+            } else {
+                if(!offs && !end && local_maplib)
+                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                if(!offs && !end)
+                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+            }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
@@ -588,7 +595,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
             case R_386_TLS_TPOFF:
                 // Negated offset in static TLS block
                 {
-                    if(!symname || !symname[0]) {
+                    if(!symname || !symname[0] || bind==STB_LOCAL) {
                         h_tls = head;
                         offs = sym->st_value;
                     } else {
@@ -658,12 +665,12 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                         printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_TLS_DTPOFF32 %p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     }
                 } else {
-                    if(h_tls)
-                        offs = sym->st_value;
+                    if(!symname || !symname[0]) {
+                        offs = (uintptr_t)((intptr_t)(head->tlsaddr + head->delta) - (intptr_t)offs);    // negative offset
+                    }
                     if(p) {
-                        int tlsoffset = offs;    // it's not an offset in elf memory
-                        printf_dump(LOG_NEVER, "Apply %s R_386_TLS_DTPOFF32 %p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), p, symname, (void*)tlsoffset, (void*)offs);
-                        *p = tlsoffset;
+                        printf_dump(LOG_NEVER, "Apply %s R_386_TLS_DTPOFF32 %p with sym=%s (ver=%d/%s) (%zd -> %zd)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), p, symname, version, vername?vername:"(none)", (intptr_t)*p, (intptr_t)offs);
+                        *p = offs;
                     } else {
                         printf_log(LOG_NONE, "Warning, Symbol %s found, but R_386_TLS_DTPOFF32 Slot Offset is NULL \n", symname);
                     }
@@ -695,8 +702,15 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
         const char* vername = GetSymbolVersion(head, version);
         const char* defver = GetDefaultVersion((bind==STB_WEAK)?my_context->weakdefver:my_context->globaldefver, symname);
         if(bind==STB_LOCAL) {
-            offs = sym->st_value + head->delta;
-            end = offs + sym->st_size;
+            if(!symname || !symname[0]) {
+                offs = sym->st_value + head->delta;
+                end = offs + sym->st_size;
+            } else {
+                if(!offs && !end && local_maplib)
+                    GetLocalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername);
+                if(!offs && !end)
+                    GetLocalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername);
+            }
         } else {
             // this is probably very very wrong. A proprer way to get reloc need to be writen, but this hack seems ok for now
             // at least it work for half-life, unreal, ut99, zsnes, Undertale, ColinMcRae Remake, FTL, ShovelKnight...
@@ -829,7 +843,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
             case R_386_TLS_TPOFF:
                 // Negated offset in static TLS block
                 {
-                    if(!symname || !symname[0]) {
+                    if(!symname || !symname[0] || bind==STB_LOCAL) {
                         h_tls = head;
                         offs = sym->st_value;
                     } else {
@@ -899,8 +913,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                         printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply R_386_TLS_DTPOFF32 %p (%p) in %s\n", symname, p, *(void**)p, head->name);
                     }
                 } else {
-                    if(h_tls)
-                        offs = sym->st_value;
+                   if(!symname || !symname[0]) {
+                        offs = (uintptr_t)((intptr_t)(head->tlsaddr + head->delta) - (intptr_t)offs);    // negative offset
+                    }
                     if(p) {
                         int tlsoffset = offs;    // it's not an offset in elf memory
                         printf_dump(LOG_NEVER, "Apply %s R_386_TLS_DTPOFF32 %p with sym=%s (%p -> %p)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), p, symname, (void*)tlsoffset, (void*)offs);
@@ -1065,7 +1080,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
             printf_dump(LOG_NEVER, "Adding %s Default Version \"%s\" for Symbol\"%s\"\n", (bind==STB_WEAK)?"Weak":"Global", vername, symname);
         }
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->SymTab[i].st_shndx!=0)) {
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED || (vis==STV_HIDDEN && bind==STB_LOCAL)) && (h->SymTab[i].st_shndx!=0)) {
             if(strstr(symname, "@@")) {
                 char symnameversionned[strlen(symname)+1];
                 strcpy(symnameversionned, symname);
@@ -1112,7 +1127,7 @@ void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* wea
         int type = ELF32_ST_TYPE(h->DynSym[i].st_info);
         int vis = h->DynSym[i].st_other&0x3;
         if((type==STT_OBJECT || type==STT_FUNC || type==STT_COMMON || type==STT_TLS  || type==STT_NOTYPE) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
+        && (vis==STV_DEFAULT || vis==STV_PROTECTED || (vis==STV_HIDDEN && bind==STB_LOCAL)) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
             uintptr_t offs = (type==STT_TLS)?h->DynSym[i].st_value:(h->DynSym[i].st_value + h->delta);
             size_t sz = h->DynSym[i].st_size;
             int version = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
