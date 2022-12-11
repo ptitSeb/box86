@@ -35,10 +35,12 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
             case 2: // l
             case 3: // ll
             case 4: // L
+            case 5: // z
                 switch(*p) {
                     case '%': state = 0;  ++p; break; //%% = back to 0
                     case 'l': ++state; if (state>3) state=3; ++p; break;
                     case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
                     case 'a':
                     case 'A':
                     case 'e':
@@ -66,6 +68,7 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
@@ -83,6 +86,7 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
+            case 15:    //%zg, meh... double?
             case 23:    // 64bits int
                 if((((uint32_t)mystack)&0x7)!=0)
                     mystack++;
@@ -112,6 +116,7 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
             case 21:
             case 22:
             case 24:    // normal int / pointer
+            case 25:    // size_t int
             case 30:
                 *mystack = *st;
                 ++mystack;
@@ -328,10 +333,12 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
             case 2: // l
             case 3: // ll
             case 4: // L
+            case 5: // z
                 switch(*p) {
                     case '%': state = 0;  ++p; break; //%% = back to 0
                     case 'l': ++state; if (state>3) state=3; ++p; break;
                     case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
                     case 'a':
                     case 'A':
                     case 'e':
@@ -359,6 +366,7 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
                     case '8':
                     case '9':
                     case '.': 
+                    case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
@@ -376,6 +384,7 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
+            case 15:    //%zg, meh.. double?
             case 23:    // 64bits int
                 if((((uint32_t)mystack)&0x7)!=0)
                     mystack++;
@@ -405,6 +414,7 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
             case 21:
             case 22:
             case 24:    // normal int / pointer
+            case 25:    // size_t int
             case 30:
                 *mystack = *st;
                 ++mystack;
