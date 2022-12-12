@@ -1,3 +1,46 @@
+box86 (0.2.8) unstable; urgency=low
+
+  * Wrapped more Vulkan functions, dxvk2.0 now works
+  * Added support for overridden malloc/free functions
+  * Improved elf loader
+  * Improved dlsym handling with RTLD_NEXT
+  * Added BOX86_DYNAREC_SAFEFLAGS to allow finetuning Dynarec generated code handling of flags accross function calls and returns.
+  * Added BOX86_BASH to setup x86 bash binary, so shell script can be run in x86 world
+  * Added BOX86_ROLLING_LOG to have details log only on crash
+  * Improved TLS Size handling (Unity3D games now works)
+  * Improved execv family of function to have better box86 integration
+  * Added a few more wrapped libs, like FAudio
+  * Improved gtk, SDL2, GL, vulkan (and more) wrapping
+  * Improved Signal Handling and memory protection traking
+  * Added some basic support for statically linked program. Thread are not working yet, but memory allocation and file access does.
+  * add LX2160A config by @lizthegrey in #612
+  * Grammar and formatting COMPILE.md by @Radiicall in #615
+  * Update README.md by @everypizza1 in #617
+  * docs: add instructions for Debian-based Linux by @ryanfortner in #622
+  * Fix typoes in readme by @ryanfortner in #621
+  * Various improvements to install_steam.sh by @ryanfortner in #620
+  * docs: remove unnecessary newline by @ryanfortner in #624
+  * fix: the first parameter of realpath may be null by @ye-yeshun in #630
+  * Add 6 wrapped function to libdrm, and 2 to libexpat. by @cjy880927 in #632
+  * Fix #610 by @rajdakin in #634
+  * some floating point instructions by @ye-yeshun in #637
+  * Fix Typo in readme x86_64 -> x86 by @Jai-JAP in #642
+  * Fix grammar by @Jai-JAP in #645
+  * Test wine preload by @ptitSeb in #649
+  * Align address when call mprotect by @wannacu in #651
+  * Added 66 0F 7D HSUBPD opcode by @wannacu in #652
+  * add TEGRAX1 and TEGRAX1ARM32 targets on ubuntu-18.04 by @theofficialgman in #654
+  * automatically install 32 bit libraries if 64 bit OS is detected in install_steam.sh by @Moldytzu in #659
+  * mention gcc-arm-linux-gnueabihf in compile.md by @Moldytzu in #660
+  * Add libc6:armhf install to RPi4 aarch64 build info by @WheezyE in #685
+  * Updated wine install for RPiOS bullseye 32/64bit by @WheezyE in #689
+  * Add atomic add opcodes by @Trass3r in #695
+  * steam: disable modern login and pass arguments to client by @Moldytzu in #700
+  * Modify sizeof(instsize_t) to 1 byte by @liuli0217 in #721
+  * Add MOV GS:od, AL by @liuli0217 in #722
+
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 17 Nov 2022 11:20:33 -0500
+
 box86 (0.2.6) unstable; urgency=low
 
   * Added an option to get generated -NAN on SSE2 operation
