@@ -1287,6 +1287,34 @@ void MarkElfInitDone(elfheader_t* h)
     if(h)
         h->init_done = 1;
 }
+void RunElfInitPltResolver(elfheader_t* h, x86emu_t *emu)
+{
+    if(!h || h->init_done)
+        return;
+
+    uintptr_t p = h->initentry + h->delta;
+    h->init_done = 1;
+    for(int i=0; i<h->neededlibs->size; ++i) {
+        library_t *lib = h->neededlibs->libs[i];
+        elfheader_t *lib_elf = GetElf(lib);
+        if(lib_elf)
+            RunElfInitPltResolver(lib_elf, emu);
+    }
+    printf_log(LOG_DEBUG, "Calling Init for %s %p\n", ElfName(h), (void*)p);
+    if(h->initentry)
+        RunSafeFunction(my_context, p, 3, my_context->argc, my_context->argv, my_context->envv);
+    printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
+    // and check init array now
+    Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
+    for (int i=0; i<h->initarray_sz; ++i) {
+        printf_log(LOG_DEBUG, "Calling Init[%d] for %s %p\n", i, ElfName(h), (void*)addr[i]);
+        RunSafeFunction(my_context, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+    }
+
+    h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
+    printf_log(LOG_DEBUG, "All Init Done for %s\n", ElfName(h));
+    return;
+}
 void RunElfInit(elfheader_t* h, x86emu_t *emu)
 {
     if(!h || h->init_done)
@@ -1874,6 +1902,12 @@ EXPORT void PltResolver(x86emu_t* emu)
         emu->quit = 1;
         return;
     } else {
+        elfheader_t* sym_elf = FindElfAddress(my_context, offs);
+        if(sym_elf && sym_elf!=my_context->elfs[0] && !sym_elf->init_done) {
+            printf_dump(LOG_DEBUG, "symbol %s from %s but elf not initialized yet, run Init now (from %s)\n", symname, ElfName(sym_elf), ElfName(h));
+            RunElfInitPltResolver(sym_elf, emu);
+        }
+
         if(p) {
             printf_dump(LOG_DEBUG, "            Apply %s R_386_JMP_SLOT %p with sym=%s(ver %d: %s%s%s) (%p -> %p / %s)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), p, symname, version, symname, vername?"@":"", vername?vername:"",*(void**)p, (void*)offs, ElfName(FindElfAddress(my_context, offs)));
             *p = offs;

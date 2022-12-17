@@ -11,4 +11,5 @@ uint64_t RunFunction64(box86context_t *context, uintptr_t fnc, int nargs, ...);
 // use emu state to run function
 uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...);
 
+uint32_t RunSafeFunction(box86context_t *context, uintptr_t fnc, int nargs, ...);
 #endif //__CALLBACK_H__
