@@ -337,6 +337,9 @@ int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr/dladdr1(%p, %p, %p, %d)\n", addr, info, extra_info, flags);
     
     //emu->quit = 1;
+    void* native = GetNativeFnc(addr);
+    if(native)
+        return dladdr1(native, info, extra_info, flags);
     library_t* lib = NULL;
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
