@@ -338,7 +338,7 @@ int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     
     //emu->quit = 1;
     #ifndef ANDROID
-    void* native = GetNativeFnc(addr);
+    void* native = GetNativeFnc((uintptr_t)addr);
     if(native)
         return dladdr1(native, info, extra_info, flags);
     #endif
