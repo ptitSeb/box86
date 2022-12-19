@@ -1306,6 +1306,15 @@ _trace:
                         NEXT;
                     case 0x90:              /* PAUSE */
                         NEXT;
+                    case 0x64: {
+                        nextop = F8;
+                        switch (nextop) {
+                            case 0xF1:           /* INT1 */
+                                NEXT;
+                            default:
+                                goto _default;
+                        }
+                    }
                     case 0xA4:              /* REP MOVSB */
                         while(tmp32u) {
                             --tmp32u;
