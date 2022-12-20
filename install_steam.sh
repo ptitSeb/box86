@@ -21,6 +21,7 @@ cd ../ && rm -rf ./tmp/
 echo "#!/bin/bash
 export STEAMOS=1
 export STEAM_RUNTIME=1
+export DBUS_FATAL_WARNINGS=0
 ~/steam/bin/steam -noreactlogin steam://open/minigameslist $@" > steam
 
 # make script executable and move
