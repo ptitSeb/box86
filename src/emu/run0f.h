@@ -154,6 +154,7 @@
             GET_ED;
             NEXT;
 
+        _0f_0x1E:                      /* HINT_NOP (multi-byte) */
         _0f_0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
             GET_ED;
