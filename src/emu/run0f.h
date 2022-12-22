@@ -144,7 +144,7 @@
                     break;
             }
             NEXT;
-
+        _0f_0x19:                      /* HINT_NOP (multi-byte) */
         _0f_0x1A:                      /* NOP (multi-byte) / ignored BNDLDX */
             nextop = F8;
             GET_ED;
