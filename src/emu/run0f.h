@@ -146,13 +146,7 @@
             NEXT;
         _0f_0x19:                      /* HINT_NOP (multi-byte) */
         _0f_0x1A:                      /* NOP (multi-byte) / ignored BNDLDX */
-            nextop = F8;
-            GET_ED;
-            NEXT;
         _0f_0x1B:                      /* NOP (multi-byte) / ignored BNDSTX */
-            nextop = F8;
-            GET_ED;
-            NEXT;
         _0f_0x1C:                      /* HINT_NOP (multi-byte) */
         _0f_0x1D:                      /* HINT_NOP (multi-byte) */
         _0f_0x1E:                      /* HINT_NOP (multi-byte) */
