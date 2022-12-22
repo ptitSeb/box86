@@ -607,8 +607,13 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
-    } else if(sig==SIGFPE)
-        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
+    } else if(sig==SIGFPE) {
+        if (info->si_code == FPE_INTOVF) {
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 4;
+        } else {
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
+        }
+    }
     else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
     // call the signal handler
