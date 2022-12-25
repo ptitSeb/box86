@@ -1485,7 +1485,7 @@ int main(int argc, const char **argv, char **env)
             printf_log(LOG_INFO, "BOX86: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
     }
-#if defined(RPI) || defined(RK3399) || defined(GOA_CLONE)
+#if defined(RPI) || defined(RK3399) || defined(GOA_CLONE) || defined(PYRA)
     // before launching emulation, let's check if this is a mojosetup from GOG
     if (((strstr(prog, "bin/linux/x86/mojosetup") && getenv("MOJOSETUP_BASE")) || strstr(prog, ".mojosetup/mojosetup"))
        && getenv("GTK2_RC_FILES")) {

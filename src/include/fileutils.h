@@ -24,7 +24,7 @@ const char* GetTmpDir();
 // will lower case the string and return a copy. Nothing fancy here, just A..Z transformed to a..z, rest is untouched
 char* LowerCase(const char* s);
 
-#if defined(RPI) || defined(RK3399) || defined(GOA_CLONE)
+#if defined(RPI) || defined(RK3399) || defined(GOA_CLONE) || defined(PYRA)
 void sanitize_mojosetup_gtk_background();
 #endif
 
