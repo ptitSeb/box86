@@ -212,7 +212,11 @@ GO(__finitef, iFf)
 // __finitel
 GOW(floor, dFd)
 GOW(floorf, fFf)
-// floorl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(floorl, DFD)
+#else
+GOW2(floorl, KFK, floor)
+#endif
 GOW(fma, dFddd)
 GOW(fmaf, fFfff)
 // fmal // Weak

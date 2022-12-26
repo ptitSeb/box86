@@ -3242,6 +3242,7 @@ wrappedlibm:
   - cbrtl
   - erfcl
   - erfl
+  - floorl
   - ldexpl
   - lgammal
   - logl

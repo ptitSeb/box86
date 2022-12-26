@@ -72,6 +72,7 @@ typedef void* (*pFpsvvvvs_t)(void*, void*, void, void, void, void, void*);
 	GO(cbrtl, KFK_t) \
 	GO(erfcl, KFK_t) \
 	GO(erfl, KFK_t) \
+	GO(floorl, KFK_t) \
 	GO(ldexpl, KFK_t) \
 	GO(lgammal, KFK_t) \
 	GO(logl, KFK_t) \
