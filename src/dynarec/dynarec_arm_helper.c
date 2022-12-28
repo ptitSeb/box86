@@ -483,7 +483,7 @@ void call_rd(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int s1, uint32_t
         if(s1!=xFlags) mask=1<<xFlags; else mask=1<<x3;
     }
     PUSH(xSP, (1<<xEmu) | mask);
-    fpu_pushcache(dyn, ninst, reg);
+    fpu_pushcache(dyn, ninst, s1);
     if(saveflags) {
         STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
@@ -495,7 +495,7 @@ void call_rd(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int s1, uint32_t
     #ifdef ARM_SOFTFP
     VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
     #endif
-    fpu_popcache(dyn, ninst, reg);
+    fpu_popcache(dyn, ninst, s1);
     POP(xSP, (1<<xEmu) | mask);
     if(saveflags) {
         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
@@ -1071,15 +1071,13 @@ void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     MESSAGE(LOG_DUMP, "\t-------x87 Cache for ST%d\n", st);
 }
 
-static int round_map[] = {0, 2, 1, 3};  // map x86 -> arm round flag
-
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     LDRH_IMM8(s1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
-    UBFX(s2, s1, 10, 2);    // extract round...
-    MOV32(s1, round_map);
-    LDR_REG_LSL_IMM5(s2, s1, s2, 2);
+    UBFX(s1, s1, 10, 2);    // extract round...
+    UBFX(s2, s1, 1, 1);     // swap bits 0 and 1
+    BFI(s2, s1, 1, 1);
     VMRS(s1);               // get fpscr
     MOV_REG(s3, s1);
     BFI(s1, s2, 22, 2);     // inject new round
@@ -1111,9 +1109,9 @@ void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b)
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     LDR_IMM9(s1, xEmu, offsetof(x86emu_t, mxcsr));
-    UBFX(s2, s1, 13, 2);    // extract round...
-    MOV32(s1, round_map);
-    LDR_REG_LSL_IMM5(s2, s1, s2, 2);
+    UBFX(s1, s1, 13, 2);    // extract round...
+    UBFX(s2, s1, 1, 1);     // swap bits 0 and 1
+    BFI(s2, s1, 1, 1);
     VMRS(s1);               // get fpscr
     MOV_REG(s3, s1);
     BFI(s1, s2, 22, 2);     // inject new round
@@ -1338,7 +1336,7 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
     MOV_REG(s1, xSP);
     for (int i=16; i<32; ++i) {   // should use VSTM?
         if(dyn->n.fpuused[i-8]) {
-            VST1_32_W(i, s1);
+            VST1_64_W(i, s1);
         }
     }
     MESSAGE(LOG_DUMP, "\t------- Push FPU Cache (%d)\n", n);
@@ -1357,7 +1355,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1)
     MOV_REG(s1, xSP);
     for (int i=16; i<32; ++i) {
         if(dyn->n.fpuused[i-8]) {
-            VLD1_32_W(i, s1);
+            VLD1_64_W(i, s1);
         }
     }
     if(n>=8) {

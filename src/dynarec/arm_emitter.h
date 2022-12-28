@@ -820,6 +820,8 @@ Op is 20-27
 #define VLD1_32(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 15))
 // Load [Rn]! => Dd. Align is 4
 #define VLD1_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 13))
+// Load [Rn]! => Dd. Align is 8
+#define VLD1_64_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 3, 0, 13))
 // Load [Rn]! => Dd/Dd+1. Align is 4
 #define VLD1Q_32_W(Dd, Rn) EMIT(Vxx1gen(1, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 13))
 // Load [Rn, Rm]! => Dd/Dd+1. If Rm==15, no writeback, Rm ignored, else writeback Rn <- Rn+Rm. Align is 4
@@ -841,6 +843,8 @@ Op is 20-27
 
 // Store [Rn]! => Dd. Align is 4
 #define VST1_32_W(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 2, 0, 13))
+// Store [Rn]! => Dd. Align is 8
+#define VST1_64_W(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b0111, 3, 0, 13))
 // Store [Rn] => Dd/Dd+1. Align is 4
 #define VST1Q_32(Dd, Rn) EMIT(Vxx1gen(0, ((Dd)>>4)&1, Rn, ((Dd)&0x0f), 0b1010, 2, 0, 15))
 // Store [Rn]! => Dd/Dd+1. Align is 4
