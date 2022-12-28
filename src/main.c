@@ -97,6 +97,7 @@ int box86_mapclean = 0;
 int box86_zoom = 0;
 int box86_x11threads = 0;
 int box86_x11glx = 1;
+int box86_sse_flushto0 = 0;
 int allow_missing_libs = 0;
 int allow_missing_symbols = 0;
 int fix_64bit_inodes = 0;
@@ -825,6 +826,12 @@ void LoadEnvVars(box86context_t *context)
     AddPath("libcrypto.so.1", &context->box86_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box86_emulated_libs, 0);
 
+    if(getenv("BOX86_SSE_FLUSHTO0")) {
+        if (strcmp(getenv("BOX86_SSE_FLUSHTO0"), "1")==0) {
+            box86_sse_flushto0 = 1;
+            printf_log(LOG_INFO, "BOX86: Direct apply of SSE Flush to 0 flag\n");
+    	}
+    }
     if(getenv("BOX86_PREFER_WRAPPED")) {
         if (strcmp(getenv("BOX86_PREFER_WRAPPED"), "1")==0) {
             box86_prefer_wrapped = 1;

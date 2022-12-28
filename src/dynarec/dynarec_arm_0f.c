@@ -1618,6 +1618,12 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("LDMXCSR Md");
                         GETED;
                         STR_IMM9(ed, xEmu, offsetof(x86emu_t, mxcsr));
+                        if(box86_sse_flushto0) {
+                            VMRS(x1);                       // get fpscr
+                            MOV_REG_LSR_IMM5(x3, ed, 15);   // get FZ bit
+                            BFI(x1, x3, 24, 1);             // inject FZ bit
+                            VMSR(x1);                       // put new fpscr
+                        }
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");

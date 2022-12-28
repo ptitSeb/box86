@@ -40,7 +40,7 @@ typedef struct x86emu_s {
 	fpu_p_reg_t p_regs[8];
     // sse
     sse_regs_t  xmm[8];
-    uint32_t    mxcsr;
+    mmxcontrol_t mxcsr;
     uintptr_t   old_ip;
     // defered flags
     defered_flags_t df;
@@ -87,5 +87,7 @@ typedef struct x86emu_s {
 
 //#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit
+
+void applyFlushTo0(x86emu_t* emu);
 
 #endif //__X86EMU_PRIVATE_H_

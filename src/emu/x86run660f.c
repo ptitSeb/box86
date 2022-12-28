@@ -230,7 +230,7 @@ void Run660F(x86emu_t *emu)
     case 0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        switch((emu->mxcsr>>13)&3) {
+        switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
                 GM.sd[0] = floor(EX->d[0]+0.5);
                 GM.sd[1] = floor(EX->d[1]+0.5);
@@ -519,7 +519,7 @@ void Run660F(x86emu_t *emu)
                 nextop = F8;
                 GET_EX;
                 tmp8u = F8;
-                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
                         GX.f[0] = nearbyint(EX->f[0]);
@@ -551,7 +551,7 @@ void Run660F(x86emu_t *emu)
                 nextop = F8;
                 GET_EX;
                 tmp8u = F8;
-                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
                         GX.d[0] = nearbyint(EX->d[0]);
@@ -575,7 +575,7 @@ void Run660F(x86emu_t *emu)
                 nextop = F8;
                 GET_EX;
                 tmp8u = F8;
-                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
                         GX.f[0] = nearbyint(EX->f[0]);
@@ -595,7 +595,7 @@ void Run660F(x86emu_t *emu)
                 nextop = F8;
                 GET_EX;
                 tmp8u = F8;
-                switch((tmp8u & 4) ? ((emu->mxcsr >> 13) & 3) : (tmp8u & 3))
+                switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
                         GX.d[0] = nearbyint(EX->d[0]);
@@ -775,7 +775,7 @@ void Run660F(x86emu_t *emu)
     case 0x5B:                      /* CVTPS2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        switch((emu->mxcsr>>13)&3) {
+        switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
                 GX.sd[0] = floorf(EX->f[0]+0.5f);
                 GX.sd[1] = floorf(EX->f[1]+0.5f);

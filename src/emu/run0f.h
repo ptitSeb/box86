@@ -189,7 +189,7 @@
             // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
             GET_EX;
-            switch((emu->mxcsr>>13)&3) {
+            switch(emu->mxcsr.f.MXCSR_RC) {
                 case ROUND_Nearest:
                     GM.sd[1] = floorf(EX->f[1]+0.5f);
                     GM.sd[0] = floorf(EX->f[0]+0.5f);
@@ -896,10 +896,12 @@
                     fpu_fxrstor(emu, ED);
                     break;
                 case 2:                 /* LDMXCSR Md */
-                    emu->mxcsr = ED->dword[0];
+                    emu->mxcsr.x32 = ED->dword[0];
                     break;
                 case 3:                 /* STMXCSR Md */
-                    ED->dword[0] = emu->mxcsr;
+                    ED->dword[0] = emu->mxcsr.x32;
+                    if(box86_sse_flushto0)
+                        applyFlushTo0(emu);
                     break;
                 default:
                     goto _default;

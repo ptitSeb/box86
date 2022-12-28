@@ -52,7 +52,7 @@
     case 0x2D:  /* CVTSS2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        switch((emu->mxcsr>>13)&3) {
+        switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
                 GD.sdword[0] = floor(EX->f[0]+0.5);
                 break;

@@ -23,6 +23,13 @@
 #ifdef DYNAREC
 #include "custommem.h"
 #endif
+// for the applyFlushTo0
+#ifdef __i386__
+#include <immintrin.h>
+#elif defined(__arm__)
+#else
+#warning Architecture cannot follow SSE Flush to 0 flag
+#endif
 
 typedef struct cleanup_s {
     void*       f;
@@ -81,7 +88,7 @@ static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t s
     emu->segs[_GS] = 0x33;
     // setup fpu regs
     reset_fpu(emu);
-    emu->mxcsr = 0x1f80;  
+    emu->mxcsr.x32 = 0x1f80;  
 }
 
 EXPORTDYN
@@ -496,4 +503,16 @@ void ResetSegmentsCache(x86emu_t *emu)
     if(!emu)
         return;
     memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
+}
+
+void applyFlushTo0(x86emu_t* emu)
+{
+    #ifdef __i386__
+    _mm_setcsr(_mm_getcsr() | (emu->mxcsr.x32&0x8040));
+    #elif defined(__arm__)
+    uint64_t fpscr = __builtin_arm_get_fpscr();
+    fpscr &= ~(1<<24);                     // clear bit FZ (24)
+    fpscr |= (emu->mxcsr.f.MXCSR_FZ)<<24;  // set FZ as mxcsr FZ
+    __builtin_arm_set_fpscr(fpscr);
+    #endif
 }
