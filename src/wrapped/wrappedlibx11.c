@@ -582,7 +582,7 @@ EXPORT void* my_XVaCreateNestedList(x86emu_t* emu, int unused, void** va) {
         SUPER()
     }
 
-    void* res;
+    void* res = NULL;
     VA_CALL(my->XVaCreateNestedList, unused, new_va, n, res);
     return res;
 }
@@ -599,7 +599,7 @@ EXPORT void* my_XCreateIC(x86emu_t* emu, void* xim, void** va) {
         SUPER()
     }
 
-    void* res;
+    void* res = NULL;
     VA_CALL(my->XCreateIC, xim, new_va, n, res);
     return res;
 }
@@ -616,7 +616,7 @@ EXPORT void* my_XSetICValues(x86emu_t* emu, void* xic, void** va) {
         SUPER()
     }
 
-    void* res; 
+    void* res = NULL;
     VA_CALL(my->XSetICValues, xic, new_va, n, res);
     return res;
 }
@@ -644,7 +644,7 @@ EXPORT void* my_XSetIMValues(x86emu_t* emu, void* xim, void** va) {
     }
     #undef GO
     
-    void* res;
+    void* res = NULL;
     VA_CALL(my->XSetIMValues, xim, new_va, n, res)
     return res;
 }
