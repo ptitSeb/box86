@@ -56,13 +56,6 @@ typedef void (*vFv_t)();
 
 #include "wrappercallback.h"
 
-
-// event filter. Needs to be global, but there is only one, so that's should be fine
-static x86emu_t        *sdl1_evtfilter = NULL;
-static void*           sdl1_evtfnc = NULL;
-static int             sdl1_evtautofree = 0;
-static int             sdl1_evtinside = 0;
-
 #define SUPER() \
 GO(0)   \
 GO(1)   \
