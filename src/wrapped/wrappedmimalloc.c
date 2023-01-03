@@ -13,8 +13,6 @@
 #include "x86emu.h"
 #include "callback.h"
 
-static library_t* my_lib = NULL;
-
 const char* mimallocName = "libmimalloc.so";
 #define LIBNAME mimalloc
 

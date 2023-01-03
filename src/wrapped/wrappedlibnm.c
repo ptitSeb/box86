@@ -100,5 +100,11 @@ EXPORT void my_nm_client_activate_connection_async(x86emu_t* emu, void* client, 
     if(box86_nogtk) \
         return -1;
 
+#define CUSTOM_INIT \
+    getMy(lib);
+
+#define CUSTOM_FINI \
+    freeMy();
+
 #include "wrappedlib_init.h"
 
