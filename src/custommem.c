@@ -371,7 +371,7 @@ mmapchunk_t* addChunk(int mmapsize) {
         mmaplist = (mmaplist_t*)box_calloc(1, sizeof(mmaplist_t));
     mmaplist_t* head = mmaplist;
     int i = mmapsize;
-    while(i) {
+    while(1) {
         if(i>=NCHUNK) {
             i-=NCHUNK;
             if(!head->next) {
