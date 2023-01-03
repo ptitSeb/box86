@@ -2839,7 +2839,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
-                    BARRIER(BARRIER_MAYBE);
+                    READFLAGS(X_PEND);
+                    BARRIER(BARRIER_FLOAT);
                     GETEDH(xEIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     *need_epilog = 0;
