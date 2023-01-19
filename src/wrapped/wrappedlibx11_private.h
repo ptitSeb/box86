@@ -289,7 +289,7 @@ GO(XDisplayWidthMM, iFpi)
 //GO(XDoesSaveUnders
 GO(XDrawArc, iFpppiiuuii)
 //GO(XDrawArcs
-//GO(XDrawImageString
+GO(XDrawImageString, iFpppiipi)
 //GO(XDrawImageString16
 GO(XDrawLine, iFpppiiii)
 GO(XDrawLines, iFppppii)
@@ -901,7 +901,7 @@ GO(XrmInitialize, vFv)
 //GO(XrmPutLineResource
 //GO(XrmPutResource
 //GO(XrmPutStringResource
-//GO(XrmQGetResource
+GO(XrmQGetResource, iFuppppp)
 //GO(XrmQGetSearchList
 //GO(XrmQGetSearchResource
 //GO(XrmQPutResource
@@ -909,11 +909,11 @@ GO(XrmInitialize, vFv)
 //GO(XrmQuarkToString
 //GO(XrmSetDatabase
 //GO(XrmStringToBindingQuarkList
-//GO(XrmStringToQuark
+GO(XrmStringToQuark, iFp)
 //GO(XrmStringToQuarkList
 GO(XrmUniqueQuark, iFv)
 GO(XRootWindow, pFpi)
-//GO(XRootWindowOfScreen
+GO(XRootWindowOfScreen, pFp)
 GO(XRotateBuffers, iFpi)
 GO(XRotateWindowProperties, iFpppii)
 GO(XSaveContext, iFpuip)
@@ -1095,7 +1095,7 @@ GO(XwcTextPropertyToTextList, iFpppp)
 // _XwcTextPropertyToTextList
 // _Xwctomb
 //GO(XWhitePixel
-//GO(XWhitePixelOfScreen
+GO(XWhitePixelOfScreen, UFp)
 //GO(XWidthMMOfScreen
 GO(XWidthOfScreen, iFp)
 GO(XWindowEvent, iFppup)
