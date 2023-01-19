@@ -125,7 +125,7 @@
 #undef stat
 #undef __xstat
 #undef xstat
-#undef scandir
+#undef readdir
 #undef ftw
 #undef nftw
 #undef glob
@@ -1474,14 +1474,10 @@ EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
     }
     else
     {
-        static pFp_t f = NULL;
-        if(!f) {
-            library_t* lib = my_lib;
-            if(!lib) return NULL;
-            f = (pFp_t)dlsym(lib->w.lib, "readdir");
-        }
-
-        return f(dirp);
+        struct dirent *ret = readdir(dirp);
+        /*if(ret)
+            printf_log(LOG_DEBUG, " -- dirent:%p \"%s\", type:%d -- ", ret, ret->d_name, ret->d_type);*/
+        return ret;
     }
 }
 
@@ -3123,7 +3119,7 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #define PRE_INIT\
     if(1)                                                           \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+        my_lib = lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
     else
 
 #ifdef ANDROID
