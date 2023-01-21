@@ -1376,10 +1376,10 @@ GOM(read, lFipL) //%%,noE
 GOW(__read, lFipL)
 // readahead    // Weak
 GO(__read_chk, lFipLL)
-GOM(readdir, pFEp)  //%% should also be weak
-GO(readdir64, pFp)  // check if alignement is correct
+GOWM(readdir, pFEp)  //%% should also be weak
+GOW(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
-GOM(readdir_r, iFEppp)  //%% should also be weak
+GOWM(readdir_r, iFEppp)  //%% should also be weak
 GOM(readlink, iFEppL) //%%
 GOM(readlinkat, iFEippL)
 // __readlinkat_chk

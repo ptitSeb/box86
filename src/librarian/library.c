@@ -312,6 +312,18 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
             box86_dynarec_strongmem = 1;
         }
         #endif
+        // spacial case for spd_readdir, to allow override a few symbols
+        if(libname && strstr(libname, "spd_readdir.so")) {
+            printf_log(LOG_INFO, "spd_readdir detected, hacking wrapped libc\n");
+            const char* symbols[] = {"opendir", "readdir", "readdir_r", "readdir64", "closedir", "telldir", "seekdir", "dirfd"};
+            for(int i=0; i<sizeof(symbols)/sizeof(symbols[0]); ++i) {
+                char temp[500];
+                char* symname = AddDictionnary(my_context->versym, symbols[i]);
+                const char* vername = AddDictionnary(my_context->versym, "GLIBC_2.0");
+                AddDefaultVersion(my_context->globaldefver, symname, vername);
+            }
+
+        }
         return 1;
     }
     return 0;
