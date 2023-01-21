@@ -300,6 +300,8 @@ void x86Int3(x86emu_t* emu)
                 } else  if(strstr(s, "__tls_get_addr")) {
                     pu32 = *(uint32_t**)(R_ESP+4);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p[%d, %d])", tid, *(void**)(R_ESP), s, pu32, pu32[0], pu32[1]);
+                } else if (!strcmp(s, "XDrawImageString")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, %p, %p, %i, %i, %p\"%s\", %d)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(void**)(R_ESP+8), *(void**)(R_ESP+12), *(int*)(R_ESP+16), *(int*)(R_ESP+20), *(char**)(R_ESP+24), *(char**)(R_ESP+24), *(int*)(R_ESP+28));
                 } else {
                     snprintf(buff, 256, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
