@@ -341,7 +341,7 @@ GO(XExtendedMaxRequestSize, lFp)
 // _XFetchEventCookie
 //GO(XFetchName
 GO(XFillArc, iFpppiiuuii)
-//GO(XFillArcs
+GO(XFillArcs, iFppppi)
 GO(XFillPolygon, iFppppiii)
 GO(XFillRectangle, iFpppiiuu)
 GO(XFillRectangles, iFppppi)
