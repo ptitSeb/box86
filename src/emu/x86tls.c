@@ -24,19 +24,37 @@ typedef struct thread_area_s
     unsigned int  useable:1;
 } thread_area_t;
 
-static pthread_once_t thread_key_once0 = PTHREAD_ONCE_INIT;
-static pthread_once_t thread_key_once1 = PTHREAD_ONCE_INIT;
-static pthread_once_t thread_key_once2 = PTHREAD_ONCE_INIT;
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
+GO(8)   \
+GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
+GO(13)  \
+GO(14)  \
+GO(15)  \
+GO(16)  \
+GO(17)  \
+GO(18)  \
 
-static void thread_key_alloc0() {
-	pthread_key_create(&my_context->segtls[0].key, NULL);
+#define GO(A) static pthread_once_t thread_key_once##A = PTHREAD_ONCE_INIT;
+SUPER()
+
+#undef GO
+#define GO(A)\
+static void thread_key_alloc##A() {                         \
+	pthread_key_create(&my_context->segtls[A].key, NULL);   \
 }
-static void thread_key_alloc1() {
-	pthread_key_create(&my_context->segtls[1].key, NULL);
-}
-static void thread_key_alloc2() {
-	pthread_key_create(&my_context->segtls[2].key, NULL);
-}
+SUPER()
+#undef GO
 
 uint32_t my_set_thread_area(thread_area_t* td)
 {
@@ -81,11 +99,11 @@ uint32_t my_set_thread_area(thread_area_t* td)
     my_context->segtls[idx-7].base = td->base_addr;
     my_context->segtls[idx-7].limit = td->limit;
     my_context->segtls[idx-7].present = 1;
+    #define GO(A)   case A:	pthread_once(&thread_key_once##A, thread_key_alloc##A); break;
     switch (idx-7) {
-        case 0:	pthread_once(&thread_key_once0, thread_key_alloc0); break;
-        case 1:	pthread_once(&thread_key_once1, thread_key_alloc1); break;
-        case 2:	pthread_once(&thread_key_once2, thread_key_alloc2); break;
+        SUPER()
     }
+    #undef GO
 
     pthread_setspecific(my_context->segtls[idx-7].key, (void*)my_context->segtls[idx-7].base);
 
@@ -101,27 +119,39 @@ EXPORT uint32_t my_modify_ldt(x86emu_t* emu, int op, thread_area_t* td, int size
         errno = EFAULT;
         return (uint32_t)-1;
     }
+    if(op==0 && size==8) {
+        td->entry_number = 6;
+        td->base_addr = (uintptr_t)GetSegmentBase(6<<3);
+        return 8;
+    }
     if(op!=0x11) {
         errno = ENOSYS;
         return (uint32_t)-1;
     }
-    if(!td->seg_32bit) {
+    if(!td->seg_32bit && td->base_addr) {
         // not handling 16bits segments for now
         errno = EINVAL;
         return (uint32_t)-1;
     }
 
     int idx = td->entry_number - 7;
-    if(idx<0 || idx>2) {
+    if(td->entry_number>=0x1ff0) idx=td->entry_number-0x1ff0+3;
+    if(idx<0 || idx>16+3-1) {
+        printf_log(LOG_DEBUG, "modify_ldt: idx out of range: %d\n", idx);
         errno = EINVAL;
         return (uint32_t)-1;
     }
 
-    /*
+    
     my_context->segtls[idx].base = td->base_addr;
     my_context->segtls[idx].limit = td->limit;
+    my_context->segtls[idx].present = td->base_addr?1:0;
+    #define GO(A) case A:	pthread_once(&thread_key_once##A, thread_key_alloc##A); break;
+    switch (idx-7) {
+        SUPER()
+    }
+    #undef GO
     pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
-    */
     
     ResetSegmentsCache(thread_get_emu());
 
@@ -242,11 +272,14 @@ void* GetSegmentBase(uint32_t desc)
     if(base==0x6)
         return GetSeg33Base();
 
-    if(base>6 && base<10 && my_context->segtls[base-7].present) {
+    if(base>=0x1ff0)
+        base = base - 0x1ff0 + 3 + 7;
+
+    if(base>6 && base<16+3+7 && my_context->segtls[base-7].present) {
         void* ptr = pthread_getspecific(my_context->segtls[base-7].key);
         return ptr;
     }
 
-    printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
+    printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x (%d) or unset\n", desc, base);
     return NULL;
 }
