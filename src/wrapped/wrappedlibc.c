@@ -2072,6 +2072,34 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 
 EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], char* const envp[])
 {
+    /*if(!strcmp(path, "/bin/sh") && argv[1] && !strcmp(argv[1], "-c")) {
+        // check if argv[2] can be found, if yes, just run it
+        if(FileExist(argv[2], IS_FILE))
+            return my_execve(emu, argv[2], argv+2, envp);
+        // not found. Maybe the command line is borked, like Domino setup, and need to be split
+        if(strchr(argv[2], ' ') && !argv[3]) {
+            const char* newargv[500] = {0};   // arbitrary size
+            int n = 0;
+            int i = 0;
+            int quote = 0;
+            newargv[n]=argv[2]+i;
+            while(argv[2][i]) {
+                if(argv[2][i]=='"') {
+                    if(!n && !quote) {
+                        newargv[0]=argv[2]+i+1;
+                    } else if(!n && quote) {
+                        argv[2][i] = '\0';
+                    }
+                    quote = 1 - quote;
+                } else if(argv[2][i]==' ' && !quote) {
+                    argv[2][i] = '\0';
+                    newargv[++n] = argv[2]+i+1;
+                }
+                ++i;
+            }
+            return my_execve(emu, newargv[0], (char* const *)newargv, envp);
+        }
+    }*/
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = my_context->box64path?FileIsX64ELF(path):0;
@@ -2081,7 +2109,7 @@ EXPORT int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], ch
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[2]?argv[2]:"(nil)", envp, x64, x86, script, my_context->envv, environ);
+    printf_log(LOG_DEBUG, "execve(\"%s\", %p[\"%s\", \"%s\", \"%s\"...], %p) is x64=%d x86=%d script=%d (my_context->envv=%p, environ=%p\n", path, argv, argv[0], argv[1]?argv[1]:"(nil)", argv[1]?(argv[2]?argv[2]:"(nil)"):"(nil)", envp, x64, x86, script, my_context->envv, environ);
     if (x86 || x64 || self || script) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
