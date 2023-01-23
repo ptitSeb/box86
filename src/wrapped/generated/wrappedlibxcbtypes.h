@@ -25,6 +25,7 @@ typedef my_xcb_cookie_t (*xFpCuu_t)(void*, uint8_t, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*xFpuWp_t)(void*, uint32_t, uint16_t, void*);
 typedef my_xcb_cookie_t (*xFpuuu_t)(void*, uint32_t, uint32_t, uint32_t);
 typedef my_xcb_cookie_t (*xFpuup_t)(void*, uint32_t, uint32_t, void*);
+typedef int32_t (*iFpppip_t)(void*, void*, void*, int32_t, void*);
 typedef my_xcb_cookie_t (*xFpCuup_t)(void*, uint8_t, uint32_t, uint32_t, void*);
 typedef my_xcb_cookie_t (*xFpCppp_t)(void*, uint8_t, void*, void*, void*);
 typedef my_xcb_cookie_t (*xFpuWWW_t)(void*, uint32_t, uint16_t, uint16_t, uint16_t);
@@ -83,6 +84,7 @@ typedef my_xcb_cookie_t (*xFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t,
 	GO(xcb_ungrab_pointer, xFpu_t) \
 	GO(xcb_unmap_window, xFpu_t) \
 	GO(xcb_free_cursor, xFpp_t) \
+	GO(xcb_no_operation, xFpp_t) \
 	GO(xcb_get_keyboard_mapping, xFpCC_t) \
 	GO(xcb_change_keyboard_control, xFpup_t) \
 	GO(xcb_delete_property, xFppp_t) \
@@ -102,6 +104,7 @@ typedef my_xcb_cookie_t (*xFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t,
 	GO(xcb_change_window_attributes, xFpuup_t) \
 	GO(xcb_change_window_attributes_checked, xFpuup_t) \
 	GO(xcb_query_text_extents, xFpuup_t) \
+	GO(xcb_take_socket, iFpppip_t) \
 	GO(xcb_send_event, xFpCuup_t) \
 	GO(xcb_create_colormap, xFpCppp_t) \
 	GO(xcb_alloc_color, xFpuWWW_t) \
@@ -116,6 +119,7 @@ typedef my_xcb_cookie_t (*xFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t,
 	GO(xcb_poly_segment, xFpuuup_t) \
 	GO(xcb_grab_keyboard, xFpCuuCC_t) \
 	GO(xcb_create_pixmap, xFpCuuWW_t) \
+	GO(xcb_create_pixmap_checked, xFpCuuWW_t) \
 	GO(xcb_poly_line, xFpCuuup_t) \
 	GO(xcb_poly_line_checked, xFpCuuup_t) \
 	GO(xcb_poly_point, xFpCuuup_t) \

@@ -96,7 +96,7 @@ GO(FcFreeTypeQueryFace, pFppip)
 //GO(FcGetLangs, 
 GO(FcGetVersion, iFv)
 GO(FcInit, iFv)
-//GO(FcInitBringUptoDate, 
+GO(FcInitBringUptoDate, iFv)
 //GO(FcInitLoadConfig, 
 //GO(FcInitLoadConfigAndFonts, 
 GO(FcInitReinitialize, iFv)

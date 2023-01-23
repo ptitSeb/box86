@@ -825,6 +825,7 @@
 #() iFpLpL
 #() iFppii
 #() iFppiu
+#() iFppiU
 #() iFppiL
 #() iFppip
 #() iFppIL
@@ -1460,6 +1461,7 @@
 #() iFEpuppp
 #() iFEpUPpp
 #() iFEpLppp
+#() iFEpppip
 #() iFEppppp
 #() iFiiiiii
 #() iFiiiiip
@@ -3574,6 +3576,7 @@ wrappedlibxcb:
   - xcb_unmap_window
 - xFpp:
   - xcb_free_cursor
+  - xcb_no_operation
 - xFpCC:
   - xcb_get_keyboard_mapping
 - xFpup:
@@ -3602,6 +3605,8 @@ wrappedlibxcb:
   - xcb_change_window_attributes
   - xcb_change_window_attributes_checked
   - xcb_query_text_extents
+- iFpppip:
+  - xcb_take_socket
 - xFpCuup:
   - xcb_send_event
 - xFpCppp:
@@ -3623,6 +3628,7 @@ wrappedlibxcb:
   - xcb_grab_keyboard
 - xFpCuuWW:
   - xcb_create_pixmap
+  - xcb_create_pixmap_checked
 - xFpCuuup:
   - xcb_poly_line
   - xcb_poly_line_checked

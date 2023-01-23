@@ -151,7 +151,7 @@ GOS(xcb_create_gc_checked, xFEpuuup)
 GOS(xcb_create_glyph_cursor, xFEpuuuWWWWWWWW)
 //GO(xcb_create_glyph_cursor_checked, 
 GOS(xcb_create_pixmap, xFEpCuuWW)
-//GO(xcb_create_pixmap_checked, 
+GOS(xcb_create_pixmap_checked, xFEpCuuWW)
 GOS(xcb_create_window, xFEpCuuwwWWWWuup)
 //GO(xcb_create_window_aux, 
 //GO(xcb_create_window_aux_checked, 
@@ -389,7 +389,7 @@ GOS(xcb_map_subwindows, xFEpu)
 //GO(xcb_map_subwindows_checked, 
 GOS(xcb_map_window, xFEpu)
 GOS(xcb_map_window_checked, xFEpu)
-//GO(xcb_no_operation, 
+GOS(xcb_no_operation, xFEpp)
 //GO(xcb_no_operation_checked, 
 GOS(xcb_open_font, xFEpuWp)
 GOS(xcb_open_font_checked, xFEpuWp)
@@ -463,7 +463,7 @@ GOS(xcb_poly_segment, xFEpuuup)
 //GO(xcb_poly_text_8_sizeof, 
 GO(xcb_popcount, iFu)
 GO(xcb_prefetch_extension_data, vFpp)
-//GO(xcb_prefetch_maximum_request_length, 
+GO(xcb_prefetch_maximum_request_length, vFp)
 GOS(xcb_put_image, xFEpCuuWWwwCCup)
 //GO(xcb_put_image_checked, 
 //GO(xcb_put_image_data, 
@@ -625,9 +625,9 @@ GO(xcb_setup_roots_length, iFp)
 //GO(xcb_str_name_end, 
 //GO(xcb_str_name_length, 
 //GO(xcb_str_next, 
-//GO(xcb_str_sizeof, 
+GO(xcb_str_sizeof, iFp)
 //GO(xcb_sumof, 
-//GO(xcb_take_socket, 
+GOM(xcb_take_socket, iFEpppip)
 //GO(xcb_timecoord_end, 
 //GO(xcb_timecoord_next, 
 //GO(xcb_timestamp_end, 
@@ -664,7 +664,7 @@ GOS(xcb_warp_pointer, xFEpuuwwWWww)
 //GO(xcb_warp_pointer_checked, 
 //GO(xcb_window_end, 
 //GO(xcb_window_next, 
-//GO(xcb_writev, 
+GO(xcb_writev, iFppiU)
 //GO(xcb_xc_misc_get_version, 
 //GO(xcb_xc_misc_get_version_reply, 
 //GO(xcb_xc_misc_get_version_unchecked, 

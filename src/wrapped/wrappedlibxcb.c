@@ -69,6 +69,7 @@ typedef my_xcb_cookie_t (*XFpCuuWWwwCCup_t)(void*, uint8_t, uint32_t, uint32_t, 
 typedef my_xcb_cookie_t (*XFpuuuWWWWWWWW_t)(void*, uint32_t, uint32_t, uint32_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
 typedef my_xcb_cookie_t (*XFpCuuwwWWWWuup_t)(void*, uint8_t, uint32_t, uint32_t, int16_t, int16_t, uint16_t, uint16_t, uint16_t, uint16_t, uint32_t, uint32_t, void*);
 typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
+typedef int (*iFpppip_t)(void*, void*, void*, int, void*);
 #define SUPER() \
     GO(xcb_alloc_color, XFpuWWW_t)                  \
     GO(xcb_change_gc, XFpuup_t)                     \
@@ -90,6 +91,7 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_create_gc_checked, XFpuuup_t)            \
     GO(xcb_create_glyph_cursor, XFpuuuWWWWWWWW_t)   \
     GO(xcb_create_pixmap, XFpCuuWW_t)               \
+    GO(xcb_create_pixmap_checked, XFpCuuWW_t)       \
     GO(xcb_create_window, XFpCuuwwWWWWuup_t)        \
     GO(xcb_create_window_checked, XFpCuuwwWWWWuup_t)\
     GO(xcb_delete_property, XFppp_t)                \
@@ -163,9 +165,43 @@ typedef my_xcb_XXX_iterator_t (*S1Fp_t)(void*);
     GO(xcb_create_colormap, XFpCppp_t)              \
     GO(xcb_bell, XFpC_t)                            \
     GO(xcb_free_cursor, XFpp_t)                     \
+    GO(xcb_no_operation, XFp_t)                     \
+    GO(xcb_take_socket, iFpppip_t)                  \
 
 
 #include "wrappercallback.h"
+
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+
+
+// return_socket
+#define GO(A)   \
+static uintptr_t my_return_socket_fct_##A = 0;                  \
+static void my_return_socket_##A(void* a)                       \
+{                                                               \
+    RunFunction(my_context, my_return_socket_fct_##A, 1, a);    \
+}
+SUPER()
+#undef GO
+static void* findreturn_socketFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_return_socket_fct_##A == (uintptr_t)fct) return my_return_socket_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_return_socket_fct_##A == 0) {my_return_socket_fct_##A = (uintptr_t)fct; return my_return_socket_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libxcb return_socket callback (%p)\n", fct);
+    return NULL;
+}
+
+#undef SUPER
 
 #define SUPER(F, P, ...)                                            \
     EXPORT void* my_##F P                                           \
@@ -194,6 +230,7 @@ SUPER(xcb_create_gc, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cid
 SUPER(xcb_create_gc_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cid, uint32_t d, uint32_t mask, void* list), c, cid, d, mask, list)
 SUPER(xcb_create_glyph_cursor, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cid, uint32_t sf, uint32_t mf, uint16_t sc, uint16_t mc, uint16_t fr, uint16_t fg, uint16_t fb, uint16_t br, uint16_t bg, uint16_t bb), c, cid, sf, mf, sc, mc, fr, fg, fb, br, bg, bb)
 SUPER(xcb_create_pixmap, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t depth, uint32_t pid, uint32_t d, uint16_t w, uint16_t h), c, depth, pid, d, w, h)
+SUPER(xcb_create_pixmap_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t depth, uint32_t pid, uint32_t d, uint16_t w, uint16_t h), c, depth, pid, d, w, h)
 SUPER(xcb_create_window, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t depth, uint32_t  wid, uint32_t p, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t bw, uint16_t _class, uint32_t v, uint32_t mask, void* list), c, depth, wid, p, x, y, w, h, bw, _class, v, mask, list)
 SUPER(xcb_create_window_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t depth, uint32_t  wid, uint32_t p, int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t bw, uint16_t _class, uint32_t v, uint32_t mask, void* list), c, depth, wid, p, x, y, w, h, bw, _class, v, mask, list)
 SUPER(xcb_delete_property, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, void* w, void* p), c, w, p)
@@ -263,6 +300,7 @@ SUPER(xcb_bell, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t percent),
 SUPER(xcb_free_cursor, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, void* cursor), c, cursor)
 SUPER(xcb_ungrab_button, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t k, uint32_t g, uint16_t m), c, k, g, m)
 SUPER(xcb_ungrab_button_checked, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t k, uint32_t g, uint16_t m), c, k, g, m)
+SUPER(xcb_no_operation, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), c)
 #undef SUPER
 
 EXPORT void* my_xcb_depth_visuals_iterator(x86emu_t* emu, void* ret, void* R)
@@ -291,6 +329,11 @@ EXPORT void* my_xcb_setup_roots_iterator(x86emu_t* emu, void* ret, void* R)
     my_xcb_XXX_iterator_t tmp = my->xcb_setup_roots_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
+}
+
+EXPORT int my_xcb_take_socket(x86emu_t* emu, void* c, void* f, void* closure, int flags, void* sent)
+{
+    return my->xcb_take_socket(c, findreturn_socketFct(f), closure, flags,sent);
 }
 
 #define CUSTOM_INIT \
