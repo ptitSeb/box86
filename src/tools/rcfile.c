@@ -47,6 +47,7 @@ ENTRYBOOL(BOX86_FIX_64BIT_INODES, fix_64bit_inodes)     \
 ENTRYSTRING_(BOX86_BASH, bash)                          \
 ENTRYINT(BOX86_JITGDB, jit_gdb, 0, 2, 2)                \
 ENTRYSTRING_(BOX86_BOX64, box64)                        \
+ENTRYSTRING_(BOX86_LD_PRELOAD, ld_preload)              \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -366,7 +367,7 @@ void GatherDynarecExtensions();
 void setupTraceInit();
 void setupTrace();
 #endif
-void ApplyParams(const char* name)
+void ApplyParams(const char* name, path_collection_t* preload)
 {
     if(!name || !params)
         return;
@@ -440,6 +441,14 @@ void ApplyParams(const char* name)
         }
         my_context->box64path = strdup(param->box64);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX86_BOX64", param->box64);
+    }
+    if(param->is_ld_preload_present) {
+        if(preload) {
+            printf_log(LOG_INFO, "Applying %s=%s\n", "BOX86_LD_PRELOAD", param->ld_preload);
+            PrependList(preload, param->ld_preload, 1);
+        } else {
+            printf_log(LOG_INFO, "Cannot Apply %s=%s\n", "BOX86_LD_PRELOAD", param->ld_preload);
+        }
     }
     #ifdef HAVE_TRACE
     int old_x86trace = my_context->x86trace;

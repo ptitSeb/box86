@@ -3125,7 +3125,7 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
 {
     if(option==PR_SET_NAME) {
         printf_log(LOG_DEBUG, "BOX86: set process name to \"%s\"\n", (char*)arg2);
-        ApplyParams((char*)arg2);
+        ApplyParams((char*)arg2, NULL);
     }
     return prctl(option, arg2, arg3, arg4, arg5);
 }

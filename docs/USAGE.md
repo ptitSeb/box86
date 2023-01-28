@@ -170,9 +170,9 @@ Detect MonoBleedingEdge and apply conservative settings
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
  You can also use SDL_VIDEO_GL_DRIVER
 
-#### BOX86_LD_PRELOAD
+#### BOX86_LD_PRELOAD *
  * XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary
- PreLoaded libs can be emulated or native, and are treated the same way as if they were comming from the binary
+ PreLoaded libs can be emulated or native, and are treated the same way as if they were comming from the binary (not that using this inside a rcfile might not work if the process needs to be renamed, for example for Wine process)
  
 #### BOX86_EMULATED_LIBS *
  * XXXX[:YYYYY] force lib XXXX (and YYYY...) to be emulated (and not wrapped)

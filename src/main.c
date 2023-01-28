@@ -1346,8 +1346,8 @@ int main(int argc, const char **argv, char **env)
     /*if(!strcmp(prgname, "gdb")) {
         exit(-1);
     }*/
-    ApplyParams("*");   // [*] is a special setting for all process
-    ApplyParams(prgname);
+    ApplyParams("*", &ld_preload);   // [*] is a special setting for all process
+    ApplyParams(prgname, &ld_preload);
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
