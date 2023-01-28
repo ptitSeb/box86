@@ -501,10 +501,9 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     MOVW(x2, 1);
                     GETEDO2(x14);
-                    wb = ed;
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
-                    CALL_(rcl32, ed, (1<<x14));
-                    SBACK(wb);
+                    CALL_(rcl32, ed, (1<<x2));
+                    WBACK2;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
@@ -512,10 +511,9 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     MOVW(x2, 1);
-                    wb = ed;
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
-                    CALL_(rcr32, ed, (1<<x14));
-                    SBACK(wb);
+                    CALL_(rcr32, ed, (1<<x2));
+                    WBACK2;
                     break;
                 case 4:
                 case 6:
@@ -595,10 +593,9 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     AND_IMM8(x2, xECX, 0x1f);
-                    wb = ed;
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
-                    CALL_(rcl32, ed, (1<<x14));
-                    SBACK(wb);
+                    CALL_(rcl32, ed, (1<<x2));
+                    WBACK2;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
@@ -606,10 +603,9 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     AND_IMM8(x2, xECX, 0x1f);
-                    wb = ed;
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
                     CALL_(rcr32, ed, (1<<x14));
-                    SBACK(wb);
+                    WBACK2;
                     break;
                 case 4:
                 case 6:

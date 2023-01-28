@@ -91,8 +91,6 @@
 #define WBACK       if(wback) {STR_IMM9(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0) (SMWRITE2 version)
 #define WBACK2      if(wback) {STR_IMM9(ed, wback, fixedaddress); SMWRITE2();}
-// Send back wb to either ed or wback
-#define SBACK(wb)   if(wback) {STR_IMM9(wb, wback, fixedaddress); SMWRITE();} else {MOV_REG(ed, wb);}
 //GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O)   if((nextop&0xC0)==0xC0) {   \
                     ed = xEAX+(nextop&7);   \

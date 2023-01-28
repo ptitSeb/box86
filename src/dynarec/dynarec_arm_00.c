@@ -1518,7 +1518,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     u8 = F8;
                     MOVW(x2, u8);
                     CALL_(rcl32, ed, (1<<x14));
-                    WBACK;  // no SBACK here because ret value is ed directly
+                    WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
@@ -1549,13 +1549,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             BFC_COND(cCC, xFlags, F_CF, 1);
 
                         }
-                        WBACK;  // no SBACK here because ed has been used all along and not x1
+                        WBACK;
                     } else if(u8>1) {
                         MESSAGE(LOG_DUMP, "Need Optimization RCR\n");
                         SETFLAGS(X_OF|X_CF, SF_SET);
                         MOVW(x2, u8);
                         CALL_(rcr32, ed, (1<<x14));
-                        WBACK;  // no SBACK here because ret value is ed directly
+                        WBACK;
                     }
                     break;
                 case 4:
@@ -1881,7 +1881,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOVW(x2, 1);
                     GETEDW(x14, x1);
                     CALL_(rcl32, ed, (1<<x14));
-                    WBACK;  // no SBACK here because ret value is ed directly
+                    WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
@@ -1991,7 +1991,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcl32, ed, (1<<x14));
-                    WBACK;  // no SBACK here because ret value is ed directly
+                    WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
@@ -2001,7 +2001,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcr32, ed, (1<<x14));
-                    WBACK;  // no SBACK here because ret value is ed directly
+                    WBACK;
                     break;
                 case 4:
                 case 6:
