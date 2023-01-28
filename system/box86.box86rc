@@ -32,7 +32,8 @@ BOX86_EMULATED_LIBS=libvorbis.so.0
 BOX86_PREFER_EMULATED=1
 
 [hl2_linux]
-BOX86_PREFER_EMULATED=1
+#it seems emulated SDL2 have mouse issue for now. That might be a problem with box86
+#BOX86_PREFER_EMULATED=1
 
 [retrocityrampage]
 BOX86_DYNAREC_SAFEFLAGS=0
