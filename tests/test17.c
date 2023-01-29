@@ -317,7 +317,7 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
 
  #undef GO1
  #undef GO2
- v128 a128;
+ v128 a128, b128;
  int i;
 
  #define GO1(A, N, C)                               \
@@ -715,6 +715,22 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
   _mm_setcsr((old_mxcsr&~0x6000)|(rr<<13));
   MULTIGO1iss(cvtss, cvtss2si)
   MULTIGO1isd(cvtsd, cvtsd2si)
+  a128.mf[0]=1.4f;
+  i = _mm_cvtss_si32(a128.mf);
+  b128.mf = _mm_cvtsi32_ss(a128.mf, i);
+  printf("cvtss2si(%g) -> %d cvtsi2ss -> %g\n", a128.mf[0], i, b128.mf[0]);
+  a128.mf[0]=-2.9f;
+  i = _mm_cvtss_si32(a128.mf);
+  b128.mf = _mm_cvtsi32_ss(a128.mf, i);
+  printf("cvtss2si(%g) -> %d cvtsi2ss -> %g\n", a128.mf[0], i, b128.mf[0]);
+  a128.mf[0]=1.6f;
+  i = _mm_cvtss_si32(a128.mf);
+  b128.mf = _mm_cvtsi32_ss(a128.mf, i);
+  printf("cvtss2si(%g) -> %d cvtsi2ss -> %g\n", a128.mf[0], i, b128.mf[0]);
+  a128.mf[0]=1e38f;
+  i = _mm_cvtss_si32(a128.mf);
+  b128.mf = _mm_cvtsi32_ss(a128.mf, i);
+  printf("cvtss2si(%g) -> %d cvtsi2ss -> %g\n", a128.mf[0], i, b128.mf[0]);
  }
  _mm_setcsr(old_mxcsr);
 

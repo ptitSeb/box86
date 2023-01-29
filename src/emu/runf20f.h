@@ -125,7 +125,7 @@
     case 0x5F:  /* MAXSD Gx, Ex */
         nextop = F8;
         GET_EX;
-        if (isnan(GX.d[0]) || isnan(EX->d[0]) || isgreater(EX->d[0], GX.d[0]))
+        if (isnan(GX.d[0]) || isnan(EX->d[0]) || isgreaterequal(EX->d[0], GX.d[0]))
             GX.d[0] = EX->d[0];
         break;
 

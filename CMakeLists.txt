@@ -814,4 +814,11 @@ foreach(file ${extension_tests})
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
 endforeach()
 
+add_test(NAME sse_optimized COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17_o2 -D TEST_OUTPUT=tmpfile17_o2.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17_o2.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(sse_optimized PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTNAN=0;BOX86_DYNAREC_FASTROUND=0")
+
 endif(BOX86LIB)
