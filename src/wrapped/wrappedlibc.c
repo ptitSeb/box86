@@ -1474,10 +1474,14 @@ EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
     }
     else
     {
-        struct dirent *ret = readdir(dirp);
-        /*if(ret)
-            printf_log(LOG_DEBUG, " -- dirent:%p \"%s\", type:%d -- ", ret, ret->d_name, ret->d_type);*/
-        return ret;
+        static pFp_t f = NULL;
+        if(!f) {
+            library_t* lib = my_lib;
+            if(!lib) return NULL;
+            f = (pFp_t)dlsym(lib->w.lib, "readdir");
+        }
+
+        return f(dirp);
     }
 }
 
