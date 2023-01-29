@@ -1085,6 +1085,21 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     return s3;
 }
 
+// Set rounding according to cw flags, also enable exception and reset counter, return reg to restore flags
+int x87_setround_reset(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    LDRH_IMM8(s1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+    UBFX(s1, s1, 10, 2);    // extract round...
+    UBFX(s2, s1, 1, 1);     // swap bits 0 and 1
+    BFI(s2, s1, 1, 1);
+    VMRS(s3);               // get fpscr
+    ORR_IMM8(s1, s3, 0b010, 9); // enable exceptions
+    BIC_IMM8(s1, s1, 0b10011111, 0);    // reset counters
+    BFI(s1, s2, 22, 2);     // inject new round
+    VMSR(s1);               // put new fpscr
+    return s3;
+}
+
 void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b)
 {
     int i1, i2, i3;

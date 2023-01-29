@@ -534,6 +534,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define x87_reget_st    STEPNAME(x87_reget_st)
 #define x87_stackcount  STEPNAME(x87_stackcount)
 #define x87_setround    STEPNAME(x87_setround)
+#define x87_setround_reset    STEPNAME(x87_setround_reset)
 #define x87_restoreround STEPNAME(x87_restoreround)
 #define x87_swapreg     STEPNAME(x87_swapreg)
 #define sse_setround    STEPNAME(sse_setround)
@@ -682,6 +683,8 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 void x87_reget_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// Set rounding according to cw flags, return reg to restore flags, also enable exceptions and reset counters
+int x87_setround_reset(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // swap 2 x87 regs
