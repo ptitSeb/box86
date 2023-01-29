@@ -244,12 +244,27 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VMOVtoV(s0, x2);
                 }
             }
+            if(!box86_dynarec_fastround) {
+                VMRS(x14);   // Get FPCSR reg to clear exceptions flags
+                ORR_IMM8(x3, x14, 0b010, 9); // enable exceptions
+                BIC_IMM8(x3, x3, 0b10011111, 0);
+                VMSR(x3);
+            }
             VCVT_S32_F32(s0, s0);
             VMOVfrV(gd, s0);
+            if(!box86_dynarec_fastround) {
+                VMRS(x3);   // get the FPCSR reg and test FPU exception (IO only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                MOV_IMM_COND(cNE, gd, 0b10, 1);   // 0x80000000
+                VMSR(x14);  // put back values
+            }
             break;
         case 0x2D:
             INST_NAME("CVTSS2SI Gd, Ex");
-            u8 = sse_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = sse_setround_reset(dyn, ninst, x1, x2, x14);
+            else
+                u8 = sse_setround(dyn, ninst, x1, x2, x14);
             nextop = F8;
             GETGD;
             s0 = fpu_get_scratch_single(dyn);
@@ -276,6 +291,11 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             }
             VCVTR_S32_F32(s0, s0);
             VMOVfrV(gd, s0);
+            if(!box86_dynarec_fastround) {
+                VMRS(x3);   // get the FPCSR reg and test FPU exception (IO only)
+                TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                MOV_IMM_COND(cNE, gd, 0b10, 1);   // 0x80000000
+            }
             x87_restoreround(dyn, ninst, u8);
             break;
 

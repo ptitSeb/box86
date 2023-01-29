@@ -336,11 +336,17 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  printf(", "); print_pd(A2);                        \
  printf(", %d) = ", I); print_pd(a128); printf("\n");
  #define GO1isd(A, C, A1)                           \
- i = _mm_##A##_sd(A1.md);                           \
- printf("%s(", #C); print_64(A1);                   \
+ a128.md[0] = A1;				    \
+ i = _mm_##A##_si32(a128.md);                       \
+ printf("%s(%g", #C, A1);                           \
+ printf(") = 0x%x\n", i);
+ #define GO1iss(A, C, A1)                           \
+ a128.mf[0] = A1;                                   \
+ i = _mm_##A##_si32(a128.mf);                       \
+ printf("%s(%g", #C, A1);                           \
  printf(") = 0x%x\n", i);
  #define GO1sd(A, C, A1)                            \
- a128.md = _mm_##A##_sd(A1.md);                     \
+ a128.md = _mm_##A##_sd(A1);                        \
  printf("%s(", #C); print_sd(A1);                   \
  printf(") = "); print_sd(a128); printf("\n");
  #define GO1sda(A, C, A1)                           \
@@ -426,6 +432,35 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  GO2sd(A, B, b128_pd, reverse_pd(d128_pd))  \
  GO2sd(A, B, b128_pd, reverse_pd(d128_pd))
 
+ #define MULTIGO1iss(A, B)	\
+ GO1iss(A, B, 1.0f);		\
+ GO1iss(A, B, 1.49f);		\
+ GO1iss(A, B, 1.5f);		\
+ GO1iss(A, B, 1.9f);		\
+ GO1iss(A, B, -1.0f);		\
+ GO1iss(A, B, -1.49f);		\
+ GO1iss(A, B, -1.5f);		\
+ GO1iss(A, B, -1.9f);		\
+ GO1iss(A, B, 1e30f);		\
+ GO1iss(A, B, -1e30f);		\
+ GO1iss(A, B, INFINITY);	\
+ GO1iss(A, B, -INFINITY);	\
+ GO1iss(A, B, NAN);
+
+ #define MULTIGO1isd(A, B)      \
+ GO1isd(A, B, 1.0f);            \
+ GO1isd(A, B, 1.49f);           \
+ GO1isd(A, B, 1.5f);            \
+ GO1isd(A, B, 1.9f);            \
+ GO1isd(A, B, -1.0f);           \
+ GO1isd(A, B, -1.49f);          \
+ GO1isd(A, B, -1.5f);           \
+ GO1isd(A, B, -1.9f);           \
+ GO1isd(A, B, 1e300);           \
+ GO1isd(A, B, -1e300);          \
+ GO1isd(A, B, INFINITY);        \
+ GO1isd(A, B, -INFINITY);       \
+ GO1isd(A, B, NAN);
 
  GO2(shuffle, 8, pshufb, a128_8, b128_8)
  GO2(hadd, 16, phaddw, a128_16, b128_16)
@@ -623,6 +658,19 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULTIGO2sd(min, minsd)
  MULTIGO2sd(div, divsd)
  MULTIGO2sd(max, maxsd)
+ MULTIGO1iss(cvttss, cvttss2si)
+ MULTIGO1isd(cvttsd, cvttsd2si)
+ printf("default rounding\n");
+ MULTIGO1iss(cvtss, cvtss2si)
+ MULTIGO1isd(cvtsd, cvtsd2si)
+ unsigned int old_mxcsr = _mm_getcsr();
+ for(unsigned int rr = 0; rr<4; ++rr) {
+  printf("Round(%d)\n", rr);
+  _mm_setcsr((old_mxcsr&~0x6000)|(rr<<13));
+  MULTIGO1iss(cvtss, cvtss2si)
+  MULTIGO1isd(cvtsd, cvtsd2si)
+ }
+ _mm_setcsr(old_mxcsr);
 
  return 0;
 }

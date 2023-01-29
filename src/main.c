@@ -60,6 +60,7 @@ int box86_dynarec_bigblock = 1;
 int box86_dynarec_strongmem = 0;
 int box86_dynarec_x87double = 0;
 int box86_dynarec_fastnan = 1;
+int box86_dynarec_fastround = 1;
 int box86_dynarec_safeflags = 1;
 int box86_dynarec_hotpage = 16;
 int box86_dynarec_bleeding_edge = 1;
@@ -380,6 +381,15 @@ void LoadLogEnv()
         }
         if(!box86_dynarec_fastnan)
             printf_log(LOG_INFO, "Dynarec will try to normalize generated NAN\n");
+    }
+    p = getenv("BOX86_DYNAREC_FASTROUND");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_fastround = p[0]-'0';
+        }
+        if(!box86_dynarec_fastround)
+            printf_log(LOG_INFO, "Dynarec will try to generate x86 precise IEEE->int rounding\n");
     }
     p = getenv("BOX86_DYNAREC_SAFEFLAGS");
     if(p) {

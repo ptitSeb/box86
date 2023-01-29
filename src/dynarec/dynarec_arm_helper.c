@@ -1119,6 +1119,21 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     return s3;
 }
 
+// Set rounding according to mxcsr flags, also enable exception and reset counter, return reg to restore flags
+int sse_setround_reset(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    LDR_IMM9(s1, xEmu, offsetof(x86emu_t, mxcsr));
+    UBFX(s1, s1, 13, 2);    // extract round...
+    UBFX(s2, s1, 1, 1);     // swap bits 0 and 1
+    BFI(s2, s1, 1, 1);
+    VMRS(s3);               // get fpscr
+    ORR_IMM8(s1, s3, 0b010, 9); // enable exceptions
+    BIC_IMM8(s1, s1, 0b10011111, 0);    // reset counters
+    BFI(s1, s2, 22, 2);     // inject new round
+    VMSR(s1);               // put new fpscr
+    return s3;
+}
+
 // Restore round flag
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 {

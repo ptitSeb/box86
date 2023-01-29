@@ -30,25 +30,31 @@
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        GD.sdword[0] = EX->d[0];
+        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+            GD.dword[0] = 0x80000000;
+        else
+            GD.sdword[0] = EX->d[0];
         break;
     case 0x2D:  /* CVTSD2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        switch(emu->mxcsr.f.MXCSR_RC) {
-            case ROUND_Nearest:
-                GD.sdword[0] = floor(EX->d[0]+0.5);
-                break;
-            case ROUND_Down:
-                GD.sdword[0] = floor(EX->d[0]);
-                break;
-            case ROUND_Up:
-                GD.sdword[0] = ceil(EX->d[0]);
-                break;
-            case ROUND_Chop:
-                GD.sdword[0] = EX->d[0];
-                break;
-        }
+        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+            GD.dword[0] = 0x80000000;
+        else
+            switch(emu->mxcsr.f.MXCSR_RC) {
+                case ROUND_Nearest:
+                    GD.sdword[0] = nearbyint(EX->d[0]);
+                    break;
+                case ROUND_Down:
+                    GD.sdword[0] = floor(EX->d[0]);
+                    break;
+                case ROUND_Up:
+                    GD.sdword[0] = ceil(EX->d[0]);
+                    break;
+                case ROUND_Chop:
+                    GD.sdword[0] = EX->d[0];
+                    break;
+            }
         break;
     case 0x51:  /* SQRTSD Gx, Ex */
         nextop = F8;

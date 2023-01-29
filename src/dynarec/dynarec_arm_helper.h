@@ -537,6 +537,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define x87_restoreround STEPNAME(x87_restoreround)
 #define x87_swapreg     STEPNAME(x87_swapreg)
 #define sse_setround    STEPNAME(sse_setround)
+#define sse_setround_reset    STEPNAME(sse_setround_reset)
 #define mmx_get_reg     STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_get_reg     STEPNAME(sse_get_reg)
@@ -687,6 +688,8 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 void x87_swapreg(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int b);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// Set rounding according to mxcsr flags, return reg to restore flags, also enable exceptions and reset counters
+int sse_setround_reset(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 

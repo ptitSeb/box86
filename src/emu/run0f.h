@@ -182,31 +182,37 @@
         _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
             nextop = F8;
             GET_EX;
-            GM.sd[1] = EX->f[1];
-            GM.sd[0] = EX->f[0];
+            if(isnanf(EX->f[1]) || isinff(EX->f[1]) || EX->f[1]>0x7fffffff)
+                GM.sd[1] = 0x80000000;
+            else
+                GM.sd[1] = EX->f[1];
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+                GM.sd[0] = 0x80000000;
+            else
+                GM.sd[0] = EX->f[0];
             NEXT;
         _0f_0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
             GET_EX;
-            switch(emu->mxcsr.f.MXCSR_RC) {
-                case ROUND_Nearest:
-                    GM.sd[1] = floorf(EX->f[1]+0.5f);
-                    GM.sd[0] = floorf(EX->f[0]+0.5f);
-                    break;
-                case ROUND_Down:
-                    GM.sd[1] = floorf(EX->f[1]);
-                    GM.sd[0] = floorf(EX->f[0]);
-                    break;
-                case ROUND_Up:
-                    GM.sd[1] = ceilf(EX->f[1]);
-                    GM.sd[0] = ceilf(EX->f[0]);
-                    break;
-                case ROUND_Chop:
-                    GM.sd[1] = EX->f[1];
-                    GM.sd[0] = EX->f[0];
-                    break;
-            }
+            for(int i=1; i>=0; --i)
+                if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+                    GM.sd[i] = 0x80000000;
+                else
+                    switch(emu->mxcsr.f.MXCSR_RC) {
+                        case ROUND_Nearest:
+                            GM.sd[i] = nearbyintf(EX->f[i]);
+                            break;
+                        case ROUND_Down:
+                            GM.sd[i] = floorf(EX->f[i]);
+                            break;
+                        case ROUND_Up:
+                            GM.sd[i] = ceilf(EX->f[i]);
+                            break;
+                        case ROUND_Chop:
+                            GM.sd[i] = EX->f[i];
+                            break;
+                    }
             NEXT;
         _0f_0x2E:                      /* UCOMISS Gx, Ex */
             // same for now
