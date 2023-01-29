@@ -929,7 +929,6 @@ typedef struct my_vkhead_s {
     case VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO:        \
     case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:     \
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:           \
-    case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:              \
     case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:               \
     case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:               \
     case VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO:            \
@@ -1051,6 +1050,7 @@ typedef struct my_vkhead_s {
         break;
 
 #define CHANGE(A)    \
+    CH(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, "uPuuQupupp", A)   \
     CH(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO, "uPiUiiup", A)     \
     CH(VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO, "uPiUiUU",A)  \
     CH(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,"uPiiiiuuUiuuuu", A)                  \
