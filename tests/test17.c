@@ -188,6 +188,37 @@ flags = A(a, b);                                    \
 printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
 flags = A(b, a);                                    \
 printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+a = -1.0f; b = 2.0f;                                \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+flags = A(b, a);                                    \
+printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+a = -1.0f; b = *(float*)&maxf;                      \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+flags = A(b, a);                                    \
+printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+a = -1.0f; b = *(float*)&minf;                      \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+flags = A(b, a);                                    \
+printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+a = *(float*)&maxf; b = *(float*)&minf;             \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+flags = A(b, a);                                    \
+printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+a = -0.0f; b = 0.0f;                                \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+flags = A(b, a);                                    \
+printf(N " %f, %f => 0x%lx\n", b, a, flags);        \
+a = -2.0f; b = -2.0f;                               \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
+a = 5.0f; b = 5.0f;                                 \
+flags = A(a, b);                                    \
+printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
 b = INFINITY;                                       \
 flags = A(a, b);                                    \
 printf(N " %f, %f => 0x%lx\n", a, b, flags);        \
@@ -222,6 +253,21 @@ printf(N " %f, %f => 0x%lx\n", a, b, flags);
 
 #define GO2(A, N)                               \
 a = 1.0f; b = 2.0f;                             \
+r = A(a, b);                                    \
+printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
+r = A(b, a);                                    \
+printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
+a = -1.0f; b = 2.0f;                            \
+r = A(a, b);                                    \
+printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
+r = A(b, a);                                    \
+printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
+a = -0.0f; b = 0.0f;                            \
+r = A(a, b);                                    \
+printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
+r = A(b, a);                                    \
+printf(N " %g, %g => %g\n", b, a, *(float*)&r); \
+a = 5.0f; b = -10.0f;                           \
 r = A(a, b);                                    \
 printf(N " %g, %g => %g\n", a, b, *(float*)&r); \
 r = A(b, a);                                    \

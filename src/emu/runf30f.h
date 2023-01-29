@@ -123,7 +123,7 @@
     case 0x5D:  /* MINSS Gx, Ex */
         nextop = F8;
         GET_EX;
-        if(isnan(GX.f[0]) || isnan(EX->f[0]) || isless(EX->f[0], GX.f[0]))
+        if(isnan(GX.f[0]) || isnan(EX->f[0]) || islessequal(EX->f[0], GX.f[0]))
             GX.f[0] = EX->f[0];
         break;
     case 0x5E:  /* DIVSS Gx, Ex */
@@ -134,7 +134,7 @@
     case 0x5F:  /* MAXSS Gx, Ex */
         nextop = F8;
         GET_EX;
-        if (isnan(GX.f[0]) || isnan(EX->f[0]) || isgreater(EX->f[0], GX.f[0]))
+        if (isnan(GX.f[0]) || isnan(EX->f[0]) || isgreaterequal(EX->f[0], GX.f[0]))
             GX.f[0] = EX->f[0];
         break;
 
