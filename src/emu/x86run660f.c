@@ -1588,7 +1588,7 @@ void Run660F(x86emu_t *emu)
     case 0xE2:  /* PSRAD Gx, Ex */
         nextop = F8;
         GET_EX;
-        tmp8u=(EX->q[0]>31)?32:EX->ub[0];
+        tmp8u=(EX->q[0]>31)?31:EX->ub[0];
         for (int i=0; i<4; ++i)
             GX.sd[i] >>= tmp8u;
         break;
