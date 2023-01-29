@@ -224,30 +224,36 @@ void Run660F(x86emu_t *emu)
     case 0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        GM.sd[0] = EX->d[0];
-        GM.sd[1] = EX->d[1];
+        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+            GM.ud[0] = 0x80000000;
+        else
+            GM.sd[0] = EX->d[0];
+        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>0x7fffffff)
+            GM.ud[1] = 0x80000000;
+        else
+            GM.sd[1] = EX->d[1];
         break;
     case 0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        switch(emu->mxcsr.f.MXCSR_RC) {
-            case ROUND_Nearest:
-                GM.sd[0] = floor(EX->d[0]+0.5);
-                GM.sd[1] = floor(EX->d[1]+0.5);
-                break;
-            case ROUND_Down:
-                GM.sd[0] = floor(EX->d[0]);
-                GM.sd[1] = floor(EX->d[1]);
-                break;
-            case ROUND_Up:
-                GM.sd[0] = ceil(EX->d[0]);
-                GM.sd[1] = ceil(EX->d[1]);
-                break;
-            case ROUND_Chop:
-                GM.sd[0] = EX->d[0];
-                GM.sd[1] = EX->d[1];
-                break;
-        }
+        for(int i=0; i<2; ++i)
+            if(isnan(EX->d[i]) || isinf(EX->d[i]) || EX->d[i]>0x7fffffff)
+                GM.ud[i] = 0x80000000;
+            else
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        GM.sd[i] = nearbyint(EX->d[i]);
+                        break;
+                    case ROUND_Down:
+                        GM.sd[i] = floor(EX->d[i]);
+                        break;
+                    case ROUND_Up:
+                        GM.sd[i] = ceil(EX->d[i]);
+                        break;
+                    case ROUND_Chop:
+                        GM.sd[i] = EX->d[i];
+                        break;
+                }
         break;
     case 0x2E:                      /* UCOMISD Gx, Ex */
         // no special check...

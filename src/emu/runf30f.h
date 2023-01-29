@@ -108,10 +108,11 @@
     case 0x5B:  /* CVTTPS2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        GX.sd[0] = EX->f[0];
-        GX.sd[1] = EX->f[1];
-        GX.sd[2] = EX->f[2];
-        GX.sd[3] = EX->f[3];
+        for(int i=0; i<4; ++i)
+            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+                GX.ud[i] = 0x80000000;
+            else
+                GX.sd[i] = EX->f[i];
         break;
 
     case 0x5C:  /* SUBSS Gx, Ex */
