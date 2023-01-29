@@ -329,6 +329,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedpng16.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxxf86vm.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxrandr.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibxpresent.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxext.c"
     "${BOX86_ROOT}/src/wrapped/wrappedxinerama.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibxfixes.c"
