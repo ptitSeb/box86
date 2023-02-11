@@ -280,7 +280,9 @@ static void sigstack_key_alloc() {
 	pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
-uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
+//1<<8 is mutex_dyndump
+#define is_dyndump_locked (1<<8)
+uint32_t RunFunctionHandler(int* exit, int dynarec, i386_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
     if(fnc==0 || fnc==1) {
         printf_log(LOG_NONE, "BOX86: Warning, calling Signal function handler %s with %d args \n", fnc?"SIG_DFL":"SIG_IGN", nargs);
@@ -313,7 +315,10 @@ uint32_t RunFunctionHandler(int* exit, i386_ucontext_t* sigcontext, uintptr_t fn
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
 
-    EmuCall(emu, fnc);  // avoid DynaCall for now
+    if(dynarec)
+        DynaCall(emu, fnc);
+    else
+        EmuCall(emu, fnc);
 
     uint32_t ret = R_EAX;
     emu->quitonlongjmp = oldquitonlongjmp;
@@ -631,10 +636,15 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
 
     int exits = 0;
     int ret;
+    int dynarec = 0;
+    #ifdef DYNAREC
+    if(sig!=SIGSEGV && !(Locks&is_dyndump_locked))
+        dynarec = 1;
+    #endif
     if(simple)
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 1, sig);
+        ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 1, sig);
     else
-        ret = RunFunctionHandler(&exits, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
+        ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
     // restore old value from emu
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
@@ -708,7 +718,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
         exit(ret);
     }
     if(restorer)
-        RunFunctionHandler(&exits, NULL, restorer, 0);
+        RunFunctionHandler(&exits, 0, NULL, restorer, 0);
     relockMutex(Locks);
 }
 
@@ -735,7 +745,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
-    if((Locks & (1<<8)) && (sig==SIGSEGV) && current_helper) { //1<<8 is mutex_dyndump
+    if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         relockMutex(Locks);
         cancelFillBlock();  // Segfault inside a Fillblock
     }
