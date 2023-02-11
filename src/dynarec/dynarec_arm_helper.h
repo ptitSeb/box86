@@ -344,7 +344,9 @@
 #ifndef READFLAGS
 #define READFLAGS(A) \
     if((dyn->f.pending!=SF_SET)                         \
-    && (dyn->f.pending!=SF_SET_PENDING)) {              \
+    && (dyn->f.pending!=SF_SET_PENDING)                 \
+    && !(dyn->f.pending==SF_UNKNOWN && (A)==X_PEND)     \
+    ) {                                                 \
         if(dyn->f.pending!=SF_PENDING) {                \
             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, df)); \
             TSTS_REG_LSL_IMM5(x3, x3, 0);               \
