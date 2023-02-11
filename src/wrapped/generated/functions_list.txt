@@ -878,6 +878,7 @@
 #() uFpppi
 #() uFpppu
 #() uFpppp
+#() uFpppV
 #() UFpipp
 #() UFppii
 #() UFppip
@@ -1235,6 +1236,7 @@
 #() uFEpppp
 #() uFiuuuu
 #() uFipipp
+#() uFipLpp
 #() uFuiiiu
 #() uFpCCCC
 #() uFpWuip
@@ -2422,6 +2424,8 @@ wrappedgconf2:
 - uFpppppp:
   - gconf_client_notify_add
 wrappedgcrypt:
+- uFpppV:
+  - gcry_sexp_build
 wrappedgdk3:
 - vFpp:
   - gdk_init
