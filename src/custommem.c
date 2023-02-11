@@ -649,11 +649,14 @@ void cleanDBFromAddressRange(uintptr_t addr, uintptr_t size, int destroy)
     uintptr_t idx = (addr>>DYNAMAP_SHIFT);
     uintptr_t end = ((addr+size-1)>>DYNAMAP_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        dynablocklist_t* dblist = dynmap[i];
+        int need_free = (destroy && addr<=(i<<DYNAMAP_SHIFT) && end>=((i+1)>>DYNAMAP_SHIFT)-1)?1:0;
+        dynablocklist_t* dblist = (need_free)?((dynablocklist_t*)arm_lock_xchg(&dynmap[i], 0)):dynmap[i];
         if(dblist) {
-            if(destroy)
+            if(destroy) {
                 FreeRangeDynablock(dblist, addr, size);
-            else
+                if(need_free)
+                    FreeDynablockList(&dblist);
+            } else
                 MarkRangeDynablock(dblist, addr, size);
         }
     }
