@@ -85,50 +85,50 @@ void CleanStackSize(box86context_t* context)
 	threadstack_t *ts;
 	if(!context || !context->stacksizes)
 		return;
-	pthread_mutex_lock(&context->mutex_thread);
+	mutex_lock(&context->mutex_thread);
 	kh_foreach_value(context->stacksizes, ts, box_free(ts));
 	kh_destroy(threadstack, context->stacksizes);
 	context->stacksizes = NULL;
-	pthread_mutex_unlock(&context->mutex_thread);
+	mutex_unlock(&context->mutex_thread);
 }
 
 void FreeStackSize(kh_threadstack_t* map, uintptr_t attr)
 {
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(threadstack, map, attr);
 	if(k!=kh_end(map)) {
 		box_free(kh_value(map, k));
 		kh_del(threadstack, map, k);
 	}
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 }
 
 void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t stacksize)
 {
 	khint_t k;
 	int ret;
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	k = kh_put(threadstack, map, attr, &ret);
 	threadstack_t* ts = kh_value(map, k) = (threadstack_t*)box_calloc(1, sizeof(threadstack_t));
 	ts->stack = stack;
 	ts->stacksize = stacksize;
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 }
 
 // return stack from attr (or from current emu if attr is not found..., wich is wrong but approximate enough?)
 int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 {
 	if(emu->context->stacksizes && attr) {
-		pthread_mutex_lock(&my_context->mutex_thread);
+		mutex_lock(&my_context->mutex_thread);
 		khint_t k = kh_get(threadstack, emu->context->stacksizes, attr);
 		if(k!=kh_end(emu->context->stacksizes)) {
 			threadstack_t* ts = kh_value(emu->context->stacksizes, k);
 			*stack = ts->stack;
 			*stacksize = ts->stacksize;
-			pthread_mutex_unlock(&my_context->mutex_thread);
+			mutex_unlock(&my_context->mutex_thread);
 			return 1;
 		}
-		pthread_mutex_unlock(&my_context->mutex_thread);
+		mutex_unlock(&my_context->mutex_thread);
 	}
 	// should a Warning be emited?
 	*stack = emu->init_stack;
@@ -537,7 +537,7 @@ kh_mapcond_t *mapcond = NULL;
 
 static pthread_cond_t* add_cond(void* cond)
 {
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	khint_t k;
 	int ret;
 	pthread_cond_t *c;
@@ -547,14 +547,14 @@ static pthread_cond_t* add_cond(void* cond)
 	else 
 		c = kh_value(mapcond, k) = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
 	*(void**)cond = cond;
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 	return c;
 }
 static pthread_cond_t* get_cond(void* cond)
 {
 	pthread_cond_t* ret;
 	int r;
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
 	if(k==kh_end(mapcond)) {
 		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
@@ -569,20 +569,20 @@ static pthread_cond_t* get_cond(void* cond)
 			ret = kh_value(mapcond, k);
 	} else
 		ret = kh_value(mapcond, k);
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 	return ret;
 }
 static void del_cond(void* cond)
 {
 	if(!mapcond)
 		return;
-	pthread_mutex_lock(&my_context->mutex_thread);
+	mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
 	if(k!=kh_end(mapcond)) {
 		box_free(kh_value(mapcond, k));
 		kh_del(mapcond, mapcond, k);
 	}
-	pthread_mutex_unlock(&my_context->mutex_thread);
+	mutex_unlock(&my_context->mutex_thread);
 }
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
@@ -790,7 +790,11 @@ typedef struct mutexes_block_s {
 } mutexes_block_t;
 
 static mutexes_block_t *mutexes = NULL;
+#ifndef DYNAREC
 static pthread_mutex_t mutex_mutexes = PTHREAD_MUTEX_INITIALIZER;
+#else
+static uint32_t mutex_mutexes = 0;
+#endif
 
 static mutexes_block_t* NewMutexesBlock()
 {
@@ -800,7 +804,7 @@ static mutexes_block_t* NewMutexesBlock()
 }
 
 static int NewMutex() {
-	pthread_mutex_lock(&mutex_mutexes);
+	mutex_lock(&mutex_mutexes);
 	if(!mutexes) {
 		mutexes = NewMutexesBlock();
 	}
@@ -817,10 +821,10 @@ static int NewMutex() {
 	for (int i=0; i<MUTEXES_SIZE; ++i)
 		if(!m->taken[i]) {
 			m->taken[i] = 1;
-			pthread_mutex_unlock(&mutex_mutexes);
+			mutex_unlock(&mutex_mutexes);
 			return j*MUTEXES_SIZE + i;
 		}
-	pthread_mutex_unlock(&mutex_mutexes);
+	mutex_unlock(&mutex_mutexes);
 	printf_log(LOG_NONE, "Error: NewMutex unreachable part reached\n");
 	return (int)-1;	// error!!!!
 }
@@ -829,13 +833,13 @@ void FreeMutex(int k)
 {
 	if(!mutexes)
 		return;	//???
-	pthread_mutex_lock(&mutex_mutexes);
+	mutex_lock(&mutex_mutexes);
 	mutexes_block_t* m = mutexes;
 	for(int i=0; i<k/MUTEXES_SIZE; ++i)
 		m = m->next;
 	m->taken[k%MUTEXES_SIZE] = 0;
 	++m->n_free;
-	pthread_mutex_unlock(&mutex_mutexes);
+	mutex_unlock(&mutex_mutexes);
 }
 
 void FreeAllMutexes(mutexes_block_t* m)
@@ -1035,7 +1039,7 @@ void fini_pthread_helper(box86context_t* context)
 		pthread_setspecific(thread_key, NULL);
 	}
 }
-
+#ifndef DYNAREC
 int checkUnlockMutex(void* m)
 {
 	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
@@ -1045,3 +1049,15 @@ int checkUnlockMutex(void* m)
 	}
 	return 0;
 }
+int checkLockMutex(void* m)
+{
+	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
+	int ret = pthread_mutex_unlock(mutex);
+	if(ret==0) {
+		pthread_mutex_lock(mutex);	// how to check the lock without unlock?
+		return 1;
+	}
+	return 0;
+}
+
+#endif

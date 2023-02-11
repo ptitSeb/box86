@@ -4,6 +4,9 @@
 #include <pthread.h>
 #include "pathcoll.h"
 #include "dictionnary.h"
+#ifdef DYNAREC
+#include "dynarec/arm_lock_helper.h"
+#endif
 
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
@@ -123,18 +126,24 @@ typedef struct box86context_s {
     kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
     vkprocaddess_t      vkprocaddress;
 
+    #ifndef DYNAREC
     pthread_mutex_t     mutex_once;
     pthread_mutex_t     mutex_once2;
     pthread_mutex_t     mutex_trace;
-    #ifndef DYNAREC
-    pthread_mutex_t     mutex_lock;     // dynarec build will use their own mecanism
-    #else
-    pthread_mutex_t     mutex_dyndump;
-    int                 trace_dynarec;
-    #endif
     pthread_mutex_t     mutex_tls;
     pthread_mutex_t     mutex_thread;
     pthread_mutex_t     mutex_bridge;
+    pthread_mutex_t     mutex_lock;
+    #else
+    uint32_t            mutex_once;
+    uint32_t            mutex_once2;
+    uint32_t            mutex_trace;
+    uint32_t            mutex_tls;
+    uint32_t            mutex_thread;
+    uint32_t            mutex_bridge;
+    uint32_t            mutex_dyndump;
+    int                 trace_dynarec;
+    #endif
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1mixerlib;
@@ -191,6 +200,17 @@ typedef struct box86context_s {
     char*               *log_ret;
     int                 current_line;
 } box86context_t;
+
+#ifndef DYNAREC
+#define mutex_lock(A)       pthread_mutex_lock(A)
+#define mutex_trylock(A)    pthread_mutex_trylock(A)
+#define mutex_unlock(A)     pthread_mutex_unlock(A)
+#else
+int GetTID();
+#define mutex_lock(A)       {int tid = GetTID(); while(arm_lock_storeifnull(A, (void*)tid)) sched_yield();}
+#define mutex_trylock(A)    arm_lock_storeifnull(A, (void*)GetTID())
+#define mutex_unlock(A)     arm_lock_storeifref(A, NULL, (void*)GetTID())
+#endif
 
 extern box86context_t *my_context; // global context
 

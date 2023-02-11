@@ -278,7 +278,7 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, %u, %p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(void**)(R_ESP+8), *(int*)(R_ESP+12), *(int*)(R_ESP+16), *(uint32_t*)(R_ESP+20), *(uint32_t*)(R_ESP+24), *(uint32_t*)(R_ESP+28), *(int32_t*)(R_ESP+32), *(uint32_t*)(R_ESP+36), *(void**)(R_ESP+40), *(uint32_t*)(R_ESP+44), *(void**)(R_ESP+48));
                 } else if(strstr(s, "XLoadQueryFont")==s) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(char**)(R_ESP+8));
-                } else if(strstr(s, "pthread_mutex_lock")==s) {
+                } else if(strstr(s, "mutex_lock")==s) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4));
                 } else if(!strcmp(s, "fmodf")) {
                     post = 4;
@@ -306,9 +306,9 @@ void x86Int3(x86emu_t* emu)
                     snprintf(buff, 256, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)(R_ESP), s, *(uint32_t*)(R_ESP+4), *(uint32_t*)(R_ESP+8), *(uint32_t*)(R_ESP+12));
                 }
                 if(!cycle_log) {
-                    pthread_mutex_lock(&emu->context->mutex_trace);
+                    mutex_lock(&emu->context->mutex_trace);
                     printf_log(LOG_NONE, "%s =>", buff);
-                    pthread_mutex_unlock(&emu->context->mutex_trace);
+                    mutex_unlock(&emu->context->mutex_trace);
                 }
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 if(post)
@@ -341,9 +341,9 @@ void x86Int3(x86emu_t* emu)
                 if(cycle_log)
                     snprintf(buffret, 127, "0x%X%s%s", R_EAX, buff2, buff3);
                 else {
-                    pthread_mutex_lock(&emu->context->mutex_trace);
+                    mutex_lock(&emu->context->mutex_trace);
                     printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
-                    pthread_mutex_unlock(&emu->context->mutex_trace);
+                    mutex_unlock(&emu->context->mutex_trace);
                 }
             } else
                 w(emu, addr);

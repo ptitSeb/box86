@@ -712,7 +712,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     relockMutex(Locks);
 }
 
-extern __thread void* current_helper;
+extern void* current_helper;
 
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {

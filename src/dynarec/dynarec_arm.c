@@ -358,7 +358,7 @@ uintptr_t arm_pass1(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass2(dynarec_arm_t* dyn, uintptr_t addr);
 uintptr_t arm_pass3(dynarec_arm_t* dyn, uintptr_t addr);
 
-__thread void* current_helper = NULL;
+void* current_helper = NULL;
 
 void CancelBlock()
 {
@@ -385,6 +385,10 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     if(!isJumpTableDefault((void*)addr)) {
         dynarec_log(LOG_DEBUG, "Asked to fill a block at %p, but JumpTable is not default\n", (void*)addr);
+        return NULL;
+    }
+    if(current_helper) {
+        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock at %p as anothor one is going on\n", (void*)addr);
         return NULL;
     }
     // protect the 1st page

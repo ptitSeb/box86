@@ -852,7 +852,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             (trace_end == 0) 
             || ((ip >= trace_start) && (ip < trace_end))) ) {
         int tid = syscall(SYS_gettid);
-        pthread_mutex_lock(&my_context->mutex_trace);
+        mutex_lock(&my_context->mutex_trace);
 #ifdef DYNAREC
         if((my_context->trace_tid != tid) || (my_context->trace_dynarec!=dynarec)) {
             printf_log(LOG_NONE, "Thread %04d| (%s) |\n", tid, dynarec?"dyn":"int");
@@ -895,7 +895,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             }
             printf_log(LOG_NONE, "\n");
         }
-        pthread_mutex_unlock(&my_context->mutex_trace);
+        mutex_unlock(&my_context->mutex_trace);
     }
 }
 

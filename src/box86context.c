@@ -84,11 +84,20 @@ int unlockMutex()
 {
     int ret = unlockCustommemMutex();
     int i;
+    #ifdef DYNAREC
+    void* tid = (void*)GetTID();
+    #define GO(A, B)                    \
+        i = (arm_lock_storeifref2(&A, NULL, tid)==tid);  \
+        if(i) {                         \
+            ret|=(1<<B);                \
+        }
+    #else
     #define GO(A, B)                    \
         i = checkUnlockMutex(&A);       \
         if(i) {                         \
             ret|=(1<<B);                \
         }
+    #endif
 
     GO(my_context->mutex_once, 5)
     GO(my_context->mutex_once2, 6)
@@ -102,7 +111,6 @@ int unlockMutex()
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
     #undef GO
-
     return ret;
 }
 
@@ -110,7 +118,7 @@ void relockMutex(int locks)
 {
     #define GO(A, B)                    \
         if(locks&(1<<B))                \
-            pthread_mutex_lock(&A);     \
+            mutex_lock(&A);             \
 
     GO(my_context->mutex_once, 5)
     GO(my_context->mutex_once2, 6)
@@ -129,22 +137,29 @@ void relockMutex(int locks)
 
 static void init_mutexes(box86context_t* context)
 {
+
+#ifdef DYNAREC
+    arm_lock_stored(&context->mutex_dyndump, 0);
+    arm_lock_stored(&context->mutex_once, 0);
+    arm_lock_stored(&context->mutex_once2, 0);
+    arm_lock_stored(&context->mutex_trace, 0);
+    arm_lock_stored(&context->mutex_tls, 0);
+    arm_lock_stored(&context->mutex_thread, 0);
+    arm_lock_stored(&context->mutex_bridge, 0);
+#else
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&context->mutex_once, &attr);
     pthread_mutex_init(&context->mutex_once2, &attr);
     pthread_mutex_init(&context->mutex_trace, &attr);
-#ifdef DYNAREC
-    pthread_mutex_init(&context->mutex_dyndump, &attr);
-#else
-    pthread_mutex_init(&context->mutex_lock, &attr);
-#endif
     pthread_mutex_init(&context->mutex_tls, &attr);
     pthread_mutex_init(&context->mutex_thread, &attr);
     pthread_mutex_init(&context->mutex_bridge, &attr);
+    pthread_mutex_init(&context->mutex_lock, &attr);
 
     pthread_mutexattr_destroy(&attr);
+#endif
 }
 
 static void atfork_child_box64context(void)
@@ -344,17 +359,15 @@ void FreeBox86Context(box86context_t** context)
 
     finiAllHelpers(ctx);
 
+#ifndef DYNAREC
     pthread_mutex_destroy(&ctx->mutex_once);
     pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);
-#ifdef DYNAREC
-    pthread_mutex_destroy(&ctx->mutex_dyndump);
-#else
-    pthread_mutex_destroy(&ctx->mutex_lock);
-#endif
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
+    pthread_mutex_destroy(&ctx->mutex_lock);
+#endif
 
     freeCycleLog(ctx);
 

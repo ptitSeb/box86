@@ -50,8 +50,8 @@ static uint8_t             hotpages[MEMPROT_SIZE] = {0};
 #endif
 static int inited = 0;
 
-#define PROT_LOCK()     pthread_mutex_lock(&mutex_blocks)
-#define PROT_UNLOCK()   pthread_mutex_unlock(&mutex_blocks)
+#define PROT_LOCK()     mutex_lock(&mutex_blocks)
+#define PROT_UNLOCK()   mutex_unlock(&mutex_blocks)
 #define PROT_GET(A)     memprot[A]
 #define PROT_SET(A, B)  memprot[A] = B
 #define PROT_SET_IF_0(A, B) if(!memprot[A]) memprot[A] = B
@@ -71,7 +71,11 @@ typedef struct blocklist_s {
 
 #define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
 
+#ifndef DYNAREC
 static pthread_mutex_t     mutex_blocks;
+#else
+static uint32_t            mutex_blocks;
+#endif
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static blocklist_t*        p_blocks = NULL;    // actual blocks for custom malloc
 
@@ -251,7 +255,7 @@ void* customMalloc(size_t size)
 {
     // look for free space
     void* sub = NULL;
-    pthread_mutex_lock(&mutex_blocks);
+    mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if(p_blocks[i].maxfree>=size) {
             size_t rsize = 0;
@@ -260,7 +264,7 @@ void* customMalloc(size_t size)
                 void* ret = allocBlock(p_blocks[i].block, sub, size, NULL);
                 if(rsize==p_blocks[i].maxfree)
                     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
-                pthread_mutex_unlock(&mutex_blocks);
+                mutex_unlock(&mutex_blocks);
                 return ret;
             }
         }
@@ -292,7 +296,7 @@ void* customMalloc(size_t size)
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, p, size, NULL);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
-    pthread_mutex_unlock(&mutex_blocks);
+    mutex_unlock(&mutex_blocks);
     return ret;
 }
 void* customCalloc(size_t n, size_t size)
@@ -307,24 +311,24 @@ void* customRealloc(void* p, size_t size)
     if(!p)
         return customMalloc(size);
     uintptr_t addr = (uintptr_t)p;
-    pthread_mutex_lock(&mutex_blocks);
+    mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if ((addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             if(expandBlock(p_blocks[i].block, sub, size)) {
                 p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, NULL);
-                pthread_mutex_unlock(&mutex_blocks);
+                mutex_unlock(&mutex_blocks);
                 return p;
             }
-            pthread_mutex_unlock(&mutex_blocks);
+            mutex_unlock(&mutex_blocks);
             void* newp = customMalloc(size);
             memcpy(newp, p, sizeBlock(sub));
             customFree(p);
             return newp;
         }
     }
-    pthread_mutex_unlock(&mutex_blocks);
+    mutex_unlock(&mutex_blocks);
     if(n_blocks)
         dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
     return customMalloc(size);
@@ -334,18 +338,18 @@ void customFree(void* p)
     if(!p)
         return;
     uintptr_t addr = (uintptr_t)p;
-    pthread_mutex_lock(&mutex_blocks);
+    mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
         if ((addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
             size_t newfree = freeBlock(p_blocks[i].block, sub, NULL);
             if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
-            pthread_mutex_unlock(&mutex_blocks);
+            mutex_unlock(&mutex_blocks);
             return;
         }
     }
-    pthread_mutex_unlock(&mutex_blocks);
+    mutex_unlock(&mutex_blocks);
     if(n_blocks)
         dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
 }
@@ -633,7 +637,7 @@ void addDBFromAddressRange(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=idx; i<=end; ++i) {
         if(!dynmap[i]) {
             dynablocklist_t* p = NewDynablockList(i<<DYNAMAP_SHIFT, 1<<DYNAMAP_SHIFT, 0);
-            if(arm_lock_storeifnull(&dynmap[i], p)!=p)
+            if(arm_lock_storeifnull(&dynmap[i], p)!=NULL)
                 FreeDynablockList(&p);
         }
     }
@@ -1056,11 +1060,20 @@ int unlockCustommemMutex()
 {
     int ret = 0;
     int i = 0;
+    #ifdef DYNAREC
+    void* tid = (void*)GetTID();
+    #define GO(A, B)                    \
+        i = (arm_lock_storeifref2(&A, NULL, (void*)tid)==tid);  \
+        if(i) {                         \
+            ret|=(1<<B);                \
+        }
+    #else
     #define GO(A, B)                    \
         i = checkUnlockMutex(&A);       \
         if(i) {                         \
             ret|=(1<<B);                \
         }
+    #endif
     GO(mutex_blocks, 0)
     #undef GO
     return ret;
@@ -1070,7 +1083,7 @@ void relockCustommemMutex(int locks)
 {
     #define GO(A, B)                    \
         if(locks&(1<<B))                \
-            pthread_mutex_lock(&A);     \
+            mutex_lock(&A);             \
 
     GO(mutex_blocks, 0)
     #undef GO
@@ -1078,12 +1091,16 @@ void relockCustommemMutex(int locks)
 
 static void init_mutexes(void)
 {
+    #ifdef DYNAREC
+    arm_lock_stored(&mutex_blocks, 0);
+    #else
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&mutex_blocks, &attr);
 
     pthread_mutexattr_destroy(&attr);
+    #endif
 }
 
 static void atfork_child_custommem(void)
@@ -1174,7 +1191,9 @@ void fini_custommem_helper(box86context_t *ctx)
         box_free(p_blocks[i].block);
         #endif
     box_free(p_blocks);
+    #ifndef DYNAREC
     pthread_mutex_destroy(&mutex_blocks);
+    #endif
     while(mapmem) {
         mapmem_t *tmp = mapmem;
         mapmem = mapmem->next;
