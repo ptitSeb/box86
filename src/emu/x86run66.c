@@ -1233,6 +1233,7 @@ void RunFS(x86emu_t *emu)
             nextop = F8;
             GET_ED_OFFS(tlsdata);
             ED->dword[0] = adc32(emu, ED->dword[0], GD.dword[0]);
+            break;
         
         case 0x2B:              /* SUB Gd, FS:Ed */
             nextop = F8;

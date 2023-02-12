@@ -298,9 +298,11 @@ void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack)
                     ++st;
                     state = 0;
                 } else state = 0; //???
+                break;
             case 8: // ^&
                 if (*p == 'a') state = 9;
                 else state = 0; //???
+                break;
             case 9: // ^&a
                 if (*p == 'y') {
                     *mystack = *st;
@@ -308,6 +310,7 @@ void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack)
                     ++st;
                     state = 0;
                 } else state = 0; //???
+                break;
         }
         ++p;
     } while (*p && (inblocks || state));

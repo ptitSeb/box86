@@ -82,7 +82,7 @@ static void* find_GConfClientNotifyFunc_Fct(void* fct)
 
 EXPORT uint32_t my_gconf_client_notify_add(x86emu_t* emu, void* client, void* section, void* func, void* data, void* destroy, void* err)
 {
-    my->gconf_client_notify_add(client, section, find_GConfClientNotifyFunc_Fct(func), data, find_GFreeFunc_Fct(destroy), err);
+    return my->gconf_client_notify_add(client, section, find_GConfClientNotifyFunc_Fct(func), data, find_GFreeFunc_Fct(destroy), err);
 }
 
 #define PRE_INIT    \
