@@ -79,7 +79,7 @@ int my_vfork(x86emu_t* emu);
 #ifndef O_NONBLOCK
 #define O_NONBLOCK 04000
 #endif
-int my_fcntl(int fd, int cmd, ... /* arg */ );
+int my_fcntl(x86emu_t* emu, int fd, int cmd, ... /* arg */ );
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
@@ -459,7 +459,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;
         case 55: // sys_fcntl
-            R_EAX = (uint32_t)my_fcntl((int)R_EBX, (int)R_ECX, R_EDX);
+            R_EAX = (uint32_t)my_fcntl(emu, (int)R_EBX, (int)R_ECX, R_EDX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;
@@ -695,7 +695,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;
         case 221: // sys_fcntl64
-            R_EAX = (uint32_t)my_fcntl((int)R_EBX, (int)R_ECX, R_EDX);
+            R_EAX = (uint32_t)my_fcntl(emu, (int)R_EBX, (int)R_ECX, R_EDX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;
