@@ -373,6 +373,15 @@ void CancelBlock()
         FreeDynarecMap(helper->dynablock, (uintptr_t)helper->dynablock->block, helper->dynablock->size);
 }
 
+void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
+    block->isize = 0;
+    block->done = 0;
+    block->size = 0;
+    block->block = NULL;
+    block->need_test = 0;
+    return block;
+}
+
 void* FillBlock(dynablock_t* block, uintptr_t addr) {
 dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     if(IsInHotPage(addr)) {
@@ -381,7 +390,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
         dynarec_log(LOG_DEBUG, "Asked to fill a block in fobidden zone\n");
-        return NULL;
+        return CreateEmptyBlock(block, addr);
     }
     if(!isJumpTableDefault((void*)addr)) {
         dynarec_log(LOG_DEBUG, "Asked to fill a block at %p, but JumpTable is not default\n", (void*)addr);
