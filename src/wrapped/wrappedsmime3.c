@@ -245,23 +245,27 @@ static void* find_NSSCMSGetDecryptKeyCallback_Fct(void* fct)
 
 EXPORT void my_SEC_PKCS12CreateExportContext(x86emu_t* emu, void* f, void* pwfnarg, void* slot, void* wincx)
 {
+    (void)emu;
     my->SEC_PKCS12CreateExportContext(find_SECKEYGetPasswordKey_Fct(f), pwfnarg, slot, wincx);
 }
 
 EXPORT void* my_SEC_PKCS12DecoderStart(x86emu_t* emu, void* item, void* slot, void* wincx, void* dOpen, void* dClose, 
     void* dRead, void* dWrite, void* dArg)
 {
+    (void)emu;
     return my->SEC_PKCS12DecoderStart(item, slot, wincx, find_digestOpenFn_Fct(dOpen), find_digestCloseFn_Fct(dClose),
                     find_digestIOFn_Fct(dRead), find_digestIOFn_Fct(dWrite), dArg);
 }
 
 EXPORT int my_SEC_PKCS12DecoderValidateBags(x86emu_t* emu, void* ctx, void* f)
 {
+    (void)emu;
     return my->SEC_PKCS12DecoderValidateBags(ctx, find_SEC_PKCS12NicknameCollisionCallback_Fct(f));
 }
 
 EXPORT int my_SEC_PKCS12Encode(x86emu_t* emu, void* p12exp, void* f, void* arg)
 {
+    (void)emu;
     return my->SEC_PKCS12Encode(p12exp, find_SEC_PKCS12EncoderOutputCallback_Fct(f), arg);
 }
 
@@ -269,6 +273,7 @@ EXPORT void* my_NSS_CMSEncoder_Start(x86emu_t* emu, void* cmsg, void* outputf, v
                 void* dest, void* destpool, void* pwfn, void* pwfnarg,
                 void* decryptcb, void* decryptarg, void* detached, void* items)
 {
+    (void)emu;
     return my->NSS_CMSEncoder_Start(cmsg, find_NSSCMSContentCallback_Fct(outputf), outputarg,
                     dest, destpool, find_PK11PasswordFunc_Fct(pwfn), pwfnarg,
                     find_NSSCMSGetDecryptKeyCallback_Fct(decryptcb), decryptarg, detached, items);
@@ -277,6 +282,7 @@ EXPORT void* my_NSS_CMSEncoder_Start(x86emu_t* emu, void* cmsg, void* outputf, v
 EXPORT void* my_NSS_CMSMessage_CreateFromDER(x86emu_t* emu, void* msg, void* cb, void* cb_arg,
                 void* pwfn, void* pwfn_arg, void* decrypt, void* decrypt_arg)
 {
+    (void)emu;
     return my->NSS_CMSMessage_CreateFromDER(msg, find_NSSCMSContentCallback_Fct(cb), cb_arg, 
                     find_PK11PasswordFunc_Fct(pwfn), pwfn_arg, 
                     find_NSSCMSGetDecryptKeyCallback_Fct(decrypt), decrypt_arg);
@@ -289,4 +295,3 @@ EXPORT void* my_NSS_CMSMessage_CreateFromDER(x86emu_t* emu, void* msg, void* cb,
     freeMy();
 
 #include "wrappedlib_init.h"
-

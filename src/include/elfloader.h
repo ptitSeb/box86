@@ -26,7 +26,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head);
 int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head);
 int RelocateElf(lib_t* maplib, lib_t* local_maplib, int bindnow, elfheader_t* head);
 int RelocateElfPlt(lib_t* maplib, lib_t* local_maplib, int bindnow, elfheader_t* head);
-void CalcStack(elfheader_t* h, uint32_t* stacksz, int* stackalign);
+void CalcStack(elfheader_t* h, uint32_t* stacksz, uint32_t* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddSymbols(lib_t* maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h);

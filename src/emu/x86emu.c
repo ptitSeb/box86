@@ -115,6 +115,7 @@ x86emu_t *NewX86EmuFromStack(x86emu_t* emu, box86context_t *context, uintptr_t s
 EXPORTDYN
 void SetupX86Emu(x86emu_t *emu)
 {
+    (void)emu;
     printf_log(LOG_DEBUG, "Setup X86 Emu\n");
 }
 
@@ -135,6 +136,7 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
 
 void AddCleanup(x86emu_t *emu, void *p)
 {
+    (void)emu;
     if(my_context->clean_sz == my_context->clean_cap) {
         my_context->clean_cap += 4;
         my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
@@ -146,6 +148,7 @@ void AddCleanup(x86emu_t *emu, void *p)
 
 void AddCleanup1Arg(x86emu_t *emu, void *p, void* a)
 {
+    (void)emu;
     if(my_context->clean_sz == my_context->clean_cap) {
         my_context->clean_cap += 4;
         my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
@@ -465,6 +468,7 @@ static inline void init_perfcounters (int32_t do_reset, int32_t enable_divider)
 
 uint64_t ReadTSC(x86emu_t* emu)
 {
+    (void)emu;
     // Read the TimeStamp Counter as 64bits.
     // this is supposed to be the number of instructions executed since last reset
 #if defined(__i386__)
@@ -507,12 +511,14 @@ void ResetSegmentsCache(x86emu_t *emu)
 
 void applyFlushTo0(x86emu_t* emu)
 {
-    #ifdef __i386__
+#ifdef __i386__
     _mm_setcsr(_mm_getcsr() | (emu->mxcsr.x32&0x8040));
-    #elif defined(__arm__)
+#elif defined(__arm__)
     uint64_t fpscr = __builtin_arm_get_fpscr();
     fpscr &= ~(1<<24);                     // clear bit FZ (24)
     fpscr |= (emu->mxcsr.f.MXCSR_FZ)<<24;  // set FZ as mxcsr FZ
     __builtin_arm_set_fpscr(fpscr);
-    #endif
+#else
+    (void)emu;
+#endif
 }

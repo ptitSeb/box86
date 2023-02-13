@@ -43,7 +43,7 @@ int FindSection(Elf32_Shdr *s, int n, char* SHStrTab, const char* name)
     return 0;
 }
 
-void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, int* num)
+void LoadNamedSection(FILE *f, Elf32_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, uint32_t* num)
 {
     int n = FindSection(s, size, SHStrTab, name);
     printf_dump(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
@@ -136,7 +136,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
             h->numSHEntries = section.sh_size;
         }
         // now read all section headers
-        printf_dump(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
+        printf_dump(LOG_DEBUG, "Read %u Section header\n", h->numSHEntries);
         h->SHEntries = (Elf32_Shdr*)box_calloc(h->numSHEntries, sizeof(Elf32_Shdr));
         fseeko64(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
@@ -188,7 +188,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
         // grab DT_REL & DT_RELA stuffs
         // also grab the DT_STRTAB string table
         {
-            for (int i=0; i<h->numDynamic; ++i) {
+            for (uint32_t i=0; i<h->numDynamic; ++i) {
                 Elf32_Dyn d = h->Dynamic[i];
                 Elf32_Word val = d.d_un.d_val;
                 Elf32_Addr ptr = d.d_un.d_ptr;

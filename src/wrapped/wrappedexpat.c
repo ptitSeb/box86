@@ -102,11 +102,13 @@ static void* find_CharData_Fct(void* fct)
 
 EXPORT void my_XML_SetElementHandler(x86emu_t* emu, void* p, void* start, void* end)
 {
+    (void)emu;
     my->XML_SetElementHandler(p, find_Start_Fct(start), find_End_Fct(end));
 }
 
 EXPORT void my_XML_SetCharacterDataHandler(x86emu_t* emu, void* p, void* h)
 {
+    (void)emu;
     my->XML_SetCharacterDataHandler(p, find_CharData_Fct(h));
 }
 

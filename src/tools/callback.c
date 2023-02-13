@@ -16,6 +16,7 @@
 EXPORTDYN
 uint32_t RunSafeFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
+    (void)context;
     x86emu_t *emu = thread_get_emu();
 
     Push(emu, R_EBP); // push rbp
@@ -63,6 +64,7 @@ uint32_t RunSafeFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 EXPORTDYN
 uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
+    (void)context;
     x86emu_t *emu = thread_get_emu();
 
     R_ESP -= nargs*4;   // need to push in reverse order
@@ -88,6 +90,7 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 EXPORTDYN
 uint64_t RunFunction64(box86context_t *context, uintptr_t fnc, int nargs, ...)
 {
+    (void)context;
     x86emu_t *emu = thread_get_emu();
 
     R_ESP -= nargs*4;   // need to push in reverse order

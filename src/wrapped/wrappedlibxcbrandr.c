@@ -56,11 +56,12 @@ typedef my_xcb_iterator_t (*YFp_t)  (void*);
 
 #include "wrappercallback.h"
 
-#define SUPER(F, P, ...)                                            \
-    EXPORT void* my_##F P                                           \
-    {                                                               \
-        *ret = my->F(__VA_ARGS__);                                  \
-        return ret;                                                 \
+#define SUPER(F, P, ...)           \
+    EXPORT void* my_##F P          \
+    {                              \
+        (void)emu;                 \
+        *ret = my->F(__VA_ARGS__); \
+        return ret;                \
     }
 
 SUPER(xcb_randr_get_crtc_info, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, void* crtc, uint32_t stamp), c, crtc, stamp)

@@ -120,6 +120,7 @@ EXPORT int32_t my_XShmGetImage(x86emu_t* emu, void* disp, void* drawable, void* 
 
 EXPORT void* my_XSetExtensionErrorHandler(x86emu_t* emu, void* handler)
 {
+    (void)emu;
     return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
 }
 
@@ -227,4 +228,3 @@ EXPORT void* my_XextAddDisplay(x86emu_t* emu, void* extinfo, void* dpy, void* ex
     freeMy();
 
 #include "wrappedlib_init.h"
-

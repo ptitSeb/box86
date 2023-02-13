@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+    #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -355,6 +355,7 @@ int LoadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 
 int ReloadElfMemory(FILE* f, box86context_t* context, elfheader_t* head)
 {
+    (void)context;
     for (int i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
             Elf32_Phdr * e = &head->PHEntries[i];
@@ -969,7 +970,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 return -1;
         }
         if(need_resolver) {
-            if(pltResolver==~0) {
+            if(pltResolver==~(uintptr_t)0) {
                 pltResolver = AddBridge(my_context->system, vFEv, PltResolver, 0, "(PltResolver)");
             }
             if(head->pltgot) {
@@ -987,7 +988,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
     return 0;
 }
 
-void CalcStack(elfheader_t* elf, uint32_t* stacksz, int* stackalign)
+void CalcStack(elfheader_t* elf, uint32_t* stacksz, uint32_t* stackalign)
 {
     if(*stacksz < elf->stacksz)
         *stacksz = elf->stacksz;
@@ -998,7 +999,7 @@ void CalcStack(elfheader_t* elf, uint32_t* stacksz, int* stackalign)
 Elf32_Sym* GetFunction(elfheader_t* h, const char* name)
 {
     // TODO: create a hash on named to avoid this loop
-    for (int i=0; i<h->numSymTab; ++i) {
+    for (uint32_t i=0; i<h->numSymTab; ++i) {
         int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
         if(type==STT_FUNC) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
@@ -1012,7 +1013,7 @@ Elf32_Sym* GetFunction(elfheader_t* h, const char* name)
 
 Elf32_Sym* GetElfObject(elfheader_t* h, const char* name)
 {
-    for (int i=0; i<h->numSymTab; ++i) {
+    for (uint32_t i=0; i<h->numSymTab; ++i) {
         int type = ELF32_ST_TYPE(h->SymTab[i].st_info);
         if(type==STT_OBJECT) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
@@ -1034,6 +1035,7 @@ uintptr_t GetFunctionAddress(elfheader_t* h, const char* name)
 
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h)
 {
+    (void)maplib;
     uintptr_t ep = h->entrypoint + h->delta;
     printf_log(LOG_DEBUG, "Entry Point is %p\n", (void*)ep);
     if(box86_dump) {
@@ -1173,7 +1175,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
 {
     DumpDynamicRPath(h);
     // update RPATH first
-    for (int i=0; i<h->numDynamic; ++i)
+    for (uint32_t i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_RPATH || h->Dynamic[i].d_tag==DT_RUNPATH) {
             char *rpathref = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             char* rpath = rpathref;
@@ -1230,12 +1232,12 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
 
     DumpDynamicNeeded(h);
     int cnt = 0;
-    for (int i=0; i<h->numDynamic; ++i)
+    for (uint32_t i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             ++cnt;
     const char* nlibs[cnt];
     int j=0;
-    for (int i=0; i<h->numDynamic; ++i)
+    for (uint32_t i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             nlibs[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
 
@@ -1252,7 +1254,7 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h)
 {
     if(!h)
         return 0;
-    for (int i=0; i<h->numDynamic; ++i)
+    for (uint32_t i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED) {
             char *needed = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
             if(!strcmp(needed, "libtcmalloc_minimal.so.4")) // tcmalloc needs to be the 1st lib loaded
@@ -1451,7 +1453,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     if(!h)
         return ret;
 
-    for (int i=0; (i<h->numSymTab) && (distance!=0); ++i) {   
+    for (uint32_t i=0; (i<h->numSymTab) && (distance!=0); ++i) {
         const char * symname = h->StrTab+h->SymTab[i].st_name;
         uintptr_t offs = h->SymTab[i].st_value + h->delta;
 
@@ -1464,7 +1466,7 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
             }
         }
     }
-    for (int i=0; (i<h->numDynSym) && (distance!=0); ++i) {   
+    for (uint32_t i=0; (i<h->numDynSym) && (distance!=0); ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         uintptr_t offs = h->DynSym[i].st_value + h->delta;
 
@@ -1585,7 +1587,7 @@ void* ElfSetBrk(void* newbrk)
         printf_log(LOG_NONE, "Error, using brk on multi-part memory elf is not allowed for now");
     } else {
         printf_log(LOG_DEBUG, "brk change, start=%p with reserve=0x%x, was 0x%x long, will be 0x%x now => %p\n", my_context->brk, h->reserve, my_context->brksz, added, my_context->brk+added);
-        if(added>0 && added<h->reserve) {
+        if(added>0 && (uint32_t)added<h->reserve) {
             my_context->brksz = added;
             return newbrk;
         }
@@ -1718,7 +1720,7 @@ EXPORT int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data) {
 void ResetSpecialCaseMainElf(elfheader_t* h)
 {
     Elf32_Sym *sym = NULL;
-     for (int i=0; i<h->numDynSym; ++i) {
+     for (uint32_t i=0; i<h->numDynSym; ++i) {
         if(h->DynSym[i].st_info == 17) {
             sym = h->DynSym+i;
             const char * symname = h->DynStr+sym->st_name;
@@ -1806,6 +1808,7 @@ typedef struct search_symbol_s{
 } search_symbol_t;
 int dl_iterate_phdr_findsymbol(struct dl_phdr_info* info, size_t size, void* data)
 {
+    (void)size;
     search_symbol_t* s = (search_symbol_t*)data;
 
     for(int j = 0; j<info->dlpi_phnum; ++j) {
@@ -1870,7 +1873,7 @@ void* GetNativeSymbolUnversionned(void* lib, const char* name)
     return s.addr;
 }
 
-uintptr_t pltResolver = ~0;
+uintptr_t pltResolver = ~(uintptr_t)0;
 EXPORT void PltResolver(x86emu_t* emu)
 {
     uintptr_t addr = Pop32(emu);

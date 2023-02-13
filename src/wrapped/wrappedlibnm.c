@@ -58,41 +58,49 @@ static void* findGAsyncReadyCallbackFct(void* fct)
 
 EXPORT void my_nm_remote_connection_commit_changes_async(x86emu_t* emu, void* connection, int save, void* cancellable, void* cb, void* data)
 {
+    (void)emu;
     my->nm_remote_connection_commit_changes_async(connection, save, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_remote_connection_get_secrets_async(x86emu_t* emu, void* connection, void* name, void* cancellable, void* cb, void* data)
 {
+    (void)emu;
     my->nm_remote_connection_get_secrets_async(connection, name, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_remote_connection_delete_async(x86emu_t* emu, void* connection, void* cancellable, void* cb, void* data)
 {
+    (void)emu;
     my->nm_remote_connection_delete_async(connection, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_client_add_and_activate_connection_async(x86emu_t* emu, void* client, void* partial, void* device, void* spec, void* cancellable, void* cb, void* data)
 {
+    (void)emu;
     my->nm_client_add_and_activate_connection_async(client, partial, device, spec, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_device_disconnect_async(x86emu_t* emu, void* device, void* cancellable, void* cb, void* data)
 {
+    (void)emu;
     my->nm_device_disconnect_async(device, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_device_wifi_request_scan_async(x86emu_t* emu, void* device, void* cancellable, void* cb, void* data)
 {
+    (void)emu;
     my->nm_device_wifi_request_scan_async(device, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_client_add_connection_async(x86emu_t* emu, void* client, void* connection, int save, void* cancel, void* cb, void* data)
 {
+    (void)emu;
     my->nm_client_add_connection_async(client, connection, save, cancel, findGAsyncReadyCallbackFct(cb), data);
 }
 
 EXPORT void my_nm_client_activate_connection_async(x86emu_t* emu, void* client, void* connection, void* device, void* obj, void* cancel, void* cb, void* data)
 {
+    (void)emu;
     my->nm_client_activate_connection_async(client, connection, device, obj, cancel, findGAsyncReadyCallbackFct(cb), data);
 }
 
@@ -107,4 +115,3 @@ EXPORT void my_nm_client_activate_connection_async(x86emu_t* emu, void* client, 
     freeMy();
 
 #include "wrappedlib_init.h"
-

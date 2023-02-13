@@ -93,7 +93,7 @@ typedef struct box86context_s {
     char*               bashpath;       // path of x86 bash (defined with BOX86_BASH or by running bash directly)
 
     uint32_t            stacksz;
-    int                 stackalign;
+    uint32_t            stackalign;
     void*               stack;          // alocated stack
 
     elfheader_t         **elfs;         // elf headers and memory

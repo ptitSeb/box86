@@ -52,9 +52,10 @@ static void* find_cairo_destroy_Fct(void* fct)
 
 #undef SUPER
 
-#define SET_USERDATA(A)                                                                 \
+#define SET_USERDATA(A)                                                             \
 EXPORT int my_##A (x86emu_t* emu, void* cr, void* key, void* data, void* destroy)   \
 {                                                                                   \
+    (void)emu;                                                                      \
     return my->A(cr, key, data, find_cairo_destroy_Fct(destroy));                   \
 }
 
@@ -73,4 +74,3 @@ SET_USERDATA(cairo_font_face_set_user_data)
     freeMy();
 
 #include "wrappedlib_init.h"
-

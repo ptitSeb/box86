@@ -26,6 +26,7 @@ const char* libv4l2Name = "libv4l2.so.0";
 
 EXPORT void* my_v4l2_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
+    (void)emu;
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) dynarec_log(LOG_DEBUG, "%s: %p :v4l2_mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", __FUNCTION__, my->v4l2_mmap, addr, length, prot, flags, fd, offset);
@@ -60,6 +61,7 @@ EXPORT void* my_v4l2_mmap(x86emu_t* emu, void *addr, unsigned long length, int p
 
 EXPORT int my_v4l2_munmap(x86emu_t* emu, void* addr, unsigned long length)
 {
+    (void)emu;
     dynarec_log(LOG_DEBUG, "v4l2_munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
     if(box86_dynarec) {

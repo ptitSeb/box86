@@ -58,11 +58,13 @@ static void* find_XRecordInterceptProc_Fct(void* fct)
 
 EXPORT int my_XRecordEnableContextAsync(x86emu_t* emu, void* display, void* context, void* cb, void* closure)
 {
+    (void)emu;
     return my->XRecordEnableContextAsync(display, context, find_XRecordInterceptProc_Fct(cb), closure);
 }
 
 EXPORT int my_XRecordEnableContext(x86emu_t* emu, void* display, void* context, void* cb, void* closure)
 {
+    (void)emu;
     return my->XRecordEnableContext(display, context, find_XRecordInterceptProc_Fct(cb), closure);
 }
 
@@ -74,4 +76,3 @@ EXPORT int my_XRecordEnableContext(x86emu_t* emu, void* display, void* context, 
     freeMy();
 
 #include "wrappedlib_init.h"
-

@@ -223,6 +223,7 @@ static void* reverse_LogOutput_Fct(void* fct)
 // TODO: track the memory for those callback
 EXPORT int32_t my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 {
+    (void)emu;
     SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
     // create a callback
@@ -242,6 +243,7 @@ EXPORT int32_t my2_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 
 EXPORT int32_t my2_SDL_OpenAudioDevice(x86emu_t* emu, void* device, int32_t iscapture, void* d, void* o, int32_t allowed)
 {
+    (void)emu;
     SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
 
     // create a callback
@@ -471,20 +473,24 @@ EXPORT int my2_SDL_SaveDollarTemplate(x86emu_t* emu, int gesture, void* a)
 
 EXPORT void *my2_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* f, void* p)
 {
+    (void)emu;
     return my->SDL_AddTimer(a, find_Timer_Fct(f), p);
 }
 
 EXPORT int my2_SDL_RemoveTimer(x86emu_t* emu, void *t)
 {
+    (void)emu;
     return my->SDL_RemoveTimer(t);
 }
 
 EXPORT void my2_SDL_SetEventFilter(x86emu_t* emu, void* p, void* userdata)
 {
+    (void)emu;
     my->SDL_SetEventFilter(find_eventfilter_Fct(p), userdata);
 }
 EXPORT int my2_SDL_GetEventFilter(x86emu_t* emu, void** f, void* userdata)
 {
+    (void)emu;
     int ret = my->SDL_GetEventFilter(f, userdata);
     *f = reverse_eventfilter_Fct(*f);
     return ret;
@@ -492,11 +498,13 @@ EXPORT int my2_SDL_GetEventFilter(x86emu_t* emu, void** f, void* userdata)
 
 EXPORT void my2_SDL_LogGetOutputFunction(x86emu_t* emu, void** f, void* arg)
 {
+    (void)emu;
     my->SDL_LogGetOutputFunction(f, arg);
     if(*f) *f = reverse_LogOutput_Fct(*f);
 }
 EXPORT void my2_SDL_LogSetOutputFunction(x86emu_t* emu, void* f, void* arg)
 {
+    (void)emu;
     my->SDL_LogSetOutputFunction(find_LogOutput_Fct(f), arg);
 }
 
@@ -508,6 +516,7 @@ EXPORT int my2_SDL_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, 
     void* f = vsnprintf;
     return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     return vsnprintf(buff, s, fmt, b);
     #endif
 }
@@ -526,6 +535,7 @@ EXPORT int my2_SDL_snprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, v
     void* f = vsnprintf;
     return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
 }
@@ -569,7 +579,7 @@ static int get_sdl_priv(x86emu_t* emu, const char *sym_str, void **w, void **f)
 
 int EXPORT my2_SDL_DYNAPI_entry(x86emu_t* emu, uint32_t version, uintptr_t *table, uint32_t tablesize)
 {
-    int i = 0;
+    uint32_t i = 0;
     uintptr_t tab[tablesize];
     int r = my->SDL_DYNAPI_entry(version, tab, tablesize);
     (void)r;
@@ -638,6 +648,7 @@ EXPORT void my2_SDL_LogCritical(x86emu_t* emu, int32_t cat, void* fmt, void *b) 
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 6, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(cat, 6, fmt, b);
     #endif
 }
@@ -649,6 +660,7 @@ EXPORT void my2_SDL_LogError(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 5, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(cat, 5, fmt, b);
     #endif
 }
@@ -660,6 +672,7 @@ EXPORT void my2_SDL_LogWarn(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 4, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(cat, 4, fmt, b);
     #endif
 }
@@ -671,6 +684,7 @@ EXPORT void my2_SDL_LogInfo(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 3, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(cat, 3, fmt, b);
     #endif
 }
@@ -682,6 +696,7 @@ EXPORT void my2_SDL_LogDebug(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 2, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(cat, 2, fmt, b);
     #endif
 }
@@ -693,6 +708,7 @@ EXPORT void my2_SDL_LogVerbose(x86emu_t* emu, int32_t cat, void* fmt, void *b) {
     PREPARE_VALIST;
     my->SDL_LogMessageV(cat, 1, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(cat, 1, fmt, b);
     #endif
 }
@@ -705,6 +721,7 @@ EXPORT void my2_SDL_Log(x86emu_t* emu, void* fmt, void *b) {
     PREPARE_VALIST;
     my->SDL_LogMessageV(0, 3, fmt, VARARGS);
     #else
+    (void)emu;
     my->SDL_LogMessageV(0, 3, fmt, b);
     #endif
 }
@@ -816,6 +833,7 @@ static const sdl2_tls_dtor dtor_cb[nb_once] = {
 };
 EXPORT int32_t my2_SDL_TLSSet(x86emu_t* emu, uint32_t id, void* value, void* dtor)
 {
+    (void)emu;
 	if(!dtor)
 		return my->SDL_TLSSet(id, value, NULL);
 	int n = 0;
@@ -833,40 +851,47 @@ EXPORT int32_t my2_SDL_TLSSet(x86emu_t* emu, uint32_t id, void* value, void* dto
 
 EXPORT void* my2_SDL_JoystickGetDeviceGUID(x86emu_t* emu, void* p, int32_t idx)
 {
+    (void)emu;
     *(SDL_JoystickGUID*)p = my->SDL_JoystickGetDeviceGUID(idx);
     return p;
 }
 
 EXPORT void* my2_SDL_JoystickGetGUID(x86emu_t* emu, void* p, void* joystick)
 {
+    (void)emu;
     *(SDL_JoystickGUID*)p = my->SDL_JoystickGetGUID(joystick);
     return p;
 }
 
 EXPORT void* my2_SDL_JoystickGetGUIDFromString(x86emu_t* emu, void* p, void* pchGUID)
 {
+    (void)emu;
     *(SDL_JoystickGUID*)p = my->SDL_JoystickGetGUIDFromString(pchGUID);
     return p;
 }
 
 EXPORT void* my2_SDL_GameControllerGetBindForAxis(x86emu_t* emu, void* p, void* controller, int32_t axis)
 {
+    (void)emu;
     *(SDL_GameControllerButtonBind*)p = my->SDL_GameControllerGetBindForAxis(controller, axis);
     return p;
 }
 
 EXPORT void* my2_SDL_GameControllerGetBindForButton(x86emu_t* emu, void* p, void* controller, int32_t button)
 {
+    (void)emu;
     *(SDL_GameControllerButtonBind*)p = my->SDL_GameControllerGetBindForButton(controller, button);
     return p;
 }
 
 EXPORT void my2_SDL_AddEventWatch(x86emu_t* emu, void* p, void* userdata)
 {
+    (void)emu;
     my->SDL_AddEventWatch(find_eventfilter_Fct(p), userdata);
 }
 EXPORT void my2_SDL_DelEventWatch(x86emu_t* emu, void* p, void* userdata)
 {
+    (void)emu;
     my->SDL_DelEventWatch(find_eventfilter_Fct(p), userdata);
 }
 
@@ -885,6 +910,7 @@ EXPORT void* my2_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
 
 EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint16_t* vendor, uint16_t* product, uint16_t* version)
 {
+    (void)emu;
     if(my->SDL_GetJoystickGUIDInfo) {
         SDL_JoystickGUID_Helper guid;
         guid.u[0] = a;
@@ -902,6 +928,7 @@ EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, u
 
 EXPORT int32_t my2_SDL_IsJoystickPS4(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
+    (void)emu;
     if(my->SDL_IsJoystickPS4)
         return my->SDL_IsJoystickPS4(vendor, product_id);
     // fallback
@@ -909,6 +936,7 @@ EXPORT int32_t my2_SDL_IsJoystickPS4(x86emu_t* emu, uint16_t vendor, uint16_t pr
 }
 EXPORT int32_t my2_SDL_IsJoystickNintendoSwitchPro(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
+    (void)emu;
     if(my->SDL_IsJoystickNintendoSwitchPro)
         return my->SDL_IsJoystickNintendoSwitchPro(vendor, product_id);
     // fallback
@@ -916,6 +944,7 @@ EXPORT int32_t my2_SDL_IsJoystickNintendoSwitchPro(x86emu_t* emu, uint16_t vendo
 }
 EXPORT int32_t my2_SDL_IsJoystickSteamController(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
+    (void)emu;
     if(my->SDL_IsJoystickSteamController)
         return my->SDL_IsJoystickSteamController(vendor, product_id);
     // fallback
@@ -923,6 +952,7 @@ EXPORT int32_t my2_SDL_IsJoystickSteamController(x86emu_t* emu, uint16_t vendor,
 }
 EXPORT int32_t my2_SDL_IsJoystickXbox360(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
+    (void)emu;
     if(my->SDL_IsJoystickXbox360)
         return my->SDL_IsJoystickXbox360(vendor, product_id);
     // fallback
@@ -930,6 +960,7 @@ EXPORT int32_t my2_SDL_IsJoystickXbox360(x86emu_t* emu, uint16_t vendor, uint16_
 }
 EXPORT int32_t my2_SDL_IsJoystickXboxOne(x86emu_t* emu, uint16_t vendor, uint16_t product_id)
 {
+    (void)emu;
     if(my->SDL_IsJoystickXboxOne)
         return my->SDL_IsJoystickXboxOne(vendor, product_id);
     // fallback
@@ -937,6 +968,7 @@ EXPORT int32_t my2_SDL_IsJoystickXboxOne(x86emu_t* emu, uint16_t vendor, uint16_
 }
 EXPORT int32_t my2_SDL_IsJoystickXInput(x86emu_t* emu, SDL_JoystickGUID p)
 {
+    (void)emu;
     if(my->SDL_IsJoystickXInput)
         return my->SDL_IsJoystickXInput(p);
     // fallback
@@ -944,6 +976,7 @@ EXPORT int32_t my2_SDL_IsJoystickXInput(x86emu_t* emu, SDL_JoystickGUID p)
 }
 EXPORT int32_t my2_SDL_IsJoystickHIDAPI(x86emu_t* emu, SDL_JoystickGUID p)
 {
+    (void)emu;
     if(my->SDL_IsJoystickHIDAPI)
         return my->SDL_IsJoystickHIDAPI(p);
     // fallback

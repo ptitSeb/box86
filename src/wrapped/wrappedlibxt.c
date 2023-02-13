@@ -61,6 +61,7 @@ static void* findEventFct(void* fct)
 
 EXPORT void my_XtAddEventHandler(x86emu_t* emu, void* w, uint32_t mask, int32_t maskable, void* cb, void* data)
 {
+    (void)emu;
     void* fct = findEventFct(cb);
     my->XtAddEventHandler(w, mask, maskable, fct, data);
 }
@@ -73,4 +74,3 @@ EXPORT void my_XtAddEventHandler(x86emu_t* emu, void* w, uint32_t mask, int32_t 
     freeMy();
 
 #include "wrappedlib_init.h"
-

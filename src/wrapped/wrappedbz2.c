@@ -127,6 +127,7 @@ typedef struct {
 
 EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocksize, int verbosity, int work)
 {
+    (void)emu;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompressInit(strm, blocksize, verbosity, work);
     UNWRAP_BZ(strm);
@@ -135,6 +136,7 @@ EXPORT int my_BZ2_bzCompressInit(x86emu_t* emu, my_bz_stream_t* strm, int blocks
 
 EXPORT int my_BZ2_bzCompress(x86emu_t* emu, my_bz_stream_t* strm, int action)
 {
+    (void)emu;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompress(strm, action);
     UNWRAP_BZ(strm);
@@ -143,6 +145,7 @@ EXPORT int my_BZ2_bzCompress(x86emu_t* emu, my_bz_stream_t* strm, int action)
 
 EXPORT int my_BZ2_bzCompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 {
+    (void)emu;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzCompressEnd(strm);
     UNWRAP_BZ(strm);
@@ -151,6 +154,7 @@ EXPORT int my_BZ2_bzCompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressInit(x86emu_t* emu, my_bz_stream_t* strm, int verbosity, int small)
 {
+    (void)emu;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompressInit(strm, verbosity, small);
     UNWRAP_BZ(strm);
@@ -159,6 +163,7 @@ EXPORT int my_BZ2_bzDecompressInit(x86emu_t* emu, my_bz_stream_t* strm, int verb
 
 EXPORT int my_BZ2_bzDecompress(x86emu_t* emu, my_bz_stream_t* strm)
 {
+    (void)emu;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompress(strm);
     UNWRAP_BZ(strm);
@@ -167,6 +172,7 @@ EXPORT int my_BZ2_bzDecompress(x86emu_t* emu, my_bz_stream_t* strm)
 
 EXPORT int my_BZ2_bzDecompressEnd(x86emu_t* emu, my_bz_stream_t* strm)
 {
+    (void)emu;
     WRAP_BZ(strm);
     int ret = my->BZ2_bzDecompressEnd(strm);
     UNWRAP_BZ(strm);

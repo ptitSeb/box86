@@ -260,36 +260,43 @@ static void* findprogressive_rowFct(void* fct)
 
 EXPORT void my12_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* write_fn, void* flush_fn)
 {
+    (void)emu;
     my->png_set_write_fn(png_ptr, ioptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
 EXPORT void my12_png_set_read_fn(x86emu_t* emu, void* png_ptr, void* ioptr, void* read_fn)
 {
+    (void)emu;
     my->png_set_read_fn(png_ptr, ioptr, finduser_readFct(read_fn));
 }
 
 EXPORT void my12_png_set_error_fn(x86emu_t* emu, void* pngptr, void* errorptr, void* error_fn, void* warning_fn)
 {
+    (void)emu;
     my->png_set_error_fn(pngptr, errorptr, finderrorFct(error_fn), findwarningFct(warning_fn));
 }
 
 EXPORT void* my12_png_create_read_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
 {
+    (void)emu;
     return my->png_create_read_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
 }
 
 EXPORT void* my12_png_create_write_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
 {
+    (void)emu;
     return my->png_create_write_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
 }
 
 EXPORT void my12_png_set_progressive_read_fn(x86emu_t* emu, void* png_ptr, void* user_ptr, void* info, void* row, void* end)
 {
+    (void)emu;
     my->png_set_progressive_read_fn(png_ptr, user_ptr, findprogressive_infoFct(info), findprogressive_rowFct(row), findprogressive_endFct(end));
 }
 
 EXPORT void* my12_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
 {
+    (void)emu;
     return my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
 }
 

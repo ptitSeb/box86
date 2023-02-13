@@ -61,6 +61,7 @@ static void* find_log_fn_Fct(void* fct)
 
 EXPORT void my_udev_set_log_fn(x86emu_t* emu, void* udev, void* f)
 {
+    (void)emu;
     my->udev_set_log_fn(udev, find_log_fn_Fct(f));
 }
 
@@ -71,4 +72,3 @@ EXPORT void my_udev_set_log_fn(x86emu_t* emu, void* udev, void* f)
     freeMy();
 
 #include "wrappedlib_init.h"
-

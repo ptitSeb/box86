@@ -350,8 +350,9 @@ void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
 static __thread x86emu_t* cancel_emu[CANCEL_MAX] = {0};
 static __thread x86_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
 static __thread int cancel_deep = 0;
-EXPORT void my___pthread_register_cancel(void* E, void* B)
+EXPORT void my___pthread_register_cancel(x86emu_t* emu, void* B)
 {
+    (void)B;
 	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
 	if(cancel_deep<0) {
 		printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
@@ -362,14 +363,14 @@ EXPORT void my___pthread_register_cancel(void* E, void* B)
 	else
 		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
 		
-	cancel_emu[cancel_deep] = (x86emu_t*)E;
+	cancel_emu[cancel_deep] = emu;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)((x86emu_t*)E)->regs[_AX].dword[0];
+	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)R_EAX;
 	__pthread_unwind_buf_t * pbuff = AddCancelThread(buff);
 	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
 		//DelCancelThread(cancel_buff);	// no del here, it will be delete by unwind_next...
 		int i = cancel_deep--;
-		x86emu_t* emu = cancel_emu[i];
+		emu = cancel_emu[i];
 		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
 		DynaRun(emu);	// resume execution
 		return;
@@ -391,6 +392,7 @@ EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buf
 
 EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 {
+    (void)p;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
 	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
 	__pthread_unwind_buf_t pbuff = *GetCancelThread(buff);
@@ -485,7 +487,6 @@ static void* findcleanup_routineFct(void* fct)
 
 
 // custom implementation of pthread_once...
-static __thread uintptr_t my_once_callback_fct = 0;
 int EXPORT my_pthread_once(x86emu_t* emu, int* once, void* cb)
 {
 	#ifdef DYNAREC
@@ -510,6 +511,7 @@ EXPORT int my___pthread_once(x86emu_t* emu, void* once, void* cb) __attribute__(
 
 EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
 {
+    (void)emu;
 	return pthread_key_create(key, findkey_destructorFct(dtor));
 }
 EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
@@ -577,11 +579,13 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 EXPORT int my_pthread_cond_broadcast_old(x86emu_t* emu, void* cond)
 {
+    (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_broadcast(c);
 }
 EXPORT int my_pthread_cond_destroy_old(x86emu_t* emu, void* cond)
 {
+    (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
 	if(c!=cond) del_cond(cond);
@@ -589,42 +593,50 @@ EXPORT int my_pthread_cond_destroy_old(x86emu_t* emu, void* cond)
 }
 EXPORT int my_pthread_cond_init_old(x86emu_t* emu, void* cond, void* attr)
 {
+    (void)emu;
 	pthread_cond_t *c = add_cond(cond);
 	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
 EXPORT int my_pthread_cond_signal_old(x86emu_t* emu, void* cond)
 {
+    (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_signal(c);
 }
 EXPORT int my_pthread_cond_timedwait_old(x86emu_t* emu, void* cond, void* mutex, void* abstime)
 {
+    (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
 }
 EXPORT int my_pthread_cond_wait_old(x86emu_t* emu, void* cond, void* mutex)
 {
+    (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
 EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
 {
+    (void)emu;
 	return pthread_cond_timedwait((pthread_cond_t*)cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
 }
 EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
 {
+    (void)emu;
 	return pthread_cond_wait((pthread_cond_t*)cond, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
 EXPORT int my_pthread_mutexattr_setkind_np(x86emu_t* emu, void* t, int kind)
 {
+    (void)emu;
     // does "kind" needs some type of translation?
     return pthread_mutexattr_settype(t, kind);
 }
 
 EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
 {
+    (void)emu;
     if(scope!=PTHREAD_SCOPE_SYSTEM) printf_log(LOG_INFO, "Warning, scope of call to pthread_attr_setscope(...) changed from %d to PTHREAD_SCOPE_SYSTEM\n", scope);
 	return pthread_attr_setscope(attr, PTHREAD_SCOPE_SYSTEM);
     //The scope is either PTHREAD_SCOPE_SYSTEM or PTHREAD_SCOPE_PROCESS
@@ -634,27 +646,32 @@ EXPORT int my_pthread_attr_setscope(x86emu_t* emu, void* attr, int scope)
 #ifndef ANDROID
 EXPORT void my__pthread_cleanup_push_defer(x86emu_t* emu, void* buffer, void* routine, void* arg)
 {
+    (void)emu;
 	real_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_push(x86emu_t* emu, void* buffer, void* routine, void* arg)
 {
+    (void)emu;
 	_pthread_cleanup_push(buffer, findcleanup_routineFct(routine), arg);
 }
 
 EXPORT void my__pthread_cleanup_pop_restore(x86emu_t* emu, void* buffer, int exec)
 {
+    (void)emu;
 	real_pthread_cleanup_pop_restore(buffer, exec);
 }
 
 EXPORT void my__pthread_cleanup_pop(x86emu_t* emu, void* buffer, int exec)
 {
+    (void)emu;
 	_pthread_cleanup_pop(buffer, exec);
 }
 
 // getaffinity_np (pthread or attr) hav an "old" version (glibc-2.3.3) that only have 2 args, cpusetsize is omited
 EXPORT int my_pthread_getaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
 {
+    (void)emu;
 	if(cpusetsize>0x1000) {
 		// probably old version of the function, that didn't have cpusetsize....
 		cpuset = (void*)cpusetsize;
@@ -671,6 +688,7 @@ EXPORT int my_pthread_getaffinity_np(x86emu_t* emu, pthread_t thread, int cpuset
 
 EXPORT int my_pthread_setaffinity_np(x86emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset)
 {
+    (void)emu;
 	if(cpusetsize>0x1000) {
 		// probably old version of the function, that didn't have cpusetsize....
 		cpuset = (void*)cpusetsize;
@@ -687,6 +705,7 @@ EXPORT int my_pthread_setaffinity_np(x86emu_t* emu, pthread_t thread, int cpuset
 
 EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 {
+    (void)emu;
 	if(cpusetsize>0x1000) {
 		// probably old version of the function, that didn't have cpusetsize....
 		cpuset = (void*)cpusetsize;
@@ -704,6 +723,7 @@ EXPORT int my_pthread_attr_setaffinity_np(x86emu_t* emu, void* attr, uint32_t cp
 
 EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 {
+    (void)emu;
 	// should ESCHR result be filtered, as this is expected to be the 2.34 behaviour?
     // check for old "is everything ok?"
     if((thread==NULL) && (sig==0))
@@ -713,6 +733,7 @@ EXPORT int my_pthread_kill(x86emu_t* emu, void* thread, int sig)
 
 EXPORT int my_pthread_kill_old(x86emu_t* emu, void* thread, int sig)
 {
+    (void)emu;
     // check for old "is everything ok?"
 	if(!thread)
 		thread = (void*)pthread_self();
@@ -721,6 +742,7 @@ EXPORT int my_pthread_kill_old(x86emu_t* emu, void* thread, int sig)
 
 EXPORT int my_pthread_join(x86emu_t* emu, void* thread, void** ret)
 {
+    (void)emu;
 	if(!thread)
 		return ESRCH;
 	return pthread_join((pthread_t)thread, ret);
@@ -728,6 +750,7 @@ EXPORT int my_pthread_join(x86emu_t* emu, void* thread, void** ret)
 
 //EXPORT void my_pthread_exit(x86emu_t* emu, void* retval)
 //{
+//  (void)emu;
 //	emu->quit = 1;	// to be safe
 //	pthread_exit(retval);
 //}

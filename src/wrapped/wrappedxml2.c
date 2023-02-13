@@ -1122,114 +1122,138 @@ static void* reverse_xmlExternalEntityLoaderFct(void* fct)
 
 EXPORT void* my_xmlHashCopy(x86emu_t* emu, void* table, void* f)
 {
+    (void)emu;
     return my->xmlHashCopy(table, find_xmlHashCopier_Fct(f));
 }
 
 EXPORT void my_xmlHashFree(x86emu_t* emu, void* table, void* f)
 {
+    (void)emu;
     my->xmlHashFree(table, find_xmlHashDeallocator_Fct(f));
 }
 
 EXPORT int my_xmlHashRemoveEntry(x86emu_t* emu, void* table, void* name, void* f)
 {
+    (void)emu;
     return my->xmlHashRemoveEntry(table, name, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashRemoveEntry2(x86emu_t* emu, void* table, void* name, void* name2, void* f)
 {
+    (void)emu;
     return my->xmlHashRemoveEntry2(table, name, name2, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashRemoveEntry3(x86emu_t* emu, void* table, void* name, void* name2, void* name3, void* f)
 {
+    (void)emu;
     return my->xmlHashRemoveEntry3(table, name, name2, name3, find_xmlHashDeallocator_Fct(f));
 }
 
 EXPORT void my_xmlHashScan(x86emu_t* emu, void* table, void* f, void* data)
 {
+    (void)emu;
     my->xmlHashScan(table, find_xmlHashScanner_Fct(f), data);
 }
 EXPORT void my_xmlHashScan3(x86emu_t* emu, void* table, void* name, void* name2, void* name3, void* f, void* data)
 {
+    (void)emu;
     my->xmlHashScan3(table, name, name2, name3, find_xmlHashScanner_Fct(f), data);
 }
 EXPORT void my_xmlHashScanFull(x86emu_t* emu, void* table, void* f, void* data)
 {
+    (void)emu;
     my->xmlHashScanFull(table, find_xmlHashScannerFull_Fct(f), data);
 }
 EXPORT void my_xmlHashScanFull3(x86emu_t* emu, void* table, void* name, void* name2, void* name3, void* f, void* data)
 {
+    (void)emu;
     my->xmlHashScanFull3(table, name, name2, name3, find_xmlHashScannerFull_Fct(f), data);
 }
 
 EXPORT int my_xmlHashUpdateEntry(x86emu_t* emu, void* table, void* name, void* data, void* f)
 {
+    (void)emu;
     return my->xmlHashUpdateEntry(table, name, data, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashUpdateEntry2(x86emu_t* emu, void* table, void* name, void* name2, void* data, void* f)
 {
+    (void)emu;
     return my->xmlHashUpdateEntry2(table, name, name2, data, find_xmlHashDeallocator_Fct(f));
 }
 EXPORT int my_xmlHashUpdateEntry3(x86emu_t* emu, void* table, void* name, void* name2, void* name3, void* data, void* f)
 {
+    (void)emu;
     return my->xmlHashUpdateEntry3(table, name, name2, name3, data, find_xmlHashDeallocator_Fct(f));
 }
 
 EXPORT void* my_xmlGetExternalEntityLoader(x86emu_t* emu)
 {
+    (void)emu;
     return reverse_xmlExternalEntityLoaderFct(my->xmlGetExternalEntityLoader());
 }
 
 EXPORT void* my_xmlNewCharEncodingHandler(x86emu_t* emu, void* name, void* fin, void* fout)
 {
+    (void)emu;
     return my->xmlNewCharEncodingHandler(name, find_xmlCharEncodingInputFunc_Fct(fin), find_xmlCharEncodingOutputFunc_Fct(fout));
 }
 
 EXPORT void* my_xmlOutputBufferCreateIO(x86emu_t* emu, void* fwrite, void* fclose, void* ioctx, void* encoder)
 {
+    (void)emu;
     return my->xmlOutputBufferCreateIO(find_xmlOutputWriteCallback_Fct(fwrite), find_xmlOutputCloseCallback_Fct(fclose), ioctx, encoder);
 }
 
 EXPORT int my_xmlRegisterInputCallbacks(x86emu_t* emu, void* fmatch, void* fop, void* frd, void* fcl)
 {
+    (void)emu;
     return my->xmlRegisterInputCallbacks(find_xmlInputMatchCallback_Fct(fmatch), find_xmlInputOpenCallback_Fct(fop), find_xmlInputReadCallback_Fct(frd), find_xmlInputCloseCallback_Fct(fcl));
 }
 
 EXPORT void* my_xmlSaveToIO(x86emu_t* emu, void* fwrt, void* fcl, void* ioctx, void* encoding, int options)
 {
+    (void)emu;
     return my->xmlSaveToIO(find_xmlOutputWriteCallback_Fct(fwrt), find_xmlOutputCloseCallback_Fct(fcl), ioctx, encoding, options);
 }
 
 EXPORT void my_xmlSchemaSetParserErrors(x86emu_t* emu, void* ctxt, void* ferr, void* fwarn, void* ctx)
 {
+    (void)emu;
     my->xmlSchemaSetParserErrors(ctxt, find_xmlSchemaValidityErrorFunc_Fct(ferr), find_xmlSchemaValidityWarningFunc_Fct(fwarn), ctx);
 }
 
 EXPORT void my_xmlSchemaSetParserStructuredErrors(x86emu_t* emu, void* ctxt, void* ferr, void* ctx)
 {
+    (void)emu;
     my->xmlSchemaSetParserStructuredErrors(ctxt, find_xmlStructuredErrorFunc_Fct(ferr), ctx);
 }
 
 EXPORT void my_xmlSchemaSetValidErrors(x86emu_t* emu, void* ctxt, void* ferr, void* fwarn, void* ctx)
 {
+    (void)emu;
     my->xmlSchemaSetValidErrors(ctxt, find_xmlSchemaValidityErrorFunc_Fct(ferr), find_xmlSchemaValidityWarningFunc_Fct(fwarn), ctx);
 }
 
 EXPORT void my_xmlSchemaSetValidStructuredErrors(x86emu_t* emu, void* ctxt, void* ferr, void* ctx)
 {
+    (void)emu;
     my->xmlSchemaSetValidStructuredErrors(ctxt, find_xmlStructuredErrorFunc_Fct(ferr), ctx);
 }
 
 EXPORT void my_xmlSetExternalEntityLoader(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->xmlSetExternalEntityLoader(find_xmlExternalEntityLoaderFct(f));
 }
 
 EXPORT int my_xmlXPathRegisterFunc(x86emu_t* emu, void* ctxt, void* name, void* f)
 {
+    (void)emu;
     return my->xmlXPathRegisterFunc(ctxt, name, find_xmlXPathFunction_Fct(f));
 }
 
 EXPORT void* my_xmlParserInputBufferCreateIO(x86emu_t* emu, void* ioread, void* ioclose, void* ioctx, int enc)
 {
+    (void)emu;
     return my->xmlParserInputBufferCreateIO(find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, enc);
 }
 
@@ -1296,6 +1320,7 @@ static void restoreSaxHandler(my_xmlSAXHandler_t* sav, my_xmlSAXHandler_t* v)
 
 EXPORT int my_xmlParseDocument(x86emu_t* emu, my_xmlSAXHandler_t** p)
 {
+    (void)emu;
     // handling of wine that change the default sax handler of...
     my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
     my_xmlSAXHandler_t sax_handler = {0};
@@ -1307,6 +1332,7 @@ EXPORT int my_xmlParseDocument(x86emu_t* emu, my_xmlSAXHandler_t** p)
 
 EXPORT int my_xmlParseChunk(x86emu_t* emu, my_xmlSAXHandler_t** p, void* chunk, int size, int terminate)
 {
+    (void)emu;
     // p is xmlParserCtxtPtr ctxt, so a xmlParserCtxt* and 1st field of xmlParserCtxt is a xmlSaxHandler*
     my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
     my_xmlSAXHandler_t sax_handler = {0};

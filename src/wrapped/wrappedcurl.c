@@ -463,6 +463,7 @@ static void* find_progress_Fct(void* fct)
 
 EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option, void* param)
 {
+    (void)emu;
     switch(option) {
         case CURLOPT_WRITEDATA:
             return my->curl_easy_setopt(handle, option, param);
@@ -528,4 +529,3 @@ EXPORT uint32_t my_curl_easy_setopt(x86emu_t* emu, void* handle, uint32_t option
     freeMy();
 
 #include "wrappedlib_init.h"
-

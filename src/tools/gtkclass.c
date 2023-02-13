@@ -1759,7 +1759,7 @@ static void* find_signal7_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo signal7 callback\n");
     return NULL;
 }
-static const wrapper_t wrappers[] = {pFpp, pFppp, pFpppp, pFpppp, pFppppp, pFpppppp};
+//static const wrapper_t wrappers[] = {pFpp, pFppp, pFpppp, pFpppp, pFppppp, pFpppppp};
 typedef void* (*finder_t)(void*);
 static const finder_t finders[] = {find_signal2_Fct, find_signal3_Fct, find_signal4_Fct, find_signal5_Fct, find_signal6_Fct, find_signal7_Fct};
 #define MAX_SIGNAL_N 7

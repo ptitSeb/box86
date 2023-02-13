@@ -38,6 +38,7 @@ EXPORT int my_mvwprintw(x86emu_t* emu, void* win, int y, int x, void* fmt, void*
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, VARARGS);
     #else
+    (void)emu;
     vasprintf(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
@@ -53,6 +54,7 @@ EXPORT int my_printw(x86emu_t* emu, void* fmt, void* b)
     PREPARE_VALIST;
     return my->vw_printw(my->stdscr, fmt, VARARGS);
     #else
+    (void)emu;
     return my->vw_printw(my->stdscr, fmt, b);
     #endif
 }
@@ -64,6 +66,7 @@ EXPORT int my_wprintw(x86emu_t* emu, void* win, void* fmt, void* b)
     PREPARE_VALIST;
     return my->vw_printw(win, fmt, VARARGS);
     #else
+    (void)emu;
     return my->vw_printw(win, fmt, b);
     #endif
 }
@@ -77,6 +80,7 @@ EXPORT int my_mvprintw(x86emu_t* emu, int x, int y, void* fmt, void* b)
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, VARARGS);
     #else
+    (void)emu;
     vasprintf(&buf, fmt, b);
     #endif
     // pre-bake the fmt/vaarg, because there is no "va_list" version of this function
@@ -92,6 +96,7 @@ EXPORT int my_vw_printw(x86emu_t *emu, void* win, void* fmt, void* b) {
     return my->vw_printw(win, fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return my->vw_printw(win, fmt, b);
     #endif
 }

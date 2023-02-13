@@ -21,7 +21,7 @@
 const char* dbusglib1Name = "libdbus-glib-1.so.2";
 #define LIBNAME dbusglib1
 
-//#define ADDED_FUNCTIONS()           \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappeddbusglib1types.h"
 
@@ -173,16 +173,19 @@ static void* findDBusGTypeSpecializedMapIteratorFct(void* fct)
 
 EXPORT void my_dbus_g_type_collection_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
+    (void)emu;
     my->dbus_g_type_collection_value_iterate(value, findDBusGTypeSpecializedCollectionIteratorFct(cb), data);
 }
 
 EXPORT void my_dbus_g_type_map_value_iterate(x86emu_t* emu, void* value, void* cb, void* data)
 {
+    (void)emu;
     my->dbus_g_type_map_value_iterate(value, findDBusGTypeSpecializedMapIteratorFct(cb), data);
 }
 
 EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int first, int* next)
 {
+    (void)emu;
     int narg = 0;
     if(first)
         while(next[narg]) ++narg;
@@ -199,6 +202,7 @@ EXPORT void* my_dbus_g_proxy_begin_call(x86emu_t* emu, void* proxy, void* method
 
 EXPORT void* my_dbus_g_proxy_begin_call_with_timeout(x86emu_t* emu, void* proxy, void* method, void* notify, void* data, void* destroy, int timeout, int first, int* next)
 {
+    (void)emu;
     int narg = 0;
     if(first)
         while(next[narg]) ++narg;
@@ -215,11 +219,13 @@ EXPORT void* my_dbus_g_proxy_begin_call_with_timeout(x86emu_t* emu, void* proxy,
 
 EXPORT void my_dbus_g_proxy_connect_signal(x86emu_t* emu, void* proxy, void* name, void* handler, void* data, void* free_fnc)
 {
+    (void)emu;
     my->dbus_g_proxy_connect_signal(proxy, name, findGCallbackFct(handler), data, findGClosureNotifyFct(free_fnc));
 }
 
 EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* name, void* handler, void* data)
 {
+    (void)emu;
     my->dbus_g_proxy_disconnect_signal(proxy, name, findGCallbackFct(handler), data);
 }
 
@@ -235,4 +241,3 @@ EXPORT void my_dbus_g_proxy_disconnect_signal(x86emu_t* emu, void* proxy, void* 
 
 
 #include "wrappedlib_init.h"
-

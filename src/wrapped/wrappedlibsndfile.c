@@ -160,6 +160,7 @@ typedef struct my_sfvirtual_io_s
 
 EXPORT void* my_sf_open_virtual(x86emu_t* emu, my_sfvirtual_io_t* sfvirtual, int mode, void* sfinfo, void* data)
 {
+    (void)emu;
     my_sfvirtual_io_t native = {0};
     native.get_filelen = find_sf_vio_get_filelen_Fct(sfvirtual->get_filelen);
     native.seek = find_sf_vio_seek_Fct(sfvirtual->seek);
@@ -172,6 +173,7 @@ EXPORT void* my_sf_open_virtual(x86emu_t* emu, my_sfvirtual_io_t* sfvirtual, int
 
 EXPORT int my_sf_close(x86emu_t* emu, void* sf)
 {
+    (void)emu;
     return my->sf_close(sf);
 }
 
@@ -182,4 +184,3 @@ EXPORT int my_sf_close(x86emu_t* emu, void* sf)
     freeMy();
 
 #include "wrappedlib_init.h"
-

@@ -179,7 +179,7 @@ void x86Int3(x86emu_t* emu)
                     perr = 1;
                 } else  if(strstr(s, "sem_timedwait")==s) {
                     pu32 = *(uint32_t**)(R_ESP+8);
-                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(void**)(R_ESP+8), pu32?pu32[0]:-1, pu32?pu32[1]:-1);
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, %p[%d sec %d ns])", tid, *(void**)(R_ESP), s, *(void**)(R_ESP+4), *(void**)(R_ESP+8), pu32?(int32_t)pu32[0]:-1, pu32?(int32_t)pu32[1]:-1);
                     perr = 1;
                 } else  if(strstr(s, "waitpid")==s) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, 0x%x)", tid, *(void**)(R_ESP), s, *(int32_t*)(R_ESP+4), *(void**)(R_ESP+8), *(uint32_t*)(R_ESP+12));
@@ -313,7 +313,7 @@ void x86Int3(x86emu_t* emu)
                 w(emu, addr);   // some function never come back, so unlock the mutex first!
                 if(post)
                     switch(post) {
-                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?pu32[0]:-1, pu32?pu32[1]:-1);
+                    case 1: snprintf(buff2, 63, " [%d sec %d nsec]", pu32?(int32_t)pu32[0]:-1, pu32?(int32_t)pu32[1]:-1);
                             break;
                     case 2: snprintf(buff2, 63, "(%s)", R_EAX?((char*)R_EAX):"nil");
                             break;

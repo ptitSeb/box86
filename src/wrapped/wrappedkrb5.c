@@ -58,6 +58,7 @@ static void* find_krb5_prompter_Fct(void* fct)
 
 EXPORT int my_krb5_get_init_creds_password(x86emu_t* emu, void* context, void* creds, void* client, void* password, void* f, void* data, int delta, void* service, void* options)
 {
+    (void)emu;
     return my->krb5_get_init_creds_password(context, creds, client, password, find_krb5_prompter_Fct(f), data, delta, service, options);
 }
 
@@ -68,4 +69,3 @@ EXPORT int my_krb5_get_init_creds_password(x86emu_t* emu, void* context, void* c
     freeMy();
 
 #include "wrappedlib_init.h"
-

@@ -1249,7 +1249,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		f.write("void {0}(x86emu_t *emu, uintptr_t fcn) {2} {1} fn = ({1})fcn; ".format(N.orig, W, "{"))
 		
 		if N.orig == 'vFv':
-			f.write("(void)fcn; ")
+			f.write("(void)emu; ")
 		
 		args = N.orig[2:]
 		if args == 'Ev': args = 'E'

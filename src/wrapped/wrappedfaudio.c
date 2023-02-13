@@ -399,29 +399,35 @@ static void wrapFAudioVoiceCallback(my_FAudioVoiceCallback_t* src, my_FAudioVoic
 }
 
 EXPORT uint32_t my_FAudioCreateVolumeMeterWithCustomAllocatorEXT(x86emu_t* emu, void* ppApo, uint32_t flags, void* customMalloc, void* customFree, void* customRealloc) {
+    (void)emu;
     return my->FAudioCreateVolumeMeterWithCustomAllocatorEXT(ppApo, flags, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
 EXPORT uint32_t my_FAudioCreateReverbWithCustomAllocatorEXT(x86emu_t* emu, void* ppApo, uint32_t flags, void* customMalloc, void* customFree, void* customRealloc) {
+    (void)emu;
     return my->FAudioCreateReverbWithCustomAllocatorEXT(ppApo, flags, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
 EXPORT uint32_t my_FAudioCreateReverb9WithCustomAllocatorEXT(x86emu_t* emu, void* ppApo, uint32_t flags, void* customMalloc, void* customFree, void* customRealloc) {
+    (void)emu;
     return my->FAudioCreateReverb9WithCustomAllocatorEXT(ppApo, flags, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
 EXPORT uint32_t my_FAudio_RegisterForCallbacks(x86emu_t* emu, void* audio, my_FAudioEngineCallback_t* p) {
+    (void)emu;
     my_FAudioEngineCallback_t cb = {0};
     wrapFAudioEngineCallback(p, &cb);
     return my->FAudio_RegisterForCallbacks(audio, &cb);
 }
 EXPORT void my_FAudio_UnregisterForCallbacks(x86emu_t* emu, void* audio, my_FAudioEngineCallback_t* p) {
+    (void)emu;
     my_FAudioEngineCallback_t cb = {0};
     wrapFAudioEngineCallback(p, &cb);
     my->FAudio_UnregisterForCallbacks(audio, &cb);
 }
 
 EXPORT uint32_t my_FAudio_CreateSourceVoice(x86emu_t* emu, void* audio, void* voices, void* format, uint32_t flags, float ratio, my_FAudioVoiceCallback_t* p, void* send, void* effect) {
+    (void)emu;
     my_FAudioVoiceCallback_t cb = {0};
     if(p)
         wrapFAudioVoiceCallback(p, &cb);
@@ -429,18 +435,22 @@ EXPORT uint32_t my_FAudio_CreateSourceVoice(x86emu_t* emu, void* audio, void* vo
 }
 
 EXPORT uint32_t my_FAudioCreateWithCustomAllocatorEXT(x86emu_t* emu, void* pp, uint32_t flags, uint32_t proc, void* customMalloc, void* customFree, void* customRealloc) {
+    (void)emu;
     return my->FAudioCreateWithCustomAllocatorEXT(pp, flags, proc, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
 EXPORT uint32_t my_FAudioCOMConstructWithCustomAllocatorEXT(x86emu_t* emu, void* pp, uint8_t ver,void* customMalloc, void* customFree, void* customRealloc) {
+    (void)emu;
     return my->FAudioCOMConstructWithCustomAllocatorEXT(pp, ver, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
 EXPORT void my_FAudio_SetEngineProcedureEXT(x86emu_t* emu, void* audio, void* p, void* user) {
+    (void)emu;
     my->FAudio_SetEngineProcedureEXT(audio, find_FAudioEngineProcedureEXT_Fct(p), user);
 }
 
 EXPORT uint32_t my_FAPOFX_CreateFXWithCustomAllocatorEXT(x86emu_t* emu, void* clsid, void* p, void* data, uint32_t size, void* customMalloc, void* customFree, void* customRealloc) {
+    (void)emu;
     return my->FAPOFX_CreateFXWithCustomAllocatorEXT(clsid, p, data, size, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
@@ -452,4 +462,3 @@ EXPORT uint32_t my_FAPOFX_CreateFXWithCustomAllocatorEXT(x86emu_t* emu, void* cl
     freeMy();
 
 #include "wrappedlib_init.h"
-

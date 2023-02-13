@@ -154,16 +154,19 @@ static void* findGDestroyNotifyFct(void* fct)
 
 EXPORT void my_pango_attribute_init(x86emu_t* emu, void* attr, my_PangoAttrClass_t* klass)
 {
+    (void)emu;
     my->pango_attribute_init(attr, find_PangoAttrClass_Fct(klass));
 }
 
 EXPORT void* my_pango_attr_list_filter(x86emu_t* emu, void* list, void* f, void* data)
 {
+    (void)emu;
     return my->pango_attr_list_filter(list, find_AttrFilter_Fct(f), data);
 }
 
 EXPORT void* my_pango_attr_shape_new_with_data(x86emu_t* emu, void* ink, void* loc, void* data, void* f, void* d)
 {
+    (void)emu;
     return my->pango_attr_shape_new_with_data(ink, loc, data, find_AttrDataCopy_Fct(f), findGDestroyNotifyFct(d));
 }
 

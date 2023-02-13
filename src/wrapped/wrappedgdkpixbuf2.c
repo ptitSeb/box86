@@ -20,7 +20,7 @@
 const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
 #define LIBNAME gdkpixbuf2
 
-//#define ADDED_FUNCTIONS()           \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedgdkpixbuf2types.h"
 
@@ -59,6 +59,7 @@ static void* finddestroy_pixbufFct(void* fct)
 
 EXPORT void* my_gdk_pixbuf_new_from_data(x86emu_t* emu, void* data, int32_t colorspace, int32_t has_alpha, int32_t bpp, int32_t w, int32_t h, int32_t stride, void* destroy_func, void* destroy_data)
 {
+    (void)emu;
     return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, finddestroy_pixbufFct(destroy_func), destroy_data);
 }
 

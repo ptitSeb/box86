@@ -184,6 +184,7 @@ static void addGObject2Alternate(library_t* lib)
 
 EXPORT uintptr_t my_g_signal_connect_data(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* data, void* closure, uint32_t flags)
 {
+    (void)emu;
     //TODO: get the type of instance to be more precise below
 
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
@@ -648,6 +649,7 @@ static void* findcompareFct(void* fct)
 
 EXPORT uintptr_t my_g_signal_connect_object(x86emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags)
 {
+    (void)emu;
     //TODO: get the type of instance to be more precise below
 
     return my->g_signal_connect_object(instance, detailed, findGCallbackFct(c_handler), object, flags);
@@ -655,6 +657,7 @@ EXPORT uintptr_t my_g_signal_connect_object(x86emu_t* emu, void* instance, void*
 
 EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxed_copy, void* boxed_free)
 {
+    (void)emu;
     void* bc = findCopyFct(boxed_copy);
     void* bf = findFreeFct(boxed_free);
     return my->g_boxed_type_register_static(name, bc, bf);
@@ -662,6 +665,7 @@ EXPORT int my_g_boxed_type_register_static(x86emu_t* emu, void* name, void* boxe
 
 EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags, uint32_t offset, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void** b)
 {
+    (void)emu;
     printf_log(LOG_DEBUG, "g_signal_new for \"%s\", with offset=%d and %d args\n", (const char*)name, offset, n);
     
     void* cb_acc = findAccumulatorFct(acc);
@@ -684,6 +688,7 @@ EXPORT uint32_t my_g_signal_new(x86emu_t* emu, void* name, int itype, int flags,
 
 EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* types)
 {
+    (void)emu;
     printf_log(LOG_DEBUG, "g_signal_newv for \"%s\", with %d args\n", (const char*)name, n);
     
     return my->g_signal_newv(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, types);
@@ -691,6 +696,7 @@ EXPORT uint32_t my_g_signal_newv(x86emu_t* emu, void* name, int itype, int flags
 
 EXPORT uint32_t my_g_signal_new_valist(x86emu_t* emu, void* name, int itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, int rtype, uint32_t n, void* b)
 {
+    (void)emu;
     printf_log(LOG_DEBUG, "g_signal_new_valist for \"%s\", with %d args\n", (const char*)name, n);
     
     return my->g_signal_new_valist(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, b);
@@ -698,6 +704,7 @@ EXPORT uint32_t my_g_signal_new_valist(x86emu_t* emu, void* name, int itype, int
 
 EXPORT uint32_t my_g_signal_handlers_block_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
+    (void)emu;
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -706,6 +713,7 @@ EXPORT uint32_t my_g_signal_handlers_block_matched(x86emu_t* emu, void* instance
 
 EXPORT uint32_t my_g_signal_handlers_unblock_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
+    (void)emu;
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -714,6 +722,7 @@ EXPORT uint32_t my_g_signal_handlers_unblock_matched(x86emu_t* emu, void* instan
 
 EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
+    (void)emu;
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -722,6 +731,7 @@ EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x86emu_t* emu, void* ins
 
 EXPORT unsigned long my_g_signal_handler_find(x86emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
 {
+    (void)emu;
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_INFO, "Warning, gobject g_signal_handler_find called with non null function \n");
     fnc = findMarshalFct(fnc);  //... just in case
@@ -730,6 +740,7 @@ EXPORT unsigned long my_g_signal_handler_find(x86emu_t* emu, void* instance, int
 
 EXPORT void* my_g_object_new(x86emu_t* emu, int type, void* first, void* b)
 {
+    (void)emu;
     if(first)
         return my->g_object_new_valist(type, first, b);
     return my->g_object_new(type, first);
@@ -737,16 +748,19 @@ EXPORT void* my_g_object_new(x86emu_t* emu, int type, void* first, void* b)
 
 EXPORT int my_g_type_register_static(x86emu_t* emu, int parent, void* name, my_GTypeInfo_t* info, int flags)
 {
+    (void)emu;
     return my->g_type_register_static(parent, name, findFreeGTypeInfo(info, parent), flags);
 }
 
 EXPORT int my_g_type_register_fundamental(x86emu_t* emu, int parent, void* name, my_GTypeInfo_t* info, void* finfo, int flags)
 {
+    (void)emu;
     return my->g_type_register_fundamental(parent, name, findFreeGTypeInfo(info, parent), finfo, flags);
 }
 
 EXPORT void my_g_value_register_transform_func(x86emu_t* emu, int src, int dst, void* f)
 {
+    (void)emu;
     my->g_value_register_transform_func(src, dst, findValueTransformFct(f));
 }
 
@@ -759,6 +773,7 @@ static int my_signal_emission_hook(void* ihint, uint32_t n, my_GValue_t* values,
 }
 EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
 {
+    (void)emu;
     // there can be many signals connected, so something "light" is needed here
 
     if(!f)
@@ -789,6 +804,7 @@ typedef struct my_GInterfaceInfo_s {
 
 EXPORT void my_g_type_add_interface_static(x86emu_t* emu, int instance_type, int interface_type, my_GInterfaceInfo_t* info)
 {
+    (void)emu;
     my_GInterfaceInfo_t i = {0};
     i.interface_init = findGInterfaceInitFuncFct(info->interface_init);
     i.interface_finalize = findGInterfaceFinalizeFuncFct(info->interface_finalize);
@@ -798,31 +814,37 @@ EXPORT void my_g_type_add_interface_static(x86emu_t* emu, int instance_type, int
 
 EXPORT void my_g_param_spec_set_qdata_full(x86emu_t* emu, void* pspec, uint32_t quark, void* data, void* notify)
 {
+    (void)emu;
     my->g_param_spec_set_qdata_full(pspec, quark, data, findFreeFct(notify));
 }
 
 EXPORT int my_g_param_type_register_static(x86emu_t* emu, void* name, void* pspec_info)
 {
+    (void)emu;
     return my->g_param_type_register_static(name, findFreeGParamSpecTypeInfo(pspec_info));
 }
 
 EXPORT void* my_g_value_array_sort(x86emu_t* emu, void* array, void* comp)
 {
+    (void)emu;
     return my->g_value_array_sort(array, findcompareFct(comp));
 }
 
 EXPORT void* my_g_value_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
+    (void)emu;
     return my->g_value_array_sort_with_data(array, findcompareFct(comp), data);
 }
 
 EXPORT void my_g_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)
 {
+    (void)emu;
     my->g_object_set_data_full(object, key, data, findFreeFct(notify));
 }
 
 EXPORT void* my_g_type_class_peek_parent(x86emu_t* emu, void* object)
 {
+    (void)emu;
     void* klass = my->g_type_class_peek_parent(object);
     int type = klass?*(int*)klass:0;
     return wrapCopyGTKClass(klass, type);
@@ -858,11 +880,13 @@ EXPORT void* my_g_param_spec_get_default_value(void* spec)
 
 EXPORT void my_g_closure_set_marshal(x86emu_t* emu, void* closure, void* marshal)
 {
+    (void)emu;
     my->g_closure_set_marshal(closure, findMarshalFct(marshal));
 }
 
 EXPORT void my_g_closure_add_finalize_notifier(x86emu_t* emu, void* closure, void* data, void* f)
 {
+    (void)emu;
     my->g_closure_add_finalize_notifier(closure, data, findGClosureNotify_Fct(f));
 }
 
@@ -882,4 +906,3 @@ EXPORT void my_g_closure_add_finalize_notifier(x86emu_t* emu, void* closure, voi
     freeMy();
 
 #include "wrappedlib_init.h"
-

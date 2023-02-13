@@ -135,7 +135,7 @@ typedef struct __attribute__((packed)) x86_pa_sink_info_s {
 #define GO(A, B) dst->B = src->B;
 #define GOA(A, B)
 #define GOS(A, B)
-static void align_pa_sink_info(my_pa_sink_info_t* dst, x86_pa_sink_info_t* src)
+/* static void align_pa_sink_info(my_pa_sink_info_t* dst, x86_pa_sink_info_t* src)
 {
     if(!src)
         return;
@@ -144,7 +144,7 @@ static void align_pa_sink_info(my_pa_sink_info_t* dst, x86_pa_sink_info_t* src)
     memcpy(dst->channel_map.map, src->channel_map.map, sizeof(dst->channel_map.map));
     dst->volume.channels = src->volume.channels;
     memcpy(dst->volume.values, src->volume.values, sizeof(dst->volume.values));
-}
+} */
 static void unalign_pa_sink_info(x86_pa_sink_info_t* dst, my_pa_sink_info_t* src)
 {
     if(!src)
@@ -1137,12 +1137,14 @@ static void bridgeMainloopAPI(bridge_t* bridge, my_pa_mainloop_api_t* api)
 // only one mainloop can be active at a given time!
 EXPORT void my_pa_mainloop_free(x86emu_t* emu, void* mainloop)
 {
+    (void)emu;
     my->pa_mainloop_free(mainloop);
     mainloop_inited = 0;
     /*my_mainloop_ref =*/ my_mainloop_orig = NULL;
 }
 EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
+    (void)emu;
     my_pa_mainloop_api_t* api = my->pa_mainloop_get_api(mainloop);
     bridgeMainloopAPI(my_lib->w.bridge, api);
     return my_mainloop_ref;
@@ -1150,12 +1152,14 @@ EXPORT void* my_pa_mainloop_get_api(x86emu_t* emu, void* mainloop)
 
 EXPORT void my_pa_threaded_mainloop_free(x86emu_t* emu, void* mainloop)
 {
+    (void)emu;
     my->pa_threaded_mainloop_free(mainloop);
     mainloop_inited = 0;
     /*my_mainloop_ref =*/ my_mainloop_orig = NULL;
 }
 EXPORT void* my_pa_threaded_mainloop_get_api(x86emu_t* emu, void* mainloop)
 {
+    (void)emu;
     my_pa_mainloop_api_t* api = my->pa_threaded_mainloop_get_api(mainloop);
     bridgeMainloopAPI(my_lib->w.bridge, api);
     return my_mainloop_ref;
@@ -1164,29 +1168,34 @@ EXPORT void* my_pa_threaded_mainloop_get_api(x86emu_t* emu, void* mainloop)
 // Context functions
 EXPORT void* my_pa_context_new(x86emu_t* emu, my_pa_mainloop_api_t* mainloop, void* name)
 {
+    (void)emu;
     if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version
     return my->pa_context_new(mainloop, name);
 }
 
 EXPORT void* my_pa_context_new_with_proplist(x86emu_t* emu, my_pa_mainloop_api_t* mainloop, void* name, void* proplist)
 {
+    (void)emu;
     if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version
     return my->pa_context_new_with_proplist(mainloop, name, proplist);
 }
 
 EXPORT int my_pa_signal_init(x86emu_t* emu, my_pa_mainloop_api_t* mainloop)
 {
+    (void)emu;
     if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version
     return my->pa_signal_init(mainloop);
 }
 
 EXPORT void* my_pa_signal_new(x86emu_t* emu, int sig, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_signal_new(sig, find_signal_Fct(cb), data);
 }
 
 EXPORT void my_pa_signal_set_destroy(x86emu_t* emu, void* e, void* cb)
 {
+    (void)emu;
     return my->pa_signal_set_destroy(e, find_signal_destroy_Fct(cb));
 }
 
@@ -1198,6 +1207,7 @@ typedef struct my_pa_spawn_api_s {
 
 EXPORT int my_pa_context_connect(x86emu_t* emu, void* context, void* server, int flags, my_pa_spawn_api_t* api)
 {
+    (void)emu;
     if(!api) {
         return my->pa_context_connect(context, server, flags, api);
     }
@@ -1212,155 +1222,186 @@ EXPORT int my_pa_context_connect(x86emu_t* emu, void* context, void* server, int
 
 EXPORT void my_pa_context_set_state_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_state_callback(context, find_state_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_default_sink(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_default_sink(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_default_source(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_default_source(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_move_sink_input_by_index(x86emu_t* emu, void* context, uint32_t idx, uint32_t sink_idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_move_sink_input_by_index(context, idx, sink_idx, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_module_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_module_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_server_info(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_server_info(context, find_server_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_client_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_client_info_list(context, find_client_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_input_info(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_sink_input_info(context, idx, find_module_info_Fct(cb), data);
 }
 EXPORT void* my_pa_context_get_sink_input_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_sink_input_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_sink_info_list(context, find_sink_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_by_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_sink_info_by_name(context, name, find_sink_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_info_list(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_source_info_list(context, find_module_info_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_sink_input_mute(x86emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_sink_input_mute(context, idx, mute, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_sink_input_volume(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_sink_input_volume(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_sink_info_by_index(context, idx, find_sink_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_info_by_index(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_source_info_by_index(context, idx, find_module_info_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_source_volume_by_index(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_source_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_source_mute_by_index(x86emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_source_mute_by_index(context, idx, mute, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_sink_volume_by_index(x86emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_sink_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_unload_module(x86emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_unload_module(context, idx, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_load_module(x86emu_t* emu, void* context, void* name, void* arg, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_load_module(context, name, arg, find_context_index_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_subscribe(x86emu_t* emu, void* context, uint32_t m, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_subscribe(context, m, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_subscribe_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_subscribe_callback(context, find_subscribe_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_drain(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_drain(context, find_notify_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_exit_daemon(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_exit_daemon(context, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_proplist_remove(x86emu_t* emu, void* context, void* keys, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_proplist_remove(context, keys, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_proplist_update(x86emu_t* emu, void* context, int mode, void* p, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_proplist_update(context, mode, p, find_success_context_Fct(cb), data);
 }
 
 EXPORT void my_pa_context_set_event_callback(x86emu_t* emu, void* context, void* cb, void* data)
 {
+    (void)emu;
     my->pa_context_set_event_callback(context, find_event_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_name(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_source_volume_by_name(x86emu_t* emu, void* context, void* name,void* volume, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_source_volume_by_name(context, name, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_info_by_name(x86emu_t* emu, void* context, void* name, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_source_info_by_name(context, name, find_module_info_Fct(cb), data);
 }
 
@@ -1368,26 +1409,31 @@ EXPORT void* my_pa_context_get_source_info_by_name(x86emu_t* emu, void* context,
 
 EXPORT void* my_pa_stream_drain(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_drain(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_flush(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_flush(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_latency_update_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_latency_update_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_read_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_read_callback(stream, find_stream_request_Fct(cb), data);
 }
 
 EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nbytes, void* cb, int64_t offset, int seek)
 {
+    (void)emu;
     if(!my)
         return 0;
     return my->pa_stream_write(stream, d, nbytes, findFreeFct(cb), offset, seek);
@@ -1395,91 +1441,109 @@ EXPORT int my_pa_stream_write(x86emu_t* emu, void* stream, void* d, uint32_t nby
 
 EXPORT void* my_pa_stream_update_timing_info(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_update_timing_info(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_prebuf(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_prebuf(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_proplist_remove(x86emu_t* emu, void* stream, void* keys, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_proplist_remove(stream, keys, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_proplist_update(x86emu_t* emu, void* stream, int32_t mode, void* p, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_proplist_update(stream, mode, p, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_set_buffer_attr(x86emu_t* emu, void* stream, void* attr, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_set_buffer_attr(stream, attr, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_buffer_attr_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_buffer_attr_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_event_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_event_callback(stream, find_stream_event_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_moved_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_moved_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_set_name(x86emu_t* emu, void* stream, void* name, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_set_name(stream, name, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_overflow_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_overflow_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_started_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_started_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_state_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_state_callback(stream, find_stream_state_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_suspended_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_suspended_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_underflow_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_underflow_callback(stream, find_stream_notify_Fct(cb), data);
 }
 
 EXPORT void my_pa_stream_set_write_callback(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     my->pa_stream_set_write_callback(stream, find_stream_request_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_trigger(x86emu_t* emu, void* stream, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_trigger(stream, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_update_sample_rate(x86emu_t* emu, void* stream, uint32_t rate, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_update_sample_rate(stream, rate, find_stream_success_Fct(cb), data);
 }
 
 EXPORT void* my_pa_stream_cork(x86emu_t* emu, void* stream, int32_t b, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_stream_cork(stream, b, find_stream_success_Fct(cb), data);
 }
 
@@ -1492,6 +1556,7 @@ EXPORT int my_pa_proplist_setf(x86emu_t* emu, void* p, void* key, void* fmt, voi
     PREPARE_VALIST;
     f(&format, fmt, VARARGS);
     #else
+    (void)emu;
     f(&format, fmt, b);
     #endif
     int ret = my->pa_proplist_setf(p, key, format);
@@ -1501,7 +1566,7 @@ EXPORT int my_pa_proplist_setf(x86emu_t* emu, void* p, void* key, void* fmt, voi
 
 EXPORT void my_pa_mainloop_set_poll_func(x86emu_t* emu, void* m, void* f, void* data)
 {
-
+    (void)emu;
     my->pa_mainloop_set_poll_func(m, find_poll_Fct(f), data);
 }
 
@@ -1521,81 +1586,97 @@ EXPORT void my_pa_log_level_meta(x86emu_t* emu, int level, void* file, int line,
 
 EXPORT void* my_pa_ext_device_restore_save_formats(x86emu_t* emu, void* c, int t, uint32_t idx, uint8_t n, void* f, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_ext_device_restore_save_formats(c, t, idx, n, f, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_ext_device_restore_read_formats(x86emu_t* emu, void* c, int t, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_ext_device_restore_read_formats(c, t, idx, find_device_restore_read_device_formats_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_source_port_by_index(x86emu_t* emu, void* c, uint32_t idx, void* p, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_source_port_by_index(c, idx, p, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_card_profile_by_index(x86emu_t* emu, void* c, uint32_t idx, void* p, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_card_profile_by_index(c, idx, p, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_sink_port_by_index(x86emu_t* emu, void* c, uint32_t idx, void* p, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_sink_port_by_index(c, idx, p, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_card_info_list(x86emu_t* emu, void* c, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_card_info_list(c, find_card_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_output_info_list(x86emu_t* emu, void* c, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_source_output_info_list(c, find_source_output_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_ext_device_restore_read_formats_all(x86emu_t* emu, void* c, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_ext_device_restore_read_formats_all(c, find_device_restore_read_device_formats_Fct(cb), data);
 }
 
 EXPORT void* my_pa_ext_device_restore_set_subscribe_cb(x86emu_t* emu, void* c, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_ext_device_restore_set_subscribe_cb(c, find_device_restore_subscribe_Fct(cb), data);
 }
 
 EXPORT void* my_pa_ext_device_restore_subscribe(x86emu_t* emu, void* c, int e, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_ext_device_restore_subscribe(c, e, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_sink_mute_by_index(x86emu_t* emu, void* c, uint32_t idx, int m, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_sink_mute_by_index(c, idx, m, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_set_sink_port_by_name(x86emu_t* emu, void* c, void* n, void* p, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_set_sink_port_by_name(c, n, p, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_move_source_output_by_index(x86emu_t* emu, void* c, uint32_t idx, uint32_t s, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_move_source_output_by_index(c, idx, s, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_card_info_by_index(x86emu_t* emu, void* c, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_card_info_by_index(c, idx, find_card_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_client_info(x86emu_t* emu, void* c, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_client_info(c, idx, find_client_info_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_source_output_info(x86emu_t* emu, void* c, uint32_t idx, void* cb, void* data)
 {
+    (void)emu;
     return my->pa_context_get_source_output_info(c, idx, find_source_output_info_Fct(cb), data);
 }
 
@@ -1611,4 +1692,3 @@ EXPORT void* my_pa_context_get_source_output_info(x86emu_t* emu, void* c, uint32
     freeMy();
 
 #include "wrappedlib_init.h"
-

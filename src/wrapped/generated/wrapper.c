@@ -2353,7 +2353,7 @@ typedef int32_t (*iFKipppL_t)(double, int32_t, void*, void*, void*, uintptr_t);
 typedef void (*vFppippKKC_t)(void*, void*, int32_t, void*, void*, double, double, uint8_t);
 #endif
 
-void vFv(x86emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; (void)fcn; fn(); }
+void vFv(x86emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; (void)emu; fn(); }
 void vFi(x86emu_t *emu, uintptr_t fcn) { vFi_t fn = (vFi_t)fcn; fn(*(int32_t*)(R_ESP + 4)); }
 void vFu(x86emu_t *emu, uintptr_t fcn) { vFu_t fn = (vFu_t)fcn; fn(*(uint32_t*)(R_ESP + 4)); }
 void vFU(x86emu_t *emu, uintptr_t fcn) { vFU_t fn = (vFU_t)fcn; fn(*(uint64_t*)(R_ESP + 4)); }

@@ -94,7 +94,7 @@ static versymbol_t* FindVersion(versymbols_t* s, size_t size, const char* vernam
             return &s->syms[i];
     return NULL;
 }
-static versymbol_t* FindFirstVersion(versymbols_t* s, size_t size)
+/* static versymbol_t* FindFirstVersion(versymbols_t* s, size_t size)
 {
     if(!s || !s->sz)
         return NULL;
@@ -102,7 +102,7 @@ static versymbol_t* FindFirstVersion(versymbols_t* s, size_t size)
         if(s->syms[i].version>1 && (!size || (size==s->syms[i].sym.sz)))
             return &s->syms[i];
     return NULL;
-}
+} */
 
 // Match version (so ver=0:0, ver=1:-1/1/X, ver=-1:any, ver=X:1/"name")
 static versymbol_t* MatchVersion(versymbols_t* s, int ver, const char* vername, size_t size, int local, const char* defver)

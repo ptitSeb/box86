@@ -63,6 +63,7 @@ static void* find_putc_Fct(void* fct)
 
 EXPORT int my_tputs(x86emu_t* emu, void* str, int affcnt, void* f)
 {
+    (void)emu;
     return my->tputs(str, affcnt, find_putc_Fct(f));
 }
 

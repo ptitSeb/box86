@@ -32,11 +32,12 @@ typedef my_xcb_cookie_t (*XFpuuuwwu_t)  (void*, uint32_t, uint32_t, uint32_t, in
 
 #include "wrappercallback.h"
 
-#define SUPER(F, P, ...)                                            \
-    EXPORT void* my_##F P                                           \
-    {                                                               \
-        *ret = my->F(__VA_ARGS__);                                  \
-        return ret;                                                 \
+#define SUPER(F, P, ...)           \
+    EXPORT void* my_##F P          \
+    {                              \
+        (void)emu;                 \
+        *ret = my->F(__VA_ARGS__); \
+        return ret;                \
     }
 
 SUPER(xcb_shape_mask, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t op, uint32_t kind, uint32_t dest, int16_t x, int16_t y, uint32_t bitmap), c, op, kind, dest, x, y, bitmap)

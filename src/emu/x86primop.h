@@ -247,6 +247,7 @@ Implements the NOT instruction
 ****************************************************************************/
 static inline uint8_t not8(x86emu_t *emu, uint8_t s)
 {
+    (void)emu;
 	return ~s;
 }
 
@@ -256,6 +257,7 @@ Implements the NOT instruction
 ****************************************************************************/
 static inline uint16_t not16(x86emu_t *emu, uint16_t s)
 {
+    (void)emu;
 	return ~s;
 }
 
@@ -265,6 +267,7 @@ Implements the NOT instruction
 ****************************************************************************/
 static inline uint32_t not32(x86emu_t *emu, uint32_t s)
 {
+    (void)emu;
 	return ~s;
 }
 

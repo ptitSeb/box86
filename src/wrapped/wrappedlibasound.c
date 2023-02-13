@@ -28,6 +28,7 @@ EXPORT uintptr_t my_snd_lib_error = 0;
 
 static void default_error_handler(const char *file, int line, const char *function, int err, const char *fmt, va_list ap)
 {
+    (void)file; (void)line; (void)function; (void)err;
     vprintf(fmt, ap);
 }
     // setup custom error handler
@@ -74,17 +75,20 @@ static void* findAsyncFct(void* fct)
 
 EXPORT int my_snd_async_add_handler(x86emu_t *emu, void *handler, int fd, void* callback, void *private_data)
 {
+    (void)emu;
     return my->snd_async_add_handler(handler, fd, findAsyncFct(callback), private_data);
 }
 
 EXPORT int my_snd_async_add_pcm_handler(x86emu_t *emu, void *handler, void* pcm,  void* callback, void *private_data)
 {
+    (void)emu;
     return my->snd_async_add_pcm_handler(handler, pcm, findAsyncFct(callback), private_data);
 }
 
 static void* current_error_handler = NULL;
 static void dummy_error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
 {
+    (void)function; (void)err;
     va_list ap;
 
     fprintf(ftrace, "Warning: this is a dummy snd_lib error handler\n");
@@ -98,10 +102,12 @@ static void dummy_error_handler(const char *file, int line, const char *function
 static void empty_error_handler(const char *file, int line, const char *function, int err, const char *fmt, ...)
 {
     // do nothing
+    (void)file; (void)line; (void)function; (void)err; (void)fmt;
 }
 
 EXPORT int my_snd_lib_error_set_handler(x86emu_t* emu, void* handler)
 {
+    (void)emu;
     current_error_handler = handler;
     void *error_handler;
     uint8_t *code = (uint8_t *)handler;
@@ -145,4 +151,3 @@ EXPORT void* my_snd_dlsym(x86emu_t* emu, void* handle, void* name, void* version
     freeMy();
 
 #include "wrappedlib_init.h"
-

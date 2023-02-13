@@ -80,6 +80,7 @@ static void my_save_complete(void* smcConn, void* clientData)
 
 EXPORT void* my_SmcOpenConnection(x86emu_t* emu, void* networkIdsList, void* context, int major, int minor, unsigned long mask, my_SmcCallbacks_t* cb, void* previousId, void* clientIdRet, int errorLength, void* errorRet)
 {
+    (void)emu;
     my_SmcCallbacks_t nat = {0};
     #define GO(A, B) if(mask&A) {my_##B##_fct = (uintptr_t)cb->B.callback; nat.B.callback = my_##B; nat.B.client_data=cb->B.client_data;}
     GO(SmcSaveYourselfProcMask, save_yourself)
@@ -126,11 +127,13 @@ static void* findRequestFct(void* fct)
 
 EXPORT int my_SmcInteractRequest(x86emu_t* emu, void* smcConn, int f, void* cb, void* data)
 {
+    (void)emu;
     return my->SmcInteractRequest(smcConn, f, findRequestFct(cb), data);
 }
 
 EXPORT int my_SmcRequestSaveYourselfPhase2(x86emu_t* emu, void* smcConn, void* cb, void* data)
 {
+    (void)emu;
     return my->SmcRequestSaveYourselfPhase2(smcConn, findRequestFct(cb), data);
 }
 
@@ -141,4 +144,3 @@ EXPORT int my_SmcRequestSaveYourselfPhase2(x86emu_t* emu, void* smcConn, void* c
     freeMy();
 
 #include "wrappedlib_init.h"
-

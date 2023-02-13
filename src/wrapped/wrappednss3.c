@@ -115,11 +115,13 @@ static void* reverse_CERT_StringFromCertFcn_Fct(library_t* lib, void* fct)
 
 EXPORT void my_PK11_SetPasswordFunc(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->PK11_SetPasswordFunc(find_PK11PasswordFunc_Fct(f));
 }
 
 EXPORT int my_CERT_RegisterAlternateOCSPAIAInfoCallBack(x86emu_t* emu, void* f, void** old)
 {
+    (void)emu;
     int ret = my->CERT_RegisterAlternateOCSPAIAInfoCallBack(find_CERT_StringFromCertFcn_Fct(f), old);
     if(old)
         *old = reverse_CERT_StringFromCertFcn_Fct(my_lib, *old);
@@ -128,6 +130,7 @@ EXPORT int my_CERT_RegisterAlternateOCSPAIAInfoCallBack(x86emu_t* emu, void* f, 
 
 EXPORT int my_NSS_RegisterShutdown(x86emu_t* emu, void* f, void* data)
 {
+    (void)emu;
     return my->NSS_RegisterShutdown(find_NSS_ShutdownFunc_Fct(f), data);
 }
 
@@ -138,4 +141,3 @@ EXPORT int my_NSS_RegisterShutdown(x86emu_t* emu, void* f, void* data)
     freeMy();
 
 #include "wrappedlib_init.h"
-

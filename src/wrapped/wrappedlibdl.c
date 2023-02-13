@@ -179,6 +179,7 @@ void* my_dlmopen(x86emu_t* emu, void* lmid, void *filename, int flag)
 }
 char* my_dlerror(x86emu_t* emu)
 {
+    (void)emu;
     dlprivate_t *dl = my_context->dlprivate;
     return dl->last_error;
 }
@@ -222,6 +223,7 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
 }
 void* my_dlsym(x86emu_t* emu, void *handle, void *symbol)
 {
+    (void)emu;
     dlprivate_t *dl = my_context->dlprivate;
     uintptr_t start = 0, end = 0;
     char* rsymbol = (char*)symbol;
@@ -336,6 +338,7 @@ int my_dladdr1(x86emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     Dl_info *info = (Dl_info*)i;
     printf_log(LOG_DEBUG, "Warning: partially unimplement call to dladdr/dladdr1(%p, %p, %p, %d)\n", addr, info, extra_info, flags);
     
+    (void)emu;
     //emu->quit = 1;
     #ifndef ANDROID
     void* native = GetNativeFnc((uintptr_t)addr);
@@ -367,6 +370,7 @@ int my_dladdr(x86emu_t* emu, void *addr, void *i)
 }
 void* my_dlvsym(x86emu_t* emu, void *handle, void *symbol, const char* vername)
 {
+    (void)emu;
     dlprivate_t *dl = my_context->dlprivate;
     int version = (vername)?2:-1;
     uintptr_t start, end;
@@ -450,7 +454,8 @@ typedef struct link_map_s {
 
 int my_dlinfo(x86emu_t* emu, void* handle, int request, void* info)
 {
-        printf_dlsym(LOG_DEBUG, "Call to dlinfo(%p, %d, %p)\n", handle, request, info);
+    (void)emu;
+    printf_dlsym(LOG_DEBUG, "Call to dlinfo(%p, %d, %p)\n", handle, request, info);
     dlprivate_t *dl = my_context->dlprivate;
     CLEARERR
     int nlib = (int)handle;

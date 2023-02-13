@@ -140,6 +140,7 @@ static void* find_program_callback_Fct(void* fct)
 
 EXPORT void my_glDebugMessageCallback(x86emu_t* emu, void* prod, void* param)
 {
+    (void)emu;
     static vFpp_t DebugMessageCallback = NULL;
     static int init = 1;
     if(init) {
@@ -170,6 +171,7 @@ EXPORT int my_glXSwapIntervalMESA(int interval)
 
 EXPORT void my_glProgramCallbackMESA(x86emu_t* emu, void* f, void* data)
 {
+    (void)emu;
     static vFpp_t ProgramCallbackMESA = NULL;
     static int init = 1;
     if(init) {

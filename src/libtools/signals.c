@@ -479,6 +479,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     if(db) {
         frame = (uintptr_t*)p->uc_mcontext.arm_r8;
     }
+#else
+    (void)ucntx; (void)cur_db;
 #endif
     // stack tracking
 	i386_stack_t *new_ss = my_context->onstack[sig]?(i386_stack_t*)pthread_getspecific(sigstack_key):NULL;
@@ -736,8 +738,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
     int Locks = unlockMutex();
-    uint32_t prot = getProtection((uintptr_t)addr);
 #ifdef DYNAREC
+    uint32_t prot = getProtection((uintptr_t)addr);
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         relockMutex(Locks);
         cancelFillBlock();  // Segfault inside a Fillblock
@@ -1282,6 +1284,7 @@ EXPORT int my_setcontext(x86emu_t* emu, void* ucp)
 
 EXPORT int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, int32_t* argv)
 {
+    (void)emu;
 //    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
     i386_ucontext_t *u = (i386_ucontext_t*)ucp;
     // setup stack

@@ -114,6 +114,7 @@ uint32_t my_set_thread_area(thread_area_t* td)
 
 EXPORT uint32_t my_modify_ldt(x86emu_t* emu, int op, thread_area_t* td, int size)
 {
+    (void)emu;
     printf_log(/*LOG_DEBUG*/LOG_INFO, "modify_ldt(0x%x, %p[0x%x/base=%p/limit=%u/32bits:%u/%u/%u...], %d)\n", op, td, td->entry_number, (void*)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only, size);
     if(!td) {
         errno = EFAULT;

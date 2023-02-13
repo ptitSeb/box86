@@ -110,16 +110,19 @@ static void* find_cleanup_Fct(void* fct)
 
 EXPORT int my_mpg123_replace_reader_handle(x86emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
+    (void)emu;
     return my->mpg123_replace_reader_handle(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
 EXPORT int my_mpg123_replace_reader_handle_32(x86emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
+    (void)emu;
     return my->mpg123_replace_reader_handle_32(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
 EXPORT int my_mpg123_replace_reader_handle_64(x86emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
+    (void)emu;
     return my->mpg123_replace_reader_handle_64(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
@@ -130,4 +133,3 @@ EXPORT int my_mpg123_replace_reader_handle_64(x86emu_t* emu, void* mh, void* r_r
     freeMy();
 
 #include "wrappedlib_init.h"
-

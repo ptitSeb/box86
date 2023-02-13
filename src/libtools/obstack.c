@@ -189,6 +189,7 @@ EXPORT void my__obstack_newchunk(struct i386_obstack* obstack, int s)
 
 EXPORT int32_t my_obstack_vprintf(x86emu_t* emu, struct i386_obstack* obstack, void* fmt, uint32_t* b, va_list V)
 {
+    (void)emu; (void)V;
     struct obstack native = {0};
     from_i386_obstack(obstack, &native);
     #ifndef NOALIGN

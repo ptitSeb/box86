@@ -49,6 +49,7 @@ typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppu_t)(void*, void*, uint32_t);
 EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 {
+    (void)emu;
     static void* f = NULL;
     static int need_load = 1;
     if(need_load) {
@@ -63,6 +64,7 @@ EXPORT int my_pthread_setname_np(x86emu_t* emu, void* t, void* n)
 }
 EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
 {
+    (void)emu;
     static void* f = NULL;
     static int need_load = 1;
     if(need_load) {
@@ -80,6 +82,7 @@ EXPORT int my_pthread_getname_np(x86emu_t* emu, void* t, void* n, uint32_t s)
 
 EXPORT int my_pthread_attr_setschedparam(x86emu_t* emu, void* attr, void* param)
 {
+    (void)emu;
     int policy;
     pthread_attr_getschedpolicy(attr, &policy);
     int pmin = sched_get_priority_min(policy);
@@ -108,6 +111,7 @@ EXPORT int my_pthread_rwlock_unlock(pthread_rwlock_t *rwlock)
 
 EXPORT int32_t my_pthread_atfork(x86emu_t *emu, void* prepare, void* parent, void* child)
 {
+    (void)emu;
     // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my_atfork...
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
@@ -134,4 +138,3 @@ EXPORT void my___pthread_initialize()
     else
 
 #include "wrappedlib_init.h"
-

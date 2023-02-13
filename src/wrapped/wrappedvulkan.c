@@ -364,18 +364,21 @@ my_VkAllocationCallbacks_t* find_VkAllocationCallbacks(my_VkAllocationCallbacks_
 #define CREATE(A)   \
 EXPORT int my_##A(x86emu_t* emu, void* device, void* pAllocateInfo, my_VkAllocationCallbacks_t* pAllocator, void* p)    \
 {                                                                                                                       \
+    (void)emu;                                                                                                          \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
     return my->A(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);                          \
 }
 #define DESTROY(A)   \
-EXPORT void my_##A(x86emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                         \
+EXPORT void my_##A(x86emu_t* emu, void* device, void* p, my_VkAllocationCallbacks_t* pAllocator)                        \
 {                                                                                                                       \
+    (void)emu;                                                                                                          \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
-    my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                         \
+    my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                \
 }
 #define DESTROY64(A)   \
-EXPORT void my_##A(x86emu_t* emu, void* device, uint64_t p, my_VkAllocationCallbacks_t* pAllocator)                        \
+EXPORT void my_##A(x86emu_t* emu, void* device, uint64_t p, my_VkAllocationCallbacks_t* pAllocator)                     \
 {                                                                                                                       \
+    (void)emu;                                                                                                          \
     my_VkAllocationCallbacks_t my_alloc;                                                                                \
     my->A(device, p, find_VkAllocationCallbacks(&my_alloc, pAllocator));                                                \
 }
@@ -387,6 +390,7 @@ CREATE(vkCreateCommandPool)
 
 EXPORT int my_vkCreateComputePipelines(x86emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     void* aligned;
     const char* desc="upiSupiiUppUUi";
@@ -404,6 +408,7 @@ CREATE(vkCreateDevice)
 
 EXPORT int my_vkCreateDisplayModeKHR(x86emu_t* emu, void* physical, uint64_t display, void* pCreateInfo, my_VkAllocationCallbacks_t* pAllocator, void* pMode)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkCreateDisplayModeKHR(physical, display, pCreateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), pMode);
 }
@@ -415,6 +420,7 @@ CREATE(vkCreateFramebuffer)
 
 EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipelines)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     void* aligned;
     const char* desc="upiuppppppppppUUuUi"; //TODO: check if any substruct need alignement!
@@ -429,6 +435,7 @@ CREATE(vkCreateImageView)
 
 EXPORT int my_vkCreateInstance(x86emu_t* emu, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pInstance)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkCreateInstance(pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pInstance);
 }
@@ -444,6 +451,7 @@ CREATE(vkCreateShaderModule)
 
 EXPORT int my_vkCreateSharedSwapchainsKHR(x86emu_t* emu, void* device, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pSwapchains)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     void* aligned;
     const char* desc="upiUuiiuuuiiupiiiiU";
@@ -462,11 +470,13 @@ CREATE(vkCreateRenderPass2KHR)
 
 EXPORT int my_vkRegisterDeviceEventEXT(x86emu_t* emu, void* device, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkRegisterDeviceEventEXT(device, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
 }
 EXPORT int my_vkRegisterDisplayEventEXT(x86emu_t* emu, void* device, uint64_t disp, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkRegisterDisplayEventEXT(device, disp, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
 }
@@ -483,6 +493,7 @@ DESTROY64(vkDestroyDescriptorUpdateTemplateKHR)
 
 EXPORT void my_vkDestroyDevice(x86emu_t* emu, void* pDevice, my_VkAllocationCallbacks_t* pAllocator)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     my->vkDestroyDevice(pDevice, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
@@ -495,6 +506,7 @@ DESTROY64(vkDestroyImageView)
 
 EXPORT void my_vkDestroyInstance(x86emu_t* emu, void* instance, my_VkAllocationCallbacks_t* pAllocator)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     my->vkDestroyInstance(instance, find_VkAllocationCallbacks(&my_alloc, pAllocator));
 }
@@ -531,6 +543,7 @@ DESTROY64(vkDestroyOpticalFlowSessionNV)
 
 EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
 {
+    (void)emu;
     static const char* desc = 
         "uuuuiYB"
         "SuuuuuuuuuuuUUuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuffuuuffuLUUUiuiuffuuuuiiiiuiiiiiuifuuuuffffffiiUUU"
@@ -542,6 +555,7 @@ EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* 
 
 EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, void* device, int format, int type, int samples, int usage, int tiling, uint32_t* count, void** pProps)
 {
+    (void)emu;
     static const char* desc = "iuuui";
     if(!pProps)
         return my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, pProps);
@@ -556,6 +570,7 @@ EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x86emu_t* emu, voi
 
 EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writeCount, void* writeSet, uint32_t copyCount, void* copySet)
 {
+    (void)emu;
     static const char* writeDesc = "upUuuuippp";
     static const char* copyDesc = "upUuuUuuu";
 
@@ -568,6 +583,7 @@ EXPORT void my_vkUpdateDescriptorSets(x86emu_t* emu, void* device, uint32_t writ
 
 EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint64_t mode, uint32_t index, void* pCap)
 {
+    (void)emu;
     static const char* desc = "iuuuuuuuuuuuuuuuu";
 
     void* aligned = vkalignStruct(pCap, desc, 1);
@@ -578,6 +594,7 @@ EXPORT int my_vkGetDisplayPlaneCapabilitiesKHR(x86emu_t* emu, void* device, uint
 
 EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x86emu_t* emu, void* device, uint32_t* count, void* pProp)
 {
+    (void)emu;
     static const char* desc = "Upuuuuiii";
     if(!pProp)
         return my->vkGetPhysicalDeviceDisplayPropertiesKHR(device, count, pProp);
@@ -592,6 +609,7 @@ EXPORT int my_vkGetPhysicalDeviceDisplayPropertiesKHR(x86emu_t* emu, void* devic
 
 EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, void* pProps)
 {
+    (void)emu;
     static const char* desc = 
     "u" //uint32_t        memoryTypeCount;
     "iuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiu"  //VkMemoryType    memoryTypes[VK_MAX_MEMORY_TYPES]; //32
@@ -606,6 +624,7 @@ EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x86emu_t* emu, void* device, 
 EXPORT void my_vkCmdPipelineBarrier(x86emu_t* emu, void* device, int src, int dst, int dep, 
     uint32_t barrierCount, void* pBarriers, uint32_t bufferCount, void* pBuffers, uint32_t imageCount, void* pImages)
 {
+    (void)emu;
     static const char* desc = "upiiiiuuUiuuuu";
 
     void* aligned = (imageCount)?vkalignStruct(pImages, desc, imageCount):NULL;
@@ -625,6 +644,7 @@ EXPORT int my_vkCreateDebugReportCallbackEXT(x86emu_t* emu, void* instance,
                                              my_VkDebugReportCallbackCreateInfoEXT_t* create, 
                                              my_VkAllocationCallbacks_t* alloc, void* callback)
 {
+    (void)emu;
     my_VkDebugReportCallbackCreateInfoEXT_t dbg = *create;
     my_VkAllocationCallbacks_t my_alloc; 
     dbg.pfnCallback = find_DebugReportCallbackEXT_Fct(dbg.pfnCallback);
@@ -633,6 +653,7 @@ EXPORT int my_vkCreateDebugReportCallbackEXT(x86emu_t* emu, void* instance,
 
 EXPORT int my_vkDestroyDebugReportCallbackEXT(x86emu_t* emu, void* instance, void* callback, void* alloc)
 {
+    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
     return my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
 }
@@ -641,6 +662,7 @@ CREATE(vkCreateHeadlessSurfaceEXT)
 
 EXPORT int my_vkGetPastPresentationTimingGOOGLE(x86emu_t* emu, void* device, uint64_t swapchain, uint32_t* count, void* timings)
 {
+    (void)emu;
     static const char* desc = "uUUUU";
 
     void* aligned = (timings)?vkalignStruct(timings, desc, *count):NULL;
@@ -651,6 +673,7 @@ EXPORT int my_vkGetPastPresentationTimingGOOGLE(x86emu_t* emu, void* device, uin
 
 EXPORT int my_vkGetBufferMemoryRequirements2(x86emu_t* emu, void* device, void* pInfo, void* pMemoryRequirement)
 {
+    (void)emu;
     static const char* desc = "uPSUUu";
     void* m = vkalignStruct(pMemoryRequirement, desc, 1);
     int ret = my->vkGetBufferMemoryRequirements2(device, pInfo, m);
@@ -662,6 +685,7 @@ __attribute__((alias("my_vkGetBufferMemoryRequirements2")));
 
 EXPORT void my_vkGetImageMemoryRequirements2(x86emu_t* emu, void* device, void* pInfo, void* pMemoryRequirement)
 {
+    (void)emu;
     static const char* desc = "uPSUUu";
     void* m = vkalignStruct(pMemoryRequirement, desc, 1);
     my->vkGetImageMemoryRequirements2(device, pInfo, m);
@@ -672,6 +696,7 @@ __attribute__((alias("my_vkGetImageMemoryRequirements2")));
 
 EXPORT int my_vkGetPhysicalDeviceImageFormatProperties2(x86emu_t* emu, void* device, void* pInfo, void* pImageFormatProperties)
 {
+    (void)emu;
     static const char* desc = "uPSSuuuuuiU";
     void* m = vkalignStruct(pImageFormatProperties, desc, 1);
     int ret = my->vkGetPhysicalDeviceImageFormatProperties2(device, pInfo, m);
@@ -684,6 +709,7 @@ __attribute__((alias("my_vkGetPhysicalDeviceImageFormatProperties2")));
 
 EXPORT void my_vkGetPhysicalDeviceProperties2(x86emu_t* emu, void* device, void* pProp)
 {
+    (void)emu;
     static const char* desc = "uP"
         "uuuuiYB"
         "SuuuuuuuuuuuUUuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuffuuuffuLUUUiuiuffuuuuiiiiuiiiiiuifuuuuffffffiiUUU"
@@ -698,6 +724,7 @@ __attribute__((alias("my_vkGetPhysicalDeviceProperties2")));
 
 EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2EXT(x86emu_t* emu, void* device, uint64_t surface, void* pSurfaceCapabilities)
 {
+    (void)emu;
     static const char* desc = "uPuuuuuuuuuiiiii";
     void* m = vkalignStruct(pSurfaceCapabilities, desc, 1);
     int ret = my->vkGetPhysicalDeviceSurfaceCapabilities2EXT(device, surface, m);
@@ -707,6 +734,7 @@ EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2EXT(x86emu_t* emu, void* de
 
 EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2KHR(x86emu_t* emu, void* device, void* pInfo, void* pSurfaceCapabilities) 
 {
+    (void)emu;
     static const char* desc = "uPuuuuuuuuuiiii";
     void* m = vkalignStruct(pSurfaceCapabilities, desc, 1);
     int ret = my->vkGetPhysicalDeviceSurfaceCapabilities2KHR(device, pInfo, m);
@@ -716,6 +744,7 @@ EXPORT int my_vkGetPhysicalDeviceSurfaceCapabilities2KHR(x86emu_t* emu, void* de
 
 EXPORT void my_vkGetDeviceImageSparseMemoryRequirements(x86emu_t* emu, void* device, void* pInfo, uint32_t* count, void* pSparseMemoryRequirements)
 {
+    (void)emu;
     static const char* desc = "uPiuuuiuUUU";
     void* m = vkalignStruct(pSparseMemoryRequirements, desc, *count);
     my->vkGetDeviceImageSparseMemoryRequirements(device, pInfo, count, m);
@@ -726,6 +755,7 @@ __attribute__((alias("my_vkGetDeviceImageSparseMemoryRequirements")));
 
 EXPORT int my_vkQueueSubmit2(x86emu_t* emu, void* queue, uint32_t count, void* pSubmits, uint64_t fence)
 {
+    (void)emu;
     static const char* desc = "uPiuQuQuQ";
     void* m = vkalignStruct(pSubmits, desc, count);
     int ret = my->vkQueueSubmit2(queue, count, m, fence);
@@ -737,6 +767,7 @@ __attribute__((alias("my_vkQueueSubmit2")));
 
 EXPORT int my_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(x86emu_t* emu, void* device, void* pInfo, uint32_t* count, void* pImageFormatProperties)
 {
+    (void)emu;
     static const char* desc = "uPiuuuiuUUU";
     void* m = vkalignStruct(pImageFormatProperties, desc, *count);
     int ret = my->vkGetPhysicalDeviceOpticalFlowImageFormatsNV(device, pInfo, count, m);

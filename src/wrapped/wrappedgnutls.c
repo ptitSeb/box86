@@ -33,6 +33,7 @@ const char* gnutlsName =
 
 void freeGnutlsMy(void* lib)
 {
+    (void)lib;
     //gnutls_my_t *my = (gnutls_my_t *)lib;
 }
 
@@ -121,20 +122,24 @@ static void* find_pulltimeout_Fct(void* fct)
 
 EXPORT void my_gnutls_global_set_log_function(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->gnutls_global_set_log_function(find_gnutls_log_Fct(f));
 }
 
 EXPORT void my_gnutls_transport_set_pull_function(x86emu_t* emu, void* session, void* f)
 {
+    (void)emu;
     my->gnutls_transport_set_pull_function(session, find_pullpush_Fct(f));
 }
 EXPORT void my_gnutls_transport_set_push_function(x86emu_t* emu, void* session, void* f)
 {
+    (void)emu;
     my->gnutls_transport_set_push_function(session, find_pullpush_Fct(f));
 }
 
 EXPORT void my_gnutls_transport_set_pull_timeout_function(x86emu_t* emu, void* session, void* f)
 {
+    (void)emu;
     my->gnutls_transport_set_pull_timeout_function(session, find_pulltimeout_Fct(f));
 }
 
@@ -145,4 +150,3 @@ EXPORT void my_gnutls_transport_set_pull_timeout_function(x86emu_t* emu, void* s
     freeMy();
 
 #include "wrappedlib_init.h"
-

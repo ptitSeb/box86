@@ -94,6 +94,7 @@ typedef struct z_stream_s {
 
 static void wrapper_stream_z(x86emu_t* emu, void* str)
 {
+    (void)emu;
     z_stream *stream = (z_stream*)str;
     stream->zalloc = find_alloc_Fct(stream->zalloc);
     stream->zfree = find_free_Fct(stream->zfree);

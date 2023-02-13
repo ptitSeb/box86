@@ -22,7 +22,7 @@
 const char* gthread2Name = "libgthread-2.0.so.0";
 #define LIBNAME gthread2
 
-//#define ADDED_FUNCTIONS()           \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedgthread2types.h"
 
@@ -57,6 +57,7 @@ typedef struct my_GThreadFunctions_s
 
 EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 {
+    (void)emu;
     if(g_threads_got_initialized) {
         // no need to do it twice
         my_setGlobalGThreadsInit();
@@ -76,6 +77,7 @@ EXPORT void my_g_thread_init(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 
 EXPORT void my_g_thread_init_with_errorcheck_mutexes(x86emu_t* emu, my_GThreadFunctions_t* vtable)
 {
+    (void)emu;
     if(g_threads_got_initialized) {
         // no need to do it twice
         my_setGlobalGThreadsInit();
@@ -109,4 +111,3 @@ void** my_GetGthreadsGotInitialized()
     freeMy();
 
 #include "wrappedlib_init.h"
-

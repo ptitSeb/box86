@@ -83,16 +83,19 @@ static void* findDbusmenuMenuitemFct(void* fct)
 
 EXPORT int my_dbusmenu_client_add_type_handler(x86emu_t* emu, void* client, void* type, void* f)
 {
+    (void)emu;
     return my->dbusmenu_client_add_type_handler(client, type, findDbusmenuClientTypeHandlerFct(f));
 }
 
 EXPORT void my_dbusmenu_menuitem_foreach(x86emu_t* emu, void* mi, void* f, void* data)
 {
+    (void)emu;
     my->dbusmenu_menuitem_foreach(mi, findDbusmenuMenuitemFct(f), data);
 }
 
 EXPORT void my_dbusmenu_menuitem_send_about_to_show(x86emu_t* emu, void* mi, void* f, void* data)
 {
+    (void)emu;
     my->dbusmenu_menuitem_send_about_to_show(mi, findDbusmenuMenuitemFct(f), data);
 }
 
@@ -107,4 +110,3 @@ EXPORT void my_dbusmenu_menuitem_send_about_to_show(x86emu_t* emu, void* mi, voi
     freeMy();
 
 #include "wrappedlib_init.h"
-
