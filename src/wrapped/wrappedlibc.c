@@ -3140,7 +3140,7 @@ EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
     static mallinfo_fnc f = NULL;
     static int inited = 0;
     if(!inited) {
-        inited = 0;
+        inited = 1;
         f = (mallinfo_fnc)dlsym(my_lib->w.lib, "mallinfo");
     }
     if(f)
