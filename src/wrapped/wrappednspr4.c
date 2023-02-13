@@ -104,7 +104,7 @@ EXPORT int my_PR_CallOnce(x86emu_t* emu, void* once, void* f)
 EXPORT void* my_PR_FindFunctionSymbol(x86emu_t* emu, void* symbol, void* name)
 {
     //TODO!!!
-    printf_log(LOG_NONE, "Error: using unimplemented PR_FindFunctionSymbol(%p, \"%s\")\n", symbol, name);
+    printf_log(LOG_NONE, "Error: using unimplemented PR_FindFunctionSymbol(%p, \"%s\")\n", symbol, (char*)name);
     return NULL;
 }
 

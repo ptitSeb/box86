@@ -971,7 +971,7 @@ void loadProtectionFromMap()
         char r, w, x;
         uintptr_t s, e;
         if(box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "\t%s", buf);}
-        if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
+        if(sscanf(buf, "%zx-%zx %c%c%c", &s, &e, &r, &w, &x)==5) {
             if(current<s) {
                 removeMapMem(current, s-1);
                 current = e;

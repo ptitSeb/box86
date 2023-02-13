@@ -533,7 +533,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         return NULL;
     }
     if(!isprotectedDB(addr, end-addr)) {
-        dynarec_log(LOG_DEBUG, "Warning, block unprotected while beeing processed %p:%ld, cancelling\n", block->x86_addr, block->x86_size);
+        dynarec_log(LOG_DEBUG, "Warning, block unprotected while beeing processed %p:%zd, cancelling\n", block->x86_addr, block->x86_size);
         AddHotPage(addr);
         block->need_test = 1;
         //protectDB(addr, end-addr);
