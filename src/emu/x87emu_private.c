@@ -278,7 +278,7 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
     p->StatusWord = emu->sw.x16;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
+        tags |= (emu->p_regs[i].tag==0b11)?0:(1<<(i*2));
     p->TagWord = tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
@@ -302,7 +302,7 @@ void fpu_fxrstor(x86emu_t* emu, void* ed)
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
     for(int i=0; i<8; ++i)
-        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
+        emu->p_regs[i].tag = ((tags>>(i*2))&0b1)?0:0b11;
     // copy back MMX regs...
     int top = emu->top&7;
     int stack = 8-top;

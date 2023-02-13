@@ -132,35 +132,19 @@ struct i386_fpstate
 
 static void save_fpreg(x86emu_t* emu, struct i386_fpstate* state)
 {
-    state->cw = emu->cw.x16;
-    int top = emu->top&7;
-    int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->p_regs[0].tag)?8:0;
-    emu->sw.f.F87_TOP = top;
+    emu->sw.f.F87_TOP = emu->top&7;
     state->sw = emu->sw.x16;
-    uint8_t tags = 0;
-    for (int i=0; i<8; ++i)
-        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
+    state->cw = emu->cw.x16;
+    // save SSE and MMX regs
     fpu_fxsave(emu, &state->ControlWord);
 }
 static void load_fpreg(x86emu_t* emu, struct i386_fpstate* state)
 {
+    // copy SSE and MMX regs
+    fpu_fxrstor(emu, &state->ControlWord);
     emu->cw.x16 = state->cw;
     emu->sw.x16 = state->sw;
-    emu->top = emu->sw.f.F87_TOP;
-    uint8_t tags = state->tag;
-    for(int i=0; i<8; ++i)
-        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
-    // copy back MMX regs...
-    int top = emu->top&7;
-    int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->p_regs[0].tag)?8:0;
-    for(int i=0; i<8; ++i)
-        memcpy((i<stack)?&ST(i):&emu->mmx[i], &state->_st[i], sizeof(mmx87_regs_t));
-    // copy SSE regs
-    fpu_fxrstor(emu, &state->ControlWord);
+    emu->top = emu->sw.f.F87_TOP&7;
 }
 
 typedef struct i386_fpstate *i386_fpregset_t;
