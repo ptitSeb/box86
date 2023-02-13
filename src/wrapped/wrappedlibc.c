@@ -3134,9 +3134,19 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
     return prctl(option, arg2, arg3, arg4, arg5);
 }
 
+typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
 {
-    *(struct mallinfo*)p=mallinfo();
+    static mallinfo_fnc f = NULL;
+    static int inited = 0;
+    if(!inited) {
+        inited = 0;
+        f = (mallinfo_fnc)dlsym(my_lib->w.lib, "mallinfo");
+    }
+    if(f)
+        *(struct mallinfo*)p=f();
+    else
+        memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
 
