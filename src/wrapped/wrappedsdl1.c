@@ -144,6 +144,7 @@ static void* reverse_EvtFilterFct(void* fct)
 // TODO: track the memory for those callback
 int EXPORT my_SDL_OpenAudio(x86emu_t* emu, void* d, void* o)
 {
+    (void)emu;
     SDL_AudioSpec *desired = (SDL_AudioSpec*)d;
     // create a callback
     void *fnc = (void*)desired->callback;
@@ -297,16 +298,19 @@ void EXPORT *my_SDL_RWFromMem(x86emu_t* emu, void* a, int b)
 
 EXPORT void* my_SDL_AddTimer(x86emu_t* emu, uint32_t a, void* cb, void* p)
 {
+    (void)emu;
     return my->SDL_AddTimer(a, find_TimerCallback_Fct(cb), p);
 }
 
 void EXPORT my_SDL_RemoveTimer(x86emu_t* emu, void* t)
 {
+    (void)emu;
     my->SDL_RemoveTimer(t);
 }
 
 int32_t EXPORT my_SDL_SetTimer(x86emu_t* emu, uint32_t t, void* p)
 {
+    (void)emu;
     return my->SDL_SetTimer(t, find_TimerCallback_Fct(p));
 }
 #if 0
@@ -326,10 +330,12 @@ int32_t EXPORT my_SDL_ConvertAudio(x86emu_t* emu, void* a)
 #endif
 void EXPORT my_SDL_SetEventFilter(x86emu_t* emu, void* a)
 {
+    (void)emu;
     my->SDL_SetEventFilter(find_EvtFilter_Fct(a));
 }
 void EXPORT *my_SDL_GetEventFilter(x86emu_t* emu)
 {
+    (void)emu;
     return reverse_EvtFilterFct(my->SDL_GetEventFilter());
 }
 
@@ -341,6 +347,7 @@ void EXPORT *my_SDL_CreateThread(x86emu_t* emu, void* cb, void* p)
 
 void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
 {
+    (void)emu;
     my->SDL_KillThread(p);
 }
 
@@ -463,4 +470,3 @@ EXPORT int32_t my_SDL_GetWMInfo(x86emu_t* emu, void* p)
     my_context->sdl1freerw = NULL;
 
 #include "wrappedlib_init.h"
-

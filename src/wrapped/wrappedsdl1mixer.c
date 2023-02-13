@@ -154,11 +154,6 @@ static void* find_MusicFinished_Fct(void* fct)
 
 #undef SUPER
 
-static void freeSDL1MixerMy(library_t* lib)
-{
-    //sdl1mixer_my_t *my = lib->priv.w.p2;
-}
-
 EXPORT void* my_Mix_LoadMUSType_RW(x86emu_t* emu, void* a, int32_t b, int32_t c)
 {
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -185,31 +180,37 @@ EXPORT void* my_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t b)
 
 EXPORT void my_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
 {
+    (void)emu;
     my->Mix_SetPostMix(find_MixFunc_Fct(a), b);
 }
 
 EXPORT void my_Mix_ChannelFinished(x86emu_t* emu, void* cb)
 {
+    (void)emu;
     my->Mix_ChannelFinished(find_ChannelFinished_Fct(cb));
 }
 
 EXPORT void my_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
 {
+    (void)emu;
     my->Mix_HookMusic(find_MixFunc_Fct(f), arg);
 }
 
 EXPORT void my_Mix_HookMusicFinished(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->Mix_HookMusicFinished(find_MusicFinished_Fct(f));
 }
 
 EXPORT int my_Mix_RegisterEffect(x86emu_t* emu, int chan, void* f, void* d, void *arg)
 {
+    (void)emu;
     return my->Mix_RegisterEffect(chan, find_EffectFunc_Fct(f), find_EffectDone_Fct(d), arg);
 }
 
 EXPORT int my_Mix_UnregisterEffect(x86emu_t* emu, int channel, void* f)
 {
+    (void)emu;
     return my->Mix_UnregisterEffect(channel, find_EffectFunc_Fct(f));
 }
 
@@ -222,4 +223,3 @@ EXPORT int my_Mix_UnregisterEffect(x86emu_t* emu, int channel, void* f)
     my_context->sdl1mixerlib = NULL;
 
 #include "wrappedlib_init.h"
-

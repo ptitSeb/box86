@@ -60,11 +60,12 @@ typedef my_xcb_iterator_t   (*YFY_t)            (my_xcb_iterator_t);
 
 #include "wrappercallback.h"
 
-#define SUPER(F, P, ...)                                            \
-    EXPORT void* my_##F P                                           \
-    {                                                               \
-        *ret = my->F(__VA_ARGS__);                                  \
-        return ret;                                                 \
+#define SUPER(F, P, ...)           \
+    EXPORT void* my_##F P          \
+    {                              \
+        (void)emu;                 \
+        *ret = my->F(__VA_ARGS__); \
+        return ret;                \
     }
 
 SUPER(xcb_shm_attach, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t seg, uint32_t shmid, uint8_t read_only), c, seg, shmid, read_only)

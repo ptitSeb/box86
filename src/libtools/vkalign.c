@@ -1166,10 +1166,9 @@ static void* reverse_vkDebugReportCallback_Fct(void* fct)
 //--------------------------------------------------------------
 //---------                   TOOLS                     --------
 //--------------------------------------------------------------
-static int needAlign(my_vkhead_t* x86)
+/* static int needAlign(my_vkhead_t* x86)
 {
     const char* s;
-    const char** src = &s;
     int dst = 0;
     while(x86) {
         switch(x86->sType) {
@@ -1183,7 +1182,7 @@ static int needAlign(my_vkhead_t* x86)
         x86 = x86->pNext;
     }
     return 0;
-}
+} */
 
 //--------------------------------------------------------------
 //---------              ALIGN x86 -> ARM               --------
@@ -1257,7 +1256,7 @@ void* vkalignStruct(void* src, const char* desc, int cnt)
     int a = 0;
     uint32_t* psrc = (uint32_t*)src;
     uint32_t* pdst = (uint32_t*)dst;
-    uint32_t* sign = (uint32_t*)(dst+sz*count);
+    // uint32_t* sign = (uint32_t*)(dst+sz*count);
     void** save = (void**)(dst+sz*count);
     uint32_t q;
     while(count) {
@@ -1451,7 +1450,7 @@ void* vkunalignNewStruct(void* dst, void* src, const char* desc, int cnt)
 {
     int c = 0;
     int a = 1;
-    int sz = vkalignSize(desc);
+    // int sz = vkalignSize(desc);
     uint32_t q;
     uint32_t* psrc = (uint32_t*)src;
     uint32_t* pdst = (uint32_t*)dst;
@@ -1635,10 +1634,9 @@ static void* unalignTox86(my_vkhead_t* src, int cnt)
     if(!cnt || !src)
         return src;
     //printf_log(LOG_INFO, "unalignTox86(%p:%d, %d)\n", src, src->sType, cnt);
-    void* ret = NULL;
     const char* s;
     switch(src->sType) {
-        CHANGE( return vkunalignStruct(src, s, cnt))
+        CHANGE(return vkunalignStruct(src, s, cnt))
         default:
             // no need to unalign, but follow next...
             if(cnt>1) printf_log(LOG_INFO, "Warning, unalignTox86 of %d struct %d not uspported\n", cnt, src->sType);

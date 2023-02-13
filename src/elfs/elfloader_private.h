@@ -15,21 +15,21 @@ typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 struct elfheader_s {
     char*       name;
     char*       path;   // Resolved path to file
-    int         numPHEntries;
+    uint16_t    numPHEntries;
     Elf32_Phdr  *PHEntries;
-    int         numSHEntries;
+    uint16_t    numSHEntries;
     Elf32_Shdr  *SHEntries;
     int         SHIdx;
     int         numSST;
     char*       SHStrTab;
     char*       StrTab;
     Elf32_Sym*  SymTab;
-    int         numSymTab;
+    uint32_t    numSymTab;
     char*       DynStr;
     Elf32_Sym*  DynSym;
-    int         numDynSym;
+    uint32_t    numDynSym;
     Elf32_Dyn*  Dynamic;
-    int         numDynamic;
+    uint32_t    numDynamic;
     char*       DynStrTab;
     int         szDynStrTab;
     Elf32_Half* VerSym;
@@ -73,15 +73,15 @@ struct elfheader_s {
 
     uintptr_t   paddr;
     uintptr_t   vaddr;
-    int         align;
+    uint32_t    align;
     uint32_t    memsz;
     uint32_t    reserve;
     uint32_t    stacksz;
-    int         stackalign;
+    uint32_t    stackalign;
     uintptr_t   tlsaddr;
     uint32_t    tlssize;
     uint32_t    tlsfilesize;
-    int         tlsalign;
+    uint32_t    tlsalign;
 
     int32_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)
 

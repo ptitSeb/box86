@@ -572,6 +572,7 @@ if (va[i] && strcmp((char*)va[i], A) == 0) {                                    
 
 EXPORT void* my_XVaCreateNestedList(x86emu_t* emu, int unused, void** va) {
     int n = 0;
+    (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)alloca(sizeof(XIMCallback) * n);
@@ -589,6 +590,7 @@ EXPORT void* my_XVaCreateNestedList(x86emu_t* emu, int unused, void** va) {
 
 EXPORT void* my_XCreateIC(x86emu_t* emu, void* xim, void** va) {
     int n = 0;
+    (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)alloca(sizeof(XIMCallback) * n);
@@ -606,6 +608,7 @@ EXPORT void* my_XCreateIC(x86emu_t* emu, void* xim, void** va) {
 
 EXPORT void* my_XSetICValues(x86emu_t* emu, void* xic, void** va) {
     int n = 0;
+    (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
     XICCallback* callbacks = (XICCallback*)alloca(sizeof(XIMCallback) * n);
@@ -624,6 +627,7 @@ EXPORT void* my_XSetICValues(x86emu_t* emu, void* xic, void** va) {
 
 EXPORT void* my_XSetIMValues(x86emu_t* emu, void* xim, void** va) {
     int n = 0;
+    (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
     XIMCallback* callbacks = (XIMCallback*)alloca(sizeof(XIMCallback) * n);
@@ -653,42 +657,49 @@ EXPORT void* my_XSetIMValues(x86emu_t* emu, void* xim, void** va) {
 
 EXPORT void* my_XSetErrorHandler(x86emu_t* emu, XErrorHandler handler)
 {
+    (void)emu;
     void* ret = my->XSetErrorHandler(finderror_handlerFct(handler));
     return reverse_error_handlerFct(my_lib, ret);
 }
 
 EXPORT void* my_XSetIOErrorHandler(x86emu_t* emu, XIOErrorHandler handler)
 {
+    (void)emu;
     void* ret = my->XSetIOErrorHandler(findioerror_handlerFct(handler));
     return reverse_ioerror_handlerFct(my_lib, ret);
 }
 
 EXPORT void* my_XESetError(x86emu_t* emu, void* display, int32_t extension, void* handler)
 {
+    (void)emu;
     void* ret = my->XESetError(display, extension, findexterror_handlerFct(handler));
     return reverse_exterror_handlerFct(my_lib, ret);
 }
 
 EXPORT void* my_XESetCloseDisplay(x86emu_t* emu, void* display, int32_t extension, void* handler)
 {
+    (void)emu;
     void* ret = my->XESetCloseDisplay(display, extension, findclose_displayFct(handler));
     return reverse_close_displayFct(my_lib, ret);
 }
 
 EXPORT int32_t my_XIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
+    (void)emu;
     int32_t ret = my->XIfEvent(d, ev, findxifeventFct(h), arg);
     return ret;
 }
 
 EXPORT int32_t my_XCheckIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
+    (void)emu;
     int32_t ret = my->XCheckIfEvent(d, ev, findxifeventFct(h), arg);
     return ret;
 }
 
 EXPORT int32_t my_XPeekIfEvent(x86emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
+    (void)emu;
     int32_t ret = my->XPeekIfEvent(d, ev, findxifeventFct(h), arg);
     return ret;
 }
@@ -719,6 +730,7 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img)
 
 void UnbridgeImageFunc(x86emu_t *emu, XImage *img)
 {
+    (void)emu;
     #define GO(A, W) \
     fnc = GetNativeFnc((uintptr_t)img->f.A); \
     if(fnc) \
@@ -758,7 +770,6 @@ EXPORT void* my_XCreateImage(x86emu_t* emu, void* disp, void* vis, uint32_t dept
 
 EXPORT int32_t my_XInitImage(x86emu_t* emu, void* img)
 {
-
     int ret = my->XInitImage(img);
     // bridge all access functions...
     BridgeImageFunc(emu, img);
@@ -824,12 +835,14 @@ typedef struct xintasync_s {
 
 EXPORT void my__XDeqAsyncHandler(x86emu_t* emu, void* cb, void* data)
 {
+    (void)emu;
     my->_XDeqAsyncHandler(findXInternalAsyncHandlerFct(cb), data);
 }
 
 #ifdef PANDORA
 EXPORT void* my_XLoadQueryFont(x86emu_t* emu, void* d, void* name)
 {
+    (void)emu;
     // basic font substitution...
 
     if(strcmp(name, "9x15")==0)
@@ -849,12 +862,14 @@ static uint32_t recode32to16(uint32_t c)
 }
 EXPORT int32_t my_XSetBackground(x86emu_t* emu, void* d, void* gc, uint32_t c)
 {
+    (void)emu;
     if(x11color16)
         c = recode32to16(c);
     return my->XSetBackground(d, gc, c);
 }
 EXPORT int32_t my_XSetForeground(x86emu_t* emu, void* d, void* gc, uint32_t c)
 {
+    (void)emu;
     if(x11color16)
         c = recode32to16(c);
     return my->XSetForeground(d, gc, c);
@@ -887,7 +902,7 @@ typedef struct XGCValues_s {
 
 EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* vs)
 {
-
+    (void)emu;
     int setfore = 0;
     int setback = 0;
     uint32_t fore = 0; 
@@ -915,6 +930,7 @@ EXPORT void* my_XCreateGC(x86emu_t *emu, void* disp, void* d, uint32_t v, void* 
 
 EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
+    (void)emu;
     void* ret = NULL;
 
     ret = my->XESetWireToEvent(display, event_number, findwire_to_eventFct(proc));
@@ -923,6 +939,7 @@ EXPORT void* my_XESetWireToEvent(x86emu_t* emu, void* display, int32_t event_num
 }
 EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_number, void* proc)
 {
+    (void)emu;
     void* ret = NULL;
 
     ret = my->XESetEventToWire(display, event_number, findevent_to_wireFct(proc));
@@ -932,26 +949,26 @@ EXPORT void* my_XESetEventToWire(x86emu_t* emu, void* display, int32_t event_num
 
 EXPORT int my_XCloseDisplay(x86emu_t* emu, void* display)
 {
-
+    (void)emu;
     int ret = my->XCloseDisplay(display);
     return ret;
 }
 
 EXPORT int my_XRegisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
-
+    (void)emu;
     return my->XRegisterIMInstantiateCallback(d, db, res_name, res_class, findregister_imFct(cb), data);
 }
     
 EXPORT int my_XUnregisterIMInstantiateCallback(x86emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
-
+    (void)emu;
     return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(my_lib, cb), data);
 }
 
 EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
-
+    (void)emu;
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
     if(!ret && name && !strcmp(name, "GLX") && box86_x11glx) {
         // hack to force GLX to be accepted, even if not present
@@ -963,25 +980,25 @@ EXPORT int my_XQueryExtension(x86emu_t* emu, void* display, char* name, int* maj
 
 EXPORT int my_XAddConnectionWatch(x86emu_t* emu, void* display, char* f, void* data)
 {
-
+    (void)emu;
     return my->XAddConnectionWatch(display, findXConnectionWatchProcFct(f), data);
 }
 
 EXPORT int my_XRemoveConnectionWatch(x86emu_t* emu, void* display, char* f, void* data)
 {
-
+    (void)emu;
     return my->XRemoveConnectionWatch(display, findXConnectionWatchProcFct(f), data);
 }
 
 EXPORT void* my_XSetAfterFunction(x86emu_t* emu, void* display, void* f)
 {
-
+    (void)emu;
     return reverse_XSynchronizeProcFct(my_lib, my->XSetAfterFunction(display, findXSynchronizeProcFct(f)));
 }
 
 EXPORT void* my_XSynchronize(x86emu_t* emu, void* display, int onoff)
 {
-
+    (void)emu;
     return reverse_XSynchronizeProcFct(my_lib, my->XSynchronize(display, onoff));
 }
 
@@ -1286,6 +1303,7 @@ static void UnalignedXIDeviceEvent(void* data)
 }
 EXPORT int my_XGetEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t* cookie)
 {
+    (void)emu;
     if(xi_opcode==-2) {
         int event, error;
         if(!my->XQueryExtension(dpy, "XInputExtension", &xi_opcode, &event, &error)) {
@@ -1310,6 +1328,7 @@ EXPORT int my_XGetEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t* 
 
 EXPORT void my_XFreeEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t* cookie)
 {
+    (void)emu;
     if(cookie && cookie==saved_cookie) {
         cookie->data = saved_xideviceevent;
         saved_xideviceevent = NULL;

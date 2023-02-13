@@ -87,11 +87,13 @@ static void* find_xsltDocLoaderFunc_Fct(void* fct)
 
 EXPORT int my_xsltRegisterExtModuleFunction(x86emu_t* emu, void* name, void* URI, void* f)
 {
+    (void)emu;
     return my->xsltRegisterExtModuleFunction(name, URI, find_xmlXPathFunction_Fct(f));
 }
 
 EXPORT void my_xsltSetLoaderFunc(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->xsltSetLoaderFunc(find_xsltDocLoaderFunc_Fct(f));
 }
 

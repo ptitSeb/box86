@@ -93,16 +93,19 @@ typedef struct my_PRLibrary_s {
 
 EXPORT int my_PR_CallOnceWithArg(x86emu_t* emu, void* once, void* f, void* arg)
 {
+    (void)emu;
     return my->PR_CallOnceWithArg(once, find_PRCallOnceWithArg_Fct(f), arg);
 }
 
 EXPORT int my_PR_CallOnce(x86emu_t* emu, void* once, void* f)
 {
+    (void)emu;
     return my->PR_CallOnce(once, find_PRCallOnce_Fct(f));
 }
 
 EXPORT void* my_PR_FindFunctionSymbol(x86emu_t* emu, void* symbol, void* name)
 {
+    (void)emu;
     //TODO!!!
     printf_log(LOG_NONE, "Error: using unimplemented PR_FindFunctionSymbol(%p, \"%s\")\n", symbol, (char*)name);
     return NULL;
@@ -110,6 +113,7 @@ EXPORT void* my_PR_FindFunctionSymbol(x86emu_t* emu, void* symbol, void* name)
 
 EXPORT void* my_PR_CreateIOLayerStub(x86emu_t* emu, int ident, void* methods)
 {
+    (void)emu;
     //TODO!!!
     printf_log(LOG_NONE, "Error: using unimplemented PR_CreateIOLayerStub(%d, %p)\n", ident, methods);
     return NULL;
@@ -122,4 +126,3 @@ EXPORT void* my_PR_CreateIOLayerStub(x86emu_t* emu, int ident, void* methods)
     freeMy();
 
 #include "wrappedlib_init.h"
-

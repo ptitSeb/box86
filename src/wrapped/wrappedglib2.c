@@ -47,6 +47,7 @@ EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
     PREPARE_VALIST;
     return my->g_markup_vprintf_escaped(fmt, VARARGS);
     #else
+    (void)emu;
     // other platform don't need that
     return my->g_markup_vprintf_escaped(fmt, b);
     #endif
@@ -54,6 +55,7 @@ EXPORT void* my_g_markup_vprintf_escaped(x86emu_t *emu, void* fmt, void* b) {
 
 EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
 {
+    (void)emu;
     int i = 0;
     while (b[i++]);
     void* array[i+1];   // +1 for 1st (NULL terminal already included)
@@ -69,6 +71,7 @@ static int my_timeout_cb(my_signal_t* sig)
 }
 EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, void* data)
 {
+    (void)emu;
     my_signal_t *sig = new_mysignal(func, data, NULL);
     return my->g_timeout_add_full(0, interval, my_timeout_cb, sig, my_signal_delete);
 }
@@ -677,6 +680,7 @@ static void* reverseGOptionArgFct(void* fct)
 
 EXPORT void my_g_list_free_full(x86emu_t* emu, void* list, void* free_func)
 {
+    (void)emu;
     my->g_list_free_full(list, findFreeFct(free_func));
 }
 
@@ -687,6 +691,7 @@ EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
     PREPARE_VALIST;
     return my->g_markup_vprintf_escaped(fmt, VARARGS);
     #else
+    (void)emu;
     // other platform don't need that
     return my->g_markup_vprintf_escaped(fmt, b);
     #endif
@@ -695,18 +700,21 @@ EXPORT void* my_g_markup_printf_escaped(x86emu_t *emu, void* fmt, void* b) {
 
 EXPORT void my_g_datalist_id_set_data_full(x86emu_t* emu, void* datalist, uint32_t key, void* data, void* freecb)
 {
+    (void)emu;
     void* fc = findFreeFct(freecb);
     my->g_datalist_id_set_data_full(datalist, key, data, fc);
 }
 
 EXPORT void* my_g_datalist_id_dup_data(x86emu_t* emu, void* datalist, uint32_t key, void* dupcb, void* data)
 {
+    (void)emu;
     void* cc = findDuplicateFct(dupcb);
     return my->g_datalist_id_dup_data(datalist, key, cc, data);
 }
 
 EXPORT int my_g_datalist_id_replace_data(x86emu_t* emu, void* datalist, uint32_t key, void* oldval, void* newval, void* oldfree, void* newfree)
 {
+    (void)emu;
     void* oldfc = findFreeFct(oldfree);
     void* newfc = findFreeFct(newfree);
     return my->g_datalist_id_replace_data(datalist, key, oldval, newval, oldfc, newfc);
@@ -714,6 +722,7 @@ EXPORT int my_g_datalist_id_replace_data(x86emu_t* emu, void* datalist, uint32_t
 
 EXPORT void* my_g_variant_new_from_data(x86emu_t* emu, void* type, void* data, uint32_t size, int trusted, void* freecb, void* datacb)
 {
+    (void)emu;
     void* fc = findFreeFct(freecb);
     return my->g_variant_new_from_data(type, data, size, trusted, fc, datacb);
 }
@@ -726,12 +735,14 @@ EXPORT void* my_g_variant_new_parsed_va(x86emu_t* emu, void* fmt, void* b)
     uint32_t *aligned = VARARGS;
     return my->g_variant_new_parsed_va(fmt, &aligned);
     #else
+    (void)emu;
     return my->g_variant_new_parsed_va(fmt, b);
     #endif
 }
 
 EXPORT void my_g_variant_get(x86emu_t* emu, void* value, void* fmt, uint32_t* b)
 {
+    (void)emu;
     my->g_variant_get_va(value, fmt, NULL, &b);
 }
 
@@ -742,6 +753,7 @@ EXPORT void* my_g_strdup_vprintf(x86emu_t* emu, void* fmt, void* b)
     PREPARE_VALIST;
     return my->g_strdup_vprintf(fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_strdup_vprintf(fmt, b);
     #endif
 }
@@ -753,6 +765,7 @@ EXPORT int my_g_vprintf(x86emu_t* emu, void* fmt, void* b)
     PREPARE_VALIST;
     return my->g_vprintf(fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_vprintf(fmt, b);
     #endif
 }
@@ -764,6 +777,7 @@ EXPORT int my_g_vfprintf(x86emu_t* emu, void* F, void* fmt, void* b)
     PREPARE_VALIST;
     return my->g_vfprintf(F, fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_vfprintf(F, fmt, b);
     #endif
 }
@@ -775,6 +789,7 @@ EXPORT int my_g_vsprintf(x86emu_t* emu, void* s, void* fmt, void* b)
     PREPARE_VALIST;
     return my->g_vsprintf(s, fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_vsprintf(s, fmt, b);
     #endif
 }
@@ -786,6 +801,7 @@ EXPORT int my_g_vsnprintf(x86emu_t* emu, void* s, unsigned long n, void* fmt, vo
     PREPARE_VALIST;
     return my->g_vsnprintf(s, n, fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_vsnprintf(s, n, fmt, b);
     #endif
 }
@@ -797,6 +813,7 @@ EXPORT int my_g_vasprintf(x86emu_t* emu, void* s, void* fmt, void* b)
     PREPARE_VALIST;
     return my->g_vasprintf(s, fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_vasprintf(s, fmt, b);
     #endif
 }
@@ -808,6 +825,7 @@ EXPORT uint32_t my_g_printf_string_upper_bound(x86emu_t* emu, void* fmt, void* b
     PREPARE_VALIST;
     return my->g_printf_string_upper_bound(fmt, VARARGS);
     #else
+    (void)emu;
     return my->g_printf_string_upper_bound(fmt, b);
     #endif
 }
@@ -822,6 +840,7 @@ EXPORT void my_g_print(x86emu_t* emu, void* fmt, void* b)
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, VARARGS);
     #else
+    (void)emu;
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
     #endif
@@ -839,6 +858,7 @@ EXPORT void my_g_printerr(x86emu_t* emu, void* fmt, void* b)
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, VARARGS);
     #else
+    (void)emu;
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
     #endif
@@ -848,26 +868,26 @@ EXPORT void my_g_printerr(x86emu_t* emu, void* fmt, void* b)
 
 EXPORT void* my_g_source_new(x86emu_t* emu, my_GSourceFuncs_t* source_funcs, uint32_t struct_size)
 {
-
+    (void)emu;
     return my->g_source_new(findFreeGSourceFuncs(source_funcs), struct_size);
 }
 
 EXPORT void my_g_source_set_funcs(x86emu_t* emu, void* source, my_GSourceFuncs_t* source_funcs)
 {
-
+    (void)emu;
     my->g_source_set_funcs(source, findFreeGSourceFuncs(source_funcs));
 }
 
 
 EXPORT int my_g_source_remove_by_funcs_user_data(x86emu_t* emu, my_GSourceFuncs_t* source_funcs, void* data)
 {
-
+    (void)emu;
     return my->g_source_remove_by_funcs_user_data(findFreeGSourceFuncs(source_funcs), data);
 }
 
 EXPORT void* my_g_main_context_get_poll_func(x86emu_t* emu, void* context)
 {
-
+    (void)emu;
     void* ret = my->g_main_context_get_poll_func(context);
     if(!ret) return ret;
     void* r = reversePollFct(ret);
@@ -878,13 +898,13 @@ EXPORT void* my_g_main_context_get_poll_func(x86emu_t* emu, void* context)
     
 EXPORT void my_g_main_context_set_poll_func(x86emu_t* emu, void* context, void* func)
 {
-
+    (void)emu;
     my->g_main_context_set_poll_func(context, findPollFct(func));
 }
 
 EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* data, void* notify)
 {
-
+    (void)emu;
     if(!f)
         return my->g_idle_add_full(priority, f, data, notify);
 
@@ -895,119 +915,119 @@ EXPORT uint32_t my_g_idle_add_full(x86emu_t* emu, int priority, void* f, void* d
 
 EXPORT void* my_g_hash_table_new(x86emu_t* emu, void* hash, void* equal)
 {
-
+    (void)emu;
     return my->g_hash_table_new(findHashFct(hash), findEqualFct(equal));
 }
 
 EXPORT void* my_g_hash_table_new_full(x86emu_t* emu, void* hash, void* equal, void* destroy_key, void* destroy_val)
 {
-
+    (void)emu;
     return my->g_hash_table_new_full(findHashFct(hash), findEqualFct(equal), findDestroyFct(destroy_key), findDestroyFct(destroy_val));
 }
 
 EXPORT void my_g_hash_table_foreach(x86emu_t* emu, void* table, void* f, void* data)
 {
-
+    (void)emu;
     my->g_hash_table_foreach(table, findGHFuncFct(f), data);
 }
 
 EXPORT uint32_t my_g_hash_table_foreach_remove(x86emu_t* emu, void* table, void* f, void* data)
 {
-    
+    (void)emu;
     return my->g_hash_table_foreach_remove(table, findGHRFuncFct(f), data);
 }
 EXPORT uint32_t my_g_hash_table_foreach_steal(x86emu_t* emu, void* table, void* f, void* data)
 {
-    
+    (void)emu;
     return my->g_hash_table_foreach_steal(table, findGHRFuncFct(f), data);
 }
 EXPORT void* my_g_hash_table_find(x86emu_t* emu, void* table, void* f, void* data)
 {
-    
+    (void)emu;
     return my->g_hash_table_find(table, findGHRFuncFct(f), data);
 }
 
 EXPORT int my_g_spawn_async_with_pipes(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* input, void* output, void* err, void* error)
 {
-
+    (void)emu;
     return my->g_spawn_async_with_pipes(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, input, output, err, error);
 }
 
 EXPORT int my_g_spawn_async(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* error)
 {
-
+    (void)emu;
     return my->g_spawn_async(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, error);
 }
 
 EXPORT int my_g_spawn_sync(x86emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* input, void* output, void* status, void* error)
 {
-
+    (void)emu;
     return my->g_spawn_sync(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
 }
 
 EXPORT uint32_t my_g_child_watch_add(x86emu_t* emu, int pid, void* f, void* data)
 {
-
+    (void)emu;
     return my->g_child_watch_add(pid, findGChildWatchFuncFct(f), data);
 }
 
 EXPORT uint32_t my_g_child_watch_add_full(x86emu_t* emu, int priority, int pid, void* f, void* data, void* notify)
 {
-
-    return my->g_idle_add_full(priority, findGChildWatchFuncFct(f), data, findGDestroyNotifyFct(notify));
+    (void)emu;
+    return my->g_child_watch_add_full(priority, pid, findGChildWatchFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void* my_g_private_new(x86emu_t* emu, void* notify)
 {
-
+    (void)emu;
     return my->g_private_new(findFreeFct(notify));
 }
 
 EXPORT void my_g_static_private_set(x86emu_t* emu, void* private, void* data, void* notify)
 {
-
+    (void)emu;
     my->g_static_private_set(private, data, findFreeFct(notify));
 }
 
 EXPORT void* my_g_ptr_array_new_with_free_func(x86emu_t* emu, void* notify)
 {
-
+    (void)emu;
     return my->g_ptr_array_new_with_free_func(findFreeFct(notify));
 }
 
 EXPORT void* my_g_ptr_array_new_full(x86emu_t* emu, uint32_t size, void* notify)
 {
-
+    (void)emu;
     return my->g_ptr_array_new_full(size, findFreeFct(notify));
 }
 
 EXPORT void my_g_ptr_array_set_free_func(x86emu_t* emu, void* array, void* notify)
 {
-
+    (void)emu;
     my->g_ptr_array_set_free_func(array, findFreeFct(notify));
 }
 
 EXPORT void my_g_ptr_array_sort(x86emu_t* emu, void* array, void* comp)
 {
-
+    (void)emu;
     my->g_ptr_array_sort(array, findGCompareFuncFct(comp));
 }
 
 EXPORT void my_g_ptr_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
-
+    (void)emu;
     my->g_ptr_array_sort_with_data(array, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_qsort_with_data(x86emu_t* emu, void* pbase, int total, unsigned long size, void* comp, void* data)
 {
-
+    (void)emu;
     my->g_qsort_with_data(pbase, total, size, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_ptr_array_foreach(x86emu_t* emu, void* array, void* func, void* data)
 {
-
+    (void)emu;
     my->g_ptr_array_foreach(array, findGFuncFct(func), data);
 }
 
@@ -1027,66 +1047,65 @@ EXPORT void* my_g_thread_create_full(x86emu_t* emu, void* func, void* data, unsi
 
 EXPORT void my_g_thread_foreach(x86emu_t* emu, void* func, void* data)
 {
-
+    (void)emu;
     my->g_thread_foreach(findGFuncFct(func), data);
 }
 
 EXPORT void my_g_array_sort(x86emu_t* emu, void* array, void* comp)
 {
-
+    (void)emu;
     my->g_array_sort(array, findGCompareFuncFct(comp));
 }
 
 EXPORT void my_g_array_sort_with_data(x86emu_t* emu, void* array, void* comp, void* data)
 {
-
+    (void)emu;
     my->g_array_sort_with_data(array, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_array_set_clear_func(x86emu_t* emu, void* array, void* notify)
 {
-
+    (void)emu;
     my->g_array_set_clear_func(array, findFreeFct(notify));
 }
 
 EXPORT void my_g_source_set_callback(x86emu_t* emu, void* source, void* func, void* data, void* notify)
 {
-
+    (void)emu;
     my->g_source_set_callback(source, findGSourceFuncFct(func), data, findFreeFct(notify));
 }
 
 EXPORT void* my_g_slist_insert_sorted(x86emu_t* emu, void* list, void* d, void* comp)
 {
-
+    (void)emu;
     return my->g_slist_insert_sorted(list, d, findGCompareFuncFct(comp));
 }
 EXPORT void* my_g_slist_insert_sorted_with_data(x86emu_t* emu, void* list, void* d, void* comp, void* data)
 {
-
+    (void)emu;
     return my->g_slist_insert_sorted_with_data(list, d, findGCompareDataFuncFct(comp), data);
 }
 
 EXPORT void my_g_slist_foreach(x86emu_t* emu, void* list, void* func, void* data)
 {
-
+    (void)emu;
     my->g_slist_foreach(list, findGFuncFct(func), data);
 }
 
 EXPORT void* my_g_slist_find_custom(x86emu_t* emu, void* list, void* data, void* comp)
 {
-
+    (void)emu;
     return my->g_slist_find_custom(list, data, findGCompareFuncFct(comp));
 }
 
 EXPORT uint32_t my_g_idle_add(x86emu_t* emu, void* func, void* data)
 {
-
+    (void)emu;
     return my->g_idle_add(findGSourceFuncFct(func), data);
 }
 
 EXPORT void* my_g_variant_new_va(x86emu_t* emu, char* fmt, void* endptr, uint32_t** b)
 {
-
     myStackAlignGVariantNew(fmt, *b, emu->scratch);
     PREPARE_VALIST;
     uint32_t* aligned = VARARGS;
@@ -1100,61 +1119,61 @@ EXPORT void* my_g_variant_new(x86emu_t* emu, char* fmt, uint32_t* b)
 
 EXPORT void* my_g_completion_new(x86emu_t* emu, void* f)
 {
-
+    (void)emu;
     return my->g_completion_new(findGCompletionFct(f));
 }
 
 EXPORT void my_g_completion_set_compare(x86emu_t *emu, void* cmp, void* f)
 {
-
+    (void)emu;
     my->g_completion_set_compare(cmp, findGCompletionStrncmpFuncFct(f));
 }
 
 EXPORT void* my_g_log_set_default_handler(x86emu_t *emu, void* f, void* data)
 {
-
+    (void)emu;
     return reverseGLogFuncFct(my->g_log_set_default_handler(findGLogFuncFct(f), data));
 }
 
 EXPORT uint32_t my_g_io_add_watch_full(x86emu_t* emu, void* channel, int priority, int cond, void* f, void* data, void* notify)
 {
-
+    (void)emu;
     return my->g_io_add_watch_full(channel, priority, cond, findGIOFuncFct(f), data, findDestroyFct(notify));
 }
 
 EXPORT uint32_t my_g_io_add_watch(x86emu_t* emu, void* channel, int cond, void* f, void* data)
 {
-
+    (void)emu;
     return my->g_io_add_watch(channel, cond, findGIOFuncFct(f), data);
 }
 
 EXPORT void* my_g_set_print_handler(x86emu_t *emu, void* f)
 {
-
+    (void)emu;
     return reverseGPrintFuncFct(my->g_set_print_handler(findGPrintFuncFct(f)));
 }
 
 EXPORT void* my_g_set_printerr_handler(x86emu_t *emu, void* f)
 {
-
+    (void)emu;
     return reverseGPrintFuncFct(my->g_set_printerr_handler(findGPrintFuncFct(f)));
 }
 
 EXPORT void* my_g_slist_sort(x86emu_t *emu, void* list, void* f)
 {
-
+    (void)emu;
     return my->g_slist_sort(list, findGCompareFuncFct(f));
 }
 
 EXPORT void* my_g_slist_sort_with_data(x86emu_t *emu, void* list, void* f, void* data)
 {
-
+    (void)emu;
     return my->g_slist_sort_with_data(list, findGCompareDataFuncFct(f), data);
 }
 
 EXPORT void* my_g_build_path(x86emu_t *emu, void* sep, void* first, void** data)
 {
-
+    (void)emu;
     int n = (first)?1:0;
     void* p = n?data[0]:NULL;
     while(p) {
@@ -1171,49 +1190,49 @@ EXPORT void* my_g_build_path(x86emu_t *emu, void* sep, void* first, void** data)
 
 EXPORT void* my_g_list_sort(x86emu_t *emu, void* list, void* f)
 {
-
+    (void)emu;
     return my->g_list_sort(list, findGCompareFuncFct(f));
 }
 
 EXPORT void* my_g_list_sort_with_data(x86emu_t *emu, void* list, void* f, void* data)
 {
-
+    (void)emu;
     return my->g_list_sort_with_data(list, findGCompareDataFuncFct(f), data);
 }
 
 EXPORT void* my_g_queue_find_custom(x86emu_t *emu, void* queue, void* data, void* f)
 {
-
+    (void)emu;
     return my->g_queue_find_custom(queue, data, findGCompareFuncFct(f));
 }
 
 EXPORT void* my_g_list_find_custom(x86emu_t *emu, void* list, void* data, void* f)
 {
-
+    (void)emu;
     return my->g_list_find_custom(list, data, findGCompareFuncFct(f));
 }
 
 EXPORT uint32_t my_g_timeout_add_full(x86emu_t *emu, int priority, uint32_t interval, void* f, void* data, void* notify)
 {
-
+    (void)emu;
     return my->g_timeout_add_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
 }
 
 EXPORT uint32_t my_g_timeout_add_seconds(x86emu_t *emu, uint32_t interval, void* f, void* data)
 {
-
+    (void)emu;
     return my->g_timeout_add_seconds(interval, findGSourceFuncFct(f), data);
 }
 
 EXPORT uint32_t my_g_timeout_add_seconds_full(x86emu_t *emu, int priority, uint32_t interval, void* f, void* data, void* notify)
 {
-
+    (void)emu;
     return my->g_timeout_add_seconds_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
 }
 
 EXPORT uint32_t my_g_log_set_handler(x86emu_t *emu, void* domain, int level, void* f, void* data)
 {
-
+    (void)emu;
     return my->g_log_set_handler(domain, level, findGLogFuncFct(f), data);
 }
 
@@ -1238,6 +1257,7 @@ typedef struct my_GOptionEntry_s {
 
 EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, my_GOptionEntry_t entries[], void* domain)
 {
+    (void)emu;
     my_GOptionEntry_t* p = entries;
     while (p->long_name) {
         // wrap Callbacks
@@ -1257,6 +1277,7 @@ EXPORT void my_g_option_context_add_main_entries(x86emu_t* emu, void* context, m
 
 EXPORT void my_g_list_foreach(x86emu_t* emu, void* list, void* f, void* data)
 {
+    (void)emu;
     my->g_list_foreach(list, findGFuncFct(f), data);
 }
 
@@ -1273,4 +1294,3 @@ EXPORT void my_g_list_foreach(x86emu_t* emu, void* list, void* f, void* data)
     freeMy();
 
 #include "wrappedlib_init.h"
-

@@ -155,7 +155,7 @@ char* box_realpath(const char* path, char* ret)
 
 static size_t pot(size_t l) {
     size_t ret = 0;
-    while (l>(1<<ret))  ++ret;
+    while (l>(1u<<ret))  ++ret;
     return 1<<ret;
 }
 #ifndef ANDROID
@@ -230,6 +230,7 @@ EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
 
 EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t, std::nothrow_t const&)
 {
+    (void)p;
     return box_malloc(sz);
 }
 
@@ -240,6 +241,7 @@ EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
 
 EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_t, std::nothrow_t const&)
 {
+    (void)p;
     return box_malloc(sz);
 }
 
@@ -251,11 +253,13 @@ EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
 
 EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
 {
+    (void)sz;
     box_free(p);
 }
 
 EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete[](void*, unsigned long, std::align_val_t)
 {
+    (void)sz; (void)align;
     box_free(p);
 }
 
@@ -266,6 +270,7 @@ EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
 
 EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
 {
+    (void)sz;
     box_free(p);
 }
 
@@ -276,6 +281,7 @@ EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new
 
 EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
 {
+    (void)p;
     return box_memalign(align, sz);
 }
 
@@ -286,41 +292,49 @@ EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new
 
 EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
 {
+    (void)p;
     return box_memalign(align, sz);
 }
 
 EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*, std::nothrow_t const&)
 {
+    (void)n;
     box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete[](void*, std::align_val_t, std::nothrow_t const&)
 {
+    (void)align; (void)n;
     box_free(p);
 }
 
 EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete(void*, unsigned long, std::align_val_t)
 {
+    (void)sz; (void)align;
     box_free(p);
 }
 
 EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void*, std::nothrow_t const&)
 {
+    (void)n;
     box_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[](void*, std::align_val_t)
 {
+    (void)align;
     box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(void*, std::align_val_t)
 {
+    (void)align;
     box_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete(void*, std::align_val_t, std::nothrow_t const&)
 {
+    (void)align; (void)n;
     box_free(p);
 }
 
@@ -346,11 +360,13 @@ EXPORT void my_tc_deletearray(void* p)
 
 EXPORT void my_tc_deletearray_nothrow(void* p, void* n)
 {
+    (void)n;
     box_free(p);
 }
 
 EXPORT void my_tc_delete_nothrow(void* p, void* n)
 {
+    (void)n;
     box_free(p);
 }
 
@@ -376,17 +392,19 @@ EXPORT void* my_tc_new(size_t s)
 
 EXPORT void* my_tc_new_nothrow(size_t s, void* n)
 {
-        return box_calloc(1, s);
+    (void)n;
+    return box_calloc(1, s);
 }
 
 EXPORT void* my_tc_newarray(size_t s)
 {
-        return box_calloc(1, s);
+    return box_calloc(1, s);
 }
 
 EXPORT void* my_tc_newarray_nothrow(size_t s, void* n)
 {
-        return box_calloc(1, s);
+    (void)n;
+    return box_calloc(1, s);
 }
 
 EXPORT void* my_tc_pvalloc(size_t size)
@@ -411,6 +429,7 @@ EXPORT void* my_tc_malloc_skip_new_handler_weak(size_t s)
 
 EXPORT int my_tc_mallocopt(int param, int value)
 {
+    (void)param; (void)value;
     // ignoring...
     return 1;
 }
@@ -459,6 +478,7 @@ EXPORT void* my_tc_realloc(void* p, size_t s)
 /*
 EXPORT int my_tc_version(int i)
 {
+    (void)i;
     return 2;
 }
 */
@@ -492,15 +512,16 @@ static void addRelocJmp(void* offs, void* where, size_t size, const char* name)
 
 void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
 {
+    (void)maplib;
     int hooked = 0;
-    for (size_t i=0; i<h->numDynSym && hooked<2; ++i) {
+    for (uint32_t i=0; i<h->numDynSym && hooked<2; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
         int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
         int vis = h->DynSym[i].st_other&0x3;
         if((type==STT_FUNC) 
         && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-            uintptr_t offs = h->DynSym[i].st_value + h->delta;
+            // uintptr_t offs = h->DynSym[i].st_value + h->delta;
             size_t sz = h->DynSym[i].st_size;
             if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(simple_jmp_t)) {
                 #define GO(A, B) if(!strcmp(symname, #A)) ++hooked;
@@ -516,7 +537,7 @@ void checkHookedSymbols(lib_t *maplib, elfheader_t* h)
     if(hooked<2)
         return; // only redirect on lib that hooked / redefined the operators
     printf_log(LOG_INFO, "Redirecting overriden malloc function for %s\n", ElfName(h));
-    for (size_t i=0; i<h->numDynSym; ++i) {
+    for (uint32_t i=0; i<h->numDynSym; ++i) {
         const char * symname = h->DynStr+h->DynSym[i].st_name;
         int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
         int type = ELF64_ST_TYPE(h->DynSym[i].st_info);

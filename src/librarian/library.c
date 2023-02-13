@@ -101,6 +101,7 @@ void WrappedLib_CommonInit(library_t* lib)
 
 void EmuLib_Fini(library_t* lib)
 {
+    (void)lib;
 }
 void WrappedLib_FinishFini(library_t* lib)
 {
@@ -120,10 +121,10 @@ void WrappedLib_FinishFini(library_t* lib)
 int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int *weak, int version, const char* vername, int local)
 {
     // ignoring asked size on wrapped libs
+    (void)asked_size;
     uintptr_t addr = 0;
     uint32_t size = 0;
     int wk = 0;
-    void* symbol = NULL;
     if (!getSymbolInMaps(lib, name, 0, &addr, &size, &wk, version, vername, local)) {
         return 0;
     }
@@ -153,10 +154,10 @@ int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *
 int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local)
 {
     // ignoring asked size on wrapped libs
+    (void)asked_size;
     uintptr_t addr = 0;
     uint32_t size = 0;
     int wk = 0;
-    void* symbol = NULL;
     if (!getSymbolInMaps(lib, name, 1, &addr, &size, &wk, version, vername, local)) {
         return 0;
     }
@@ -199,6 +200,7 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
 
 int WrappedLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local)
 {
+    (void)lib; (void)name; (void)offs; (void)sz; (void)asked_size; (void)weak; (void)version; (void)vername; (void)local;
     return 0;
 }
 
@@ -316,8 +318,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         if(libname && strstr(libname, "spd_readdir.so")) {
             printf_log(LOG_INFO, "spd_readdir detected, hacking wrapped libc\n");
             const char* symbols[] = {"opendir", "readdir", "readdir_r", "readdir64", "closedir", "telldir", "seekdir", "dirfd"};
-            for(int i=0; i<sizeof(symbols)/sizeof(symbols[0]); ++i) {
-                char temp[500];
+            for(unsigned int i=0; i<sizeof(symbols)/sizeof(symbols[0]); ++i) {
                 const char* symname = AddDictionnary(my_context->versym, symbols[i]);
                 const char* vername = AddDictionnary(my_context->versym, "GLIBC_2.0");
                 AddDefaultVersion(my_context->globaldefver, symname, vername);
@@ -360,7 +361,7 @@ static const char* essential_libs[] = {
     "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4"
 };
 static int isEssentialLib(const char* name) {
-    for (int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
+    for (unsigned int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
         if(!strcmp(name, essential_libs[i]))
             return 1;
     return 0;
@@ -433,6 +434,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 }
 int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x86emu_t* emu)
 {
+    (void)emu;
     lib->active = 1;
     if(lib->type==LIB_EMULATED) {
         elfheader_t *elf_header = lib->e.elf;
@@ -937,6 +939,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
 
 int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size, int* weak, int version, const char* vername, int local)
 {
+    (void)local;
     if(!lib->active)
         return 0;
     if(version==-2) // don't send global native symbol for a version==-2 search

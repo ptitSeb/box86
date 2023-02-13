@@ -282,6 +282,7 @@ static void wrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr)
 
 static void unwrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr)
 {
+    (void)bridge;
     if(!mgr)
         return;
     void* p;
@@ -303,6 +304,7 @@ EXPORT int my_jpeg_simd_cpu_support()
 
 EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
 {
+    (void)emu;
     jpeg_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
     wrapErrorMgr(my_lib->w.bridge, ret);

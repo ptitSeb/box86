@@ -461,6 +461,7 @@ int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *
     void (*rtld_fini) (void), void (* stack_end)); // implemented in x86run_private.c
 EXPORT void my___libc_init_first(x86emu_t* emu, int argc, char* arg0, char** b)
 {
+    (void)emu; (void)argc; (void)arg0; (void)b;
     // do nothing specific for now
     return;
 }
@@ -477,10 +478,12 @@ void EXPORT my___stack_chk_fail(x86emu_t* emu)
 }
 void EXPORT my___gmon_start__(x86emu_t *emu)
 {
+    (void)emu;
     printf_log(LOG_DEBUG, "__gmon_start__ called (dummy call)\n");
 }
 int EXPORT my___cxa_atexit(x86emu_t* emu, void* p, void* a, void* d)
 {
+    (void)d;
     AddCleanup1Arg(emu, p, a);
     return 0;
 }
@@ -665,13 +668,13 @@ int of_unconvert(int a)
 #undef SUPER
 
 
-EXPORT void* my__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
-EXPORT void my__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
-EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { printf("warning _ITM_RU1 called\n"); return 0; }
-EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 called\n"); return 0; }
-EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
-EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
-EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
+EXPORT void* my__ZGTtnaX (size_t a) { (void)a; printf("warning _ZGTtnaX called\n"); return NULL; }
+EXPORT void my__ZGTtdlPv (void* a) { (void)a; printf("warning _ZGTtdlPv called\n"); }
+EXPORT uint8_t my__ITM_RU1(const uint8_t * a) { (void)a; printf("warning _ITM_RU1 called\n"); return 0; }
+EXPORT uint32_t my__ITM_RU4(const uint32_t * a) { (void)a; printf("warning _ITM_RU4 called\n"); return 0; }
+EXPORT uint64_t my__ITM_RU8(const uint64_t * a) { (void)a; printf("warning _ITM_RU8 called\n"); return 0; }
+EXPORT void my__ITM_memcpyRtWn(void * a, const void * b, size_t c) { (void)a; (void)b; (void)c; printf("warning _ITM_memcpyRtWn called\n");  }
+EXPORT void my__ITM_memcpyRnWt(void * a, const void * b, size_t c) { (void)a; (void)b; (void)c; printf("warning _ITM_memcpyRtWn called\n"); }
 
 EXPORT void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my__longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my_longjmp")));
@@ -703,6 +706,7 @@ EXPORT int my_printf(x86emu_t *emu, void* fmt, void* b) {
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return vprintf((const char*)fmt, b);
     #endif
 }
@@ -717,6 +721,7 @@ EXPORT int my_vprintf(x86emu_t *emu, void* fmt, void* b) {
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return vprintf(fmt, b);
     #endif
 }
@@ -731,6 +736,7 @@ EXPORT int my_vfprintf(x86emu_t *emu, void* F, void* fmt, void* b) {
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return vfprintf(F, fmt, b);
     #endif
 }
@@ -745,6 +751,7 @@ EXPORT int my_dprintf(x86emu_t *emu, int fd, void* fmt, void* V)  {
     void* f = vdprintf;
     return ((iFipp_t)f)(fd, fmt, VARARGS);
     #else
+    (void)emu;
     return vdprintf(fd, (const char*)fmt, (va_list)V);
     #endif
 }
@@ -758,6 +765,7 @@ EXPORT int my_fprintf(x86emu_t *emu, void* F, void* fmt, void* V)  {
     void* f = vfprintf;
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
+    (void)emu;
     return vfprintf((FILE*)F, (const char*)fmt, (va_list)V);
     #endif
 }
@@ -772,10 +780,12 @@ EXPORT int my_wprintf(x86emu_t *emu, void* fmt, void* V) {
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return vwprintf((const wchar_t*)fmt, (va_list)V);
     #endif
 }
 EXPORT int my___wprintf_chk(x86emu_t *emu, int flag, void* fmt, void* V) {
+    (void)flag;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlignW((const char*)fmt, V, emu->scratch);
@@ -784,6 +794,7 @@ EXPORT int my___wprintf_chk(x86emu_t *emu, int flag, void* fmt, void* V) {
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return vwprintf((const wchar_t*)fmt, (va_list)V);
     #endif
 }
@@ -796,6 +807,7 @@ EXPORT int my_fwprintf(x86emu_t *emu, void* F, void* fmt, void* V)  {
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
     // other platform don't need that
+    (void)emu;
     return vfwprintf((FILE*)F, (const wchar_t*)fmt, V);
     #endif
 }
@@ -808,6 +820,7 @@ EXPORT int my_vfwprintf(x86emu_t *emu, void* F, void* fmt, void* b) {
     void* f = vfwprintf;
     return ((iFppp_t)f)(F, fmt, VARARGS);
     #else
+    (void)emu;
     return vfwprintf(F, fmt, b);
     #endif
 }
@@ -819,6 +832,7 @@ EXPORT int my_vwprintf(x86emu_t *emu, void* fmt, void* b) {
     void* f = vwprintf;
     return ((iFpp_t)f)(fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vwprintf;
     return ((iFpp_t)f)(fmt, b);
     #endif
@@ -837,6 +851,7 @@ EXPORT int my_snprintf(x86emu_t* emu, void* buff, size_t s, void * fmt, void * b
     void* f = vsnprintf;
     return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
 }
@@ -851,6 +866,7 @@ EXPORT int my___snprintf_chk(x86emu_t* emu, void* buff, size_t s, int f1, int f2
     void* f = vsnprintf;
     return ((iFpLpp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     return vsnprintf((char*)buff, s, (char*)fmt, b);
     #endif
 }
@@ -864,6 +880,7 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b) {
     void* f = vsprintf;
     return ((iFppp_t)f)(buff, fmt, VARARGS);
     #else
+    (void)emu;
     return vsprintf((char*)buff, (char*)fmt, b);
     #endif
 }
@@ -877,6 +894,7 @@ EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b) {
     void* f = vasprintf;
     return ((iFppp_t)f)(buff, fmt, VARARGS);
     #else
+    (void)emu;
     return vasprintf((char**)buff, (char*)fmt, b);
     #endif
 }
@@ -888,32 +906,32 @@ EXPORT int my_vsprintf(x86emu_t* emu, void* buff,  void * fmt, uint32_t * b) {
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, VARARGS);
-    return r;
+    return ((iFppp_t)f)(buff, fmt, VARARGS);
     #else
     void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, b);
-    return r;
+    (void)emu;
+    return ((iFppp_t)f)(buff, fmt, b);
     #endif
 }
 EXPORT int my___vsprintf_chk(x86emu_t* emu, void* buff, int flags, size_t len, void * fmt, uint32_t * b)  {
+    (void)flags; (void)len;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, VARARGS);
-    return r;
+    return ((iFppp_t)f)(buff, fmt, VARARGS);
     #else
     void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, b);
-    return r;
+    (void)emu;
+    return ((iFppp_t)f)(buff, fmt, b);
     #endif
 }
 
 #ifdef POWERPCLE
 EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
 {
+    (void)emu;
     //myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_(b);
     void* f = vfscanf;
@@ -925,6 +943,7 @@ EXPORT int my_vfscanf(x86emu_t* emu, void* stream, void* fmt, void* b) // probab
 
 EXPORT int my_vsscanf(x86emu_t* emu, void* stream, void* fmt, void* b)
 {
+    (void)emu;
     //myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_(b);
     void* f = vsscanf;
@@ -943,25 +962,26 @@ EXPORT int my___isoc99_fscanf(x86emu_t* emu, void* stream, void* fmt, void* b) _
 
 EXPORT int my___isoc99_sscanf(x86emu_t* emu, void* stream, void* fmt, void* b)
 {
-  void* f = sscanf;
-  PREPARE_VALIST;
+    (void)b;
+    void* f = sscanf;
+    PREPARE_VALIST;
 
-  return ((iFppp_t)f)(stream, fmt, VARARGS);
+    return ((iFppp_t)f)(stream, fmt, VARARGS);
 }
 #endif
 
 EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+    (void)V;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST;
     void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
+    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
+    return ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
     #endif
 }
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
@@ -969,74 +989,76 @@ EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt,
 
 EXPORT int my_vasprintf(x86emu_t* emu, void* strp, void* fmt, void* b, va_list V)
 {
+    (void)V;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST;
     void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, VARARGS);
-    return r;
+    return ((iFppp_t)f)(strp, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
-    return r;
+    return ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
     #endif
 }
 EXPORT int my___vasprintf_chk(x86emu_t* emu, void* strp, int flags, void* fmt, void* b, va_list V)
 {
+    (void)flags; (void)V;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST;
     void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, VARARGS);
-    return r;
+    return ((iFppp_t)f)(strp, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
-    return r;
+    return ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
     #endif
 }
 
 EXPORT int my___asprintf_chk(x86emu_t* emu, void* result_ptr, int flags, void* fmt, void* b)
 {
+    (void)flags;
     #ifndef NOALIGN
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vasprintf;
     return ((iFppp_t)f)(result_ptr, fmt, VARARGS);
     #else
+    (void)emu;
     return vasprintf((char**)result_ptr, (char*)fmt, b);
     #endif
 }
 
 EXPORT int my_vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+    (void)V;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
+    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
+    return ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
     #endif
 }
 EXPORT int my___vswprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vswprintf")));
 EXPORT int my___vswprintf_chk(x86emu_t* emu, void* buff, size_t s, int flags, size_t m, void * fmt, void * b, va_list V) {
+    (void)flags; (void)m; (void)V;
     #ifndef NOALIGN
     // need to align on arm
     myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS);
-    return r;
+    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
+    return ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
     #endif
 }
 
@@ -1047,6 +1069,7 @@ EXPORT void my_verr(x86emu_t* emu, int eval, void* fmt, void* b) {
     void* f = verr;
     ((vFipp_t)f)(eval, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = verr;
     ((vFipp_t)f)(eval, fmt, (uint32_t*)b);
     #endif
@@ -1059,6 +1082,7 @@ EXPORT void my_vwarn(x86emu_t* emu, void* fmt, void* b) {
     void* f = vwarn;
     ((vFpp_t)f)(fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vwarn;
     ((vFpp_t)f)(fmt, (uint32_t*)b);
     #endif
@@ -1066,16 +1090,16 @@ EXPORT void my_vwarn(x86emu_t* emu, void* fmt, void* b) {
 
 EXPORT int my___swprintf_chk(x86emu_t* emu, void* s, uint32_t n, int32_t flag, uint32_t slen, void* fmt, void * b)
 {
+    (void)flag; (void)slen;
     #ifndef NOALIGN
     myStackAlignW((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, VARARGS);
-    return r;
+    return ((iFpupp_t)f)(s, n, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, b);
-    return r;
+    return ((iFpupp_t)f)(s, n, fmt, b);
     #endif
 }
 EXPORT int my_swprintf(x86emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
@@ -1084,12 +1108,11 @@ EXPORT int my_swprintf(x86emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
     myStackAlignW((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, VARARGS);
-    return r;
+    return ((iFpupp_t)f)(s, n, fmt, VARARGS);
     #else
+    (void)emu;
     void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, b);
-    return r;
+    return ((iFpupp_t)f)(s, n, fmt, b);
     #endif
 }
 
@@ -1102,11 +1125,12 @@ EXPORT void my__ITM_addUserCommitAction(x86emu_t* emu, void* cb, uint32_t b, voi
     my->_ITM_addUserCommitAction(libc1ArgCallback, b, cbemu);
     // should keep track of cbemu to remove at some point...
     #else
+    (void)emu; (void)cb; (void)b; (void)c;
     printf("warning _ITM_addUserCommitAction called\n");
     #endif
 }
-EXPORT void my__ITM_registerTMCloneTable(x86emu_t* emu, void* p, uint32_t s) {}
-EXPORT void my__ITM_deregisterTMCloneTable(x86emu_t* emu, void* p) {}
+EXPORT void my__ITM_registerTMCloneTable(x86emu_t* emu, void* p, uint32_t s) { (void)emu; (void)p; (void)s; }
+EXPORT void my__ITM_deregisterTMCloneTable(x86emu_t* emu, void* p) { (void)emu; (void)p; }
 
 
 struct i386_stat {
@@ -1215,6 +1239,7 @@ EXPORT int my_lstat(char* path, void* buf)
 
 EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
 {
+    (void)emu;
     if (vers == 1)
     {
         static iFiip_t f = NULL;
@@ -1239,6 +1264,7 @@ EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
 
 EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
 {
+    (void)emu; (void)vers;
     struct stat64 st;
     int r = fstat64(fd, &st);
     //int r = syscall(__NR_stat64, fd, &st);
@@ -1248,6 +1274,7 @@ EXPORT int my___fxstat64(x86emu_t *emu, int vers, int fd, void* buf)
 
 EXPORT int my_stat64(x86emu_t* emu, void* path, void* buf)
 {
+    (void)emu;
     struct stat64 st;
     int r = stat64(path, &st);
     UnalignStat64(&st, buf);
@@ -1255,6 +1282,7 @@ EXPORT int my_stat64(x86emu_t* emu, void* path, void* buf)
 }
 EXPORT int my_lstat64(x86emu_t* emu, void* path, void* buf)
 {
+    (void)emu;
     struct stat64 st;
     int r = lstat64(path, &st);
     UnalignStat64(&st, buf);
@@ -1263,6 +1291,7 @@ EXPORT int my_lstat64(x86emu_t* emu, void* path, void* buf)
 
 EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
 {
+    (void)emu;
     if (v == 1)
     {
         static iFipp_t f = NULL;
@@ -1287,6 +1316,7 @@ EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
 
 EXPORT int my___xstat64(x86emu_t* emu, int v, void* path, void* buf)
 {
+    (void)emu; (void)v;
     struct stat64 st;
     int r = stat64((const char*)path, &st);
     UnalignStat64(&st, buf);
@@ -1295,6 +1325,7 @@ EXPORT int my___xstat64(x86emu_t* emu, int v, void* path, void* buf)
 
 EXPORT int my___lxstat(x86emu_t* emu, int v, void* name, void* buf)
 {
+    (void)emu;
     if (v == 1)
     {
         static iFipp_t f = NULL;
@@ -1319,6 +1350,7 @@ EXPORT int my___lxstat(x86emu_t* emu, int v, void* name, void* buf)
 
 EXPORT int my___lxstat64(x86emu_t* emu, int v, void* name, void* buf)
 {
+    (void)emu; (void)v;
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
     UnalignStat64(&st, buf);
@@ -1327,6 +1359,7 @@ EXPORT int my___lxstat64(x86emu_t* emu, int v, void* name, void* buf)
 
 EXPORT int my___fxstatat(x86emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
+    (void)emu; (void)v;
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
     if (r) return r;
@@ -1336,6 +1369,7 @@ EXPORT int my___fxstatat(x86emu_t* emu, int v, int d, void* path, void* buf, int
 
 EXPORT int my___fxstatat64(x86emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
+    (void)emu; (void)v;
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
     UnalignStat64(&st, buf);
@@ -1344,6 +1378,7 @@ EXPORT int my___fxstatat64(x86emu_t* emu, int v, int d, void* path, void* buf, i
 
 EXPORT int my__IO_file_stat(x86emu_t* emu, void* f, void* buf)
 {
+    (void)emu;
     struct stat64 st;
     int r = my->_IO_file_stat(f, &st);
     UnalignStat64(&st, buf);
@@ -1437,15 +1472,18 @@ EXPORT void my_qsort_r(x86emu_t* emu, void* base, size_t nmemb, size_t size, voi
 
 EXPORT void* my_bsearch(x86emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
+    (void)emu;
     return bsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
 
 EXPORT void* my_lsearch(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
+    (void)emu;
     return lsearch(key, base, nmemb, size, findcompareFct(fnc));
 }
 EXPORT void* my_lfind(x86emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
+    (void)emu;
     return lfind(key, base, nmemb, size, findcompareFct(fnc));
 }
 
@@ -1460,6 +1498,7 @@ struct i386_dirent {
 
 EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
 {
+    (void)emu;
     if (fix_64bit_inodes)
     {
         struct dirent64 *dp64 = readdir64((DIR *)dirp);
@@ -1487,6 +1526,7 @@ EXPORT void* my_readdir(x86emu_t* emu, void* dirp)
 
 EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** result)
 {
+    (void)emu;
     struct dirent64 d64, *dp64;
     if (fix_64bit_inodes && (sizeof(d64.d_name) > 1))
     {
@@ -1509,7 +1549,7 @@ EXPORT int32_t my_readdir_r(x86emu_t* emu, void* dirp, void* entry, void** resul
         }
 
         struct i386_dirent *dp32 = (struct i386_dirent *)entry;
-        int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
+        unsigned int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
         if (namelen > sizeof(dp32->d_name))
         {
             *result = NULL;
@@ -1573,13 +1613,13 @@ static double bogoMips = 100.;
 void grabNCpu() {
     nCPU = 1;  // default number of CPU to 1
     FILE *f = fopen("/proc/cpuinfo", "r");
-    size_t dummy;
+    ssize_t dummy;
     if(f) {
         nCPU = 0;
         int bogo = 0;
         size_t len = 500;
         char* line = malloc(len);
-        while ((dummy = getline(&line, &len, f)) != -1) {
+        while ((dummy = getline(&line, &len, f)) != -(ssize_t)1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++nCPU;
             if(!bogo && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
@@ -1923,6 +1963,7 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
 
 EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
 {
+    (void)emu;
     library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->w.lib, "mkstemps64");
@@ -1944,6 +1985,7 @@ EXPORT int my_mkstemps64(x86emu_t* emu, char* template, int suffixlen)
 
 EXPORT int32_t my_ftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
+    (void)emu;
     static iFppi_t f = NULL;
     if(!f) {
         library_t* lib = my_lib;
@@ -1956,6 +1998,7 @@ EXPORT int32_t my_ftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 
 EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
+    (void)emu;
     static iFppii_t f = NULL;
     if(!f) {
         library_t* lib = my_lib;
@@ -1968,6 +2011,7 @@ EXPORT int32_t my_nftw(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, 
 
 EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
 {
+    (void)emu;
     *((ldiv_t*)p) = ldiv(num, den);
     return p;
 }
@@ -1975,14 +2019,17 @@ EXPORT void* my_ldiv(x86emu_t* emu, void* p, int32_t num, int32_t den)
 #ifndef NOALIGN
 EXPORT int my_epoll_create(x86emu_t* emu, int size)
 {
+    (void)emu;
     return epoll_create(size);
 }
 EXPORT int my_epoll_create1(x86emu_t* emu, int flags)
 {
+    (void)emu;
     return epoll_create1(flags);
 }
 EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event)
 {
+    (void)emu;
     struct epoll_event _event[1] = {0};
     if(event && (op!=EPOLL_CTL_DEL))
         AlignEpollEvent(_event, event, 1);
@@ -1990,6 +2037,7 @@ EXPORT int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd,
 }
 EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
 {
+    (void)emu;
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
     int32_t ret = epoll_wait(epfd, events?_events:NULL, maxevents, timeout);
@@ -2001,6 +2049,7 @@ EXPORT int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t 
 
 EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
+    (void)emu;
     static iFpipp_t f = NULL;
     if(!f) {
         library_t* lib = my_lib;
@@ -2014,17 +2063,20 @@ EXPORT int32_t my_glob(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
 #ifndef ANDROID
 EXPORT int32_t my_glob64(x86emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
+    (void)emu;
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
 #endif
 
 EXPORT int my_scandir64(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
+    (void)emu;
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 
 EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
+    (void)emu;
     static iFpppp_t f = NULL;
     if(!f) {
         library_t* lib = my_lib;
@@ -2037,11 +2089,13 @@ EXPORT int my_scandir(x86emu_t *emu, void* dir, void* namelist, void* sel, void*
 
 EXPORT int my_ftw64(x86emu_t* emu, void* filename, void* func, int descriptors)
 {
+    (void)emu;
     return ftw64(filename, findftw64Fct(func), descriptors);
 }
 
 EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
+    (void)emu;
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
@@ -2284,6 +2338,7 @@ EXPORT void my__Jv_RegisterClasses() {}
 
 EXPORT int32_t my___cxa_thread_atexit_impl(x86emu_t* emu, void* dtor, void* obj, void* dso)
 {
+    (void)emu;
     printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
     return 0;
 }
@@ -2301,6 +2356,7 @@ EXPORT unsigned long int my___fdelt_chk (unsigned long int d)
 
 EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
+    (void)emu;
     // not always implemented on old linux version...
     library_t* lib = my_lib;
     if(!lib) return 0;
@@ -2309,7 +2365,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
         return ((iFpuu_t)f)(buf, buflen, flags);
     // do what should not be done, but it's better then nothing....
     FILE * rnd = fopen("/dev/urandom", "rb");
-    uint32_t r = fread(buf, 1, buflen, rnd);
+    int32_t r = fread(buf, 1, buflen, rnd);
     fclose(rnd);
     return r;
 }
@@ -2317,6 +2373,7 @@ EXPORT int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t 
 static struct passwd fakepwd = {};
 EXPORT void* my_getpwuid(x86emu_t* emu, uint32_t uid)
 {
+    (void)emu;
     void *ret = NULL;
     library_t* lib = my_lib;
     if(!lib) return 0;
@@ -2340,6 +2397,7 @@ EXPORT void* my_getpwuid(x86emu_t* emu, uint32_t uid)
 
 EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
 {
+    (void)emu;
     // Implemented starting glibc 2.12+
     library_t* lib = my_lib;
     if(!lib) return 0;
@@ -2352,6 +2410,7 @@ EXPORT int32_t my_recvmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vle
 
 EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags)
 {
+    (void)emu;
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
@@ -2364,7 +2423,8 @@ EXPORT int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t v
 
 EXPORT int32_t my___register_atfork(x86emu_t *emu, void* prepare, void* parent, void* child, void* handle)
 {
-    // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my_atfork...
+    // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my_atfork...
+    (void)emu;
     if(my_context->atfork_sz==my_context->atfork_cap) {
         my_context->atfork_cap += 4;
         my_context->atforks = (atfork_fnc_t*)box_realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
@@ -2391,11 +2451,13 @@ EXPORT int64_t my___divdi3(int64_t a, int64_t b)
 
 EXPORT int32_t my___poll_chk(void* a, uint32_t b, int c, int l)
 {
+    (void)l;
     return poll(a, b, c);   // no check...
 }
 
 EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
+    (void)emu; (void)d2; (void)d3; (void)d4; (void)d5; (void)d6;
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
@@ -2422,6 +2484,7 @@ EXPORT int32_t my_fcntl64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
 
 EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
+    (void)emu; (void)d2; (void)d3; (void)d4; (void)d5; (void)d6;
     if(b==F_SETFL && d1==0xFFFFF7FF) {
         // special case for ~O_NONBLOCK...
         int flags = fcntl(a, F_GETFL);
@@ -2451,6 +2514,7 @@ EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
 
 EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
+    (void)emu;
     library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->w.lib, "preadv64");
@@ -2461,6 +2525,7 @@ EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_
 
 EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
+    (void)emu;
     library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->w.lib, "pwritev64");
@@ -2476,6 +2541,7 @@ EXPORT int32_t my_pwritev64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64
 
 EXPORT int32_t my_accept4(x86emu_t* emu, int32_t fd, void* a, void* l, int32_t flags)
 {
+    (void)emu;
     library_t* lib = my_lib;
     if(!lib) return 0;
     void* f = dlsym(lib->w.lib, "accept4");
@@ -2573,10 +2639,12 @@ void stSetup(box86context_t* context)
 
 EXPORT void my___register_frame_info(void* a, void* b)
 {
+    (void)a; (void)b;
     // nothing
 }
 EXPORT void* my___deregister_frame_info(void* a)
 {
+    (void)a;
     return NULL;
 }
 
@@ -2621,6 +2689,7 @@ void EXPORT my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, 
 
 EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)
 {
+    (void)emu;
     jump_buff_i386_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
     // save the buffer
     jpbuff->save_ebx = R_EBX;
@@ -2658,12 +2727,12 @@ EXPORT int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p
 
 EXPORT void my___explicit_bzero_chk(x86emu_t* emu, void* dst, uint32_t len, uint32_t dstlen)
 {
+    (void)emu; (void)dstlen;
     memset(dst, 0, len);
 }
 
 EXPORT void* my_realpath(x86emu_t* emu, void* path, void* resolved_path)
 {
-
     if(path && isProcSelf(path, "exe")) {
         return realpath(emu->context->fullpath, resolved_path);
     }
@@ -2683,6 +2752,7 @@ EXPORT int my_readlinkat(x86emu_t* emu, int fd, void* path, void* buf, size_t bu
 
 EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset)
 {
+    (void)emu;
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap(%p, %lu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);}
@@ -2739,6 +2809,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
 
 EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
+    (void)emu;
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, 0x%lx, 0x%x, 0x%x, %d, %lld) =>", addr, length, prot, flags, fd, offset);}
@@ -2795,6 +2866,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
 
 EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
+    (void)emu;
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, 0x%x, 0x%x, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "%p\n", ret);
@@ -2844,6 +2916,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
 
 EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 {
+    (void)emu;
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
     #ifdef DYNAREC
     if(box86_dynarec) {
@@ -2858,6 +2931,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
 
 EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
 {
+    (void)emu;
     dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
     if(prot&PROT_WRITE) 
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
@@ -2907,6 +2981,7 @@ static int my_cookie_close(void *p)
 }
 EXPORT void* my_fopencookie(x86emu_t* emu, void* cookie, void* mode, void* read, void* write, void* seek, void* close)
 {
+    (void)emu;
     cookie_io_functions_t io_funcs = {read?my_cookie_read:NULL, write?my_cookie_write:NULL, seek?my_cookie_seek:NULL, my_cookie_close};
     my_cookie_t *cb = (my_cookie_t*)calloc(1, sizeof(my_cookie_t));
     cb->r = (uintptr_t)read;
@@ -2935,6 +3010,7 @@ EXPORT void* my_reallocarray(void* ptr, size_t nmemb, size_t size)
 #endif
 EXPORT int my___open_nocancel(x86emu_t* emu, void* file, int oflag, int* b)
 {
+    (void)emu;
     int mode = 0;
     if (__OPEN_NEEDS_MODE (oflag))
         mode = b[0];
@@ -2943,6 +3019,7 @@ EXPORT int my___open_nocancel(x86emu_t* emu, void* file, int oflag, int* b)
 
 EXPORT int my___libc_alloca_cutoff(x86emu_t* emu, size_t size)
 {
+    (void)emu;
     // not always implemented on old linux version...
     library_t* lib = my_lib;
     if(!lib) return 0;
@@ -3032,6 +3109,7 @@ EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath
 #define MFD_ALLOW_SEALING	0x0002U
 EXPORT int my_memfd_create(x86emu_t* emu, void* name, uint32_t flags)
 {
+    (void)emu;
     // try to simulate that function
     uint32_t fl = O_RDWR | O_CREAT;
     if(flags&MFD_CLOEXEC)
@@ -3043,9 +3121,6 @@ EXPORT int my_memfd_create(x86emu_t* emu, void* name, uint32_t flags)
 }
 #endif
 
-#ifndef GRND_RANDOM
-#define GRND_RANDOM	0x0002
-#endif
 EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
 {
     library_t* lib = my_lib;
@@ -3058,8 +3133,8 @@ EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
         errno = EIO;
         return -1;
     }
-    int ret = my_getrandom(emu, buffer, length, GRND_RANDOM);
-    if(ret!=length) {
+    int32_t ret = my_getrandom(emu, buffer, length, 0);
+    if((size_t)ret!=length) {
         errno = EIO;
         return -1;
     }
@@ -3068,6 +3143,7 @@ EXPORT int my_getentropy(x86emu_t* emu, void* buffer, size_t length)
 
 EXPORT void my_mcount(void* frompc, void* selfpc)
 {
+    (void)frompc; (void)selfpc;
     // stub doing nothing...
     return;
 }
@@ -3084,6 +3160,7 @@ union semun {
 
 EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun b)
 {
+    (void)emu;
   iFiiiV_t f = semctl;
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
 }
@@ -3091,6 +3168,7 @@ EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun 
 #ifndef ANDROID
 EXPORT int my_on_exit(x86emu_t* emu, void* f, void* args)
 {
+    (void)emu;
     return on_exit(findon_exitFct(f), args);
 }
 #endif
@@ -3122,11 +3200,13 @@ EXPORT int my_fstat64(int fd, struct i386_stat64 *buf)
 
 EXPORT void* my__Unwind_Find_FDE(x86emu_t* emu, void* pc, void* base)
 {
+    (void)emu; (void)pc; (void)base;
     return NULL;
 }
 
 EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5)
 {
+    (void)emu;
     if(option==PR_SET_NAME) {
         printf_log(LOG_DEBUG, "BOX86: set process name to \"%s\"\n", (char*)arg2);
         ApplyParams((char*)arg2, NULL);
@@ -3137,6 +3217,7 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
 typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
 {
+    (void)emu;
     static mallinfo_fnc f = NULL;
     static int inited = 0;
     if(!inited) {

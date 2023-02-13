@@ -25,7 +25,7 @@ static char* libname = NULL;
 
 char* getGDKX11LibName() {return libname;}
 
-//#define ADDED_FUNCTIONS()           \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedgdkx112types.h"
 
@@ -68,6 +68,7 @@ static void my_event_handler(void* event, my_signal_t* sig)
 
 EXPORT void my_gdk_event_handler_set(x86emu_t* emu, void* func, void* data, void* notify)
 {
+    (void)emu;
     if(!func)
         return my->gdk_event_handler_set(func, data, notify);
 
@@ -83,6 +84,7 @@ static void my_input_function(my_signal_t* sig, int source, int condition)
 
 EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, void* data)
 {
+    (void)emu;
     if(!f)
         return my->gdk_input_add_full(source, condition, f, data, NULL);
 
@@ -92,6 +94,7 @@ EXPORT int my_gdk_input_add(x86emu_t* emu, int source, int condition, void* f, v
 
 EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void* f, void* data, void* notify)
 {
+    (void)emu;
     if(!f)
         return my->gdk_input_add_full(source, condition, f, data, notify);
     
@@ -101,12 +104,14 @@ EXPORT int my_gdk_input_add_full(x86emu_t* emu, int source, int condition, void*
 
 EXPORT void my_gdk_init(x86emu_t* emu, void* argc, void* argv)
 {
+    (void)emu;
     my->gdk_init(argc, argv);
     my_checkGlobalGdkDisplay();
 }
 
 EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
 {
+    (void)emu;
     int ret = my->gdk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
     return ret;
@@ -114,11 +119,13 @@ EXPORT int my_gdk_init_check(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT void my_gdk_window_add_filter(x86emu_t* emu, void* window, void* f, void* data)
 {
+    (void)emu;
     my->gdk_window_add_filter(window, findFilterFct(f), data);
 }
 
 EXPORT void my_gdk_window_remove_filter(x86emu_t* emu, void* window, void* f, void* data)
 {
+    (void)emu;
     my->gdk_window_remove_filter(window, findFilterFct(f), data);
 }
 

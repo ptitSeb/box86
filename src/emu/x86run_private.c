@@ -50,6 +50,7 @@ void EXPORT my___libc_init(x86emu_t* emu, void* raw_args __unused, void (*onexit
 #else
 int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
+    (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
     // let's cheat and set all args...
     Push(emu, (uint32_t)my_context->envv);
     Push(emu, (uint32_t)my_context->argv);
@@ -818,7 +819,7 @@ uintptr_t evalED(x86emu_t* emu, uintptr_t ip) {
             if((nextop&7)==4) {
                 uint8_t sib = PK(0);
                 ++ip;
-                uintptr_t base = ((sib&0x7)==5)?(PK32(0)):(emu->regs[(sib&0x7)].dword[0]);
+                uintptr_t base = ((sib&0x7)==5)?(uint32_t)(PK32(0)):(emu->regs[(sib&0x7)].dword[0]);
                 base += (emu->sbiidx[(sib>>3)&7]->sdword[0] << (sib>>6)); \
                 return *(uintptr_t*)base;
             } else if((nextop&7)==5) {

@@ -88,6 +88,7 @@ GO(gtk_list_store_set_valist, vFppp_t)      \
 
 EXPORT uintptr_t my_gtk_signal_connect_full(x86emu_t* emu, void* object, void* name, void* c_handler, void* unsupported, void* data, void* closure, uint32_t signal, int after)
 {
+    (void)emu; (void)unsupported;
     my_signal_t *sig = new_mysignal(c_handler, data, closure);
     uintptr_t ret = my->gtk_signal_connect_full(object, name, my_signal_cb, NULL, sig, my_signal_delete, signal, after);
     printf_log(LOG_DEBUG, "Connecting gtk signal \"%s\" with cb=%p\n", (char*)name, sig);
@@ -635,6 +636,7 @@ static void* findGCallbackFct(void* fct)
 
 EXPORT void my_gtk_dialog_add_buttons(x86emu_t* emu, void* dialog, void* first, uintptr_t* b)
 {
+    (void)emu;
     void* btn = first;
     while(btn) {
         int id = (int)*(b++);
@@ -652,6 +654,7 @@ EXPORT void my_gtk_message_dialog_format_secondary_text(x86emu_t* emu, void* dia
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, VARARGS);
     #else
+    (void)emu;
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
     #endif
@@ -669,6 +672,7 @@ EXPORT void my_gtk_message_dialog_format_secondary_markup(x86emu_t* emu, void* d
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, VARARGS);
     #else
+    (void)emu;
     iFppp_t f = (iFppp_t)vasprintf;
     f(&buf, fmt, b);
     #endif
@@ -678,12 +682,14 @@ EXPORT void my_gtk_message_dialog_format_secondary_markup(x86emu_t* emu, void* d
 }
 EXPORT void* my_gtk_type_class(x86emu_t* emu, int type)
 {
+    (void)emu;
     void* class = my->gtk_type_class(type);
     return wrapCopyGTKClass(class, type);
 }
 
 EXPORT void my_gtk_init(x86emu_t* emu, void* argc, void* argv)
 {
+    (void)emu;
     my->gtk_init(argc, argv);
     my_checkGlobalGdkDisplay();
     AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
@@ -691,6 +697,7 @@ EXPORT void my_gtk_init(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
 {
+    (void)emu;
     int ret = my->gtk_init_check(argc, argv);
     my_checkGlobalGdkDisplay();
     AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
@@ -699,6 +706,7 @@ EXPORT int my_gtk_init_check(x86emu_t* emu, void* argc, void* argv)
 
 EXPORT int my_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* param, void* entries, void* trans, void* error)
 {
+    (void)emu;
     int ret = my->gtk_init_with_args(argc, argv, param, entries, trans, error);
     my_checkGlobalGdkDisplay();
     AutoBridgeGtk(my->g_type_class_ref, my->g_type_class_unref);
@@ -707,26 +715,31 @@ EXPORT int my_gtk_init_with_args(x86emu_t* emu, void* argc, void* argv, void* pa
 
 EXPORT void my_gtk_menu_attach_to_widget(x86emu_t* emu, void* menu, void* widget, void* f)
 {
+    (void)emu;
     my->gtk_menu_attach_to_widget(menu, widget, findMenuDetachFct(f));
 }
 
 EXPORT void my_gtk_menu_popup(x86emu_t* emu, void* menu, void* shell, void* item, void* f, void* data, uint32_t button, uint32_t time_)
 {
+    (void)emu;
     my->gtk_menu_popup(menu, shell, item, findMenuPositionFct(f), data, button, time_);
 }
 
 EXPORT uint32_t my_gtk_timeout_add(x86emu_t* emu, uint32_t interval, void* f, void* data)
 {
+    (void)emu;
     return my->gtk_timeout_add(interval, findGtkFunctionFct(f), data);
 }
 
 EXPORT int my_gtk_clipboard_set_with_data(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
+    (void)emu;
     return my->gtk_clipboard_set_with_data(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
 
 EXPORT int my_gtk_clipboard_set_with_owner(x86emu_t* emu, void* clipboard, void* target, uint32_t n, void* f_get, void* f_clear, void* data)
 {
+    (void)emu;
     return my->gtk_clipboard_set_with_owner(clipboard, target, n, findClipboadGetFct(f_get), findClipboadClearFct(f_clear), data);
 }
 
@@ -737,77 +750,92 @@ static void* my_translate_func(void* path, my_signal_t* sig)
 
 EXPORT void my_gtk_stock_set_translate_func(x86emu_t* emu, void* domain, void* f, void* data, void* notify)
 {
+    (void)emu;
     my_signal_t *sig = new_mysignal(f, data, notify);
     my->gtk_stock_set_translate_func(domain, my_translate_func, sig, my_signal_delete);
 }
 
 EXPORT void my_gtk_container_forall(x86emu_t* emu, void* container, void* f, void* data)
 {
+    (void)emu;
     my->gtk_container_forall(container, findGtkCallbackFct(f), data);
 }
 
 EXPORT void my_gtk_tree_view_set_search_equal_func(x86emu_t* emu, void* tree_view, void* f, void* data, void* notify)
 {
+    (void)emu;
     my->gtk_tree_view_set_search_equal_func(tree_view, findGtkTreeViewSearchEqualFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my_gtk_text_iter_backward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
 {
+    (void)emu;
     return my->gtk_text_iter_backward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 EXPORT int my_gtk_text_iter_forward_find_char(x86emu_t* emu, void* iter, void* f, void* data, void* limit)
 {
+    (void)emu;
     return my->gtk_text_iter_forward_find_char(iter, findGtkTextCharPredicateFct(f), data, limit);
 }
 
 EXPORT void* my_gtk_toolbar_append_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
+    (void)emu;
     return my->gtk_toolbar_append_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_prepend_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
+    (void)emu;
     return my->gtk_toolbar_prepend_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_insert_item(x86emu_t* emu, void* toolbar, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
+    (void)emu;
     return my->gtk_toolbar_insert_item(toolbar, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
 EXPORT void* my_gtk_toolbar_append_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
+    (void)emu;
     return my->gtk_toolbar_append_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_prepend_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data)
 {
+    (void)emu;
     return my->gtk_toolbar_prepend_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data);
 }
 
 EXPORT void* my_gtk_toolbar_insert_element(x86emu_t* emu, void* toolbar, int type, void* widget, void* text, void* tooltip_text, void* tooltip_private, void* icon, void* f, void* data, int position)
 {
+    (void)emu;
     return my->gtk_toolbar_insert_element(toolbar, type, widget, text, tooltip_text, tooltip_private, icon, findToolbarFct(f), data, position);
 }
 
 EXPORT void* my_gtk_toolbar_insert_stock(x86emu_t* emu, void* toolbar, void* stock_id, void* tooltip_text, void* tooltip_private, void* f, void* data, int position)
 {
+    (void)emu;
     return my->gtk_toolbar_insert_stock(toolbar, stock_id, tooltip_text, tooltip_private, findToolbarFct(f), data, position);
 }
 
 EXPORT void my_gtk_tree_sortable_set_sort_func(x86emu_t* emu, void* sortable, int id, void* f, void* data, void* notify)
 {
+    (void)emu;
     my->gtk_tree_sortable_set_sort_func(sortable, id, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void my_gtk_tree_sortable_set_default_sort_func(x86emu_t* emu, void* sortable, void* f, void* data, void* notify)
 {
+    (void)emu;
     my->gtk_tree_sortable_set_default_sort_func(sortable, findGtkTreeIterCompareFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT int my_gtk_type_unique(x86emu_t* emu, int parent, my_GtkTypeInfo_t* gtkinfo)
 {
+    (void)emu;
     return my->gtk_type_unique(parent, findFreeGtkTypeInfo(gtkinfo, parent));
 }
 
@@ -818,11 +846,13 @@ EXPORT unsigned long my_gtk_signal_connect(x86emu_t* emu, void* object, void* na
 
 EXPORT void my_gtk_object_set_data_full(x86emu_t* emu, void* object, void* key, void* data, void* notify)
 {
+    (void)emu;
     my->gtk_object_set_data_full(object, key, data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT float my_gtk_spin_button_get_value_as_float(x86emu_t* emu, void* spinner)
 {
+    (void)emu;
     return my->gtk_spin_button_get_value(spinner);
 }
 
@@ -841,6 +871,7 @@ typedef struct dummy_gtk1_button_s {
 
 EXPORT void* my_gtk_type_check_object_cast(x86emu_t* emu, void* obj, int type)
 {
+    (void)emu;
     if(my->gtk1 && type==my->gtk_bin_get_type())
     {
         // check if obj is a button...
@@ -862,6 +893,7 @@ EXPORT void* my_gtk_type_check_object_cast(x86emu_t* emu, void* obj, int type)
 
 EXPORT void my_gtk_builder_connect_signals_full(x86emu_t* emu, void* builder, void* f, void* data)
 {
+    (void)emu;
     my->gtk_builder_connect_signals_full(builder, findBuilderConnectFct(f), data);
 }
 
@@ -872,6 +904,7 @@ typedef struct my_GSList_s {
 
 EXPORT void my_gtk_binding_entry_add_signal(x86emu_t* emu, void* binding, uint32_t keyval, int mod, void* name, uint32_t n, void** st)
 {
+    (void)emu;
     if(!n) {
         my->gtk_binding_entry_add_signal(binding, keyval, mod, name, 0);
         return;
@@ -888,11 +921,13 @@ EXPORT void my_gtk_binding_entry_add_signal(x86emu_t* emu, void* binding, uint32
 
 EXPORT void my_gtk_container_foreach(x86emu_t* emu, void* container, void* f, void* data)
 {
+    (void)emu;
     my->gtk_container_foreach(container, findGtkCallbackFct(f), data);
 }
 
 EXPORT void my_gtk_cell_layout_set_cell_data_func(x86emu_t* emu, void* layout, void* cell, void* f, void* data, void* notify)
 {
+    (void)emu;
     my->gtk_cell_layout_set_cell_data_func(layout, cell, findGtkCellLayoutDataFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
@@ -917,6 +952,7 @@ static void my_gtk_builder_connect_signals_custom(void* builder,
     /* Only error out for missing GModule support if we've not
     * found the symbols explicitly added with gtk_builder_add_callback_symbol()
     */
+    (void)builder;
     void* func = NULL;
     printf_log(LOG_DEBUG, "signal \"%s\" from \"%s\" connection, connect_object=%p\n", signal_name, handler_name, connect_object);
 
@@ -968,6 +1004,7 @@ typedef struct my_GtkActionEntry_s {
 
 EXPORT void my_gtk_action_group_add_actions(x86emu_t* emu, void* action_group, my_GtkActionEntry_t* entries, uint32_t n, void* data)
 {
+    (void)emu;
     my_GtkActionEntry_t myentries[n];
     memcpy(myentries, entries, n*sizeof(my_GtkActionEntry_t));
     for(uint32_t i=0; i<n; ++i)
@@ -977,6 +1014,7 @@ EXPORT void my_gtk_action_group_add_actions(x86emu_t* emu, void* action_group, m
 
 EXPORT void my_gtk_action_group_add_actions_full(x86emu_t* emu, void* action_group, my_GtkActionEntry_t* entries, uint32_t n, void* data, void* destroy)
 {
+    (void)emu;
     my_GtkActionEntry_t myentries[n];
     memcpy(myentries, entries, n*sizeof(my_GtkActionEntry_t));
     for(uint32_t i=0; i<n; ++i)
@@ -986,27 +1024,32 @@ EXPORT void my_gtk_action_group_add_actions_full(x86emu_t* emu, void* action_gro
 
 EXPORT void my_gtk_tree_model_foreach(x86emu_t* emu, void* model, void* f, void* data)
 {
+    (void)emu;
     my->gtk_tree_model_foreach(model, findGtkTreeModelForeachFuncFct(f), data);
 }
 
 EXPORT void my_gtk_clipboard_request_contents(x86emu_t* emu, void* clipboard, void* target, void* f, void* data)
 {
+    (void)emu;
     my->gtk_clipboard_request_contents(clipboard, target, findGtkClipboardReceivedFuncFct(f), data);
 }
 
 
 EXPORT void my_gtk_clipboard_request_text(x86emu_t* emu, void* clipboard, void* f, void* data)
 {
+    (void)emu;
     my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
 }
 
 EXPORT uint32_t my_gtk_input_add_full(x86emu_t* emu, int source, int condition, void* func, void* marshal, void* data, void* destroy)
 {
+    (void)emu;
     return my->gtk_input_add_full(source, condition, findGdkInputFunctionFct(func), findGtkCallbackMarshalFct(marshal), data, findGDestroyNotifyFct(destroy));
 }
 
 EXPORT void my_gtk_list_store_insert_with_values(x86emu_t* emu, void* store, void* iter, int pos, void* b)
 {
+    (void)emu;
     // not 100% exact, but better than nothing
     PREPARE_VALIST_(b);
     my->gtk_list_store_insert(store, iter, pos);
@@ -1017,17 +1060,20 @@ EXPORT void my_gtk_list_store_insert_with_values(x86emu_t* emu, void* store, voi
 
 EXPORT void* my_gtk_link_button_set_uri_hook(x86emu_t* emu, void* f, void* data, void* d)
 {
+    (void)emu;
     void* ret = my->gtk_link_button_set_uri_hook(find_GtkLinkButtonUri_Fct(f), data, findGDestroyNotifyFct(d));
     return reverse_GtkLinkButtonUri_Fct(ret);
 }
 
 EXPORT void* my_gtk_accel_group_find(x86emu_t* emu, void* group, void* f, void* data)
 {
+    (void)emu;
     return my->gtk_accel_group_find(group, find_GtkAccelGroupFind_Fct(f), data);
 }
 
 EXPORT void my_gtk_signal_compat_matched(x86emu_t* emu, void* obj, void* cb, void* data, int match, uint32_t action)
 {
+    (void)emu;
     my->gtk_signal_compat_matched(obj, findGCallbackFct(cb), data, match, action);
 }
 

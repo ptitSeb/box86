@@ -235,12 +235,12 @@ void DumpMainHeader(Elf32_Ehdr *header, elfheader_t *h)
         printf_dump(LOG_NEVER, "ELF Dump ==========\n");
 
         printf_dump(LOG_NEVER, "ELF Dump PEntries (%d)\n", h->numSHEntries);
-        for (int i=0; i<h->numPHEntries; ++i)
+        for (uint16_t i=0; i<h->numPHEntries; ++i)
             printf_dump(LOG_NEVER, "  PHEntry %04d : %s\n", i, DumpPHEntry(h->PHEntries+i));
         printf_dump(LOG_NEVER, "ELF Dump PEntries ====\n");
 
         printf_dump(LOG_NEVER, "ELF Dump Sections (%d)\n", h->numSHEntries);
-        for (int i=0; i<h->numSHEntries; ++i)
+        for (uint16_t i=0; i<h->numSHEntries; ++i)
             printf_dump(LOG_NEVER, "  Section %04d : %s\n", i, DumpSection(h->SHEntries+i, h->SHStrTab));
         printf_dump(LOG_NEVER, "ELF Dump Sections ====\n");
     }
@@ -251,7 +251,7 @@ void DumpSymTab(elfheader_t *h)
     if(box86_dump && h->SymTab) {
         const char* name = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump SymTab(%d)=\n", h->numSymTab);
-        for (int i=0; i<h->numSymTab; ++i)
+        for (uint32_t i=0; i<h->numSymTab; ++i)
             printf_dump(LOG_NEVER, "  %s:SymTab[%d] = \"%s\", value=%p, size=%d, info/other=%d/%d index=%d\n", name, 
                 i, h->StrTab+h->SymTab[i].st_name, (void*)h->SymTab[i].st_value, h->SymTab[i].st_size,
                 h->SymTab[i].st_info, h->SymTab[i].st_other, h->SymTab[i].st_shndx);
@@ -263,7 +263,7 @@ void DumpDynamicSections(elfheader_t *h)
 {
     if(box86_dump && h->Dynamic) {
         printf_dump(LOG_NEVER, "ELF Dump Dynamic(%d)=\n", h->numDynamic);
-        for (int i=0; i<h->numDynamic; ++i)
+        for (uint32_t i=0; i<h->numDynamic; ++i)
             printf_dump(LOG_NEVER, "  Dynamic %04d : %s\n", i, DumpDynamic(h->Dynamic+i));
         printf_dump(LOG_NEVER, "ELF Dump Dynamic=====\n");
     }
@@ -274,7 +274,7 @@ void DumpDynSym(elfheader_t *h)
     if(box86_dump && h->DynSym) {
         const char* name = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump DynSym(%d)=\n", h->numDynSym);
-        for (int i=0; i<h->numDynSym; ++i) {
+        for (uint32_t i=0; i<h->numDynSym; ++i) {
             int version = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
             printf_dump(LOG_NEVER, "  %s:DynSym[%d] = %s\n", name, i, DumpSym(h, h->DynSym+i, version));
         }
@@ -286,7 +286,7 @@ void DumpDynamicNeeded(elfheader_t *h)
 {
     if(box86_dump && h->DynStrTab) {
         printf_dump(LOG_NEVER, "ELF Dump DT_NEEDED=====\n");
-        for (int i=0; i<h->numDynamic; ++i)
+        for (uint32_t i=0; i<h->numDynamic; ++i)
             if(h->Dynamic[i].d_tag==DT_NEEDED) {
                 printf_dump(LOG_NEVER, "  Needed : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
             }
@@ -298,7 +298,7 @@ void DumpDynamicRPath(elfheader_t *h)
 {
     if(box86_dump && h->DynStrTab) {
         printf_dump(LOG_NEVER, "ELF Dump DT_RPATH/DT_RUNPATH=====\n");
-        for (int i=0; i<h->numDynamic; ++i) {
+        for (uint32_t i=0; i<h->numDynamic; ++i) {
             if(h->Dynamic[i].d_tag==DT_RPATH) {
                 printf_dump(LOG_NEVER, "   RPATH : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
             }

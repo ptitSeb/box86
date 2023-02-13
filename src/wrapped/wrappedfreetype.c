@@ -470,6 +470,7 @@ static FT_MemoryRec_t* find_FT_MemoryRec_Struct(FT_MemoryRec_t* s)
 
 EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)
 {
+    (void)emu;
     int wrapstream = (args->flags&0x02)?1:0;
     if(wrapstream) {
         args->stream->read = find_FT_Stream_IoFunc_Fct(args->stream->read);
@@ -481,6 +482,7 @@ EXPORT int my_FT_Open_Face(x86emu_t* emu, void* library, FT_Open_Args_t* args, l
 
 EXPORT int my_FT_Outline_Decompose(x86emu_t* emu, void * arg0 , const FT_Outline_Funcs_t * arg1 , void * arg2)
 {
+    (void)emu;
     FT_Outline_Funcs_t decompose_funcs;
     decompose_funcs.move_to = find_FT_Outline_MoveToFunc_Fct(arg1->move_to);
     decompose_funcs.line_to = find_FT_Outline_LineToFunc_Fct(arg1->line_to);
@@ -495,11 +497,13 @@ EXPORT int my_FT_Outline_Decompose(x86emu_t* emu, void * arg0 , const FT_Outline
 
 EXPORT int my_FTC_Manager_New(x86emu_t* emu, void* l, uint32_t max_faces, uint32_t max_sizes, uintptr_t max_bytes, void* req, void* data, void* aman)
 {
+    (void)emu;
     return my->FTC_Manager_New(l, max_faces, max_sizes, max_bytes, find_FTC_Face_Requester_Fct(req), data, aman);
 }
 
 EXPORT int my_FT_New_Library(x86emu_t* emu, FT_MemoryRec_t* memory, void* p)
 {
+    (void)emu;
     return my->FT_New_Library(find_FT_MemoryRec_Struct(memory), p);
 }
 

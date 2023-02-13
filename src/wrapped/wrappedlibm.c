@@ -52,13 +52,13 @@ EXPORT uint64_t my_##N##f(void* c)                  \
 #define GO_cFcc(N)                                  \
 EXPORT void* my_##N(void* p, void* c, void* d)      \
 {                                                   \
-    *(double complex*)p = N(*(double complex*)c, *(double complex*)d);   \
+    *(double complex*)p = N(*(double complex*)c, *(double complex*)d); \
     return p;                                       \
 }                                                   \
 EXPORT uint64_t my_##N##f(void* c, void* d)         \
 {                                                   \
     my_float_complex_t ret;                         \
-    ret.f = N##f(*(float complex*)c, *(float complex*)c);               \
+    ret.f = N##f(*(float complex*)c, *(float complex*)d); \
     return ret.u64;                                 \
 }
 

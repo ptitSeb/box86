@@ -83,7 +83,7 @@ int my_fcntl(x86emu_t* emu, int fd, int cmd, ... /* arg */ );
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
-    int x86s;
+    uint32_t x86s;
     int nats;
     int nbpars;
 } scwrap_t;

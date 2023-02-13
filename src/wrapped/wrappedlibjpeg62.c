@@ -426,7 +426,7 @@ static void* findjpeg_marker_parser_methodFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libjpeg.so.62 jpeg_marker_parser_method callback\n");
     return NULL;
 }
-static void* reverse_jpeg_marker_parser_methodFct(void* fct)
+/* static void* reverse_jpeg_marker_parser_methodFct(void* fct)
 {
     if(!fct) return fct;
     if(CheckBridged(my_lib->w.bridge, fct))
@@ -435,7 +435,7 @@ static void* reverse_jpeg_marker_parser_methodFct(void* fct)
     SUPER()
     #undef GO
     return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
-}
+} */
 
 // alloc_small
 #define GO(A)   \
@@ -1249,6 +1249,7 @@ EXPORT int my62_jpeg_simd_cpu_support()
 
 EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
 {
+    (void)emu;
     jpeg62_error_mgr_t* ret = my->jpeg_std_error(errmgr);
 
     wrapErrorMgr(ret);

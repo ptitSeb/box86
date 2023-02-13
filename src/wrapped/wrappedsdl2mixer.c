@@ -184,37 +184,44 @@ EXPORT void* my2_Mix_LoadWAV_RW(x86emu_t* emu, void* a, int32_t f)
 
 EXPORT void my2_Mix_SetPostMix(x86emu_t* emu, void* a, void* b)
 {
+    (void)emu;
     my->Mix_SetPostMix(find_MixFunc_Fct(a), b);
 }
 
 EXPORT int32_t my2_Mix_RegisterEffect(x86emu_t*emu, int32_t channel, void* cb_effect, void* cb_done, void* arg)
 {
+    (void)emu;
     return my->Mix_RegisterEffect(channel, find_EffectFunc_Fct(cb_effect), find_EffectDone_Fct(cb_done), arg);
 }
 
 EXPORT int32_t my2_Mix_UnregisterEffect(x86emu_t* emu, int channel, void* f)
 {
+    (void)emu;
     return my->Mix_UnregisterEffect(channel, find_EffectFunc_Fct(f));
 }
 
 EXPORT void my2_Mix_ChannelFinished(x86emu_t* emu, void* cb)
 {
+    (void)emu;
     my->Mix_ChannelFinished(find_ChannelFinished_Fct(cb));
 }
 
 EXPORT void my2_Mix_HookMusic(x86emu_t* emu, void* f, void* arg)
 {
+    (void)emu;
     my->Mix_HookMusic(find_MixFunc_Fct(f), arg);
 }
 
 EXPORT void my2_Mix_HookMusicFinished(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->Mix_HookMusicFinished(find_MusicFinished_Fct(f));
 }
 
 // This is a hack for AntiChamber
 EXPORT int my2_MinorityMix_SetPosition(x86emu_t* emu, int channel, int16_t angle)
 {
+    (void)emu;
     return my->Mix_SetPosition(channel, angle, 0);
 }
 
@@ -228,4 +235,3 @@ EXPORT int my2_MinorityMix_SetPosition(x86emu_t* emu, int channel, int16_t angle
     my_context->sdl2mixerlib = NULL;
 
 #include "wrappedlib_init.h"
-

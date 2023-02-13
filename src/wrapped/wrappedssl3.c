@@ -82,12 +82,14 @@ static void* find_SSLAuthCertificate_Fct(void* fct)
 
 EXPORT int my_SSL_BadCertHook(x86emu_t* emu, void* fd, void* f, void* arg)
 {
+    (void)emu;
     return my->SSL_BadCertHook(fd, find_SSLBadCertHandler_Fct(f), arg);
 }
 
 EXPORT int my_SSL_AuthCertificateHook(x86emu_t* emu, void* fd, void* f, void* arg)
 {
-    return my->SSL_AuthCertificateHook(fd, find_SSLBadCertHandler_Fct(f), arg);
+    (void)emu;
+    return my->SSL_AuthCertificateHook(fd, find_SSLAuthCertificate_Fct(f), arg);
 }
 
 #define CUSTOM_INIT \
@@ -97,4 +99,3 @@ EXPORT int my_SSL_AuthCertificateHook(x86emu_t* emu, void* fd, void* f, void* ar
     freeMy();
 
 #include "wrappedlib_init.h"
-

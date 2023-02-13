@@ -101,11 +101,13 @@ static void* findGDestroyNotifyFct(void* fct)
 
 EXPORT void* my_pango_cairo_context_get_shape_renderer(x86emu_t* emu, void* ctx, void* p)
 {
+    (void)emu;
     return reverse_ShapeRenderer_Fct(my->pango_cairo_context_get_shape_renderer(ctx, p));
 }
 
 EXPORT void my_pango_cairo_context_set_shape_renderer(x86emu_t* emu, void* ctx, void* f, void* p, void* d)
 {
+    (void)emu;
     my->pango_cairo_context_set_shape_renderer(ctx, find_ShapeRenderer_Fct(f), p, findGDestroyNotifyFct(d));
 }
 

@@ -97,6 +97,7 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack)
                 break;
             case 14:    //%LG long double
                 #ifdef HAVE_LD80BITS
+                (void)d;
                 if((((uint32_t)mystack)&0x7)!=0)
                     mystack++;
                 memcpy(mystack, st, 10);
@@ -398,6 +399,7 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack)
                 break;
             case 14:    //%LG long double
                 #ifdef HAVE_LD80BITS
+                (void)d;
                 if((((uint32_t)mystack)&0x7)!=0)
                     mystack++;
                 memcpy(mystack, st, 10);

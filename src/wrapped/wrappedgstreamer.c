@@ -194,47 +194,50 @@ static void* findGstBusSyncHandlerFct(void* fct)
 #undef SUPER
 
 EXPORT void my_gst_caps_set_simple(x86emu_t* emu, void* caps, void* field, void* b) {
-
+    (void)emu;
     PREPARE_VALIST_(b);
     my->gst_caps_set_simple_valist(caps, field, VARARGS_(b));
 }
 
 EXPORT void my_gst_caps_set_simple_valist(x86emu_t* emu, void* caps, void* field, void* V) {
+    (void)emu;
     PREPARE_VALIST_(V);
     my->gst_caps_set_simple_valist(caps, field, VARARGS_(V));
 }
 
 EXPORT void my_gst_structure_remove_fields(x86emu_t* emu, void* structure, void* field, void* b) {
+    (void)emu;
 
     PREPARE_VALIST_(b);
     my->gst_structure_remove_fields_valist(structure, field, VARARGS_(b));
 }
 
 EXPORT void my_gst_structure_remove_fields_valist(x86emu_t* emu, void* structure, void* field, void* V) {
+    (void)emu;
     PREPARE_VALIST_(V);
     my->gst_structure_remove_fields_valist(structure, field, VARARGS_(V));
 }
 
 EXPORT void my_gst_debug_log(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* b) {
-
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS);
 }
 
 EXPORT void my_gst_debug_log_valist(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* V) {
-
+    (void)emu;
     PREPARE_VALIST_(V);
     my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS_(V));
 }
 
 EXPORT int my_gst_structure_get(x86emu_t* emu, void* structure, void* field, void* b) {
-
+    (void)emu;
     PREPARE_VALIST_(b);
     return my->gst_structure_get_valist(structure, field, VARARGS_(b));
 }
 
 EXPORT int my_gst_structure_get_valist(x86emu_t* emu, void* structure, void* field, void* V) {
+    (void)emu;
     PREPARE_VALIST_(V);
     return my->gst_structure_get_valist(structure, field, VARARGS_(V));
 }
@@ -242,31 +245,37 @@ EXPORT int my_gst_structure_get_valist(x86emu_t* emu, void* structure, void* fie
 
 EXPORT void my_gst_pad_set_activatemode_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
+    (void)emu;
     my->gst_pad_set_activatemode_function_full(pad, findGstPadActivateModeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_query_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
+    (void)emu;
     my->gst_pad_set_query_function_full(pad, findGstPadQueryFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_getrange_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
+    (void)emu;
     my->gst_pad_set_getrange_function_full(pad, findGstPadGetRangeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_chain_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
+    (void)emu;
     my->gst_pad_set_chain_function_full(pad, findGstPadChainFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_event_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
+    (void)emu;
     my->gst_pad_set_event_function_full(pad, findGstPadEventFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_bus_set_sync_handler(x86emu_t* emu, void* bus, void* f, void* data, void* d)
 {
+    (void)emu;
     my->gst_bus_set_sync_handler(bus, findGstBusSyncHandlerFct(f), data, findDestroyFct(d));
 }
 

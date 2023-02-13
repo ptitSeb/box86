@@ -128,14 +128,16 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
     mutex_unlock(&my_context->mutex_bridge);
-    #ifdef DYNAREC
+#ifdef DYNAREC
     if(box86_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-    #endif
-    #ifdef HAVE_TRACE
+#endif
+#ifdef HAVE_TRACE
     if(name)
         addBridgeName(fnc, name);
-    #endif
+#else
+    (void)name;
+#endif
 
     return (uintptr_t)&b->b[sz].CC;
 }
@@ -169,10 +171,12 @@ uintptr_t AddAutomaticBridge(x86emu_t* emu, bridge_t* bridge, wrapper_t w, void*
     if(!hasAlternate(fnc)) {
         printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
-        #ifdef DYNAREC
+#ifdef DYNAREC
         // now, check if dynablock at native address exist
         DBAlternateBlock(emu, (uintptr_t)fnc, ret);
-        #endif
+#else
+        (void)emu;
+#endif
     }
     return ret;
 }

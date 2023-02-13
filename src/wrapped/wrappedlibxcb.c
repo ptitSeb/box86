@@ -203,11 +203,12 @@ static void* findreturn_socketFct(void* fct)
 
 #undef SUPER
 
-#define SUPER(F, P, ...)                                            \
-    EXPORT void* my_##F P                                           \
-    {                                                               \
-        *ret = my->F(__VA_ARGS__);                                  \
-        return ret;                                                 \
+#define SUPER(F, P, ...)           \
+    EXPORT void* my_##F P          \
+    {                              \
+        (void)emu;                 \
+        *ret = my->F(__VA_ARGS__); \
+        return ret;                \
     }
 
 SUPER(xcb_alloc_color, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint32_t cmap, uint16_t red, uint16_t green, uint16_t blue), c, cmap, red, green, blue)
@@ -305,6 +306,7 @@ SUPER(xcb_no_operation, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c), c)
 
 EXPORT void* my_xcb_depth_visuals_iterator(x86emu_t* emu, void* ret, void* R)
 {
+    (void)emu;
     my_xcb_XXX_iterator_t tmp = my->xcb_depth_visuals_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -312,6 +314,7 @@ EXPORT void* my_xcb_depth_visuals_iterator(x86emu_t* emu, void* ret, void* R)
 
 EXPORT void* my_xcb_screen_allowed_depths_iterator(x86emu_t* emu, void* ret, void* R)
 {
+    (void)emu;
     my_xcb_XXX_iterator_t tmp = my->xcb_screen_allowed_depths_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -319,6 +322,7 @@ EXPORT void* my_xcb_screen_allowed_depths_iterator(x86emu_t* emu, void* ret, voi
 
 EXPORT void* my_xcb_setup_pixmap_formats_iterator(x86emu_t* emu, void* ret, void* R)
 {
+    (void)emu;
     my_xcb_XXX_iterator_t tmp = my->xcb_setup_pixmap_formats_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -326,6 +330,7 @@ EXPORT void* my_xcb_setup_pixmap_formats_iterator(x86emu_t* emu, void* ret, void
 
 EXPORT void* my_xcb_setup_roots_iterator(x86emu_t* emu, void* ret, void* R)
 {
+    (void)emu;
     my_xcb_XXX_iterator_t tmp = my->xcb_setup_roots_iterator(R);
     memcpy(ret, &tmp, sizeof(tmp));
     return ret;
@@ -333,6 +338,7 @@ EXPORT void* my_xcb_setup_roots_iterator(x86emu_t* emu, void* ret, void* R)
 
 EXPORT int my_xcb_take_socket(x86emu_t* emu, void* c, void* f, void* closure, int flags, void* sent)
 {
+    (void)emu;
     return my->xcb_take_socket(c, findreturn_socketFct(f), closure, flags,sent);
 }
 

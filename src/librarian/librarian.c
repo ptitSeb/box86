@@ -20,6 +20,7 @@ KHASH_MAP_IMPL_INT(mapoffsets, cstr_t);
 
 lib_t *NewLibrarian(box86context_t* context, int ownlibs)
 {
+    (void)context;
     lib_t *maplib = (lib_t*)box_calloc(1, sizeof(lib_t));
     
     maplib->mapoffsets = kh_init(mapoffsets);
@@ -110,6 +111,7 @@ void FreeLibrarian(lib_t **maplib, x86emu_t *emu)
 
 box86context_t* GetLibrarianContext(lib_t* maplib)
 {
+    (void)maplib;
     return my_context;
 }
 
@@ -294,6 +296,7 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
 
 int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, library_t* lib, box86context_t* box86, x86emu_t* emu)
 {
+    (void)neededlibs; (void)deplib;
     if(!maplib)
         maplib = (local)?lib->maplib:my_context->maplib;
 
@@ -620,6 +623,7 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
 
 const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base, library_t** lib)
 {
+    (void)maplib;
     // first, search in self...
     const char* ret = NULL;
     uintptr_t offs = 0;

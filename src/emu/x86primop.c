@@ -1044,14 +1044,14 @@ Implements the SBB instruction and side effects.
 ****************************************************************************/
 uint16_t sbb16(x86emu_t *emu, uint16_t d, uint16_t s)
 {
-    uint32_t res;   /* all operands in native machine order */
-    uint32_t bc;
+	uint32_t res;   /* all operands in native machine order */
+	uint32_t bc;
 	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
-    else
-        res = d - s;
+		res = d - s - 1;
+	else
+		res = d - s;
 	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
 	CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
@@ -1075,9 +1075,9 @@ uint32_t sbb32(x86emu_t *emu, uint32_t d, uint32_t s)
 	CHECK_FLAGS(emu);
 
 	if (ACCESS_FLAG(F_CF))
-        res = d - s - 1;
-    else
-        res = d - s;
+		res = d - s - 1;
+	else
+		res = d - s;
 	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 	CONDITIONAL_SET_FLAG(!res, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);

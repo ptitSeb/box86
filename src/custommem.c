@@ -65,7 +65,7 @@ static mapmem_t *mapmem = NULL;
 
 typedef struct blocklist_s {
     void*               block;
-    int                 maxfree;
+    size_t              maxfree;
     size_t              size;
 } blocklist_t;
 
@@ -95,6 +95,7 @@ typedef struct blockmark_s {
 #define PREV_BLOCK(b) (blockmark_t*)(((uintptr_t)(b) - (b)->prev.size) - sizeof(blockmark_t))
 #define LAST_BLOCK(b, s) (blockmark_t*)(((uintptr_t)(b)+(s))-sizeof(blockmark_t))
 
+#ifdef DYNAREC
 static void printBlock(blockmark_t* b, void* start)
 {
     printf_log(LOG_INFO, "========== Block is:\n");
@@ -104,6 +105,7 @@ static void printBlock(blockmark_t* b, void* start)
     } while(b->next.x32);
     printf_log(LOG_INFO, "===================\n");
 }
+#endif
 
 // get first subblock free in block. Return NULL if no block, else first subblock free (mark included), filling size
 static void* getFirstBlock(void* block, size_t maxsize, size_t* size, void* start)
@@ -126,7 +128,7 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
     // get start of block
     if(start) {
         blockmark_t *m = (blockmark_t*)start;
-        int maxsize = 0;
+        size_t maxsize = 0;
         while(m->next.x32) {    // while there is a subblock
             if(!m->next.fill && m->next.size>maxsize) {
                 maxsize = m->next.size;
@@ -136,7 +138,7 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
         return (maxsize>=sizeof(blockmark_t))?maxsize:0;
     } else {
         blockmark_t *m = LAST_BLOCK(block, block_size); // start with the end
-        int maxsize = 0;
+        size_t maxsize = 0;
         while(m->prev.x32) {    // while there is a subblock
             if(!m->prev.fill && m->prev.size>maxsize) {
                 maxsize = m->prev.size;
@@ -971,7 +973,7 @@ void loadProtectionFromMap()
         char r, w, x;
         uintptr_t s, e;
         if(box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "\t%s", buf);}
-        if(sscanf(buf, "%zx-%zx %c%c%c", &s, &e, &r, &w, &x)==5) {
+        if(sscanf(buf, "%x-%x %c%c%c", &s, &e, &r, &w, &x)==5) {
             if(current<s) {
                 removeMapMem(current, s-1);
                 current = e;
@@ -1114,6 +1116,7 @@ static void atfork_child_custommem(void)
 
 void init_custommem_helper(box86context_t* ctx)
 {
+    (void)ctx;
     if(inited) // already initialized
         return;
     inited = 1;
@@ -1139,6 +1142,7 @@ void init_custommem_helper(box86context_t* ctx)
 
 void fini_custommem_helper(box86context_t *ctx)
 {
+    (void)ctx;
     if(!inited)
         return;
     inited = 0;

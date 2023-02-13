@@ -33,11 +33,12 @@ typedef my_xcb_cookie_t (*XFpCCuuwwC_t) (void*, uint8_t, uint8_t, uint32_t, uint
 
 #include "wrappercallback.h"
 
-#define SUPER(F, P, ...)                                            \
-    EXPORT void* my_##F P                                           \
-    {                                                               \
-        *ret = my->F(__VA_ARGS__);                                  \
-        return ret;                                                 \
+#define SUPER(F, P, ...)           \
+    EXPORT void* my_##F P          \
+    {                              \
+        (void)emu;                 \
+        *ret = my->F(__VA_ARGS__); \
+        return ret;                \
     }
 
 SUPER(xcb_test_fake_input, (x86emu_t* emu, my_xcb_cookie_t* ret, void* c, uint8_t type, uint8_t detail, uint32_t time, uint32_t win, int16_t x, int16_t y, uint8_t id), c, type, detail, time, win, x, y, id)

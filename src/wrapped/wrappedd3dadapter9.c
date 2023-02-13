@@ -334,6 +334,7 @@ IDirect3D9Vtbl my_Direct3D9_vtbl = {
 
 static int my_GetDirect3D(x86emu_t* emu, void* This, void*** ppD3D9)
 {
+    (void)emu;
     int r = my_GetDirect3D_real(This, ppD3D9);
     if (r) return r;
     *ppD3D9 = (void**)((my_Direct3D9*)*ppD3D9)->real;
@@ -393,7 +394,7 @@ int my_create_adapter(x86emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
 
 EXPORT void* my_D3DAdapter9GetProc(x86emu_t* emu, void *ptr)
 {
-
+    (void)ptr;
     /* stdcall, so callee cleans the stack */
     *(uint32_t *)(R_ESP + 4) = *(uint32_t *)(R_ESP);
     R_ESP += 4;

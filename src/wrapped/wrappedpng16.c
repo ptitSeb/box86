@@ -327,41 +327,49 @@ int png16_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p)
 
 EXPORT void my16_png_set_read_fn(x86emu_t *emu, void* png_ptr, void* io_ptr, void* read_data_fn)
 {
+    (void)emu;
     my->png_set_read_fn(png_ptr, io_ptr, finduser_readFct(read_data_fn));
 }
 
 EXPORT void my16_png_set_read_user_transform_fn(x86emu_t *emu, void* png_ptr, void* read_transform_fn)
 {
+    (void)emu;
     my->png_set_read_user_transform_fn(png_ptr, finduser_transformFct(read_transform_fn));
 }
 
 EXPORT void my16_png_set_error_fn(x86emu_t* emu, void* pngptr, void* errorptr, void* error_fn, void* warning_fn)
 {
+    (void)emu;
     my->png_set_error_fn(pngptr, errorptr, finderrorFct(error_fn), findwarningFct(warning_fn));
 }
 
 EXPORT void my16_png_set_write_fn(x86emu_t* emu, void* png_ptr, void* io_ptr, void* write_fn, void* flush_fn)
 {
+    (void)emu;
     my->png_set_write_fn(png_ptr, io_ptr, finduser_writeFct(write_fn), finduser_flushFct(flush_fn));
 }
 
 EXPORT void* my16_png_create_read_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
 {
+    (void)emu;
     return my->png_create_read_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
 }
 
 EXPORT void* my16_png_create_write_struct_2(x86emu_t* emu, void* user_png_ver, void* error_ptr, void* error_fn, void* warn_fn, void* mem_ptr, void* malloc_fn, void* free_fn)
 {
+    (void)emu;
     return my->png_create_write_struct_2(user_png_ver, error_ptr, finderrorFct(error_fn), findwarningFct(warn_fn), mem_ptr, findmallocFct(malloc_fn), findfreeFct(free_fn));
 }
 
 EXPORT void my16_png_set_progressive_read_fn(x86emu_t* emu, void* png_ptr, void* user_ptr, void* info, void* row, void* end)
 {
+    (void)emu;
     my->png_set_progressive_read_fn(png_ptr, user_ptr, findprogressive_infoFct(info), findprogressive_rowFct(row), findprogressive_endFct(end));
 }
 
 EXPORT void* my16_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
 {
+    (void)emu;
     void* ret = my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
     current_png_struct = ret;
     return ret;
@@ -369,6 +377,7 @@ EXPORT void* my16_png_create_read_struct(x86emu_t* emu, void* png_ptr, void* use
 
 EXPORT void* my16_png_create_write_struct(x86emu_t* emu, void* png_ptr, void* user_ptr, void* errorfn, void* warnfn)
 {
+    (void)emu;
     void* ret = my->png_create_write_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
     current_png_struct = ret;
     return ret;
@@ -376,12 +385,14 @@ EXPORT void* my16_png_create_write_struct(x86emu_t* emu, void* png_ptr, void* us
 
 EXPORT void my16_png_destroy_read_struct(x86emu_t* emu, void** png_ptr, void** info_ptr, void** end_info_ptr)
 {
+    (void)emu;
     if(png_ptr && *png_ptr==current_png_struct)
         current_png_struct = NULL;
     my->png_destroy_read_struct(png_ptr, info_ptr, end_info_ptr);
 }
 EXPORT void my16_png_destroy_write_struct(x86emu_t* emu, void** png_ptr, void** info_ptr)
 {
+    (void)emu;
     if(png_ptr && *png_ptr==current_png_struct)
         current_png_struct = NULL;
     my->png_destroy_write_struct(png_ptr, info_ptr);

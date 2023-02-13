@@ -134,11 +134,13 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
 
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
 {
+    (void)emu;
     my->alRequestFoldbackStart(mode, count, length, mem, find_Request_Fct(cb));
 }
 
 EXPORT void my_alRequestFoldbackStop(x86emu_t* emu)
 {
+    (void)emu;
     my->alRequestFoldbackStop();
 }
 

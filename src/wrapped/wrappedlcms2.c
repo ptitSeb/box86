@@ -64,6 +64,7 @@ static void* find_cmsLogErrorHandlerFunction_Fct(void* fct)
 
 EXPORT void my_cmsSetLogErrorHandler(x86emu_t* emu, void* f)
 {
+    (void)emu;
     my->cmsSetLogErrorHandler(find_cmsLogErrorHandlerFunction_Fct(f));
 }
 

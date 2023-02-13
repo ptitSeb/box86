@@ -419,6 +419,7 @@ static void* findtellFct(void* fct)
 
 EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, void* initial, long ibytes, void* read_fnc, void* seek_fnc, void* close_fnc, void* tell_fnc)
 {
+    (void)emu;
     ov_callbacks cbs = {0};
     cbs.read_func = findreadFct(read_fnc);
     cbs.seek_func = findseekFct(seek_fnc);
@@ -444,4 +445,3 @@ EXPORT int32_t my_ov_open_callbacks(x86emu_t* emu, void* datasource, void* vf, v
     freeMy();
 
 #include "wrappedlib_init.h"
-

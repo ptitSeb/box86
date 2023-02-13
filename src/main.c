@@ -642,9 +642,11 @@ int CountEnv(char** env)
     char** p = env;
     int c = 0;
     while(*p) {
-        if(strncmp(*p, "BOX86_", 6)!=0)
-            //if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0))
-                ++c;
+        if(strncmp(*p, "BOX86_PATH=", 11)==0) {
+        } else if(strncmp(*p, "BOX86_LD_LIBRARY_PATH=", 22)==0) {
+        } else if(strncmp(*p, "BOX86_", 6)!=0) {
+            ++c;
+        }
         ++p;
     }
     return c+2;
@@ -652,14 +654,11 @@ int CountEnv(char** env)
 EXPORTDYN
 int GatherEnv(char*** dest, char** env, const char* prog)
 {
-    // Add all but BOX86_* environnement
-    // but add 2 for default BOX86_PATH and BOX86_LD_LIBRARY_PATH
+    // Add every BOX86_* environment variables
     char** p = env;    
     int idx = 0;
     int box86_path = 0;
     int box86_ld_path = 0;
-    char* path = NULL;
-    char* ld_path = NULL;
     while(*p) {
         if(strncmp(*p, "BOX86_PATH=", 11)==0) {
             (*dest)[idx++] = box_strdup(*p);
@@ -667,27 +666,19 @@ int GatherEnv(char*** dest, char** env, const char* prog)
         } else if(strncmp(*p, "BOX86_LD_LIBRARY_PATH=", 22)==0) {
             (*dest)[idx++] = box_strdup(*p);
             box86_ld_path = 1;
-        } else if(strncmp(*p, "_=", 2)==0) {
-            /*int l = strlen(prog);
-            char tmp[l+3];
-            strcpy(tmp, "_=");
-            strcat(tmp, prog);
-            (*dest)[idx++] = box_strdup(tmp);*/
         } else if(strncmp(*p, "BOX86_", 6)!=0) {
             (*dest)[idx++] = box_strdup(*p);
-            /*if(!(strncmp(*p, "PATH=", 5)==0 || strncmp(*p, "LD_LIBRARY_PATH=", 16)==0)) {
-            }*/
         }
         ++p;
     }
-    // update the calloc of envv when adding new variables here
+    // Add default values for BOX86_PATH and BOX86_LD_LIBRARY_PATH
     if(!box86_path) {
         (*dest)[idx++] = box_strdup("BOX86_PATH=.:bin");
     }
     if(!box86_ld_path) {
         (*dest)[idx++] = box_strdup("BOX86_LD_LIBRARY_PATH=.:lib");
     }
-    // add "_=prog" at the end...
+    // Add "_=prog" at the end...
     if(prog) {
         int l = strlen(prog);
         char tmp[l+3];
@@ -766,7 +757,7 @@ void addNewEnvVar(const char* s)
     char* p = box_strdup(s);
     char* e = strchr(p, '=');
     if(!e) {
-        printf_log(LOG_INFO, "Invalid speicifc env. var. '%s'\n", s);
+        printf_log(LOG_INFO, "Invalid specific env. var. '%s'\n", s);
         box_free(p);
         return;
     }
@@ -779,22 +770,21 @@ void addNewEnvVar(const char* s)
 EXPORTDYN
 void LoadEnvVars(box86context_t *context)
 {
+    char *p;
     // Check custom env. var. and add them if needed
-    {
-        char* p = getenv("BOX86_ENV");
-        if(p)
+    p = getenv("BOX86_ENV");
+    if(p)
+        addNewEnvVar(p);
+    int i = 1;
+    char box86_env[50];
+    do {
+        sprintf(box86_env, "BOX86_ENV%d", i);
+        p = getenv(box86_env);
+        if(p) {
             addNewEnvVar(p);
-        int i = 1;
-        char box86_env[50];
-        do {
-            sprintf(box86_env, "BOX86_ENV%d", i);
-            p = getenv(box86_env);
-            if(p) {
-                addNewEnvVar(p);
-                ++i;
-            }
-        } while(p);
-    }
+            ++i;
+        }
+    } while(p);
     // check BOX86_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box86_ld_lib, ".:lib:lib32:x86:i686", "BOX86_LD_LIBRARY_PATH");
 #ifdef PANDORA
@@ -835,56 +825,31 @@ void LoadEnvVars(box86context_t *context)
     AddPath("libssl.so.1.0.0", &context->box86_emulated_libs, 0);
     AddPath("libcrypto.so.1", &context->box86_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box86_emulated_libs, 0);
-
-    if(getenv("BOX86_SSE_FLUSHTO0")) {
-        if (strcmp(getenv("BOX86_SSE_FLUSHTO0"), "1")==0) {
-            box86_sse_flushto0 = 1;
-            printf_log(LOG_INFO, "BOX86: Direct apply of SSE Flush to 0 flag\n");
-    	}
-    }
-    if(getenv("BOX86_PREFER_WRAPPED")) {
-        if (strcmp(getenv("BOX86_PREFER_WRAPPED"), "1")==0) {
-            box86_prefer_wrapped = 1;
-            printf_log(LOG_INFO, "BOX86: Prefer Wrapped libs\n");
-    	}
-    }
-    if(getenv("BOX86_PREFER_EMULATED")) {
-        if (strcmp(getenv("BOX86_PREFER_EMULATED"), "1")==0) {
-            box86_prefer_emulated = 1;
-            printf_log(LOG_INFO, "BOX86: Prefer Emulated libs\n");
-    	}
-    }
-    if(getenv("BOX86_NOSIGSEGV")) {
-        if (strcmp(getenv("BOX86_NOSIGSEGV"), "1")==0) {
-            context->no_sigsegv = 1;
-            printf_log(LOG_INFO, "BOX86: Disabling handling of SigSEGV\n");
-        }
-    }
-    if(getenv("BOX86_NOSIGILL")) {
-        if (strcmp(getenv("BOX86_NOSIGILL"), "1")==0) {
-            context->no_sigill = 1;
-            printf_log(LOG_INFO, "BOX86: Disabling handling of SigILL\n");
-        }
-    }
     // check BOX86_PATH and load it
     LoadEnvPath(&context->box86_path, ".:bin", "BOX86_PATH");
     if(getenv("PATH"))
         AppendList(&context->box86_path, getenv("PATH"), 1);   // in case some of the path are for x86 world
+
+#define READENV(v, name, dest, eqn) \
+    do {                         \
+        p = getenv(name);        \
+        if (p) {                 \
+            if (!strcmp(p, v)) { \
+                dest = 1;        \
+                eqn;             \
+            }                    \
+        }                        \
+    } while (0)
+#define READENV0(name, dest, eqn) READENV("0", name, dest, eqn)
+#define READENV1(name, dest, log) READENV("1", name, dest, printf_log(LOG_INFO, log))
+    READENV1("BOX86_SSE_FLUSHTO0", box86_sse_flushto0, "BOX86: Direct apply of SSE Flush to 0 flag\n");
+    READENV1("BOX86_PREFER_WRAPPED", box86_prefer_wrapped, "BOX86: Prefer Wrapped libs\n");
+    READENV1("BOX86_PREFER_EMULATED", box86_prefer_emulated, "BOX86: Prefer Emulated libs\n");
+    READENV1("BOX86_NOSIGSEGV", context->no_sigsegv, "BOX86: Disabling handling of SigSEGV\n");
+    READENV1("BOX86_NOSIGILL", context->no_sigill, "BOX86: Disabling handling of SigILL\n");
 #ifdef HAVE_TRACE
-    char* p = getenv("BOX86_TRACE");
-    if(p) {
-        if (strcmp(p, "0")) {
-            context->x86trace = 1;
-            box86_trace = p;
-        }
-    }
-    p = getenv("BOX86_TRACE_INIT");
-    if(p) {
-        if (strcmp(p, "0")) {
-            context->x86trace = 1;
-            trace_init = p;
-        }
-    }
+    READENV0("BOX86_TRACE", context->x86trace, box86_trace = p);
+    READENV0("BOX86_TRACE_INIT", context->x86trace, trace_init = p);
     if(my_context->x86trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
         if(InitX86Trace(my_context)) {
@@ -893,6 +858,9 @@ void LoadEnvVars(box86context_t *context)
         }
     }
 #endif
+#undef READENV
+#undef READENV0
+#undef READENV1
 #ifdef BUILD_LIB
     context->argc = 1;  // need 1
     context->argv = (char**)box_malloc(sizeof(char*));
@@ -932,6 +900,8 @@ void setupTraceInit(box86context_t* context)
             if (strcmp(p, "0"))
                 SetTraceEmu(0, 1);
     }
+#else
+    (void)context;
 #endif
 }
 
@@ -974,6 +944,8 @@ void setupTrace(box86context_t* context)
             }
         }
     }
+#else
+    (void)context;
 #endif
 }
 
@@ -992,7 +964,7 @@ void endBox86()
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
-    int pid = getpid();
+    // int pid = getpid();
     int running = 1;
     int attempt = 0;
     printf_log(LOG_DEBUG, "Waiting for all threads to finish before unloading box86context\n");
@@ -1242,8 +1214,8 @@ int main(int argc, const char **argv, char **env)
     // prepare all other env. var
     my_context->envc = CountEnv(environ?environ:env);
     printf_log(LOG_INFO, "Counted %d Env var\n", my_context->envc);
-    // allocate extra space for new environment variables such as BOX86_PATH
-    my_context->envv = (char**)box_calloc(my_context->envc+4, sizeof(char*));
+    // allocate extra space for the new environment variable _ and the null terminator
+    my_context->envv = (char**)box_calloc(my_context->envc+2, sizeof(char*));
     GatherEnv(&my_context->envv, environ?environ:env, my_context->box86path);
     if(box86_dump) {
         for (int i=0; i<my_context->envc; ++i)

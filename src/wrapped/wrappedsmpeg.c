@@ -59,11 +59,13 @@ static void* find_dispcallback_Fct(void* fct)
 
 EXPORT void my_SMPEG_setdisplay(x86emu_t* emu, void* mpeg, void* surf, void* lock, void* cb)
 {
+    (void)emu;
     my->SMPEG_setdisplay(mpeg, surf, lock, find_dispcallback_Fct(cb));
 }
 
 EXPORT void my_SMPEG_getinfo(x86emu_t* emu, void* mpeg, void* info)
 {
+    (void)emu;
     my_SMPEG_Info_t inf = {0};
     my->SMPEG_getinfo(mpeg, &inf);
     UnalignSmpegInfo(info, &inf);
@@ -71,6 +73,7 @@ EXPORT void my_SMPEG_getinfo(x86emu_t* emu, void* mpeg, void* info)
 
 EXPORT void* my_SMPEG_new(x86emu_t* emu, void* file, void* info, int sdl_audio)
 {
+    (void)emu;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
     void* ret = my->SMPEG_new(file, &inf, sdl_audio);
@@ -80,6 +83,7 @@ EXPORT void* my_SMPEG_new(x86emu_t* emu, void* file, void* info, int sdl_audio)
 
 EXPORT void* my_SMPEG_new_descr(x86emu_t* emu, int file, void* info, int sdl_audio)
 {
+    (void)emu;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
     void* ret = my->SMPEG_new_descr(file, &inf, sdl_audio);
@@ -89,6 +93,7 @@ EXPORT void* my_SMPEG_new_descr(x86emu_t* emu, int file, void* info, int sdl_aud
 
 EXPORT void* my_SMPEG_new_data(x86emu_t* emu, void* data, int size, void* info, int sdl_audio)
 {
+    (void)emu;
     my_SMPEG_Info_t inf;
     AlignSmpegInfo(&inf, info);
     void* ret = my->SMPEG_new_data(data, size, &inf, sdl_audio);
@@ -114,4 +119,3 @@ EXPORT void* my_SMPEG_new_rwops(x86emu_t* emu, void* src, void* info, int32_t sd
     freeMy();
 
 #include "wrappedlib_init.h"
-
