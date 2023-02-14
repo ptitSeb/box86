@@ -742,6 +742,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     uint32_t prot = getProtection((uintptr_t)addr);
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         relockMutex(Locks);
+        CancelBlock();
         cancelFillBlock();  // Segfault inside a Fillblock
     }
     dynablock_t* db = NULL;
