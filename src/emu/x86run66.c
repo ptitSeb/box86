@@ -1463,6 +1463,39 @@ void RunFS(x86emu_t *emu)
                 case 7:                cmp32(emu, ED->dword[0], tmp32u); break;
             }
             break;
+        
+        case 0x87:
+            nextop = F8;
+#ifdef DYNAREC
+            GET_ED_OFFS(tlsdata);
+            if((nextop&0xC0)==0xC0) {
+                tmp32u = GD.dword[0];
+                GD.dword[0] = ED->dword[0];
+                ED->dword[0] = tmp32u;
+            } else {
+                if(((uintptr_t)ED)&3)
+                {
+                    // not aligned, dont't try to "LOCK"
+                    tmp32u = ED->dword[0];
+                    ED->dword[0] = GD.dword[0];
+                    GD.dword[0] = tmp32u;
+                } else {
+                    // XCHG is supposed to automaticaly LOCK memory bus
+                    GD.dword[0] = arm_lock_xchg(ED, GD.dword[0]);
+                }
+            }
+#else
+            GET_ED_OFFS(tlsdata);
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+            tmp32u = GD.dword[0];
+            GD.dword[0] = ED->dword[0];
+            ED->dword[0] = tmp32u;
+            if((nextop&0xC0)!=0xC0)
+                pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+            break;
+
         case 0x89:              /* MOV Ed,Gd */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
