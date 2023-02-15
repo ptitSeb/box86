@@ -437,7 +437,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     for(int i=0; i<helper.size; ++i)
         if(helper.insts[i].x86.jmp) {
             uintptr_t j = helper.insts[i].x86.jmp;
-            if(j<start || j>=end) {
+            if(j<start || j>=end || j==helper.insts[i].x86.addr) {
                 helper.insts[i].x86.jmp_insts = -1;
                 helper.insts[i].x86.need_after |= X_PEND;
             } else {

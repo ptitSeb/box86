@@ -661,7 +661,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i32 = F32S;
             if(PK(0)==0xC3) {
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
-                MOV32(x3, ip+1);
+                MOV32(x3, addr-4);
                 LDR_IMM9(x1, x3, 0);
                 PUSH1(x1);
             } else {
