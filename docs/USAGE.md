@@ -170,6 +170,16 @@ Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
 
+#### BOX86_SSE_FLUSHTO0 *
+Handling of SSE Flush to 0 flags
+* 0 : Just track the flag (Default)
+* 1 : Direct apply of SSE Flush to 0 flag
+
+#### BOX86_X87_NO80BITS *
+Handling of x87 80bits long double
+* 0 : Try to handle 80bits long double as precise as possible (Default)
+* 1 : Handle them as double
+
 #### BOX86_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

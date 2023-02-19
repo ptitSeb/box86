@@ -99,6 +99,7 @@ int box86_zoom = 0;
 int box86_x11threads = 0;
 int box86_x11glx = 1;
 int box86_sse_flushto0 = 0;
+int box86_x87_no80bits = 0;
 int allow_missing_libs = 0;
 int allow_missing_symbols = 0;
 int fix_64bit_inodes = 0;
@@ -843,6 +844,7 @@ void LoadEnvVars(box86context_t *context)
 #define READENV0(name, dest, eqn) READENV("0", name, dest, eqn)
 #define READENV1(name, dest, log) READENV("1", name, dest, printf_log(LOG_INFO, log))
     READENV1("BOX86_SSE_FLUSHTO0", box86_sse_flushto0, "BOX86: Direct apply of SSE Flush to 0 flag\n");
+    READENV1("BOX86_X87_NO80BITS", box86_x87_no80bits, "BOX86: all 80bits x87 long double will be handle as double\n");
     READENV1("BOX86_PREFER_WRAPPED", box86_prefer_wrapped, "BOX86: Prefer Wrapped libs\n");
     READENV1("BOX86_PREFER_EMULATED", box86_prefer_emulated, "BOX86: Prefer Emulated libs\n");
     READENV1("BOX86_NOSIGSEGV", context->no_sigsegv, "BOX86: Disabling handling of SigSEGV\n");

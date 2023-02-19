@@ -35,6 +35,7 @@ ENTRYBOOL(BOX86_X11THREADS, box86_x11threads)           \
 ENTRYBOOL(BOX86_X11GLX, box86_x11glx)                   \
 ENTRYDSTRING(BOX86_LIBGL, box86_libGL)                  \
 ENTRYBOOL(BOX86_SSE_FLUSHTO0, box86_sse_flushto0)       \
+ENTRYBOOL(BOX86_X87_NO80BITS, box86_x87_no80bits)       \
 ENTRYSTRING_(BOX86_EMULATED_LIBS, emulated_libs)        \
 ENTRYBOOL(BOX86_ALLOWMISSINGLIBS, allow_missing_libs)   \
 ENTRYBOOL(BOX86_ALLOWMISSING_SYMBOLS, allow_missing_symbols)    \
