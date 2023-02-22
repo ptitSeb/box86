@@ -309,7 +309,8 @@ EXPORT void my_SSL_CTX_sess_set_new_cb(x86emu_t* emu, void* ctx, void* cb)
 }
 
 #define CUSTOM_INIT \
-    getMy(lib);
+    getMy(lib);     \
+    setNeededLibs(lib, 2, "libcrypto.so.1.1", "libpthread.so.0");
 
 #define CUSTOM_FINI \
     freeMy();
