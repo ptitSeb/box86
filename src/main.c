@@ -850,7 +850,12 @@ void LoadEnvVars(box86context_t *context)
     READENV1("BOX86_NOSIGSEGV", context->no_sigsegv, "BOX86: Disabling handling of SigSEGV\n");
     READENV1("BOX86_NOSIGILL", context->no_sigill, "BOX86: Disabling handling of SigILL\n");
 #ifdef HAVE_TRACE
-    READENV0("BOX86_TRACE", context->x86trace, box86_trace = p);
+    p = getenv("BOX86_TRACE");
+    if(p && strcmp(p, "0")) {
+        context->x86trace = 1;
+        box86_trace = p;
+    };
+        
     READENV0("BOX86_TRACE_INIT", context->x86trace, trace_init = p);
     if(my_context->x86trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
