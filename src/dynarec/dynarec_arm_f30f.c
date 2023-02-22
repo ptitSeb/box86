@@ -543,7 +543,6 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PSHUFHW Gx, Ex, Ib");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
             if((nextop&0xC0)==0xC0) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
             } else {
@@ -552,6 +551,7 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 v1 = fpu_get_scratch_quad(dyn);
                 VLD1Q_64(v1, ed);
             }
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
             u8 = F8;
             // only high part need to be shuffled. VTBL only handle 8bits value, so the 16bits shuffles need to be changed in 8bits
             u32 = 0;
