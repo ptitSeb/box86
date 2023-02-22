@@ -129,6 +129,12 @@
 #undef ftw
 #undef nftw
 #undef glob
+#undef printf
+#undef fprintf
+#undef sprintf
+#undef snprintf
+#undef vsprintf
+#undef vsnprintf
 
 #define LIBNAME libc
 
@@ -884,7 +890,19 @@ EXPORT int my_sprintf(x86emu_t* emu, void* buff, void * fmt, void * b) {
     return vsprintf((char*)buff, (char*)fmt, b);
     #endif
 }
-EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, void * fmt, void * b) __attribute__((alias("my_sprintf")));
+EXPORT int my___sprintf_chk(x86emu_t* emu, void* buff, int v, int s, void * fmt, void * b)
+{
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST;
+    void* f = vsprintf;
+    return ((iFppp_t)f)(buff, fmt, VARARGS);
+    #else
+    (void)emu;
+    return vsprintf((char*)buff, (char*)fmt, b);
+    #endif
+}
 
 EXPORT int my_asprintf(x86emu_t* emu, void** buff, void * fmt, void * b) {
     #ifndef NOALIGN
@@ -985,7 +1003,20 @@ EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void 
     #endif
 }
 EXPORT int my___vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
-EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my_vsnprintf")));
+EXPORT int my___vsnprintf_chk(x86emu_t* emu, void* buff, uint32_t s, int v, int l, void * fmt, void * b, va_list V) {
+    (void)V;
+    #ifndef NOALIGN
+    // need to align on arm
+    myStackAlign((const char*)fmt, (uint32_t*)b, emu->scratch);
+    PREPARE_VALIST;
+    void* f = vsnprintf;
+    return ((iFpupp_t)f)(buff, s, fmt, VARARGS);
+    #else
+    (void)emu;
+    void* f = vsnprintf;
+    return ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
+    #endif
+}
 
 EXPORT int my_vasprintf(x86emu_t* emu, void* strp, void* fmt, void* b, va_list V)
 {

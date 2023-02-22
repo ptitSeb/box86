@@ -1867,6 +1867,7 @@
 #() vFpppppppp
 #() iFEipupupi
 #() iFEpippppp
+#() iFEpuiippp
 #() iFEpuuiipp
 #() iFEpuuuipp
 #() iFEpuuLppp
@@ -2267,9 +2268,7 @@
 #() UFsvvs -> UFss
 #() iFEpvpp -> iFEppp
 #() iFEpvpV -> iFEppV
-#() iFEpvvpV -> iFEppV
 #() pFpsvvvvs -> pFpss
-#() iFEpuvvppp -> iFEpuppp
 #defined(NOALIGN) iFpvpV -> iFppV
 #!defined(NOALIGN) iFEivpV -> iFEipV
 wrappedalure:
@@ -3088,7 +3087,7 @@ wrappedlibc:
 - iFipppp:
   - getopt_long
   - getopt_long_only
-- iFpvvpV:
+- iFpiipV:
 - iFpiLpp:
 - iFpippp:
 - iFpuppp:
@@ -3104,7 +3103,7 @@ wrappedlibc:
 - pFpLiiiI:
 - pFpppppp:
 - iFpippppp:
-- iFpuvvppp:
+- iFpuiippp:
 - iFpLiLppp:
 wrappedlibcairogobject:
 wrappedlibcrypt:

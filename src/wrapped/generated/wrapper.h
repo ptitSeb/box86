@@ -1899,6 +1899,7 @@ void vFppppiipi(x86emu_t *emu, uintptr_t fnc);
 void vFpppppppp(x86emu_t *emu, uintptr_t fnc);
 void iFEipupupi(x86emu_t *emu, uintptr_t fnc);
 void iFEpippppp(x86emu_t *emu, uintptr_t fnc);
+void iFEpuiippp(x86emu_t *emu, uintptr_t fnc);
 void iFEpuuiipp(x86emu_t *emu, uintptr_t fnc);
 void iFEpuuuipp(x86emu_t *emu, uintptr_t fnc);
 void iFEpuuLppp(x86emu_t *emu, uintptr_t fnc);
@@ -2318,9 +2319,7 @@ void iFEvpV(x86emu_t *emu, uintptr_t fnc);
 void UFsvvs(x86emu_t *emu, uintptr_t fnc);
 void iFEpvpp(x86emu_t *emu, uintptr_t fnc);
 void iFEpvpV(x86emu_t *emu, uintptr_t fnc);
-void iFEpvvpV(x86emu_t *emu, uintptr_t fnc);
 void pFpsvvvvs(x86emu_t *emu, uintptr_t fnc);
-void iFEpuvvppp(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(NOALIGN)
 void iFpvpV(x86emu_t *emu, uintptr_t fnc);

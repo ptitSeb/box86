@@ -1623,7 +1623,7 @@ GOW(socket, iFiii)
 GOW(socketpair, iFiiip)
 GO(splice, iFipipuu)
 GOM(sprintf, iFEppV) //%%
-GOM(__sprintf_chk, iFEpvvpV) //%%
+GOM(__sprintf_chk, iFEpiipV) //%%
 // sprofil  // Weak
 GOW(srand, vFu)
 GO(srand48, vFi)
@@ -1947,7 +1947,7 @@ GOM(__vprintf_chk, iFEvpp)        //%%
 // vscanf   // Weak
 GOWM(vsnprintf, iFEpLppp)         //%%
 GOWM(__vsnprintf, iFEpuppp)       //%%
-GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
+GOM(__vsnprintf_chk, iFEpuiippp)  //%%
 GOWM(vsprintf, iFEppp)            //%%
 GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 #ifdef POWERPCLE

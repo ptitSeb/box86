@@ -1939,6 +1939,7 @@ typedef void (*vFppppiipi_t)(void*, void*, void*, void*, int32_t, int32_t, void*
 typedef void (*vFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFEipupupi_t)(x86emu_t*, int32_t, void*, uint32_t, void*, uint32_t, void*, int32_t);
 typedef int32_t (*iFEpippppp_t)(x86emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
+typedef int32_t (*iFEpuiippp_t)(x86emu_t*, void*, uint32_t, int32_t, int32_t, void*, void*, void*);
 typedef int32_t (*iFEpuuiipp_t)(x86emu_t*, void*, uint32_t, uint32_t, int32_t, int32_t, void*, void*);
 typedef int32_t (*iFEpuuuipp_t)(x86emu_t*, void*, uint32_t, uint32_t, uint32_t, int32_t, void*, void*);
 typedef int32_t (*iFEpuuLppp_t)(x86emu_t*, void*, uint32_t, uint32_t, uintptr_t, void*, void*, void*);
@@ -4222,6 +4223,7 @@ void vFppppiipi(x86emu_t *emu, uintptr_t fcn) { vFppppiipi_t fn = (vFppppiipi_t)
 void vFpppppppp(x86emu_t *emu, uintptr_t fcn) { vFpppppppp_t fn = (vFpppppppp_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28), *(void**)(R_ESP + 32)); }
 void iFEipupupi(x86emu_t *emu, uintptr_t fcn) { iFEipupupi_t fn = (iFEipupupi_t)fcn; R_EAX=fn(emu, *(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(uint32_t*)(R_ESP + 20), *(void**)(R_ESP + 24), *(int32_t*)(R_ESP + 28)); }
 void iFEpippppp(x86emu_t *emu, uintptr_t fcn) { iFEpippppp_t fn = (iFEpippppp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
+void iFEpuiippp(x86emu_t *emu, uintptr_t fcn) { iFEpuiippp_t fn = (iFEpuiippp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
 void iFEpuuiipp(x86emu_t *emu, uintptr_t fcn) { iFEpuuiipp_t fn = (iFEpuuiipp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
 void iFEpuuuipp(x86emu_t *emu, uintptr_t fcn) { iFEpuuuipp_t fn = (iFEpuuuipp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(uint32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
 void iFEpuuLppp(x86emu_t *emu, uintptr_t fcn) { iFEpuuLppp_t fn = (iFEpuuLppp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(uint32_t*)(R_ESP + 12), *(uintptr_t*)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
@@ -4641,9 +4643,7 @@ void iFEvpV(x86emu_t *emu, uintptr_t fcn) { iFEpV_t fn = (iFEpV_t)fcn; R_EAX=fn(
 void UFsvvs(x86emu_t *emu, uintptr_t fcn) { UFss_t fn = (UFss_t)fcn; ui64_t r; r.u=(uint64_t)fn((void*)(R_ESP + 4), (void*)(R_ESP + 12)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void iFEpvpp(x86emu_t *emu, uintptr_t fcn) { iFEppp_t fn = (iFEppp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); }
 void iFEpvpV(x86emu_t *emu, uintptr_t fcn) { iFEppV_t fn = (iFEppV_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
-void iFEpvvpV(x86emu_t *emu, uintptr_t fcn) { iFEppV_t fn = (iFEppV_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(void**)(R_ESP + 16), (void*)(R_ESP + 20)); }
 void pFpsvvvvs(x86emu_t *emu, uintptr_t fcn) { pFpss_t fn = (pFpss_t)fcn; R_EAX=(uintptr_t)fn(*(void**)(R_ESP + 4), (void*)(R_ESP + 8), (void*)(R_ESP + 24)); }
-void iFEpuvvppp(x86emu_t *emu, uintptr_t fcn) { iFEpuppp_t fn = (iFEpuppp_t)fcn; R_EAX=fn(emu, *(void**)(R_ESP + 4), *(uint32_t*)(R_ESP + 8), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28)); }
 
 #if defined(NOALIGN)
 void iFpvpV(x86emu_t *emu, uintptr_t fcn) { iFppV_t fn = (iFppV_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
