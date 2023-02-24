@@ -72,6 +72,14 @@ As most RK3399 devices run an AARCH64 OS, you'll need an `armhf` multiarch envir
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
+#### for RK3588 / RK3588S
+
+`mkdir build; cd build; cmake .. -DRK3588=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+
+As most RK3588 devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
+
+Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
+
 #### for ODROID N2/N2+
 
 `mkdir build; cd build; cmake .. -DODROIDN2=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
@@ -103,6 +111,15 @@ As most Snapdragon 845 devices run an AARCH64 OS, you'll need an `armhf` multiar
 `mkdir build; cd build; cmake .. -DPHYTIUM=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
 
 As most Phytium (D2000 or FT2000/4) devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
+
+
+Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
+
+#### for Other ARM64 64bits Linux platform
+
+`mkdir build; cd build; cmake .. -DARM64 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
+
+You'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
