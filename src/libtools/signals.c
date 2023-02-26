@@ -738,6 +738,14 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #warning Unhandled architecture
 #endif
     int Locks = unlockMutex();
+    #ifdef RK3588
+    // try to see if the si_code makes sense
+    // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
+    if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {
+        printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%x\n", addr, prot);
+        info->si_code = 2;
+    }
+    #endif
 #ifdef DYNAREC
     uint32_t prot = getProtection((uintptr_t)addr);
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
