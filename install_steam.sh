@@ -34,7 +34,8 @@ if [ ${MACHINE_TYPE} == 'aarch64' ] && [ -f '/etc/debian_version' ]; then
  echo "Detected 64 bit ARM Debian. Installing 32 bit libraries"
  sudo dpkg --add-architecture armhf # enable installation of armhf libraries
  sudo apt update # update package lists with the newly added arch
- sudo apt install libc6:armhf libncurses5:armhf libsdl2*:armhf libopenal*:armhf libpng*:armhf libfontconfig*:armhf libXcomposite*:armhf libbz2-dev:armhf libXtst*:armhf # install the libraries that Steam requires
+ # install the libraries that Steam requires
+ sudo apt install libc6:armhf libncurses5:armhf libsdl2-2.0-0:armhf libsdl2-image-2.0-0:armhf libsdl2-mixer-2.0-0:armhf libsdl2-ttf-2.0-0:armhf libopenal1:armhf libpng16-16:armhf libfontconfig1:armhf libxcomposite1:armhf libbz2-1.0:armhf libxtst6:armhf
  echo "Don't forget to compile/install Box64!"
 fi
 
