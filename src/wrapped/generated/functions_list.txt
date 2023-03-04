@@ -930,6 +930,7 @@
 #() pFippi
 #() pFippu
 #() pFuiii
+#() pFuuii
 #() pFuuuu
 #() pFulli
 #() pFullu
@@ -1818,6 +1819,7 @@
 #() vFEippippp
 #() vFEuuuuppp
 #() vFEppipppp
+#() vFEpppippp
 #() vFEpppuipV
 #() vFEpppppuu
 #() vFEppppppp
@@ -1939,8 +1941,10 @@
 #() vFEpiiiiipp
 #() vFEpippippp
 #() vFEpippippV
+#() vFEpuuuippp
 #() vFEppiipppp
 #() vFEpppiippp
+#() vFEppppippp
 #() vFiiiiiiiii
 #() vFiiiiiiill
 #() vFiiiiillli
@@ -3148,6 +3152,23 @@ wrappedlibglu:
   - gluQuadricCallback
   - gluTessCallback
 wrappedlibharfbuzz:
+wrappedlibibus:
+- vFpippp:
+  - ibus_bus_current_input_context_async
+  - ibus_bus_get_global_engine_async
+  - ibus_bus_list_active_engines_async
+  - ibus_bus_list_engines_async
+  - ibus_input_context_get_engine_async
+- vFppippp:
+  - ibus_bus_create_input_context_async
+  - ibus_bus_set_global_engine_async
+  - ibus_config_get_values_async
+- vFpppippp:
+  - ibus_config_get_value_async
+- vFpuuuippp:
+  - ibus_input_context_process_key_event_async
+- vFppppippp:
+  - ibus_config_set_value_async
 wrappedlibice:
 wrappedlibjpeg:
 - iFv:

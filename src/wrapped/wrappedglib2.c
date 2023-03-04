@@ -252,7 +252,7 @@ static void* reversePollFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_poll_fct_##A) return (void*)my_poll_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GPollFunc");
 }
 
 // GHashFunc ...
@@ -613,7 +613,7 @@ static void* reverseGLogFuncFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GLogFunc");
 }
 // GPrintFunc ...
 #define GO(A)   \
@@ -643,7 +643,7 @@ static void* reverseGPrintFuncFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GPrintFunc_fct_##A) return (void*)my_GPrintFunc_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GPrintFunc");
 }
 
 // GOptionArg ...
@@ -674,7 +674,7 @@ static void* reverseGOptionArgFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
     SUPER()
     #undef GO
-    return NULL;
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GOptionFunc");
 }
 #undef SUPER
 

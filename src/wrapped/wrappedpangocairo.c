@@ -72,7 +72,7 @@ static void* reverse_ShapeRenderer_Fct(void* fct)
     #define GO(A) if(my_ShapeRenderer_##A == fct) return (void*)my_ShapeRenderer_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFppip, fct, 0, NULL);
 }
 // GDestroyNotify
 #define GO(A)   \

@@ -269,7 +269,7 @@ static void* reverse_error_exitFct(void* fct)
     #define GO(A) if(my_error_exit_##A == fct) return (void*)my_error_exit_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 
 // emit_message
@@ -302,7 +302,7 @@ static void* reverse_emit_messageFct(void* fct)
     #define GO(A) if(my_emit_message_##A == fct) return (void*)my_emit_message_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFpi, fct, 0, NULL);
 }
 
 // output_message
@@ -335,7 +335,7 @@ static void* reverse_output_messageFct(void* fct)
     #define GO(A) if(my_output_message_##A == fct) return (void*)my_output_message_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 
 // format_message
@@ -368,7 +368,7 @@ static void* reverse_format_messageFct(void* fct)
     #define GO(A) if(my_format_message_##A == fct) return (void*)my_format_message_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFpp, fct, 0, NULL);
 }
 
 // reset_error_mgr
@@ -401,7 +401,7 @@ static void* reverse_reset_error_mgrFct(void* fct)
     #define GO(A) if(my_reset_error_mgr_##A == fct) return (void*)my_reset_error_mgr_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 
 // jpeg_marker_parser_method
@@ -434,7 +434,7 @@ static void* findjpeg_marker_parser_methodFct(void* fct)
     #define GO(A) if(my_jpeg_marker_parser_method_##A == fct) return (void*)my_jpeg_marker_parser_method_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(my_lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(my_lib->w.bridge, iFp, fct, 0, NULL);
 } */
 
 // alloc_small

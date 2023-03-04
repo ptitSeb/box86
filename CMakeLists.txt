@@ -427,6 +427,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedgsttag.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgstbase.c"
     "${BOX86_ROOT}/src/wrapped/wrappedgstapp.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibibus.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbusmenugtk.c"
     "${BOX86_ROOT}/src/wrapped/wrappeddbusmenuglib.c"
     "${BOX86_ROOT}/src/wrapped/wrappedappindicator.c"
