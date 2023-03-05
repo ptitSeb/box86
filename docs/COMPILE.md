@@ -119,6 +119,8 @@ Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may hav
 
 `mkdir build; cd build; cmake .. -DARM64 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
+You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
+
 You'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
@@ -126,6 +128,8 @@ Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may hav
 #### for Other ARM Linux platforms
 
  `mkdir build; cd build; cmake .. -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
+
+You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
 
 #### for x86 Linux
 
