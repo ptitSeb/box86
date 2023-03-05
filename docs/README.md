@@ -96,15 +96,20 @@ Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA
 Notes about Steam
 ----
 
-Linux Steam's can run now with box86. But it's still a bit unstable, and not everything works:
-- First problem is Steam crashing after the sign-in window, if you encounter this issue, you may need to add libappindicator. To install it on Debian, run `sudo apt install libappindicator1`.
-- If you select to "Remember password", Steam is crashing on subsequent starts, unless you have libnm installed. To install it on Debian, run `sudo apt install libnm0`.
+Linux Steam's can run now with box86. but you also need box64 for it to completly usable.
+It is advised to run steam in the Small mode, as it use the less memory, but steamwebhelper (a 64bits process) will still be loaded even if not used.
+The login screen cannot run without steamwebhelper, and will just show a blank windows without box64 properly setup in the system.
+File note, Steam will use a lot of memory, and barely fit on system with 4GB of RAM. It will not work anymore on system with less memory (as a workaround, create a swap file, login and check "remember me", the use box64rc to disable steamwebhelper and run only in small mode without swap after the 1st login)
+Final note: the Steam BigPicture will work, but also need steamwebhelper (and so box64), and lots of memory. It will not start on system with only 4GB of RAM without swap.
 - If you have trouble installing Steam, you can find `install_steam.sh` in the root folder of the box86 repo. This simple script will download and install steam in your home folder, and then create a shortcut to steam in `/usr/local/bin` (and for this it will ask for sudo permission). Simply use `steam` to launch once it's installed. Note that the installation, being in the Home folder, will only work for a single user. Don't use this script if you need a multi-user installation.
-- Once open, Steam will only work on "Small Mode" and in "Big Picture", not in the regular "Large Mode". This is because some Steam components used in the browser view are only 64-bit now. So go in the "View" menu and switch to "Small view", else the list will stay empty. Alternatively, Steam can be started in small mode directly by using `+open steam://open/minigameslist` command line arguments.
 - To avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` as environment variables (it's automatically there if you used the `install_steam.sh` script)
-- Some Steam games (most Source engine games, like "Portal" or "Half-Life 2") use libtcmalloc. Box86 will detect it and will try to LD_PRELOAD it, for better compatibility. While it should work without the aforementioned feature, it is safer to add it to your system if you intend to play those games. To install it on Debian, run `sudo apt install libtcmalloc-minimal4`.
 
-Steam for Windows installs fine but doesn't work yet.
+to disable `steamwebhelper` when box64 installed and running, create (or edit) `~/.box64rc` and add:
+```
+[steamwebhelper]
+BOX64_EXIT=1
+```
+in it and it will be disable. Comment with a `#` those 2 lines to enable it again
 
 ----
 
