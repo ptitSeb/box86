@@ -3178,6 +3178,8 @@ wrappedlibjpeg:
   - jpeg_start_decompress
 - pFp:
   - jpeg_std_error
+- vFpp:
+  - jpeg_stdio_src
 - iFpi:
   - jpeg_read_header
 - vFpiL:
@@ -3201,6 +3203,8 @@ wrappedlibjpeg62:
   - jpeg_std_error
 - vFpi:
   - jpeg_start_compress
+- vFpp:
+  - jpeg_stdio_src
 - iFpi:
   - jpeg_read_header
   - jpeg_resync_to_restart

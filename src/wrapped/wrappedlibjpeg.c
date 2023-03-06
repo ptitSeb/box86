@@ -63,6 +63,49 @@ typedef struct jpeg_common_struct_s {
 static struct __jmp_buf_tag jmpbuf;
 static int                  is_jmpbuf;
 
+static jpeg_error_mgr_t native_err_mgr;
+
+#define SUPER()         \
+    jpeg_common_struct_t temp_cinfo = *cinfo; \
+    jpeg_error_mgr_t err = *cinfo->err; \
+    temp_cinfo.err = &err; \
+    GO(error_exit)      \
+    GO(emit_message)    \
+    GO(output_message)  \
+    GO(format_message)  \
+    GO(reset_error_mgr)
+
+#define GO(A) \
+        temp_cinfo.err->A = GetNativeFncOrFnc((uintptr_t)cinfo->err->A); 
+
+static void native_error_exit(jpeg_common_struct_t* cinfo) {
+    SUPER();
+    native_err_mgr.error_exit(&temp_cinfo);
+}
+
+static void native_emit_message(jpeg_common_struct_t* cinfo, int msg_level) {
+    SUPER();
+    native_err_mgr.emit_message(&temp_cinfo, msg_level);
+}
+
+static void native_output_message(jpeg_common_struct_t* cinfo) {
+    SUPER();
+    native_err_mgr.output_message(&temp_cinfo);
+}
+
+static void native_format_message(jpeg_common_struct_t* cinfo, char* buffer) {
+    SUPER();
+    native_err_mgr.format_message(&temp_cinfo, buffer);
+}
+
+static void native_reset_error_mgr(jpeg_common_struct_t* cinfo) {
+    SUPER();
+    native_err_mgr.reset_error_mgr(&temp_cinfo);
+}
+
+#undef GO
+#undef SUPER
+
 static void wrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr);
 static void unwrapErrorMgr(bridge_t* bridge, jpeg_error_mgr_t* mgr);
 
@@ -309,6 +352,13 @@ EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
 
     wrapErrorMgr(my_lib->w.bridge, ret);
 
+    my->jpeg_std_error(&native_err_mgr);
+    ret->error_exit = (void*)AddCheckBridge(my_lib->w.bridge, vFp, native_error_exit, 0, NULL);
+    ret->emit_message = (void*)AddCheckBridge(my_lib->w.bridge, vFpi, native_emit_message, 0, NULL);
+    ret->output_message = (void*)AddCheckBridge(my_lib->w.bridge, vFp, native_output_message, 0, NULL);
+    ret->format_message = (void*)AddCheckBridge(my_lib->w.bridge, vFpp, native_format_message, 0, NULL);
+    ret->reset_error_mgr = (void*)AddCheckBridge(my_lib->w.bridge, vFp, native_reset_error_mgr, 0, NULL);
+
     return ret;
 }
 
@@ -358,6 +408,10 @@ EXPORT int my_jpeg_finish_decompress(x86emu_t* emu, jpeg_common_struct_t* cinfo)
 EXPORT void my_jpeg_set_marker_processor(x86emu_t* emu, jpeg_common_struct_t* cinfo, int marker, void* routine)
 {
     WRAP(void, my->jpeg_set_marker_processor(cinfo, marker, findjpeg_marker_parser_methodFct(routine)));
+}
+
+EXPORT void my_jpeg_stdio_src(x86emu_t* emu, jpeg_common_struct_t* cinfo, void* infile) {
+    WRAP(void, my->jpeg_stdio_src(cinfo, infile));
 }
 
 #undef WRAP

@@ -6,3 +6,4 @@ src/git_head.h
 backup/
 box86_update.sh
 restore_backup.sh
+.cache
