@@ -145,10 +145,19 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
 uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
 {
     // check if function alread have a bridge (the function wrapper will not be tested)
+    if (!fnc) return 0;
     khint_t k = kh_get(bridgemap, bridge->bridgemap, (uint32_t)fnc);
     if(k==kh_end(bridge->bridgemap))
         return 0;
     return kh_value(bridge->bridgemap, k);
+}
+
+int IsBridge(void* fnc) {
+    onebridge_t *b = (onebridge_t*)fnc;
+    if(!b || b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2)) {
+        return 0;
+    }
+    return 1;
 }
 
 uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
@@ -207,18 +216,19 @@ void* GetNativeFnc(uintptr_t fnc)
     #undef PK
     #undef PK32
     // check if bridge exist
-    onebridge_t *b = (onebridge_t*)fnc;
-    if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
-        return NULL;    // not a bridge?!
-    return (void*)b->f;
+    if (IsBridge((void*)fnc)) {
+        return (void*)((onebridge_t*)fnc)->f;
+    }
+    return NULL;
 }
 
 void* GetNativeFncOrFnc(uintptr_t fnc)
 {
-    onebridge_t *b = (onebridge_t*)fnc;
-    if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
-        return (void*)fnc;    // not a bridge?!
-    return (void*)b->f;
+    if (IsBridge((void*)fnc)) {
+        return (void*)((onebridge_t*)fnc)->f;
+    } else {
+        return (void*)fnc;
+    }
 }
 
 #ifdef HAVE_TRACE

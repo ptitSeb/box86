@@ -16,6 +16,7 @@ typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpi_t)(void*, int32_t);
+typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef void (*vFpii_t)(void*, int32_t, int32_t);
 typedef void (*vFpiL_t)(void*, int32_t, uintptr_t);
@@ -34,6 +35,7 @@ typedef void (*vFpipu_t)(void*, int32_t, void*, uint32_t);
 	GO(jpeg_start_decompress, iFp_t) \
 	GO(jpeg_std_error, pFp_t) \
 	GO(jpeg_start_compress, vFpi_t) \
+	GO(jpeg_stdio_src, vFpp_t) \
 	GO(jpeg_read_header, iFpi_t) \
 	GO(jpeg_resync_to_restart, iFpi_t) \
 	GO(jpeg_set_quality, vFpii_t) \
