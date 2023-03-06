@@ -1676,25 +1676,53 @@ int getNCpu()
 
 const char* getCpuName()
 {
-    static char name[200] = "Unknown";
+    static char name[200] = "Unknown CPU";
     static int done = 0;
     if(done)
         return name;
     done = 1;
-    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
+    // try to read Processor in /proc/cpuinfo first (probably only usefull on the Pandora)
+    FILE* f = fopen("/proc/cpuinfo", "r");
+    if(f) {
+        ssize_t dummy;
+        size_t len = 500;
+        char* line = malloc(len);
+        while ((dummy = getline(&line, &len, f)) != -(ssize_t)1) {
+            if(!strncmp(line, "Processor\t", strlen("Processor\t"))) {
+                // Maybe that's it?
+                char* p = strstr(line, ":");
+                if(p) {
+                    do { ++p; } while(p[0]==' ');
+                    // check if it's just a number
+                    if (p[0]<'0' || p[0]>'9') {
+                        // got it!
+                        strncpy(name, p, 199);
+                        fclose(f);
+                        free(line);
+                        return name;
+                    }
+                }
+            }
+        }
+        fclose(f);
+    }
+    // nope, so check with lscpu
+    f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
     if(f) {
         char tmp[200] = "";
         ssize_t s = fread(tmp, 1, 200, f);
         pclose(f);
         if(s>0) {
-            // worked!
-            // trim ending
-            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
-                tmp[strlen(tmp)-1] = 0;
-            // incase multiple cpu type are present, there will be multiple lines
-            while(strchr(tmp, '\n'))
-                *strchr(tmp,'\n') = ' ';
-            strncpy(name, tmp, 199);
+            // worked! (unless it's saying "lscpu: command not found" or something like that)
+            if(!strstr(tmp, "lscpu")) {
+                // trim ending
+                while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                    tmp[strlen(tmp)-1] = 0;
+                // incase multiple cpu type are present, there will be multiple lines
+                while(strchr(tmp, '\n'))
+                    *strchr(tmp,'\n') = ' ';
+                strncpy(name, tmp, 199);
+            }
             return name;
         }
     }
