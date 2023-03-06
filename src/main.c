@@ -170,8 +170,9 @@ void my_child_fork()
     }
 }
 
-#ifdef DYNAREC
 int getNCpu();
+const char* getCpuName();
+#ifdef DYNAREC
 void GatherDynarecExtensions()
 {
     if(box86_dynarec==0)    // no need to check if no dynarec
@@ -230,9 +231,7 @@ void GatherDynarecExtensions()
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
 
-    printf_log(LOG_INFO, " PageSize:%zd", box86_pagesize);
-    int ncpu = getNCpu();
-    printf_log(LOG_INFO, " Cores:%d\n", ncpu);
+    printf_log(LOG_INFO, " PageSize:%zd\n", box86_pagesize);
 #endif
 }
 #endif
@@ -615,6 +614,9 @@ void LoadLogEnv()
 #ifdef DYNAREC
     GatherDynarecExtensions();
 #endif
+    int ncpu = getNCpu();
+    const char* cpuname = getCpuName();
+    printf_log(LOG_INFO, "Running on %s with %d Cores\n", cpuname, ncpu);
 }
 
 EXPORTDYN
