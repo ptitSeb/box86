@@ -231,7 +231,7 @@ void GatherDynarecExtensions()
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
 
-    printf_log(LOG_INFO, " PageSize:%zd\n", box86_pagesize);
+    printf_log(LOG_INFO, " PageSize:%zd ", box86_pagesize);
 #endif
 }
 #endif
