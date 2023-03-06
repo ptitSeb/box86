@@ -1691,6 +1691,9 @@ const char* getCpuName()
             // trim ending
             while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
                 tmp[strlen(tmp)-1] = 0;
+            // incase multiple cpu type are present, there will be multiple lines
+            while(strchr(tmp, '\n'))
+                *strchr(tmp,'\n') = ' ';
             strncpy(name, tmp, 199);
             return name;
         }
@@ -1706,6 +1709,9 @@ const char* getCpuName()
             // trim ending
             while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
                 tmp[strlen(tmp)-1] = 0;
+            // incase multiple cpu type are present, there will be multiple lines
+            while(strchr(tmp, '\n'))
+                *strchr(tmp,'\n') = ' ';
             snprintf(name, 199, "unknown %s cpu", tmp);
             return name;
         }
