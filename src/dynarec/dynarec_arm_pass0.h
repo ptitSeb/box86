@@ -34,7 +34,7 @@
 #define INST_EPILOG                             \
         dyn->insts[ninst].f_exit = dyn->f;      \
         dyn->insts[ninst].n = dyn->n;           \
-        dyn->insts[ninst].x86.has_next = ok;
+        dyn->insts[ninst].x86.has_next = (ok>0)?1:0;
 #define INST_NAME(name) 
 #define DEFAULT                         \
         --dyn->size;                    \

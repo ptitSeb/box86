@@ -21,6 +21,7 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 #include "custommem.h"
+#include "elfloader.h"
 
 #ifndef STEP
 #error No STEP defined
@@ -39,9 +40,13 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     // Clean up (because there are multiple passes)
     dyn->f.pending = 0;
     dyn->f.dfnone = 0;
+    dyn->forward = 0;
+    dyn->forward_to = 0;
+    dyn->forward_size = 0;
+    dyn->forward_ninst = 0;
     fpu_reset(dyn);
     int reset_n = -1;
-    // ok, go now
+    int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3    // ok, go now
     INIT;
     while(ok) {
         ip = addr;
@@ -178,13 +183,33 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         #ifndef PROT_READ
         #define PROT_READ 1
         #endif
-        if(!ok && !need_epilog && box86_dynarec_bigblock && (getProtection(addr+3)&PROT_READ))
+        if(dyn->forward) {
+            if(dyn->forward_to == addr) {
+                // we made it!
+                if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block %p -> %p\n", (void*)dyn->forward, (void*)dyn->forward_to);
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
+            } else if ((dyn->forward_to < addr) || !ok) {
+                // something when wrong! rollback
+                if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Could not forward extend block %p -> %p\n", (void*)dyn->forward, (void*)dyn->forward_to);
+                ok = 0;
+                dyn->size = dyn->forward_size;
+                ninst = dyn->forward_ninst;
+                addr = dyn->forward;
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
+            }
+            // else just continue
+        } else  if(!ok && !need_epilog && box86_dynarec_bigblock && (getProtection(addr+3)&PROT_READ))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
                     (((next-addr)<15) && is_nops(dyn, addr, next-addr)) 
-                    && (((box86_dynarec_bigblock<2) && isJumpTableDefault((void*)next)) || (box86_dynarec_bigblock>1))
-                    /*||(((next-addr)<30) && is_instructions(dyn, addr, next-addr))*/ ))
+                    /*&& box86_dynarec_bigblock*/))
                 {
                     ok = 1;
                     // need to find back that instruction to copy the caches, as previous version cannot be used anymore
@@ -195,17 +220,23 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                             ii=ninst;
                         }
                     if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
-                } else if(next && (next-addr)<30) {
-                    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Cannot extend block %p -> %p (%02X %02X %02X %02X %02X %02X %02X %02x)\n", (void*)addr, (void*)next, PK(0), PK(1), PK(2), PK(3), PK(4), PK(5), PK(6), PK(7));
+                } else if(next && (next-addr<box86_dynarec_forward) 
+                && (getProtection(next)&PROT_READ)/*box86_dynarec_bigblock>=forwardblock*/) {
+                    dyn->forward = addr;
+                    dyn->forward_to = next;
+                    dyn->forward_size = dyn->size;
+                    dyn->forward_ninst = ninst;
+                    reset_n = -2;
+                    ok = 1;
                 }
             }
         #endif
         if(ok<0)  {ok = 0; need_epilog=1;}
         ++ninst;
         #if STEP == 0
-        if(ok && (((box86_dynarec_bigblock<2) && !isJumpTableDefault((void*)addr)) 
+        if(ok && (((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)addr)) 
             || (addr>=box86_nodynarec_start && addr<box86_nodynarec_end)
-            || (dyn->size >= 2000)))
+            /*|| (dyn->size >= 2000)*/))    // is this still needed? maybe it should be a parameter?
         #else
         if(ok && (ninst==dyn->size))
         #endif

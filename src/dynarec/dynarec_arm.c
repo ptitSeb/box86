@@ -298,11 +298,14 @@ static void fillPredecessors(dynarec_arm_t* dyn)
     }
     // fill pred
     for(int i=0; i<dyn->size; ++i) {
-        if(i!=dyn->size-1 && dyn->insts[i].x86.has_next && (!i || dyn->insts[i].pred_sz))
+        if((i!=dyn->size-1) && dyn->insts[i].x86.has_next)
             dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
-        if(dyn->insts[i].x86.jmp && dyn->insts[i].x86.jmp_insts!=-1)
-            dyn->insts[dyn->insts[i].x86.jmp_insts].pred[dyn->insts[dyn->insts[i].x86.jmp_insts].pred_sz++] = i;
+        if(dyn->insts[i].x86.jmp && (dyn->insts[i].x86.jmp_insts!=-1)) {
+            int j = dyn->insts[i].x86.jmp_insts;
+            dyn->insts[j].pred[dyn->insts[j].pred_sz++] = i;
+        }
     }
+
 
 }
 

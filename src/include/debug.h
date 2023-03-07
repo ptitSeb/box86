@@ -16,6 +16,7 @@ extern int box86_dynarec_trace;
 extern int box86_dynarec_forced;
 extern int box86_dynarec_largest;
 extern int box86_dynarec_bigblock;
+extern int box86_dynarec_forward;
 extern int box86_dynarec_strongmem;
 extern int box86_dynarec_x87double;
 extern int box86_dynarec_safeflags;

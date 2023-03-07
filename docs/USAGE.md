@@ -133,6 +133,11 @@ Enables/Disables Box86's Dynarec building BigBlock.
  * 1 : Build Dynarec block as big as possible (Default.)
  * 2 : Build Dynarec block bigger (don't stop when block overlaps)
 
+#### BOX86_DYNAREC_FORWARD *
+Define Box86's Dynarec max allowed forward value when building Block.
+ * 0 : No forward value. When current block end, don't try to go further even if there are previous forward jumps
+ * XXX : Allow up to XXXX bytes of gap when building a Block after the block end to next forward jump (Default: 128)
+ 
 #### BOX86_DYNAREC_STRONGMEM *
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)

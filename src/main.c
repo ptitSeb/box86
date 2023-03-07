@@ -57,6 +57,7 @@ int box86_dynarec_dump = 0;
 int box86_dynarec_forced = 0;
 int box86_dynarec_largest = 0;
 int box86_dynarec_bigblock = 1;
+int box86_dynarec_forward = 128;
 int box86_dynarec_strongmem = 0;
 int box86_dynarec_x87double = 0;
 int box86_dynarec_fastnan = 1;
@@ -354,6 +355,18 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Dynarec will not try to make big blocks\n");
         else if (box86_dynarec_bigblock>1)
             printf_log(LOG_INFO, "Dynarec will try to make bigger blocks\n");
+    }
+    p = getenv("BOX86_DYNAREC_FORWARD");
+    if(p) {
+        int val = -1;
+        if(sscanf(p, "%d", &val)==1) {
+            if(val>=0)
+                box86_dynarec_forward = val;
+        }
+        if(box86_dynarec_forward)
+            printf_log(LOG_INFO, "Dynarec will continue block for %d bytes on forward jump\n", box86_dynarec_forward);
+        else
+            printf_log(LOG_INFO, "Dynarec will not continue block on forward jump\n");
     }
     p = getenv("BOX86_DYNAREC_STRONGMEM");
     if(p) {

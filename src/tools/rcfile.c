@@ -74,6 +74,7 @@ ENTRYBOOL(BOX86_DYNAREC, box86_dynarec)                             \
 ENTRYINT(BOX86_DYNAREC_DUMP, box86_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX86_DYNAREC_LOG, box86_dynarec_log, 0, 3, 2)             \
 ENTRYINT(BOX86_DYNAREC_BIGBLOCK, box86_dynarec_bigblock, 0, 3, 2)   \
+ENTRYSTRING_(BOX86_DYNAREC_FORWARD, box86_dynarec_forward)          \
 ENTRYINT(BOX86_DYNAREC_STRONGMEM, box86_dynarec_strongmem, 0, 2, 2) \
 ENTRYBOOL(BOX86_DYNAREC_X87DOUBLE, box86_dynarec_x87double)         \
 ENTRYBOOL(BOX86_DYNAREC_FASTNAN, box86_dynarec_fastnan)             \
@@ -89,6 +90,7 @@ IGNORE(BOX86_DYNAREC)                                               \
 IGNORE(BOX86_DYNAREC_DUMP)                                          \
 IGNORE(BOX86_DYNAREC_LOG)                                           \
 IGNORE(BOX86_DYNAREC_BIGBLOCK)                                      \
+IGNORE(BOX64_DYNAREC_FORWARD)                                       \
 IGNORE(BOX86_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX86_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX86_DYNAREC_FASTNAN)                                       \
@@ -496,6 +498,13 @@ void ApplyParams(const char* name, path_collection_t* preload)
                 box86_nodynarec_end = no_end;
                 printf_log(LOG_INFO, "Appling BOX86_NODYNAREC=%p-%p\n", (void*)box86_nodynarec_start, (void*)box86_nodynarec_end);
             }
+        }
+    }
+    if(param->is_box86_dynarec_forward_present) {
+        int forward = 0;
+        if(sscanf(param->box86_dynarec_forward, "%d", &forward)==1) {
+            box86_dynarec_forward = forward;
+            printf_log(LOG_INFO, "Appling BOX86_DYNAREC_FORWARD=%d\n", box86_dynarec_forward);
         }
     }
     if(!olddynarec && box86_dynarec)
