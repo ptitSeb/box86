@@ -94,27 +94,21 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     if(!bridge) return 0;
     brick_t *b = NULL;
     int sz = -1;
-    #ifdef DYNAREC
-    int prot = 0;
-    do {
-        #endif
-        mutex_lock(&my_context->mutex_bridge);
-        b = bridge->last;
-        if(b->sz == NBRICK) {
-            b->next = NewBrick(b->b);
-            b = b->next;
-            bridge->last = b;
-        }
-        sz = b->sz;
-        #ifdef DYNAREC
-        mutex_unlock(&my_context->mutex_bridge);
-        if(box86_dynarec) {
-            prot=(getProtection((uintptr_t)&b->b[sz])&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
-            if(prot)
-                unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);    // don't mark blocks, it's only new one
-        }
-    } while(sz!=b->sz); // this while loop if someone took the slot when the bridge mutex was unlocked doing memory protection managment
     mutex_lock(&my_context->mutex_bridge);
+    b = bridge->last;
+    if(b->sz == NBRICK) {
+        b->next = NewBrick(b->b);
+        b = b->next;
+        bridge->last = b;
+    }
+    sz = b->sz;
+    #ifdef DYNAREC
+    if(box86_dynarec) {
+        int prot = 0;
+        prot=(getProtection((uintptr_t)&b->b[sz])&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
+        if(prot)
+            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);    // don't mark blocks, it's only new one
+    }
     #endif
     b->sz++;
     b->b[sz].CC = 0xCC;
@@ -127,11 +121,11 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     int ret;
     khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
-    mutex_unlock(&my_context->mutex_bridge);
 #ifdef DYNAREC
     if(box86_dynarec)
         protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
 #endif
+    mutex_unlock(&my_context->mutex_bridge);
 #ifdef HAVE_TRACE
     if(name)
         addBridgeName(fnc, name);
