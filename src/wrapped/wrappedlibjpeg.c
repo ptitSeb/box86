@@ -60,8 +60,22 @@ typedef struct jpeg_common_struct_s {
   int global_state;
 } jpeg_common_struct_t;
 
-static struct __jmp_buf_tag jmpbuf;
-static int                  is_jmpbuf;
+typedef struct jmpbuf_helper {
+    struct __jmp_buf_tag jmpbuf;
+    void* client_data;
+}jmpbuf_helper;
+
+#define RunFunctionWithEmu_helper(...) \
+    jmpbuf_helper* helper = (jmpbuf_helper*)((jpeg_common_struct_t*)cinfo)->client_data; \
+    ((jpeg_common_struct_t*)cinfo)->client_data = helper->client_data; \
+    uint32_t ret = RunFunctionWithEmu(__VA_ARGS__); \
+    ((jpeg_common_struct_t*)cinfo)->client_data = helper;
+
+#define RunFunction_helper(...) \
+    jmpbuf_helper* helper = ((jpeg_common_struct_t*)cinfo)->client_data; \
+    ((jpeg_common_struct_t*)cinfo)->client_data = helper->client_data; \
+    uint32_t ret = RunFunction(__VA_ARGS__); \
+    ((jpeg_common_struct_t*)cinfo)->client_data = helper;
 
 static jpeg_error_mgr_t native_err_mgr;
 
@@ -115,19 +129,18 @@ GO(1)   \
 GO(2)   \
 GO(3)
 
-static x86emu_t* my_jpegcb_emu = NULL;\
 // error_exit
 #define GO(A)   \
 static uintptr_t my_error_exit_fct_##A = 0;   \
 static void my_error_exit_##A(jpeg_common_struct_t* cinfo)      \
 {                                       \
-    uintptr_t oldip = my_jpegcb_emu->ip.dword[0];               \
+    uintptr_t oldip = thread_get_emu()->ip.dword[0];               \
     wrapErrorMgr(my_bridge, cinfo->err);                        \
-    RunFunctionWithEmu(my_jpegcb_emu, 1, my_error_exit_fct_##A, 1, cinfo);   \
-    if(oldip==my_jpegcb_emu->ip.dword[0])                       \
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_error_exit_fct_##A, 1, cinfo);   \
+    if(oldip==thread_get_emu()->ip.dword[0])                       \
         unwrapErrorMgr(my_bridge, cinfo->err);                  \
     else                                                        \
-        if(is_jmpbuf) longjmp(&jmpbuf, 1);                     \
+        longjmp(cinfo->client_data, 1);                     \
 }
 SUPER()
 #undef GO
@@ -158,7 +171,7 @@ static void* is_error_exitFct(void* fct)
 static uintptr_t my_emit_message_fct_##A = 0;   \
 static void my_emit_message_##A(void* cinfo, int msg_level)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
 }
 SUPER()
 #undef GO
@@ -189,7 +202,7 @@ static void* is_emit_messageFct(void* fct)
 static uintptr_t my_output_message_fct_##A = 0;   \
 static void my_output_message_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, 1, my_output_message_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_output_message_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -220,7 +233,7 @@ static void* is_output_messageFct(void* fct)
 static uintptr_t my_format_message_fct_##A = 0;   \
 static void my_format_message_##A(void* cinfo, char* buffer)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, 1, my_format_message_fct_##A, 2, cinfo, buffer);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_format_message_fct_##A, 2, cinfo, buffer);\
 }
 SUPER()
 #undef GO
@@ -251,7 +264,7 @@ static void* is_format_messageFct(void* fct)
 static uintptr_t my_reset_error_mgr_fct_##A = 0;   \
 static void my_reset_error_mgr_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my_jpegcb_emu, 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -282,7 +295,8 @@ static void* is_reset_error_mgrFct(void* fct)
 static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
 static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
 {                                       \
-    return (int)RunFunction(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    return (int)ret; \
 }
 SUPER()
 #undef GO
@@ -363,16 +377,17 @@ EXPORT void* my_jpeg_std_error(x86emu_t* emu, void* errmgr)
 }
 
 #define WRAP(T, A)          \
-    is_jmpbuf = 1;          \
-    my_jpegcb_emu = emu;    \
+    jmpbuf_helper helper;   \
     unwrapErrorMgr(my_lib->w.bridge, cinfo->err);  \
-    if(setjmp(&jmpbuf)) {   \
+    if(setjmp(&helper.jmpbuf)) {   \
+        cinfo->client_data = helper.client_data; \
         wrapErrorMgr(my_lib->w.bridge, cinfo->err);\
-        is_jmpbuf = 0;      \
         return (T)R_EAX;    \
     }                       \
+    helper.client_data = cinfo->client_data; \
+    cinfo->client_data = &helper;   \
     A;                      \
-    is_jmpbuf = 0;          \
+    cinfo->client_data = helper.client_data; \
     wrapErrorMgr(my_lib->w.bridge, cinfo->err)
 
 
