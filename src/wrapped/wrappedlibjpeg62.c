@@ -122,6 +122,23 @@ typedef struct jpeg62_destination_mgr_s {
   void (*term_destination) (void* cinfo);
 } jpeg62_destination_mgr_t;
 
+typedef struct jmpbuf_helper {
+    struct __jmp_buf_tag jmpbuf;
+    void* client_data;
+}jmpbuf_helper;
+
+#define RunFunctionWithEmu_helper(...) \
+    jmpbuf_helper* helper = (jmpbuf_helper*)((jpeg62_common_struct_t*)cinfo)->client_data; \
+    ((jpeg62_common_struct_t*)cinfo)->client_data = helper->client_data; \
+    uint32_t ret = RunFunctionWithEmu(__VA_ARGS__); \
+    ((jpeg62_common_struct_t*)cinfo)->client_data = helper;
+
+#define RunFunction_helper(...) \
+    jmpbuf_helper* helper = ((jpeg62_common_struct_t*)cinfo)->client_data; \
+    ((jpeg62_common_struct_t*)cinfo)->client_data = helper->client_data; \
+    uint32_t ret = RunFunction(__VA_ARGS__); \
+    ((jpeg62_common_struct_t*)cinfo)->client_data = helper;
+
 #define COMPRESS_STRUCT                 \
   GOM(jpeg62_error_mgr_t*, err)         \
   GOM(jpeg62_memory_mgr_t*, mem)        \
@@ -213,9 +230,7 @@ typedef struct i386_compress_ptr_s
 #undef GOM
 #undef GO2
 #undef GO
-
-static struct __jmp_buf_tag jmpbuf;
-static int                  is_jmpbuf;
+#undef COMPRESS_STRUCT
 
 static jpeg62_error_mgr_t native_err_mgr;
 
@@ -264,10 +279,8 @@ static void wrapErrorMgr(jpeg62_error_mgr_t* mgr);
 static void unwrapErrorMgr(jpeg62_error_mgr_t* mgr);
 static void wrapMemoryMgr(jpeg62_memory_mgr_t* mgr);
 static void unwrapMemoryMgr(jpeg62_memory_mgr_t* mgr);
-static void wrapCommonStruct(jpeg62_common_struct_t* s, int type);
-static void unwrapCommonStruct(jpeg62_common_struct_t* s, int type);
-static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s);
-static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s);
+static void wrapCommonStruct(void* s, int type);
+static void unwrapCommonStruct(void* s, int type);
 
 #define SUPER() \
 GO(0)   \
@@ -275,19 +288,18 @@ GO(1)   \
 GO(2)   \
 GO(3)
 
-static x86emu_t* my62_jpegcb_emu = NULL;\
 // error_exit
 #define GO(A)   \
-static uintptr_t my_error_exit_fct_##A = 0;   \
+static uintptr_t my_error_exit_fct_##A = 0;                         \
 static void my_error_exit_##A(jpeg62_common_struct_t* cinfo)        \
 {                                                                   \
-    uintptr_t oldip = my62_jpegcb_emu->ip.dword[0];                 \
+    uintptr_t oldip = thread_get_emu()->ip.dword[0];                \
     wrapCommonStruct(cinfo, 0);                                     \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_error_exit_fct_##A, 1, cinfo);   \
-    if(oldip==my62_jpegcb_emu->ip.dword[0])                         \
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_error_exit_fct_##A, 1, cinfo);   \
+    if(oldip==thread_get_emu()->ip.dword[0])                        \
         unwrapCommonStruct(cinfo, 0);                               \
     else                                                            \
-        if(is_jmpbuf) longjmp(&jmpbuf, 1);                          \
+        longjmp(cinfo->client_data, 1);                             \
 }
 SUPER()
 #undef GO
@@ -320,7 +332,7 @@ static void* reverse_error_exitFct(void* fct)
 static uintptr_t my_emit_message_fct_##A = 0;   \
 static void my_emit_message_##A(void* cinfo, int msg_level)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
 }
 SUPER()
 #undef GO
@@ -353,7 +365,7 @@ static void* reverse_emit_messageFct(void* fct)
 static uintptr_t my_output_message_fct_##A = 0;   \
 static void my_output_message_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_output_message_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_output_message_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -386,7 +398,7 @@ static void* reverse_output_messageFct(void* fct)
 static uintptr_t my_format_message_fct_##A = 0;   \
 static void my_format_message_##A(void* cinfo, char* buffer)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_format_message_fct_##A, 2, cinfo, buffer);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_format_message_fct_##A, 2, cinfo, buffer);\
 }
 SUPER()
 #undef GO
@@ -419,7 +431,7 @@ static void* reverse_format_messageFct(void* fct)
 static uintptr_t my_reset_error_mgr_fct_##A = 0;   \
 static void my_reset_error_mgr_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu_helper(thread_get_emu(), 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -452,7 +464,8 @@ static void* reverse_reset_error_mgrFct(void* fct)
 static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
 static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
 {                                       \
-    return (int)RunFunction(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    return (int)ret; \
 }
 SUPER()
 #undef GO
@@ -485,7 +498,8 @@ static void* findjpeg_marker_parser_methodFct(void* fct)
 static uintptr_t my_alloc_small_fct_##A = 0;   \
 static void* my_alloc_small_##A(void* cinfo, int pool_id, size_t sizeofobject)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_alloc_small_fct_##A, 3, cinfo, pool_id, sizeofobject);\
+    RunFunction_helper(my_context, my_alloc_small_fct_##A, 3, cinfo, pool_id, sizeofobject);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -518,7 +532,8 @@ static void* reverse_alloc_smallFct(void* fct)
 static uintptr_t my_alloc_large_fct_##A = 0;   \
 static void* my_alloc_large_##A(void* cinfo, int pool_id, size_t sizeofobject)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_alloc_large_fct_##A, 3, cinfo, pool_id, sizeofobject);\
+    RunFunction_helper(my_context, my_alloc_large_fct_##A, 3, cinfo, pool_id, sizeofobject);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -551,7 +566,8 @@ static void* reverse_alloc_largeFct(void* fct)
 static uintptr_t my_alloc_sarray_fct_##A = 0;   \
 static void* my_alloc_sarray_##A(void* cinfo, int pool_id, uint32_t samplesperrow, uint32_t numrows)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_alloc_sarray_fct_##A, 4, cinfo, pool_id, samplesperrow, numrows);\
+    RunFunction_helper(my_context, my_alloc_sarray_fct_##A, 4, cinfo, pool_id, samplesperrow, numrows);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -584,7 +600,8 @@ static void* reverse_alloc_sarrayFct(void* fct)
 static uintptr_t my_alloc_barray_fct_##A = 0;   \
 static void* my_alloc_barray_##A(void* cinfo, int pool_id, uint32_t samplesperrow, uint32_t numrows)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_alloc_barray_fct_##A, 4, cinfo, pool_id, samplesperrow, numrows);\
+    RunFunction_helper(my_context, my_alloc_barray_fct_##A, 4, cinfo, pool_id, samplesperrow, numrows);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -617,7 +634,8 @@ static void* reverse_alloc_barrayFct(void* fct)
 static uintptr_t my_request_virt_sarray_fct_##A = 0;   \
 static void* my_request_virt_sarray_##A(void* cinfo, int pool_id, int pre_zero, uint32_t samplesperrow,uint32_t numrows, uint32_t maxaccess)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_request_virt_sarray_fct_##A, 6, cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
+    RunFunction_helper(my_context, my_request_virt_sarray_fct_##A, 6, cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -650,7 +668,8 @@ static void* reverse_request_virt_sarrayFct(void* fct)
 static uintptr_t my_request_virt_barray_fct_##A = 0;   \
 static void* my_request_virt_barray_##A(void* cinfo, int pool_id, int pre_zero, uint32_t samplesperrow,uint32_t numrows, uint32_t maxaccess)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_request_virt_barray_fct_##A, 6, cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
+    RunFunction_helper(my_context, my_request_virt_barray_fct_##A, 6, cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -683,7 +702,7 @@ static void* reverse_request_virt_barrayFct(void* fct)
 static uintptr_t my_realize_virt_arrays_fct_##A = 0;   \
 static void my_realize_virt_arrays_##A(void* cinfo)    \
 {                                       \
-    RunFunction(my_context, my_realize_virt_arrays_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_realize_virt_arrays_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -716,7 +735,8 @@ static void* reverse_realize_virt_arraysFct(void* fct)
 static uintptr_t my_access_virt_sarray_fct_##A = 0;   \
 static void* my_access_virt_sarray_##A(void* cinfo, void* ptr, uint32_t start_row, uint32_t num_rows, int writable)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_access_virt_sarray_fct_##A, 5, cinfo, ptr, start_row, num_rows, writable);\
+    RunFunction_helper(my_context, my_access_virt_sarray_fct_##A, 5, cinfo, ptr, start_row, num_rows, writable);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -749,7 +769,8 @@ static void* reverse_access_virt_sarrayFct(void* fct)
 static uintptr_t my_access_virt_barray_fct_##A = 0;   \
 static void* my_access_virt_barray_##A(void* cinfo, void* ptr, uint32_t start_row, uint32_t num_rows, int writable)    \
 {                                       \
-    return (void*)RunFunction(my_context, my_access_virt_barray_fct_##A, 5, cinfo, ptr, start_row, num_rows, writable);\
+    RunFunction_helper(my_context, my_access_virt_barray_fct_##A, 5, cinfo, ptr, start_row, num_rows, writable);\
+    return (void*)ret; \
 }
 SUPER()
 #undef GO
@@ -782,7 +803,7 @@ static void* reverse_access_virt_barrayFct(void* fct)
 static uintptr_t my_free_pool_fct_##A = 0;   \
 static void my_free_pool_##A(void* cinfo, int pool_id)    \
 {                                       \
-    RunFunction(my_context, my_free_pool_fct_##A, 2, cinfo, pool_id);\
+    RunFunction_helper(my_context, my_free_pool_fct_##A, 2, cinfo, pool_id);\
 }
 SUPER()
 #undef GO
@@ -815,7 +836,7 @@ static void* reverse_free_poolFct(void* fct)
 static uintptr_t my_self_destruct_fct_##A = 0;   \
 static void my_self_destruct_##A(void* cinfo)    \
 {                                       \
-    RunFunction(my_context, my_self_destruct_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_self_destruct_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -848,7 +869,7 @@ static void* reverse_self_destructFct(void* fct)
 static uintptr_t my_init_source_fct_##A = 0;   \
 static void my_init_source_##A(void* cinfo)    \
 {                                       \
-    RunFunction(my_context, my_init_source_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_init_source_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -881,7 +902,8 @@ static void* reverse_init_sourceFct(void* fct)
 static uintptr_t my_fill_input_buffer_fct_##A = 0;   \
 static int my_fill_input_buffer_##A(void* cinfo)    \
 {                                       \
-    return (int)RunFunction(my_context, my_fill_input_buffer_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_fill_input_buffer_fct_##A, 1, cinfo);\
+    return (int)ret; \
 }
 SUPER()
 #undef GO
@@ -914,7 +936,7 @@ static void* reverse_fill_input_bufferFct(void* fct)
 static uintptr_t my_skip_input_data_fct_##A = 0;   \
 static void my_skip_input_data_##A(void* cinfo, long num_bytes)    \
 {                                       \
-    RunFunction(my_context, my_skip_input_data_fct_##A, 2, cinfo, num_bytes);\
+    RunFunction_helper(my_context, my_skip_input_data_fct_##A, 2, cinfo, num_bytes);\
 }
 SUPER()
 #undef GO
@@ -947,7 +969,8 @@ static void* reverse_skip_input_dataFct(void* fct)
 static uintptr_t my_resync_to_restart_fct_##A = 0;   \
 static int my_resync_to_restart_##A(void* cinfo, int desired)    \
 {                                       \
-    return (int)RunFunction(my_context, my_resync_to_restart_fct_##A, 2, cinfo, desired);\
+    RunFunction_helper(my_context, my_resync_to_restart_fct_##A, 2, cinfo, desired);\
+    return (int)ret; \
 }
 SUPER()
 #undef GO
@@ -980,7 +1003,7 @@ static void* reverse_resync_to_restartFct(void* fct)
 static uintptr_t my_term_source_fct_##A = 0;   \
 static void my_term_source_##A(void* cinfo)    \
 {                                       \
-    RunFunction(my_context, my_term_source_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_term_source_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -1013,10 +1036,9 @@ static void* reverse_term_sourceFct(void* fct)
 static uintptr_t my_init_destination_fct_##A = 0;                           \
 static void my_init_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    i386_compress_ptr_t* tmp = (i386_compress_ptr_t*)cinfo->client_data;    \
-    wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction(my_context, my_init_destination_fct_##A, 1, tmp);           \
-    unwrapCompressStruct(cinfo, tmp);                                       \
+    wrapCommonStruct((jpeg62_common_struct_t*)cinfo, 1);                                         \
+    RunFunction_helper(my_context, my_init_destination_fct_##A, 1, cinfo);    \
+    unwrapCommonStruct((jpeg62_common_struct_t*)cinfo, 1);                                       \
 }
 SUPER()
 #undef GO
@@ -1048,10 +1070,9 @@ static void* reverse_init_destinationFct(void* fct)
 static uintptr_t my_empty_output_buffer_fct_##A = 0;   \
 static void my_empty_output_buffer_##A(j62_compress_ptr_t* cinfo)           \
 {                                                                           \
-    i386_compress_ptr_t* tmp = (i386_compress_ptr_t*)cinfo->client_data;    \
-    wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction(my_context, my_empty_output_buffer_fct_##A, 1, tmp);        \
-    unwrapCompressStruct(cinfo, tmp);                                       \
+    wrapCommonStruct(cinfo, 1);                                         \
+    RunFunction_helper(my_context, my_empty_output_buffer_fct_##A, 1, cinfo); \
+    unwrapCommonStruct(cinfo, 1);                                       \
 }
 SUPER()
 #undef GO
@@ -1083,10 +1104,9 @@ static void* reverse_empty_output_bufferFct(void* fct)
 static uintptr_t my_term_destination_fct_##A = 0;   \
 static void my_term_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    i386_compress_ptr_t* tmp = (i386_compress_ptr_t*)cinfo->client_data;    \
-    wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction(my_context, my_term_destination_fct_##A, 1, tmp);           \
-    unwrapCompressStruct(cinfo, tmp);                                       \
+    wrapCommonStruct(cinfo, 1);                                         \
+    RunFunction_helper(my_context, my_term_destination_fct_##A, 1, cinfo);    \
+    unwrapCommonStruct(cinfo, 1);                                       \
 }
 SUPER()
 #undef GO
@@ -1241,49 +1261,20 @@ static void unwrapDestinationMgr(jpeg62_destination_mgr_t* mgr)
 }
 #undef SUPER
 
-static void wrapCommonStruct(jpeg62_common_struct_t* s, int type)
+static void wrapCommonStruct(void* s, int type)
 {
-    wrapErrorMgr(s->err);
-    wrapMemoryMgr(s->mem);
+    wrapErrorMgr(((jpeg62_common_struct_t*)s)->err);
+    wrapMemoryMgr(((jpeg62_common_struct_t*)s)->mem);
     if(type==1)
         wrapSourceMgr(((j62_decompress_ptr_t*)s)->src);
 }
-static void unwrapCommonStruct(jpeg62_common_struct_t* s, int type)
+static void unwrapCommonStruct(void* s, int type)
 {
-    unwrapErrorMgr(s->err);
-    unwrapMemoryMgr(s->mem);
+    unwrapErrorMgr(((jpeg62_common_struct_t*)s)->err);
+    unwrapMemoryMgr(((jpeg62_common_struct_t*)s)->mem);
     if(type==1)
         unwrapSourceMgr(((j62_decompress_ptr_t*)s)->src);
 }
-
-static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s)
-{
-    i386_compress_ptr_t* orig = (i386_compress_ptr_t*)s->client_data;
-    #define GO(A, B)        d->B = s->B;
-    #define GO2(A, B, c, D) memcpy(&d->B, &s->B, sizeof(A));
-    #define GOM(A, B)       d->B = s->B;
-    #define GOA(A, B, C)    memcpy(d->B, s->B, C*sizeof(A));
-    COMPRESS_STRUCT
-    wrapErrorMgr(s->err);
-    wrapMemoryMgr(s->mem);
-    wrapDestinationMgr(s->dest);
-    if(orig)
-        s->client_data = orig->client_data; // restore original client_data
-}
-static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s)
-{
-    COMPRESS_STRUCT
-    #undef GOA
-    #undef GOM
-    #undef GO2
-    #undef GO
-    unwrapErrorMgr(s->err);
-    unwrapMemoryMgr(s->mem);
-    unwrapDestinationMgr(s->dest);
-    d->client_data = (void*)s;  // save orignal pointer
-}
-#undef COMPRESS_STRUCT
-
 
 EXPORT int my62_jpeg_simd_cpu_support()
 {
@@ -1307,46 +1298,48 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
     return ret;
 }
 
-#define WRAP(R, A, T)               \
-    is_jmpbuf = 1;                  \
-    my62_jpegcb_emu = emu;          \
-    unwrapCommonStruct(cinfo, T);   \
-    if(setjmp(&jmpbuf)) {           \
-        wrapCommonStruct(cinfo, T); \
-        is_jmpbuf = 0;              \
-        return (R)R_EAX;            \
-    }                               \
-    A;                              \
-    is_jmpbuf = 0;                  \
+#define WRAP(R, A, T)                               \
+    jmpbuf_helper helper;                           \
+    unwrapCommonStruct(cinfo, T);                   \
+    if(setjmp(&helper.jmpbuf)) {                    \
+        cinfo->client_data = helper.client_data;    \
+        wrapCommonStruct(cinfo, T);                 \
+        return (R)R_EAX;                            \
+    }                                               \
+    helper.client_data = cinfo->client_data;        \
+    cinfo->client_data = &helper;                   \
+    A;                                              \
+    cinfo->client_data = helper.client_data;        \
     wrapCommonStruct(cinfo, T)
 
 #define WRAPC(R, A)                                     \
-    is_jmpbuf = 1;                                      \
-    my62_jpegcb_emu = emu;                              \
-    j62_compress_ptr_t  tmp;                            \
-    unwrapCompressStruct(&tmp, cinfo);                  \
-    if(setjmp(&jmpbuf)) {                               \
-        wrapCompressStruct(cinfo, &tmp);                \
-        is_jmpbuf = 0;                                  \
+    jmpbuf_helper helper;                               \
+    unwrapCommonStruct(cinfo, 1);                       \
+    if(setjmp(&helper.jmpbuf)) {                        \
+        cinfo->client_data = helper.client_data;        \
+        wrapCommonStruct(cinfo, 1);                     \
         return (R)R_EAX;                                \
     }                                                   \
+    helper.client_data = cinfo->client_data;            \
+    cinfo->client_data = &helper;                       \
     A;                                                  \
-    is_jmpbuf = 0;                                      \
-    wrapCompressStruct(cinfo, &tmp)                     \
+    cinfo->client_data = helper.client_data;            \
+    unwrapCommonStruct(cinfo, 1)
 
 EXPORT void my62_jpeg_CreateDecompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int version, unsigned long structsize)
 {
     // Not using WRAP macro because only err field might be initialized here
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
     unwrapErrorMgr(cinfo->err);
-    if(setjmp(&jmpbuf)) {
+    jmpbuf_helper helper;
+    if(setjmp(&helper.jmpbuf)) {
+        cinfo->client_data = helper.client_data;
         wrapErrorMgr(cinfo->err);
-        is_jmpbuf = 0;
         return;
     }
+    helper.client_data = cinfo->client_data;
+    cinfo->client_data = &helper;
     my->jpeg_CreateDecompress(cinfo, version, structsize);
-    is_jmpbuf = 0;
+    cinfo->client_data = helper.client_data;
     wrapCommonStruct(cinfo, 1);
 }
 
@@ -1386,97 +1379,96 @@ EXPORT void my62_jpeg_stdio_src(x86emu_t* emu, jpeg62_common_struct_t* cinfo, vo
 EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
     int unwrapped = 0;
-    if(setjmp(&jmpbuf)) {
+    jmpbuf_helper helper;
+    if(setjmp(&helper.jmpbuf)) {
+        cinfo->client_data = helper.client_data;
         if(unwrapped)
             wrapCommonStruct(cinfo, 1); // error, so re-wrap
-        is_jmpbuf = 0;
         return;
     }
     unwrapCommonStruct(cinfo, 1);
     unwrapped = 1;
+    helper.client_data = cinfo->client_data;
+    cinfo->client_data = &helper;
     my->jpeg_destroy_decompress(cinfo);
-    is_jmpbuf = 0;
+    cinfo->client_data = helper.client_data;
 }
 
 EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int version, unsigned long structsize)
 {
-    // Not using WRAPC macro because only err field might be initialized here
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
-    j62_compress_ptr_t tmp = {0};
-    tmp.err = cinfo->err;
-    unwrapErrorMgr(tmp.err);
-    if(setjmp(&jmpbuf)) {
-        is_jmpbuf = 0;
+    jmpbuf_helper helper;
+    unwrapErrorMgr(cinfo->err);
+    if(setjmp(&helper.jmpbuf)) {
+        cinfo->client_data = helper.client_data;
         return;
     }
     if(structsize!=sizeof(i386_compress_ptr_t)) {
         printf_log(LOG_NONE, "Warning, invalid jpeg62 structuresize for compress (%lu/%u)", structsize, sizeof(i386_compress_ptr_t));
     }
-    my->jpeg_CreateCompress(&tmp, version, sizeof(tmp));
-    is_jmpbuf = 0;
-    wrapCompressStruct(cinfo, &tmp);
+    helper.client_data = cinfo->client_data;
+    cinfo->client_data = &helper;
+    my->jpeg_CreateCompress(cinfo, version, sizeof(*cinfo));
+    cinfo->client_data = helper.client_data;
+    wrapCommonStruct(cinfo, 1);
 }
 
 EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
-    j62_compress_ptr_t tmp;
-    unwrapCompressStruct(&tmp, cinfo);
-    if(setjmp(&jmpbuf)) {
-        wrapCompressStruct(cinfo, &tmp); // error, so re-wrap
-        is_jmpbuf = 0;
+    jmpbuf_helper helper;
+    unwrapCommonStruct( cinfo, 1);
+    if(setjmp(&helper.jmpbuf)) {
+        cinfo->client_data = helper.client_data;
+        wrapCommonStruct(cinfo, 1); // error, so re-wrap
         return;
     }
-    my->jpeg_destroy_compress(&tmp);
-    is_jmpbuf = 0;
+    helper.client_data = cinfo->client_data;
+    cinfo->client_data = &helper;
+    my->jpeg_destroy_compress(cinfo);
+    cinfo->client_data = helper.client_data;
 }
 
 EXPORT void my62_jpeg_finish_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
-    WRAPC(void, my->jpeg_finish_compress(&tmp));
+    WRAPC(void, my->jpeg_finish_compress(cinfo));
 }
 
 EXPORT int my62_jpeg_resync_to_restart(x86emu_t* emu, i386_compress_ptr_t* cinfo, int desired)
 {
-    WRAPC(int, int ret = my->jpeg_resync_to_restart(&tmp, desired));
+    WRAPC(int, int ret = my->jpeg_resync_to_restart(cinfo, desired));
     return ret;
 }
 
 EXPORT void my62_jpeg_set_defaults(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
-    WRAPC(void, my->jpeg_set_defaults(&tmp));
+    WRAPC(void, my->jpeg_set_defaults(cinfo));
 }
 
 EXPORT void my62_jpeg_start_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int b)
 {
-    WRAPC(void, my->jpeg_start_compress(&tmp, b));
+    WRAPC(void, my->jpeg_start_compress(cinfo, b));
 }
 
 EXPORT uint32_t my62_jpeg_write_scanlines(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* scanlines, uint32_t maxlines)
 {
-    WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(&tmp, scanlines, maxlines));
+    WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(cinfo, scanlines, maxlines));
     return ret;
 }
 
 EXPORT void my62_jpeg_set_quality(x86emu_t* emu, i386_compress_ptr_t* cinfo, int quality, int force)
 {
-    WRAPC(void, my->jpeg_set_quality(&tmp, quality, force));
+    WRAPC(void, my->jpeg_set_quality(cinfo, quality, force));
 }
 
 EXPORT void my62_jpeg_mem_dest(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* a, void* b)
 {
-    WRAPC(void, my->jpeg_mem_dest(&tmp, a, b));
+    WRAPC(void, my->jpeg_mem_dest(cinfo, a, b));
 }
 
 EXPORT void my62_jpeg_write_marker(x86emu_t* emu, i386_compress_ptr_t* cinfo, int a, void* b, uint32_t c)
 {
-    WRAPC(void, my->jpeg_write_marker(&tmp, a, b, c));
+    WRAPC(void, my->jpeg_write_marker(cinfo, a, b, c));
 }
 
 #undef WRAP
