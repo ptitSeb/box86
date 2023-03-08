@@ -214,10 +214,12 @@ typedef struct i386_compress_ptr_s
 #undef GO2
 #undef GO
 
-static struct __jmp_buf_tag jmpbuf;
-static int                  is_jmpbuf;
-
 static jpeg62_error_mgr_t native_err_mgr;
+
+typedef struct jmpbuf_helper {
+    struct __jmp_buf_tag jmpbuf;
+    void* client_data;
+}jmpbuf_helper;
 
 #define SUPER()         \
     jpeg62_common_struct_t temp_cinfo = *cinfo; \
@@ -275,19 +277,18 @@ GO(1)   \
 GO(2)   \
 GO(3)
 
-static x86emu_t* my62_jpegcb_emu = NULL;\
 // error_exit
 #define GO(A)   \
-static uintptr_t my_error_exit_fct_##A = 0;   \
+static uintptr_t my_error_exit_fct_##A = 0;                         \
 static void my_error_exit_##A(jpeg62_common_struct_t* cinfo)        \
 {                                                                   \
-    uintptr_t oldip = my62_jpegcb_emu->ip.dword[0];                 \
+    uintptr_t oldip = thread_get_emu()->ip.dword[0];                \
     wrapCommonStruct(cinfo, 0);                                     \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_error_exit_fct_##A, 1, cinfo);   \
-    if(oldip==my62_jpegcb_emu->ip.dword[0])                         \
+    RunFunctionWithEmu(thread_get_emu(), 1, my_error_exit_fct_##A, 1, cinfo);   \
+    if(oldip==thread_get_emu()->ip.dword[0])                        \
         unwrapCommonStruct(cinfo, 0);                               \
     else                                                            \
-        if(is_jmpbuf) longjmp(&jmpbuf, 1);                          \
+        longjmp(cinfo->client_data, 1);                             \
 }
 SUPER()
 #undef GO
@@ -320,7 +321,7 @@ static void* reverse_error_exitFct(void* fct)
 static uintptr_t my_emit_message_fct_##A = 0;   \
 static void my_emit_message_##A(void* cinfo, int msg_level)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
+    RunFunctionWithEmu(thread_get_emu(), 1, my_emit_message_fct_##A, 2, cinfo, msg_level);\
 }
 SUPER()
 #undef GO
@@ -353,7 +354,7 @@ static void* reverse_emit_messageFct(void* fct)
 static uintptr_t my_output_message_fct_##A = 0;   \
 static void my_output_message_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_output_message_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu(thread_get_emu(), 1, my_output_message_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -386,7 +387,7 @@ static void* reverse_output_messageFct(void* fct)
 static uintptr_t my_format_message_fct_##A = 0;   \
 static void my_format_message_##A(void* cinfo, char* buffer)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_format_message_fct_##A, 2, cinfo, buffer);\
+    RunFunctionWithEmu(thread_get_emu(), 1, my_format_message_fct_##A, 2, cinfo, buffer);\
 }
 SUPER()
 #undef GO
@@ -419,7 +420,7 @@ static void* reverse_format_messageFct(void* fct)
 static uintptr_t my_reset_error_mgr_fct_##A = 0;   \
 static void my_reset_error_mgr_##A(void* cinfo)     \
 {                                       \
-    RunFunctionWithEmu(my62_jpegcb_emu, 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
+    RunFunctionWithEmu(thread_get_emu(), 1, my_reset_error_mgr_fct_##A, 1, cinfo);\
 }
 SUPER()
 #undef GO
@@ -1307,46 +1308,49 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
     return ret;
 }
 
-#define WRAP(R, A, T)               \
-    is_jmpbuf = 1;                  \
-    my62_jpegcb_emu = emu;          \
-    unwrapCommonStruct(cinfo, T);   \
-    if(setjmp(&jmpbuf)) {           \
-        wrapCommonStruct(cinfo, T); \
-        is_jmpbuf = 0;              \
-        return (R)R_EAX;            \
-    }                               \
-    A;                              \
-    is_jmpbuf = 0;                  \
+#define WRAP(R, A, T)                               \
+    jmpbuf_helper helper;                           \
+    unwrapCommonStruct(cinfo, T);                   \
+    if(setjmp(&helper.jmpbuf)) {                    \
+        cinfo->client_data = helper.client_data;    \
+        wrapCommonStruct(cinfo, T);                 \
+        return (R)R_EAX;                            \
+    }                                               \
+    helper.client_data = cinfo->client_data;        \
+    cinfo->client_data = &helper;                   \
+    A;                                              \
+    cinfo->client_data = helper.client_data;        \
     wrapCommonStruct(cinfo, T)
 
 #define WRAPC(R, A)                                     \
-    is_jmpbuf = 1;                                      \
-    my62_jpegcb_emu = emu;                              \
     j62_compress_ptr_t  tmp;                            \
+    jmpbuf_helper helper;                               \
     unwrapCompressStruct(&tmp, cinfo);                  \
-    if(setjmp(&jmpbuf)) {                               \
+    if(setjmp(&helper.jmpbuf)) {                        \
+        cinfo->client_data = helper.client_data;        \
         wrapCompressStruct(cinfo, &tmp);                \
-        is_jmpbuf = 0;                                  \
         return (R)R_EAX;                                \
     }                                                   \
+    helper.client_data = cinfo->client_data;            \
+    cinfo->client_data = &helper;                       \
     A;                                                  \
-    is_jmpbuf = 0;                                      \
-    wrapCompressStruct(cinfo, &tmp)                     \
+    cinfo->client_data = helper.client_data;            \
+    wrapCompressStruct(cinfo, &tmp)
 
 EXPORT void my62_jpeg_CreateDecompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int version, unsigned long structsize)
 {
     // Not using WRAP macro because only err field might be initialized here
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
     unwrapErrorMgr(cinfo->err);
-    if(setjmp(&jmpbuf)) {
+    jmpbuf_helper helper;
+    if(setjmp(&helper.jmpbuf)) {
+        cinfo->client_data = helper.client_data;
         wrapErrorMgr(cinfo->err);
-        is_jmpbuf = 0;
         return;
     }
+    helper.client_data = cinfo->client_data;
+    cinfo->client_data = &helper;
     my->jpeg_CreateDecompress(cinfo, version, structsize);
-    is_jmpbuf = 0;
+    cinfo->client_data = helper.client_data;
     wrapCommonStruct(cinfo, 1);
 }
 
@@ -1386,55 +1390,57 @@ EXPORT void my62_jpeg_stdio_src(x86emu_t* emu, jpeg62_common_struct_t* cinfo, vo
 EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
     int unwrapped = 0;
-    if(setjmp(&jmpbuf)) {
+    jmpbuf_helper helper;
+    if(setjmp(&helper.jmpbuf)) {
+        cinfo->client_data = helper.client_data;
         if(unwrapped)
             wrapCommonStruct(cinfo, 1); // error, so re-wrap
-        is_jmpbuf = 0;
         return;
     }
     unwrapCommonStruct(cinfo, 1);
     unwrapped = 1;
+    helper.client_data = cinfo->client_data;
+    cinfo->client_data = &helper;
     my->jpeg_destroy_decompress(cinfo);
-    is_jmpbuf = 0;
+    cinfo->client_data = helper.client_data;
 }
 
 EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int version, unsigned long structsize)
 {
     // Not using WRAPC macro because only err field might be initialized here
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
     j62_compress_ptr_t tmp = {0};
     tmp.err = cinfo->err;
+    jmpbuf_helper helper;
     unwrapErrorMgr(tmp.err);
-    if(setjmp(&jmpbuf)) {
-        is_jmpbuf = 0;
+    if(setjmp(&helper.jmpbuf)) {
         return;
     }
     if(structsize!=sizeof(i386_compress_ptr_t)) {
         printf_log(LOG_NONE, "Warning, invalid jpeg62 structuresize for compress (%lu/%u)", structsize, sizeof(i386_compress_ptr_t));
     }
+    helper.client_data = tmp.client_data;
+    tmp.client_data = &helper;
     my->jpeg_CreateCompress(&tmp, version, sizeof(tmp));
-    is_jmpbuf = 0;
+    tmp.client_data = helper.client_data;
     wrapCompressStruct(cinfo, &tmp);
 }
 
 EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
-    is_jmpbuf = 1;
-    my62_jpegcb_emu = emu;
     j62_compress_ptr_t tmp;
+    jmpbuf_helper helper;
     unwrapCompressStruct(&tmp, cinfo);
-    if(setjmp(&jmpbuf)) {
+    if(setjmp(&helper.jmpbuf)) {
+        tmp.client_data = helper.client_data;
         wrapCompressStruct(cinfo, &tmp); // error, so re-wrap
-        is_jmpbuf = 0;
         return;
     }
+    helper.client_data = tmp.client_data;
+    tmp.client_data = &helper;
     my->jpeg_destroy_compress(&tmp);
-    is_jmpbuf = 0;
+    tmp.client_data = helper.client_data;
 }
 
 EXPORT void my62_jpeg_finish_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
