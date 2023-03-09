@@ -3179,6 +3179,7 @@ wrappedlibjpeg:
 - pFp:
   - jpeg_std_error
 - vFpp:
+  - jpeg_stdio_dest
   - jpeg_stdio_src
 - iFpi:
   - jpeg_read_header
@@ -3204,6 +3205,7 @@ wrappedlibjpeg62:
 - vFpi:
   - jpeg_start_compress
 - vFpp:
+  - jpeg_stdio_dest
   - jpeg_stdio_src
 - iFpi:
   - jpeg_read_header
