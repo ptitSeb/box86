@@ -25,6 +25,7 @@ typedef uint32_t (*uFppu_t)(void*, void*, uint32_t);
 	GO(jpeg_finish_decompress, iFp_t) \
 	GO(jpeg_start_decompress, iFp_t) \
 	GO(jpeg_std_error, pFp_t) \
+	GO(jpeg_stdio_dest, vFpp_t) \
 	GO(jpeg_stdio_src, vFpp_t) \
 	GO(jpeg_read_header, iFpi_t) \
 	GO(jpeg_CreateDecompress, vFpiL_t) \

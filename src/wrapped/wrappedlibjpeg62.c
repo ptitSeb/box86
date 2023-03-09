@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <setjmp.h>
+#include <stddef.h>
 
 #include "wrappedlibs.h"
 
@@ -232,6 +233,26 @@ typedef struct i386_compress_ptr_s
 #undef GO
 #undef COMPRESS_STRUCT
 
+typedef struct jpeg62_comp_master_s {
+  void (*prepare_for_pass) (j62_compress_ptr_t* cinfo);
+  void (*pass_startup) (j62_compress_ptr_t* cinfo);
+  void (*finish_pass) (j62_compress_ptr_t* cinfo);
+
+  /* State variables made visible to other modules */
+  int call_pass_startup;    /* True if pass_startup must be called */
+  int is_last_pass;         /* True during last pass */
+}jpeg62_comp_master_t;
+
+void j62compress_i386_to_arm(j62_compress_ptr_t* d, i386_compress_ptr_t* s) {
+    memcpy(d, s, offsetof(struct i386_compress_ptr_s, input_gamma));
+    memcpy(&d->input_gamma, &s->input_gamma, sizeof(struct i386_compress_ptr_s) - offsetof(struct i386_compress_ptr_s, input_gamma));
+}
+
+void j62compress_arm_to_i386(i386_compress_ptr_t* d, j62_compress_ptr_t* s) {
+    memcpy(d, s, offsetof(struct i386_compress_ptr_s, input_gamma));
+    memcpy(&d->input_gamma, &s->input_gamma, sizeof(struct i386_compress_ptr_s) - offsetof(struct i386_compress_ptr_s, input_gamma));
+}
+
 static jpeg62_error_mgr_t native_err_mgr;
 
 #define SUPER()         \
@@ -279,8 +300,13 @@ static void wrapErrorMgr(jpeg62_error_mgr_t* mgr);
 static void unwrapErrorMgr(jpeg62_error_mgr_t* mgr);
 static void wrapMemoryMgr(jpeg62_memory_mgr_t* mgr);
 static void unwrapMemoryMgr(jpeg62_memory_mgr_t* mgr);
+static void wrapCompMaster(jpeg62_comp_master_t* master);
+static void unwrapCompMaster(jpeg62_comp_master_t* master);
+
 static void wrapCommonStruct(void* s, int type);
 static void unwrapCommonStruct(void* s, int type);
+static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s);
+static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s);
 
 #define SUPER() \
 GO(0)   \
@@ -1036,9 +1062,10 @@ static void* reverse_term_sourceFct(void* fct)
 static uintptr_t my_init_destination_fct_##A = 0;                           \
 static void my_init_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    wrapCommonStruct((jpeg62_common_struct_t*)cinfo, 1);                                         \
-    RunFunction_helper(my_context, my_init_destination_fct_##A, 1, cinfo);    \
-    unwrapCommonStruct((jpeg62_common_struct_t*)cinfo, 1);                                       \
+    struct i386_compress_ptr_s tmp;                                         \
+    wrapCompressStruct(&tmp, cinfo);                                        \
+    RunFunction_helper(my_context, my_init_destination_fct_##A, 1, &tmp);   \
+    unwrapCompressStruct(cinfo, &tmp);                                      \
 }
 SUPER()
 #undef GO
@@ -1068,11 +1095,12 @@ static void* reverse_init_destinationFct(void* fct)
 // empty_output_buffer
 #define GO(A)   \
 static uintptr_t my_empty_output_buffer_fct_##A = 0;   \
-static void my_empty_output_buffer_##A(j62_compress_ptr_t* cinfo)           \
-{                                                                           \
-    wrapCommonStruct(cinfo, 1);                                         \
-    RunFunction_helper(my_context, my_empty_output_buffer_fct_##A, 1, cinfo); \
-    unwrapCommonStruct(cinfo, 1);                                       \
+static void my_empty_output_buffer_##A(j62_compress_ptr_t* cinfo)               \
+{                                                                               \
+    struct i386_compress_ptr_s tmp;                                             \
+    wrapCompressStruct(&tmp, cinfo);                                            \
+    RunFunction_helper(my_context, my_empty_output_buffer_fct_##A, 1, &tmp);    \
+    unwrapCompressStruct(cinfo, &tmp);                                          \
 }
 SUPER()
 #undef GO
@@ -1104,9 +1132,10 @@ static void* reverse_empty_output_bufferFct(void* fct)
 static uintptr_t my_term_destination_fct_##A = 0;   \
 static void my_term_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    wrapCommonStruct(cinfo, 1);                                         \
-    RunFunction_helper(my_context, my_term_destination_fct_##A, 1, cinfo);    \
-    unwrapCommonStruct(cinfo, 1);                                       \
+    struct i386_compress_ptr_s tmp;                                         \
+    wrapCompressStruct(&tmp, cinfo);                                        \
+    RunFunction_helper(my_context, my_term_destination_fct_##A, 1, &tmp);   \
+    unwrapCompressStruct(cinfo, &tmp);                                      \
 }
 SUPER()
 #undef GO
@@ -1134,7 +1163,113 @@ static void* reverse_term_destinationFct(void* fct)
     return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 
+// prepare_for_pass
+#define GO(A)   \
+static uintptr_t my_prepare_for_pass_fct_##A = 0;   \
+static void my_prepare_for_pass_##A(j62_compress_ptr_t* cinfo)              \
+{                                                                           \
+    struct i386_compress_ptr_s tmp;                                         \
+    wrapCompressStruct(&tmp, cinfo);                                        \
+    RunFunction_helper(my_context, my_prepare_for_pass_fct_##A, 1, &tmp);   \
+    unwrapCompressStruct(cinfo, &tmp);                                      \
+}
+SUPER()
+#undef GO
+static void* findprepare_for_passFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_prepare_for_pass_fct_##A == (uintptr_t)fct) return my_prepare_for_pass_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_prepare_for_pass_fct_##A == 0) {my_prepare_for_pass_fct_##A = (uintptr_t)fct; return my_prepare_for_pass_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libjpeg.so.62 prepare_for_pass callback\n");
+    return NULL;
+}
+static void* reverse_prepare_for_passFct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_prepare_for_pass_##A == fct) return (void*)my_prepare_for_pass_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
+}
 
+// pass_startup
+#define GO(A)   \
+static uintptr_t my_pass_startup_fct_##A = 0;   \
+static void my_pass_startup_##A(j62_compress_ptr_t* cinfo)              \
+{                                                                           \
+    struct i386_compress_ptr_s tmp;                                         \
+    wrapCompressStruct(&tmp, cinfo);                                        \
+    RunFunction_helper(my_context, my_pass_startup_fct_##A, 1, &tmp);   \
+    unwrapCompressStruct(cinfo, &tmp);                                      \
+}
+SUPER()
+#undef GO
+static void* findpass_startupFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_pass_startup_fct_##A == (uintptr_t)fct) return my_pass_startup_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_pass_startup_fct_##A == 0) {my_pass_startup_fct_##A = (uintptr_t)fct; return my_pass_startup_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libjpeg.so.62 pass_startup callback\n");
+    return NULL;
+}
+static void* reverse_pass_startupFct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_pass_startup_##A == fct) return (void*)my_pass_startup_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
+}
+
+// finish_pass
+#define GO(A)   \
+static uintptr_t my_finish_pass_fct_##A = 0;   \
+static void my_finish_pass_##A(j62_compress_ptr_t* cinfo)              \
+{                                                                           \
+    struct i386_compress_ptr_s tmp;                                         \
+    wrapCompressStruct(&tmp, cinfo);                                        \
+    RunFunction_helper(my_context, my_finish_pass_fct_##A, 1, &tmp);   \
+    unwrapCompressStruct(cinfo, &tmp);                                      \
+}
+SUPER()
+#undef GO
+static void* findfinish_passFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_finish_pass_fct_##A == (uintptr_t)fct) return my_finish_pass_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_finish_pass_fct_##A == 0) {my_finish_pass_fct_##A = (uintptr_t)fct; return my_finish_pass_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libjpeg.so.62 finish_pass callback\n");
+    return NULL;
+}
+static void* reverse_finish_passFct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_finish_pass_##A == fct) return (void*)my_finish_pass_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
+}
 #undef SUPER
 
 #define SUPER()         \
@@ -1261,6 +1396,27 @@ static void unwrapDestinationMgr(jpeg62_destination_mgr_t* mgr)
 }
 #undef SUPER
 
+
+#define SUPER() \
+    GO(prepare_for_pass)    \
+    GO(pass_startup)        \
+    GO(finish_pass)
+static void wrapCompMaster(jpeg62_comp_master_t* master) {
+    if (!master) return;
+    #define GO(A) master->A = reverse_##A##Fct(master->A);
+    SUPER()
+    #undef GO
+}
+
+static void unwrapCompMaster(jpeg62_comp_master_t* master) {
+    if (!master) return;
+    #define GO(A) master->A = find##A##Fct(master->A);
+    SUPER()
+    #undef GO
+}
+
+#undef SUPER
+
 static void wrapCommonStruct(void* s, int type)
 {
     wrapErrorMgr(((jpeg62_common_struct_t*)s)->err);
@@ -1274,6 +1430,20 @@ static void unwrapCommonStruct(void* s, int type)
     unwrapMemoryMgr(((jpeg62_common_struct_t*)s)->mem);
     if(type==1)
         unwrapSourceMgr(((j62_decompress_ptr_t*)s)->src);
+}
+
+static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s) {
+    j62compress_arm_to_i386(d, s);
+    wrapCommonStruct(s, 1);
+    wrapDestinationMgr(s->dest);
+    wrapCompMaster(s->master);
+}
+
+static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s) {
+    j62compress_i386_to_arm(d, s);
+    unwrapCommonStruct(s, 1);
+    unwrapDestinationMgr(d->dest);
+    unwrapCompMaster(d->master);
 }
 
 EXPORT int my62_jpeg_simd_cpu_support()
@@ -1314,17 +1484,18 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
 
 #define WRAPC(R, A)                                     \
     jmpbuf_helper helper;                               \
-    unwrapCommonStruct(cinfo, 1);                       \
+    struct j62_compress_ptr_s tmp;                      \
+    unwrapCompressStruct(&tmp, cinfo);                  \
     if(setjmp(&helper.jmpbuf)) {                        \
         cinfo->client_data = helper.client_data;        \
-        wrapCommonStruct(cinfo, 1);                     \
+        wrapCompressStruct(cinfo, &tmp);                \
         return (R)R_EAX;                                \
     }                                                   \
     helper.client_data = cinfo->client_data;            \
-    cinfo->client_data = &helper;                       \
+    tmp.client_data = &helper;                          \
     A;                                                  \
-    cinfo->client_data = helper.client_data;            \
-    unwrapCommonStruct(cinfo, 1)
+    tmp.client_data = helper.client_data;               \
+    wrapCompressStruct(cinfo, &tmp);
 
 EXPORT void my62_jpeg_CreateDecompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo, int version, unsigned long structsize)
 {
@@ -1376,6 +1547,10 @@ EXPORT void my62_jpeg_stdio_src(x86emu_t* emu, jpeg62_common_struct_t* cinfo, vo
     WRAP(void, my->jpeg_stdio_src(cinfo, infile), 0);
 }
 
+EXPORT void my62_jpeg_stdio_dest(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* outfile) {
+    WRAPC(void, my->jpeg_stdio_dest(&tmp, outfile));
+}
+
 EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
@@ -1398,77 +1573,80 @@ EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* 
 EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int version, unsigned long structsize)
 {
     jmpbuf_helper helper;
-    unwrapErrorMgr(cinfo->err);
+    struct j62_compress_ptr_s tmp;
+    unwrapCompressStruct(&tmp, cinfo);
     if(setjmp(&helper.jmpbuf)) {
         cinfo->client_data = helper.client_data;
         return;
     }
-    if(structsize!=sizeof(i386_compress_ptr_t)) {
-        printf_log(LOG_NONE, "Warning, invalid jpeg62 structuresize for compress (%lu/%u)", structsize, sizeof(i386_compress_ptr_t));
+    if(structsize!=sizeof(struct i386_compress_ptr_s)) {
+        printf_log(LOG_NONE, "Warning, invalid jpeg62 structuresize for compress (%lu/%u)", structsize, sizeof(struct i386_compress_ptr_s));
     }
     helper.client_data = cinfo->client_data;
-    cinfo->client_data = &helper;
-    my->jpeg_CreateCompress(cinfo, version, sizeof(*cinfo));
-    cinfo->client_data = helper.client_data;
-    wrapCommonStruct(cinfo, 1);
+    tmp.client_data = &helper;
+    my->jpeg_CreateCompress(&tmp, version, sizeof(tmp));
+    tmp.client_data = helper.client_data;
+    wrapCompressStruct(cinfo, &tmp);
 }
 
 EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
     // no WRAP macro because we don't want to wrap at the exit
     jmpbuf_helper helper;
-    unwrapCommonStruct( cinfo, 1);
+    struct j62_compress_ptr_s tmp;
+    unwrapCompressStruct(&tmp, cinfo);
     if(setjmp(&helper.jmpbuf)) {
         cinfo->client_data = helper.client_data;
-        wrapCommonStruct(cinfo, 1); // error, so re-wrap
+        wrapCompressStruct(cinfo, &tmp); // error, so re-wrap
         return;
     }
     helper.client_data = cinfo->client_data;
-    cinfo->client_data = &helper;
-    my->jpeg_destroy_compress(cinfo);
-    cinfo->client_data = helper.client_data;
+    tmp.client_data = &helper;
+    my->jpeg_destroy_compress(&tmp);
+    tmp.client_data = helper.client_data;
+    wrapCompressStruct(cinfo, &tmp);
 }
 
 EXPORT void my62_jpeg_finish_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
-    WRAPC(void, my->jpeg_finish_compress(cinfo));
+    WRAPC(void, my->jpeg_finish_compress(&tmp));
 }
 
 EXPORT int my62_jpeg_resync_to_restart(x86emu_t* emu, i386_compress_ptr_t* cinfo, int desired)
 {
-    WRAPC(int, int ret = my->jpeg_resync_to_restart(cinfo, desired));
+    WRAPC(int, int ret = my->jpeg_resync_to_restart(&tmp, desired));
     return ret;
 }
 
 EXPORT void my62_jpeg_set_defaults(x86emu_t* emu, i386_compress_ptr_t* cinfo)
 {
-    WRAPC(void, my->jpeg_set_defaults(cinfo));
+    WRAPC(void, my->jpeg_set_defaults(&tmp));
 }
 
 EXPORT void my62_jpeg_start_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int b)
 {
-    WRAPC(void, my->jpeg_start_compress(cinfo, b));
+    WRAPC(void, my->jpeg_start_compress(&tmp, b));
 }
 
 EXPORT uint32_t my62_jpeg_write_scanlines(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* scanlines, uint32_t maxlines)
 {
-    WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(cinfo, scanlines, maxlines));
+    WRAPC(uint32_t, uint32_t ret = my->jpeg_write_scanlines(&tmp, scanlines, maxlines));
     return ret;
 }
 
 EXPORT void my62_jpeg_set_quality(x86emu_t* emu, i386_compress_ptr_t* cinfo, int quality, int force)
 {
-    WRAPC(void, my->jpeg_set_quality(cinfo, quality, force));
+    WRAPC(void, my->jpeg_set_quality(&tmp, quality, force));
 }
 
 EXPORT void my62_jpeg_mem_dest(x86emu_t* emu, i386_compress_ptr_t* cinfo, void* a, void* b)
 {
-    WRAPC(void, my->jpeg_mem_dest(cinfo, a, b));
+    WRAPC(void, my->jpeg_mem_dest(&tmp, a, b));
 }
 
 EXPORT void my62_jpeg_write_marker(x86emu_t* emu, i386_compress_ptr_t* cinfo, int a, void* b, uint32_t c)
 {
-    WRAPC(void, my->jpeg_write_marker(cinfo, a, b, c));
+    WRAPC(void, my->jpeg_write_marker(&tmp, a, b, c));
 }
 
 #undef WRAP

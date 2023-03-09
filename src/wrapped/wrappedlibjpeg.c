@@ -429,6 +429,10 @@ EXPORT void my_jpeg_stdio_src(x86emu_t* emu, jpeg_common_struct_t* cinfo, void* 
     WRAP(void, my->jpeg_stdio_src(cinfo, infile));
 }
 
+EXPORT void my_jpeg_stdio_dest(x86emu_t* emu, jpeg_common_struct_t* cinfo, void* outfile) {
+    WRAP(void, my->jpeg_stdio_src(cinfo, outfile));
+}
+
 #undef WRAP
 
 #define CUSTOM_INIT \

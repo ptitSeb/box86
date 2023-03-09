@@ -35,6 +35,7 @@ typedef void (*vFpipu_t)(void*, int32_t, void*, uint32_t);
 	GO(jpeg_start_decompress, iFp_t) \
 	GO(jpeg_std_error, pFp_t) \
 	GO(jpeg_start_compress, vFpi_t) \
+	GO(jpeg_stdio_dest, vFpp_t) \
 	GO(jpeg_stdio_src, vFpp_t) \
 	GO(jpeg_read_header, iFpi_t) \
 	GO(jpeg_resync_to_restart, iFpi_t) \
