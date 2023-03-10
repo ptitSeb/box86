@@ -1,3 +1,21 @@
+v0.3.0
+======
+* Added rcfile handling: box86 now read `/etc/box86.box86rc` and `~/.box86rc` and apply per process parameters
+    => Every program can be finetuned, for speed or just to make them work
+* Added BOX86_DYNAREC_FORWARD to allow bigger Dynarec block to be build
+* Refactored Strong Memory Model emulation (faster and more accurate)
+* Box86 now return a custom name for the CPU instal of P4, build with Box86 and the cpu name it's running on
+* Improved memory protection tracking and signal handling, again
+* More wrapped libs (especially on the gtk familly)
+* More wrapped functions
+* Added support for CreateDeviceEx in d3dadapter9, for better gallium nine support
+* Improved dladdr/dladdr1 wrapped function
+* Some fixes to flags handling in the Dynarec on some special cases
+* Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
+* Lots of improvment in the Rounding of float & double (Dynarec and Interpretor), and proper handling of denormals when converting to/from 80 bits long double
+* Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
+
+
 v0.2.8
 ======
 * Wrapped more vulkan function, dxvk 2.0 now works
