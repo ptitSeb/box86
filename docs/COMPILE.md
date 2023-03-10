@@ -194,5 +194,5 @@ NVIDIA doesn't provide armhf libraries for their GPU drivers at this time. There
 
 Debian Packaging
 ----
-Box86 can also be packaged into a .deb file with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`.
+Box86 can also be packaged into a .deb file ***using the source code zip from the releases page*** with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`. Configure any additional cmake options you might want in `debian/rules`.
 
