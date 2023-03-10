@@ -117,7 +117,7 @@ Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may hav
 
 #### for Other ARM64 64bits Linux platform
 
-`mkdir build; cd build; cmake .. -DARM64 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
+`mkdir build; cd build; cmake .. -DARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
 
