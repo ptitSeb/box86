@@ -748,9 +748,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
             break;
 #endif
         default:
-            printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
-            emu->quit = 1;
-            emu->error |= ERR_UNIMPL;
+            printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
+            R_EAX = (uint32_t)-ENOSYS;
             return;
     }
     printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
