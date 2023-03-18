@@ -185,7 +185,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             case 1: offset = F8S; break;
             case 2: offset = F16S; break;
         }
-        if(offset && (abs(offset)>absmax || (offset&mask))) {
+        if(offset && (abs(offset)<=absmax && !(offset&mask))) {
             *fixaddress = offset;
             offset = 0;
         }
@@ -1631,7 +1631,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
 
 static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-#if STEP > 1
+#if 1//STEP > 1
     int i2 = dyn->insts[ninst].x86.jmp_insts;
     if(i2<0)
         return;
@@ -1746,7 +1746,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         if(cache_i2.neoncache[i].v) {
             if(cache_i2.neoncache[i].v != cache.neoncache[i].v) {
                 int j;
-                if((j=findCacheSlot(dyn, ninst, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n, &cache))==-1)
+                if((j=findCacheSlot(dyn, ninst, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n, &cache_i2))==-1)
                     loadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, i, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n);
                 else {
                     // it's here, lets swap if needed
