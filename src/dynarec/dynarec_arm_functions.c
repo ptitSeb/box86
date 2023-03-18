@@ -608,6 +608,7 @@ void neoncacheUnwind(neoncache_t* cache)
                 case NEON_CACHE_XMMW:
                     cache->ssecache[cache->neoncache[i].n].reg = i+FPUFIRST;
                     cache->ssecache[cache->neoncache[i].n].write = (cache->neoncache[i].t==NEON_CACHE_XMMW)?1:0;
+                    cache->neoncache[i] = cache->neoncache[i+1];
                     ++cache->fpu_reg;
                     ++i;    // next next
                     break;

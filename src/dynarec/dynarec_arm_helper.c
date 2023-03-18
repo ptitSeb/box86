@@ -1631,7 +1631,7 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
 
 static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-#if 1//STEP > 1
+#if STEP > 1
     int i2 = dyn->insts[ninst].x86.jmp_insts;
     if(i2<0)
         return;
@@ -1717,7 +1717,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         stack_cnt = cache_i2.stack;
     }
     neoncache_t cache = dyn->n;
-    // sanitize XMM regs alocation
+    // sanitize XMM regs alocation, cache_i2 has been sanitized in neoncacheUnwind already
     for(int i=0; i<24; i+=2) {
         if(cache.neoncache[i].t == NEON_CACHE_XMMR || cache.neoncache[i].t == NEON_CACHE_XMMW)
             cache.neoncache[i+1] = cache.neoncache[i];
@@ -1746,7 +1746,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         if(cache_i2.neoncache[i].v) {
             if(cache_i2.neoncache[i].v != cache.neoncache[i].v) {
                 int j;
-                if((j=findCacheSlot(dyn, ninst, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n, &cache_i2))==-1)
+                if((j=findCacheSlot(dyn, ninst, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n, &cache))==-1)
                     loadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, i, cache_i2.neoncache[i].t, cache_i2.neoncache[i].n);
                 else {
                     // it's here, lets swap if needed
