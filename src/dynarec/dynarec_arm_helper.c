@@ -1446,8 +1446,10 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
         quad =1;
     if(cache->neoncache[j].t==NEON_CACHE_XMMR || cache->neoncache[j].t==NEON_CACHE_XMMW)
         quad =1;
-    if(quad)    // if quad, we need to swap the whole quad!
+    if(quad) {    // if quad, we need to swap the whole quad!
         i&=~1;
+        j&=~1;
+    }
     if(!cache->neoncache[i].v && ((quad && !cache->neoncache[i+1].v) || !quad)) {
         // a mov is enough, no need to swap
         MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
