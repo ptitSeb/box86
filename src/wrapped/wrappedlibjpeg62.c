@@ -126,6 +126,7 @@ typedef struct jpeg62_destination_mgr_s {
 typedef struct jmpbuf_helper {
     struct __jmp_buf_tag jmpbuf;
     void* client_data;
+    void* compress;
 }jmpbuf_helper;
 
 #define RunFunctionWithEmu_helper(...) \
@@ -139,6 +140,12 @@ typedef struct jmpbuf_helper {
     ((jpeg62_common_struct_t*)cinfo)->client_data = helper->client_data; \
     uint32_t ret = RunFunction(__VA_ARGS__); \
     ((jpeg62_common_struct_t*)cinfo)->client_data = helper;
+
+#define RunFunction_helper2(...) \
+    jmpbuf_helper* helper = ((jpeg62_common_struct_t*)cinfo)->client_data; \
+    tmp->client_data = helper->client_data;     \
+    uint32_t ret = RunFunction(__VA_ARGS__);    \
+    tmp->client_data = helper;
 
 #define COMPRESS_STRUCT                 \
   GOM(jpeg62_error_mgr_t*, err)         \
@@ -1062,10 +1069,11 @@ static void* reverse_term_sourceFct(void* fct)
 static uintptr_t my_init_destination_fct_##A = 0;                           \
 static void my_init_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    struct i386_compress_ptr_s tmp;                                         \
-    wrapCompressStruct(&tmp, cinfo);                                        \
-    RunFunction_helper(my_context, my_init_destination_fct_##A, 1, &tmp);   \
-    unwrapCompressStruct(cinfo, &tmp);                                      \
+    i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction_helper2(my_context, my_init_destination_fct_##A, 1, tmp);   \
+    unwrapCompressStruct(cinfo, tmp);                                       \
+    tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
 SUPER()
 #undef GO
@@ -1097,10 +1105,11 @@ static void* reverse_init_destinationFct(void* fct)
 static uintptr_t my_empty_output_buffer_fct_##A = 0;   \
 static void my_empty_output_buffer_##A(j62_compress_ptr_t* cinfo)               \
 {                                                                               \
-    struct i386_compress_ptr_s tmp;                                             \
-    wrapCompressStruct(&tmp, cinfo);                                            \
-    RunFunction_helper(my_context, my_empty_output_buffer_fct_##A, 1, &tmp);    \
-    unwrapCompressStruct(cinfo, &tmp);                                          \
+    i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
+    wrapCompressStruct(tmp, cinfo);                                             \
+    RunFunction_helper2(my_context, my_empty_output_buffer_fct_##A, 1, tmp);    \
+    unwrapCompressStruct(cinfo, tmp);                                           \
+    tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;       \
 }
 SUPER()
 #undef GO
@@ -1132,10 +1141,11 @@ static void* reverse_empty_output_bufferFct(void* fct)
 static uintptr_t my_term_destination_fct_##A = 0;   \
 static void my_term_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    struct i386_compress_ptr_s tmp;                                         \
-    wrapCompressStruct(&tmp, cinfo);                                        \
-    RunFunction_helper(my_context, my_term_destination_fct_##A, 1, &tmp);   \
-    unwrapCompressStruct(cinfo, &tmp);                                      \
+    i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction_helper2(my_context, my_term_destination_fct_##A, 1, tmp);   \
+    unwrapCompressStruct(cinfo, tmp);                                       \
+    tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
 SUPER()
 #undef GO
@@ -1168,10 +1178,11 @@ static void* reverse_term_destinationFct(void* fct)
 static uintptr_t my_prepare_for_pass_fct_##A = 0;   \
 static void my_prepare_for_pass_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    struct i386_compress_ptr_s tmp;                                         \
-    wrapCompressStruct(&tmp, cinfo);                                        \
-    RunFunction_helper(my_context, my_prepare_for_pass_fct_##A, 1, &tmp);   \
-    unwrapCompressStruct(cinfo, &tmp);                                      \
+    i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction_helper2(my_context, my_prepare_for_pass_fct_##A, 1, tmp);   \
+    unwrapCompressStruct(cinfo, tmp);                                       \
+    tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
 SUPER()
 #undef GO
@@ -1204,10 +1215,11 @@ static void* reverse_prepare_for_passFct(void* fct)
 static uintptr_t my_pass_startup_fct_##A = 0;   \
 static void my_pass_startup_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    struct i386_compress_ptr_s tmp;                                         \
-    wrapCompressStruct(&tmp, cinfo);                                        \
-    RunFunction_helper(my_context, my_pass_startup_fct_##A, 1, &tmp);   \
-    unwrapCompressStruct(cinfo, &tmp);                                      \
+    i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction_helper2(my_context, my_pass_startup_fct_##A, 1, tmp);       \
+    unwrapCompressStruct(cinfo, tmp);                                       \
+    tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
 SUPER()
 #undef GO
@@ -1240,10 +1252,11 @@ static void* reverse_pass_startupFct(void* fct)
 static uintptr_t my_finish_pass_fct_##A = 0;   \
 static void my_finish_pass_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
-    struct i386_compress_ptr_s tmp;                                         \
-    wrapCompressStruct(&tmp, cinfo);                                        \
-    RunFunction_helper(my_context, my_finish_pass_fct_##A, 1, &tmp);   \
-    unwrapCompressStruct(cinfo, &tmp);                                      \
+    i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress; \
+    wrapCompressStruct(tmp, cinfo);                                         \
+    RunFunction_helper2(my_context, my_finish_pass_fct_##A, 1, tmp);        \
+    unwrapCompressStruct(cinfo, tmp);                                       \
+    tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
 SUPER()
 #undef GO
@@ -1434,14 +1447,14 @@ static void unwrapCommonStruct(void* s, int type)
 
 static void wrapCompressStruct(i386_compress_ptr_t* d, j62_compress_ptr_t* s) {
     j62compress_arm_to_i386(d, s);
-    wrapCommonStruct(s, 1);
+    wrapCommonStruct(s, 0);
     wrapDestinationMgr(s->dest);
     wrapCompMaster(s->master);
 }
 
 static void unwrapCompressStruct(j62_compress_ptr_t* d, i386_compress_ptr_t* s) {
     j62compress_i386_to_arm(d, s);
-    unwrapCommonStruct(s, 1);
+    unwrapCommonStruct(s, 0);
     unwrapDestinationMgr(d->dest);
     unwrapCompMaster(d->master);
 }
@@ -1487,11 +1500,12 @@ EXPORT void* my62_jpeg_std_error(x86emu_t* emu, void* errmgr)
     struct j62_compress_ptr_s tmp;                      \
     unwrapCompressStruct(&tmp, cinfo);                  \
     if(setjmp(&helper.jmpbuf)) {                        \
-        cinfo->client_data = helper.client_data;        \
+        tmp.client_data = helper.client_data;           \
         wrapCompressStruct(cinfo, &tmp);                \
         return (R)R_EAX;                                \
     }                                                   \
     helper.client_data = cinfo->client_data;            \
+    helper.compress = cinfo;                            \
     tmp.client_data = &helper;                          \
     A;                                                  \
     tmp.client_data = helper.client_data;               \
@@ -1573,8 +1587,9 @@ EXPORT void my62_jpeg_destroy_decompress(x86emu_t* emu, jpeg62_common_struct_t* 
 EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, int version, unsigned long structsize)
 {
     jmpbuf_helper helper;
-    struct j62_compress_ptr_s tmp;
-    unwrapCompressStruct(&tmp, cinfo);
+    struct j62_compress_ptr_s tmp = {0};
+    tmp.err = cinfo->err;
+    unwrapErrorMgr(tmp.err);
     if(setjmp(&helper.jmpbuf)) {
         cinfo->client_data = helper.client_data;
         return;
@@ -1583,6 +1598,7 @@ EXPORT void my62_jpeg_CreateCompress(x86emu_t* emu, i386_compress_ptr_t* cinfo, 
         printf_log(LOG_NONE, "Warning, invalid jpeg62 structuresize for compress (%lu/%u)", structsize, sizeof(struct i386_compress_ptr_s));
     }
     helper.client_data = cinfo->client_data;
+    helper.compress = cinfo;
     tmp.client_data = &helper;
     my->jpeg_CreateCompress(&tmp, version, sizeof(tmp));
     tmp.client_data = helper.client_data;
@@ -1596,11 +1612,12 @@ EXPORT void my62_jpeg_destroy_compress(x86emu_t* emu, i386_compress_ptr_t* cinfo
     struct j62_compress_ptr_s tmp;
     unwrapCompressStruct(&tmp, cinfo);
     if(setjmp(&helper.jmpbuf)) {
-        cinfo->client_data = helper.client_data;
+        tmp.client_data = helper.client_data;
         wrapCompressStruct(cinfo, &tmp); // error, so re-wrap
         return;
     }
     helper.client_data = cinfo->client_data;
+    helper.compress = cinfo;
     tmp.client_data = &helper;
     my->jpeg_destroy_compress(&tmp);
     tmp.client_data = helper.client_data;
