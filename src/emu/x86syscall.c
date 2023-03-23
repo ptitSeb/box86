@@ -75,6 +75,39 @@ int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot);
 void* ElfSetBrk(void* newbrk);
 int my_vfork(x86emu_t* emu);
 
+#ifndef __NR_socketcall
+int my_socketcall(x86emu_t* emu, int n, unsigned long *args) {
+    int ret = 0;
+    switch(n) {
+        case SYS_SOCKET: ret = socket(args[0], args[1], args[2]); break;
+        case SYS_BIND: ret = bind(args[0], (void*)args[1], args[2]); break;
+        case SYS_CONNECT: ret = connect(args[0], (void*)args[1], args[2]); break;
+        case SYS_LISTEN: ret = listen(args[0], args[1]); break;
+        case SYS_ACCEPT: ret = accept(args[0], (void*)args[1], (void*)args[2]); break;
+        case SYS_GETSOCKNAME: ret = getsockname(args[0], (void*)args[1], (void*)args[2]); break;
+        case SYS_GETPEERNAME: ret = getpeername(args[0], (void*)args[1], (void*)args[2]); break;
+        case SYS_SOCKETPAIR: ret = socketpair(args[0], args[1], args[2], (int*)args[3]); break;
+        case SYS_SEND: ret = send(args[0], (void*)args[1], args[2], args[3]); break;
+        case SYS_RECV: ret = recv(args[0], (void*)args[1], args[2], args[3]); break;
+        case SYS_SENDTO: ret = sendto(args[0], (void*)args[1], args[2], args[3], (void*)args[4], args[5]); break;
+        case SYS_RECVFROM: ret = recvfrom(args[0], (void*)args[1], args[2], args[3], (void*)args[4], (void*)args[5]); break;
+        case SYS_SHUTDOWN: ret = shutdown(args[0], args[1]); break;
+        case SYS_SETSOCKOPT: ret = setsockopt(args[0], args[1], args[2], (void*)args[3], args[4]); break;
+        case SYS_GETSOCKOPT: ret = getsockopt(args[0], args[1], args[2], (void*)args[3], (void*)args[4]); break;
+        case SYS_SENDMSG: ret = sendmsg(args[0], (void*)args[1], args[2]); break;
+        case SYS_RECVMSG: ret = recvmsg(args[0], (void*)args[1], args[2]); break;
+        case SYS_ACCEPT4: ret = my_accept4(emu, args[0], (void*)args[1], (void*)args[2], args[3]); break;
+        #ifdef SYS_RECVMMSG
+        case SYS_RECVMMSG: ret = my_recvmmsg(emu, args[0], (void*)args[1], args[2], args[3], (void*)args[4]); break;
+        case SYS_SENDMMSG: ret = my___sendmmsg(emu, args[0], (void*)args[1], args[2], args[3]); break;
+        #endif
+        default:
+            printf_log(LOG_DEBUG, "BOX86 Error on Syscall 102: Unknown Soket command %d\n", n);
+            ret = -EINVAL;
+    }
+};
+#endif
+
 // cannot include <fcntl.h>, it conflict with some asm includes...
 #ifndef O_NONBLOCK
 #define O_NONBLOCK 04000
@@ -491,39 +524,10 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;
 #ifndef __NR_socketcall
-        case 102: {
-                unsigned long *args = (unsigned long *)R_ECX;
-                // need to do all call "by hand"
-                switch(R_EBX) {
-                    case SYS_SOCKET: R_EAX = socket(args[0], args[1], args[2]); break;
-                    case SYS_BIND: R_EAX = bind(args[0], (void*)args[1], args[2]); break;
-                    case SYS_CONNECT: R_EAX = connect(args[0], (void*)args[1], args[2]); break;
-                    case SYS_LISTEN: R_EAX = listen(args[0], args[1]); break;
-                    case SYS_ACCEPT: R_EAX = accept(args[0], (void*)args[1], (void*)args[2]); break;
-                    case SYS_GETSOCKNAME: R_EAX = getsockname(args[0], (void*)args[1], (void*)args[2]); break;
-                    case SYS_GETPEERNAME: R_EAX = getpeername(args[0], (void*)args[1], (void*)args[2]); break;
-                    case SYS_SOCKETPAIR: R_EAX = socketpair(args[0], args[1], args[2], (int*)args[3]); break;
-                    case SYS_SEND: R_EAX = send(args[0], (void*)args[1], args[2], args[3]); break;
-                    case SYS_RECV: R_EAX = recv(args[0], (void*)args[1], args[2], args[3]); break;
-                    case SYS_SENDTO: R_EAX = sendto(args[0], (void*)args[1], args[2], args[3], (void*)args[4], args[5]); break;
-                    case SYS_RECVFROM: R_EAX = recvfrom(args[0], (void*)args[1], args[2], args[3], (void*)args[4], (void*)args[5]); break;
-                    case SYS_SHUTDOWN: R_EAX = shutdown(args[0], args[1]); break;
-                    case SYS_SETSOCKOPT: R_EAX = setsockopt(args[0], args[1], args[2], (void*)args[3], args[4]); break;
-                    case SYS_GETSOCKOPT: R_EAX = getsockopt(args[0], args[1], args[2], (void*)args[3], (void*)args[4]); break;
-                    case SYS_SENDMSG: R_EAX = sendmsg(args[0], (void*)args[1], args[2]); break;
-                    case SYS_RECVMSG: R_EAX = recvmsg(args[0], (void*)args[1], args[2]); break;
-                    case SYS_ACCEPT4: R_EAX = my_accept4(emu, args[0], (void*)args[1], (void*)args[2], args[3]); break;
-                    #ifdef SYS_RECVMMSG
-                    case SYS_RECVMMSG: R_EAX = my_recvmmsg(emu, args[0], (void*)args[1], args[2], args[3], (void*)args[4]); break;
-                    case SYS_SENDMMSG: R_EAX = my___sendmmsg(emu, args[0], (void*)args[1], args[2], args[3]); break;
-                    #endif
-                    default:
-                        printf_log(LOG_DEBUG, "BOX86 Error on Syscall 102: Unknown Soket command %d\n", R_EBX);
-                        R_EAX = -EINVAL;
-                }
+        case 102:
+            R_EAX = my_socketcall(emu, R_EBX, (unsigned long *)R_ECX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
-            }
             break;
 #endif
 #ifndef __NR_olduname
@@ -803,6 +807,10 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uintptr_t)ElfSetBrk(p(4));
         case 91:   // munmap
             return (uint32_t)my_munmap(emu, p(4), u32(8));
+#ifndef __NR_socketcall
+        case 102:
+            return my_socketcall(emu, i32(4), (unsigned long *)p(8));
+#endif
 #ifndef __NR_ipc
         case 117:   // ipc
             return (uint32_t)my_ipc(u32(4), i32(8), i32(12), i32(16), p(20), i32(24));
