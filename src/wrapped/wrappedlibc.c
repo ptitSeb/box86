@@ -986,6 +986,14 @@ EXPORT int my___isoc99_sscanf(x86emu_t* emu, void* stream, void* fmt, void* b)
 
     return ((iFppp_t)f)(stream, fmt, VARARGS);
 }
+EXPORT int my___isoc99_swscanf(x86emu_t* emu, void* stream, void* fmt, void* b)
+{
+    (void)b;
+    void* f = swscanf;
+    PREPARE_VALIST;
+
+    return ((iFppp_t)f)(stream, fmt, VARARGS);
+}
 #endif
 
 EXPORT int my_vsnprintf(x86emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {

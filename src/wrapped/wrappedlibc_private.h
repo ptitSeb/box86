@@ -902,7 +902,7 @@ GOM(__isoc99_fscanf, iFEppV)  //%%
 // __isoc99_fwscanf
 // __isoc99_scanf
 GOM(__isoc99_sscanf, iFEppV)  //%%
-// __isoc99_swscanf
+GOM(__isoc99_swscanf, iFEppV)  //%%
 GOM(__isoc99_vfscanf, iFEppp) //%%
 // __isoc99_vfwscanf
 // __isoc99_vscanf
@@ -915,7 +915,7 @@ GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
 // __isoc99_fwscanf
 // __isoc99_scanf
 GO2(__isoc99_sscanf, iFppV, __isoc99_vsscanf)
-// __isoc99_swscanf
+GO2(__isoc99_swscanf, iFppV, __isoc99_vswscanf)
 GO(__isoc99_vfscanf, iFppp)
 // __isoc99_vfwscanf
 // __isoc99_vscanf

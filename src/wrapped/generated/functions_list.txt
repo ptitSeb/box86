@@ -3037,6 +3037,7 @@ wrappedlibc:
 - iFppV:
   - __isoc99_fscanf
   - __isoc99_sscanf
+  - __isoc99_swscanf
   - fscanf
   - sscanf
   - swscanf
