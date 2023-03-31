@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-x86-git
-pkgver=r3858.5368285
+pkgver=r4581.d698861
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('i386')
@@ -14,15 +14,22 @@ source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-x86-git}"
+	cd "${srcdir}/${pkgname%-x86-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
+prepare() {
+	cd "${srcdir}/${pkgname%-x86-git}"
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DLD80BITS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+}
+
 build() {
-	cmake -B build -S "${pkgname%-x86-git}" -DLD80BITS=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
-	make -C build
+	cd "${srcdir}/${pkgname%-x86-git}/build"
+	make -j$(nproc)
 }
 
 package() {
-	make -C build DESTDIR="${pkgdir}/" install
+	cd "${srcdir}/${pkgname%-x86-git}/build"
+	make DESTDIR="${pkgdir}/" install
 }

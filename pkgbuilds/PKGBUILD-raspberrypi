@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-rpi-git
-pkgver=r3858.5368285
+pkgver=r4581.d698861
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
@@ -16,11 +16,12 @@ md5sums=('SKIP')
 _pimodel=`tr -d '\0' < /sys/firmware/devicetree/base/model`
 
 pkgver() {
-	cd "$srcdir/${pkgname%-rpi-git}"
+	cd "${srcdir}/${pkgname%-rpi-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
-build() {
+prepare() {
+	cd "${srcdir}/${pkgname%-rpi-git}"
 	# Check for Pi version number
 	if [[ ${_pimodel} =~ "Raspberry Pi 4" ]]; then
 		_piversion=4
@@ -31,15 +32,20 @@ build() {
 	else
 		# This RPI is not supported or this device is not a pi.
 		# We should cancel then the build.
-		echo -e "\033[01m\033[01;31m==> ERROR:\033[00;01m Your device is not supported! This script is for RPi model 4/3/2 (1/0 isn't supported yet).\033[00m"
+		echo -e "\033[01m\033[01;31m==> ERROR:\033[00;01m Your device is not supported! This script is for RPi model 4/3/2 (1/0 isn't supported).\033[00m"
 		exit 1
 	fi
 	echo -e "\033[01m\033[01;34m==> INFO:\033[00;01m Your detected Pi verion number is: \033[01;31m${_piversion}\033[01m.\033[00m"
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DRPI${_piversion}=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+}
 
-	cmake -B build -S "${pkgname%-rpi-git}" -DRPI${_piversion}=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
-	make -C build
+build() {
+	cd "${srcdir}/${pkgname%-rpi-git}/build"
+	make -j$(nproc)
 }
 
 package() {
-	make -C build DESTDIR="${pkgdir}/" install
+	cd "${srcdir}/${pkgname%-rpi-git}/build"
+	make DESTDIR="${pkgdir}/" install
 }
