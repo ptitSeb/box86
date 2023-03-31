@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box86-rk3399-git
-pkgver=r3858.5368285
+pkgname=box86-a64-git
+pkgver=r4581.d698861
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
@@ -9,21 +9,28 @@ url="https://github.com/ptitSeb/box86"
 license=('MIT')
 optdepends=('gl4es: OpenGL 2 for GLES 2 devices')
 makedepends=('git' 'cmake' 'make')
-provides=("${pkgname%-git}" "${pkgname%-rk3399-git}-git" "${pkgname%-rk3399-git}")
-conflicts=("${pkgname%-git}" "${pkgname%-rk3399-git}-git" "${pkgname%-rk3399-git}")
+provides=("${pkgname%-git}" "${pkgname%-a64-git}-git" "${pkgname%-a64-git}")
+conflicts=("${pkgname%-git}" "${pkgname%-a64-git}-git" "${pkgname%-a64-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-rk3399-git}"
+	cd "${srcdir}/${pkgname%-a64-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
+prepare() {
+	cd "${srcdir}/${pkgname%-a64-git}"
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DA64=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+}
+
 build() {
-	cmake -B build -S "${pkgname%-rk3399-git}" -DRK3399=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
-	make -C build
+	cd "${srcdir}/${pkgname%-a64-git}/build"
+	make -j$(nproc)
 }
 
 package() {
-	make -C build DESTDIR="${pkgdir}/" install
+	cd "${srcdir}/${pkgname%-a64-git}/build"
+	make DESTDIR="${pkgdir}/" install
 }

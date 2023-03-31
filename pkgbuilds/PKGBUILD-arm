@@ -1,7 +1,7 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>, SpacingBat3 <git@spacingbat3.anonaddy.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
 pkgname=box86-arm-git
-pkgver=r3858.5368285
+pkgver=r4581.d698861
 pkgrel=1
 pkgdesc="Linux Userspace x86 Emulator with a twist, targeted at ARM Linux devices."
 arch=('armv7h')
@@ -15,15 +15,22 @@ source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
 
 pkgver() {
-	cd "$srcdir/${pkgname%-arm-git}"
+	cd "${srcdir}/${pkgname%-arm-git}"
 	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
+prepare() {
+	cd "${srcdir}/${pkgname%-arm-git}"
+	[[ ! -d ./build ]] && mkdir build
+	cmake -B build -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
+}
+
 build() {
-	cmake -B build -S "${pkgname%-arm-git}" -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=/usr
-	make -C build
+	cd "${srcdir}/${pkgname%-arm-git}/build"
+	make -j$(nproc)
 }
 
 package() {
-	make -C build DESTDIR="${pkgdir}/" install
+	cd "${srcdir}/${pkgname%-arm-git}/build"
+	make DESTDIR="${pkgdir}/" install
 }
