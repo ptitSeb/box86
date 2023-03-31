@@ -12,7 +12,7 @@ This will copy the PKGBUILD for your platform (where you type your platform name
 In the future, I might try to do an unified PKGBUILD for all platforms that will recognize your platform automatically.
 
 ### 2. What platforms are currently supported.
-All specified in [COMPILE.md](../docs/COMPILE.md).
+Most specified in [COMPILE.md](../docs/COMPILE.md). Except PowerPC based.
 
 ### 3. Any advantages with that sollution?
 This might give you some advantages like those:
