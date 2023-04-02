@@ -728,15 +728,17 @@ void protectDB(uintptr_t addr, uintptr_t size)
     PROT_LOCK();
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = PROT_GET(i);
-        uint32_t dyn = prot&PROT_CUSTOM;
-        prot&=~PROT_CUSTOM;
-        if(!prot)
-            prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
-        if(prot&PROT_WRITE) {
-            PROT_SET(i, prot|PROT_DYNAREC);
-            if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-        } else
-            PROT_SET(i, prot|PROT_DYNAREC_R);
+        if(!(prot&PROT_NOPROT)) {
+            uint32_t dyn = prot&PROT_CUSTOM;
+            prot&=~PROT_CUSTOM;
+            if(!prot)
+                prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
+            if(prot&PROT_WRITE) {
+                PROT_SET(i, prot|PROT_DYNAREC);
+                if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+            } else
+                PROT_SET(i, prot|PROT_DYNAREC_R);
+        }
     }
     PROT_UNLOCK();
 }
@@ -751,13 +753,15 @@ void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
     PROT_LOCK();
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = PROT_GET(i);
-        if(prot&PROT_DYNAREC) {
-            PROT_SET(i, prot&~PROT_CUSTOM);
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
-            if(mark)
-                cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-        } else if(prot&PROT_DYNAREC_R)
-            PROT_SET(i, prot&~PROT_CUSTOM);
+        if(!(prot&PROT_NOPROT)) {
+            if(prot&PROT_DYNAREC) {
+                PROT_SET(i, prot&~PROT_CUSTOM);
+                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_CUSTOM);
+                if(mark)
+                    cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
+            } else if(prot&PROT_DYNAREC_R)
+                PROT_SET(i, prot&~PROT_CUSTOM);
+        }
     }
     PROT_UNLOCK();
 }
@@ -770,10 +774,12 @@ int isprotectedDB(uintptr_t addr, size_t size)
     PROT_LOCK();
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = PROT_GET(i);
-        if(!(prot&(PROT_DYNAREC|PROT_DYNAREC_R))) {
-            dynarec_log(LOG_DEBUG, "0\n");
-            PROT_UNLOCK();
-            return 0;
+        if(!(prot&PROT_NOPROT)) {
+            if(!(prot&(PROT_DYNAREC|PROT_DYNAREC_R))) {
+                dynarec_log(LOG_DEBUG, "0\n");
+                PROT_UNLOCK();
+                return 0;
+            }
         }
     }
     dynarec_log(LOG_DEBUG, "1\n");
@@ -885,12 +891,14 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t dyn=(PROT_GET(i)&(PROT_DYNAREC|PROT_DYNAREC_R));
-        if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
-            dyn = PROT_DYNAREC;
-            mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-        } else if(dyn && !(prot&PROT_WRITE)) {
-            dyn = PROT_DYNAREC_R;
+        uint32_t dyn=(PROT_GET(i)&(PROT_DYNAREC|PROT_DYNAREC_R|PROT_NOPROT));
+        if(!(dyn&PROT_NOPROT)) {
+            if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
+                dyn = PROT_DYNAREC;
+                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+            } else if(dyn && !(prot&PROT_WRITE)) {
+                dyn = PROT_DYNAREC_R;
+            }
         }
         PROT_SET(i, prot|dyn);
     }

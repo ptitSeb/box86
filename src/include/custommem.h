@@ -36,7 +36,8 @@ uintptr_t getJumpTableAddress(uintptr_t addr);
 
 #define PROT_DYNAREC    0x80
 #define PROT_DYNAREC_R  0x40
-#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R)
+#define PROT_NOPROT     0x20
+#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT)
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot);
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot);

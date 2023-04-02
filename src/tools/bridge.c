@@ -48,6 +48,9 @@ brick_t* NewBrick(void* old)
     if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%x aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
+    #ifdef DYNAREC
+    setProtection((uintptr_t)ptr, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC | PROT_NOPROT);
+    #endif
     dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%x)\n", ptr, NBRICK*sizeof(onebridge_t));
     ret->b = ptr;
     return ret;
@@ -73,10 +76,6 @@ void FreeBridge(bridge_t** bridge)
     brick_t *b = br->head;
     while(b) {
         brick_t *n = b->next;
-        #ifdef DYNAREC
-        if(getProtection((uintptr_t)b->b)&(PROT_DYNAREC|PROT_DYNAREC_R))
-            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);
-        #endif
         my_munmap(NULL, b->b, NBRICK*sizeof(onebridge_t));
         box_free(b);
         b = n;
@@ -94,6 +93,8 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     if(!bridge) return 0;
     brick_t *b = NULL;
     int sz = -1;
+    int ret;
+
     mutex_lock(&my_context->mutex_bridge);
     b = bridge->last;
     if(b->sz == NBRICK) {
@@ -102,36 +103,22 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
         bridge->last = b;
     }
     sz = b->sz;
-    #ifdef DYNAREC
-    if(box86_dynarec) {
-        int prot = 0;
-        prot=(getProtection((uintptr_t)&b->b[sz])&(PROT_DYNAREC|PROT_DYNAREC_R))?1:0;
-        if(prot)
-            unprotectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t), 0);    // don't mark blocks, it's only new one
-    }
-    #endif
     b->sz++;
+    // add bridge to map, for fast recovery
+    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
+    kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
+    mutex_unlock(&my_context->mutex_bridge);
+
     b->b[sz].CC = 0xCC;
     b->b[sz].S = 'S'; b->b[sz].C='C';
     b->b[sz].w = w;
     b->b[sz].f = (uintptr_t)fnc;
     b->b[sz].C3 = N?0xC2:0xC3;
     b->b[sz].N = N;
-    // add bridge to map, for fast recovery
-    int ret;
-    khint_t k = kh_put(bridgemap, bridge->bridgemap, (uintptr_t)fnc, &ret);
-    kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
-#ifdef DYNAREC
-    if(box86_dynarec)
-        protectDB((uintptr_t)b->b, NBRICK*sizeof(onebridge_t));
-#endif
-    mutex_unlock(&my_context->mutex_bridge);
-#ifdef HAVE_TRACE
+    #ifdef HAVE_TRACE
     if(name)
         addBridgeName(fnc, name);
-#else
-    (void)name;
-#endif
+    #endif
 
     return (uintptr_t)&b->b[sz].CC;
 }
