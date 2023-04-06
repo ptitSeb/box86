@@ -492,6 +492,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedpcap.c"
     "${BOX86_ROOT}/src/wrapped/wrappedfaudio.c"
     "${BOX86_ROOT}/src/wrapped/wrappedtbbmallocproxy.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibfuse.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS

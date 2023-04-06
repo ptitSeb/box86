@@ -23,6 +23,7 @@ void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack);
 void myStackAlignGVariantNew(const char* fmt, uint32_t* st, uint32_t* mystack);
 void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack);
 
+void AlignStat64(const void* source, void* dest);
 void UnalignStat64(const void* source, void* dest);
 
 void UnalignStatFS64(const void* source, void* dest);

@@ -741,6 +741,7 @@
 #() iFEpLi
 #() iFEppi
 #() iFEppu
+#() iFEppd
 #() iFEppL
 #() iFEppp
 #() iFEppV
@@ -794,6 +795,7 @@
 #() iFpild
 #() iFpipi
 #() iFpipC
+#() iFpipL
 #() iFpipp
 #() iFpipV
 #() iFpIip
@@ -1224,6 +1226,7 @@
 #() iFpppui
 #() iFpppuu
 #() iFpppup
+#() iFpppUi
 #() iFpppLi
 #() iFppppi
 #() iFppppu
@@ -1277,6 +1280,7 @@
 #() pFEppuW
 #() pFEppuu
 #() pFEppup
+#() pFEppLp
 #() pFEpppi
 #() pFEpppu
 #() pFEpppp
@@ -1454,6 +1458,7 @@
 #() iFEiippp
 #() iFEiLLLL
 #() iFEipuup
+#() iFEippLp
 #() iFEipppi
 #() iFElpppp
 #() iFEpiipp
@@ -1767,6 +1772,7 @@
 #() uFuippppp
 #() uFppiuppp
 #() uFppuuuup
+#() LFEppLppU
 #() LFEpppppu
 #() pFEpiiiiu
 #() pFEpLiiii
@@ -3134,6 +3140,21 @@ wrappedlibdl:
   - dladdr1
 wrappedlibdrm:
 wrappedlibformw:
+wrappedlibfuse:
+- iFpp:
+  - fuse_reply_entry
+- iFppd:
+  - fuse_reply_attr
+- iFppp:
+  - fuse_reply_create
+- iFpppp:
+  - fuse_opt_parse
+- pFppLp:
+  - fuse_lowlevel_new
+- iFippLp:
+  - fuse_main_real
+- LFppLppU:
+  - fuse_add_direntry
 wrappedlibgl:
 - iFi:
   - glXSwapIntervalMESA
