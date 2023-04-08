@@ -219,8 +219,12 @@ void Run660F(x86emu_t *emu)
         GX.d[0] = EM->sd[0];
         GX.d[1] = EM->sd[1];
         break;
-
-
+    case 0x2B:                      /* MOVNTPD Ex, Gx */
+        nextop = F8;
+        GET_EX;
+        EX->q[0] = GX.q[0]; // Address needs to ba aligned for MOVNTPD
+        EX->q[1] = GX.q[1];
+        break;
     case 0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
