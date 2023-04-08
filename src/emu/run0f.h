@@ -334,7 +334,17 @@
                         }
                     }
                     break;
-
+                case 0x08:  /* PSIGNB Gm, Em */
+                    nextop = F8;
+                    GET_EM;
+                    for (int i=0; i<8; ++i) {
+                        if (EM->sb[i] < 0) {
+                            GM.sb[i] = -GM.sb[i];
+                        } else if (EM->sb[i] == 0) {
+                            GM.sb[i] = 0;
+                        }
+                    }
+                    break;
                 case 0x09:  /* PSIGNW Gm, Em */
                     nextop = F8;
                     GET_EM;
