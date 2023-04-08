@@ -182,11 +182,11 @@
         _0f_0x2C:                      /* CVTTPS2PI Gm, Ex */
             nextop = F8;
             GET_EX;
-            if(isnanf(EX->f[1]) || isinff(EX->f[1]) || EX->f[1]>0x7fffffff)
+            if(isnanf(EX->f[1]) || isinff(EX->f[1]) || EX->f[1]>=(float)0x80000000U || EX->f[1]<-(float)0x80000000U)
                 GM.sd[1] = 0x80000000;
             else
                 GM.sd[1] = EX->f[1];
-            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x80000000U || EX->f[1]<-(float)0x80000000U)
                 GM.sd[0] = 0x80000000;
             else
                 GM.sd[0] = EX->f[0];
@@ -196,7 +196,7 @@
             nextop = F8;
             GET_EX;
             for(int i=1; i>=0; --i)
-                if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+                if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>=(float)0x80000000U || EX->f[i]<-(float)0x80000000U)
                     GM.sd[i] = 0x80000000;
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {

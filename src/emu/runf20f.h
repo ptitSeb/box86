@@ -30,7 +30,7 @@
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+        if(!isfinite(EX->d[0]) || EX->d[0]>(double)0x7fffffff || EX->d[0]<-(double)0x80000000U)
             GD.dword[0] = 0x80000000;
         else
             GD.sdword[0] = EX->d[0];
@@ -38,7 +38,7 @@
     case 0x2D:  /* CVTSD2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+        if(!isfinite(EX->d[0]) || EX->d[0]>(double)0x7fffffff || EX->d[0]<-(double)0x80000000U)
             GD.dword[0] = 0x80000000;
         else
             switch(emu->mxcsr.f.MXCSR_RC) {
@@ -295,7 +295,7 @@
         nextop = F8;
         GET_EX;
         for(int i=0; i<2; ++i)
-            if(isnan(EX->d[i]) || isinf(EX->d[i]) || EX->d[i]>0x7fffffff)
+            if(!isfinite(EX->d[i]) || EX->d[i]>(double)0x7fffffff || EX->d[i]<-(double)0x80000000U)
                 GX.ud[i] = 0x80000000;
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
