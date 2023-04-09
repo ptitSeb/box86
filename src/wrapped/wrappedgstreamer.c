@@ -17,11 +17,26 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "gtkclass.h"
 
 const char* gstreamerName = "libgstreamer-1.0.so.0";
 #define LIBNAME gstreamer
 
-#define ADDED_FUNCTIONS()           \
+typedef size_t  (*LFv_t)();
+typedef void*   (*pFv_t)();
+typedef void*   (*pFp_t)(void*);
+typedef void    (*vFpp_t)(void*, void*);
+typedef int     (*iFpp_t)(void*, void*);
+typedef void*   (*pFppp_t)(void*, void*, void*);
+
+#define ADDED_FUNCTIONS()                   \
+    GO(gst_object_get_type, LFv_t)          \
+    GO(gst_allocator_get_type, LFv_t)       \
+    GO(gst_structure_new_empty, pFp_t)      \
+    GO(gst_structure_new_valist, pFppp_t)   \
+    GO(gst_caps_new_empty, pFv_t)           \
+    GO(gst_caps_replace, iFpp_t)            \
+    GO(gst_caps_append_structure, vFpp_t)   \
 
 #include "generated/wrappedgstreamertypes.h"
 
@@ -105,10 +120,10 @@ static void* findGstPadQueryFunctionFct(void* fct)
 }
 //GstPadGetRangeFunction
 #define GO(A)   \
-static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                                                                             \
-static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)                                                         \
-{                                                                                                                                                   \
-    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 6, a, b, (uint32_t)(c&0xffffffff), (uint32_t)(c>>32)&0xffffffff, d, e);  \
+static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                         \
+static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)     \
+{                                                                                               \
+    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 5, a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -191,6 +206,28 @@ static void* findGstBusSyncHandlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBusSyncHandler callback\n");
     return NULL;
 }
+
+//GstPluginFeatureFilter
+#define GO(A)   \
+static uintptr_t my_GstPluginFeatureFilter_fct_##A = 0;                                 \
+static int my_GstPluginFeatureFilter_##A(void* a, void* b)                              \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_GstPluginFeatureFilter_fct_##A, 2, a, b);    \
+}
+SUPER()
+#undef GO
+static void* findGstPluginFeatureFilterFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_GstPluginFeatureFilter_fct_##A == (uintptr_t)fct) return my_GstPluginFeatureFilter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstPluginFeatureFilter_fct_##A == 0) {my_GstPluginFeatureFilter_fct_##A = (uintptr_t)fct; return my_GstPluginFeatureFilter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPluginFeatureFilter callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT void my_gst_caps_set_simple(x86emu_t* emu, void* caps, void* field, void* b) {
@@ -205,29 +242,10 @@ EXPORT void my_gst_caps_set_simple_valist(x86emu_t* emu, void* caps, void* field
     my->gst_caps_set_simple_valist(caps, field, VARARGS_(V));
 }
 
-EXPORT void my_gst_structure_remove_fields(x86emu_t* emu, void* structure, void* field, void* b) {
-    (void)emu;
-
-    PREPARE_VALIST_(b);
-    my->gst_structure_remove_fields_valist(structure, field, VARARGS_(b));
-}
-
-EXPORT void my_gst_structure_remove_fields_valist(x86emu_t* emu, void* structure, void* field, void* V) {
-    (void)emu;
-    PREPARE_VALIST_(V);
-    my->gst_structure_remove_fields_valist(structure, field, VARARGS_(V));
-}
-
 EXPORT void my_gst_debug_log(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* b) {
     myStackAlign((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST;
     my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS);
-}
-
-EXPORT void my_gst_debug_log_valist(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* V) {
-    (void)emu;
-    PREPARE_VALIST_(V);
-    my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS_(V));
 }
 
 EXPORT int my_gst_structure_get(x86emu_t* emu, void* structure, void* field, void* b) {
@@ -245,38 +263,61 @@ EXPORT int my_gst_structure_get_valist(x86emu_t* emu, void* structure, void* fie
 
 EXPORT void my_gst_pad_set_activatemode_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    (void)emu;
     my->gst_pad_set_activatemode_function_full(pad, findGstPadActivateModeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_query_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    (void)emu;
     my->gst_pad_set_query_function_full(pad, findGstPadQueryFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_getrange_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    (void)emu;
     my->gst_pad_set_getrange_function_full(pad, findGstPadGetRangeFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_chain_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    (void)emu;
     my->gst_pad_set_chain_function_full(pad, findGstPadChainFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_event_function_full(x86emu_t* emu, void* pad, void* f, void* data, void* d)
 {
-    (void)emu;
     my->gst_pad_set_event_function_full(pad, findGstPadEventFunctionFct(f), data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_bus_set_sync_handler(x86emu_t* emu, void* bus, void* f, void* data, void* d)
 {
-    (void)emu;
     my->gst_bus_set_sync_handler(bus, findGstBusSyncHandlerFct(f), data, findDestroyFct(d));
+}
+
+EXPORT void* my_gst_buffer_new_wrapped_full(x86emu_t* emu, uint32_t f, void* data, size_t maxsize, size_t offset, size_t size, void* user, void* d)
+{
+    return my->gst_buffer_new_wrapped_full(f, data, maxsize, offset, size, user, findDestroyFct(d));
+}
+
+EXPORT void my_gst_mini_object_set_qdata(x86emu_t* emu, void* object, void* quark, void* data, void* d)
+{
+    PREPARE_VALIST_(V);
+    my->gst_mini_object_set_qdata(object, quark, data, findDestroyFct(d));
+}
+
+EXPORT void* my_gst_caps_new_simple(x86emu_t* emu, void* type, void* name, void* V)
+{
+    // need to unroll the function here, there is no direct VA equivalent
+    void* caps = my->gst_caps_new_empty();
+    void* structure = my->gst_structure_new_valist(type, name, VARARGS_(V));
+    if (structure)
+        my->gst_caps_append_structure(caps, structure);
+    else
+        my->gst_caps_replace(&caps, NULL);
+
+    return caps;
+}
+
+EXPORT void* my_gst_registry_feature_filter(x86emu_t* emu, void* reg, void* filter, int first, void* data)
+{
+    return my->gst_registry_feature_filter(reg, findGstPluginFeatureFilterFct(filter), first, data);
 }
 
 #define PRE_INIT    \
@@ -284,7 +325,10 @@ EXPORT void my_gst_bus_set_sync_handler(x86emu_t* emu, void* bus, void* f, void*
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);
+    getMy(lib);     \
+    SetGstObjectID(my->gst_object_get_type());                 \
+    SetGstAllocatorID(my->gst_allocator_get_type());           \
+    setNeededLibs(lib, 1, "libgtk-3.so.0");
 
 #define CUSTOM_FINI \
     freeMy();

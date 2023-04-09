@@ -578,6 +578,7 @@
 #() pFppl
 #() pFppL
 #() pFppp
+#() pFppV
 #() pFpOM
 #() pFpss
 #() pFSpl
@@ -1860,6 +1861,7 @@
 #() vFpiUuupup
 #() vFpippiiuu
 #() vFpippiipi
+#() vFpuppLLLL
 #() vFpUiUiupi
 #() vFpUuuUUUi
 #() vFppiiiiii
@@ -1917,6 +1919,7 @@
 #() uFppuuuppi
 #() uFppuppppp
 #() LFEpiupppp
+#() pFEiplllpp
 #() pFEpiuCppp
 #() pFEppCuuCC
 #() pFEppCuuWW
@@ -2752,7 +2755,6 @@ wrappedgstinterfaces010:
 wrappedgstreamer:
 - vFppp:
   - gst_caps_set_simple_valist
-  - gst_structure_remove_fields_valist
 - vFppV:
   - gst_caps_set_simple
   - gst_structure_remove_fields
@@ -2760,13 +2762,21 @@ wrappedgstreamer:
   - gst_structure_get_valist
 - iFppV:
   - gst_structure_get
+- pFppV:
+  - gst_caps_new_simple
+  - gst_structure_new
 - vFpppp:
   - gst_bus_set_sync_handler
+  - gst_mini_object_set_qdata
   - gst_pad_set_activatemode_function_full
   - gst_pad_set_chain_function_full
   - gst_pad_set_event_function_full
   - gst_pad_set_getrange_function_full
   - gst_pad_set_query_function_full
+- pFppip:
+  - gst_registry_feature_filter
+- pFiplllpp:
+  - gst_buffer_new_wrapped_full
 - vFpippippp:
   - gst_debug_log_valist
 - vFpippippV:
