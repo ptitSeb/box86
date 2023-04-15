@@ -88,4 +88,8 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 
 const char* getCacheName(int t, int n);
 
+void inst_name_pass3(dynarec_arm_t* dyn, int ninst, const char* name);
+void print_opcode(dynarec_arm_t* dyn, int ninst, uint32_t opcode);
+void newinst_pass3(dynarec_arm_t* dyn, int ninst, uintptr_t ip);
+
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

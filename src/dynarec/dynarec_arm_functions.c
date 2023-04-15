@@ -27,6 +27,7 @@
 #include "dynarec_arm_private.h"
 #include "dynarec_arm_functions.h"
 #include "bridge.h"
+#include "arm_printer.h"
 
 void arm_fstp(x86emu_t* emu, void* p)
 {
@@ -796,4 +797,68 @@ int CacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     if (fpuCacheNeedsTransform(dyn, ninst)) ret|=1;
     if (flagsCacheNeedsTransform(dyn, ninst)) ret|=2;
     return ret;
+}
+
+void inst_name_pass3(dynarec_arm_t* dyn, int ninst, const char* name)
+{
+    if(box86_dynarec_dump) {
+        printf_x86_instruction(my_context->dec, &dyn->insts[ninst].x86, name);
+        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X sm=%d/%d",
+            (box86_dynarec_dump>1)?"\e[32m":"",
+            (void*)(dyn->arm_start+dyn->insts[ninst].address),
+            dyn->insts[ninst].size/4,
+            ninst,
+            dyn->insts[ninst].x86.barrier,
+            dyn->insts[ninst].x86.state_flags,
+            dyn->f.pending,
+            dyn->f.dfnone,
+            dyn->insts[ninst].x86.may_set?"may":"set",
+            dyn->insts[ninst].x86.set_flags,
+            dyn->insts[ninst].x86.gen_flags,
+            dyn->insts[ninst].x86.use_flags,
+            dyn->insts[ninst].x86.need_before,
+            dyn->insts[ninst].x86.need_after,
+            dyn->smread, dyn->smwrite);
+        if(dyn->insts[ninst].pred_sz) {
+            dynarec_log(LOG_NONE, ", pred=");
+            for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)
+                dynarec_log(LOG_NONE, "%s%d", ii?"/":"", dyn->insts[ninst].pred[ii]);
+        }
+        if(dyn->insts[ninst].x86.jmp && dyn->insts[ninst].x86.jmp_insts>=0)
+            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x86.jmp_insts);
+        if(dyn->insts[ninst].x86.jmp && dyn->insts[ninst].x86.jmp_insts==-1)
+            dynarec_log(LOG_NONE, ", jmp=out");
+        for(int ii=0; ii<24; ++ii) {
+            switch(dyn->insts[ninst].n.neoncache[ii].t) {
+                case NEON_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii+8, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", (ii+8)*2, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii+8, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:%s", (ii+8)/2, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); ++ii; break;
+                case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:%s", (ii+8)/2, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); ++ii; break;
+                case NEON_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii+8, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_NONE:
+                default:    break;
+            }
+        }
+        if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)
+            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
+        if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
+            dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);
+        dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
+    }
+}
+
+void print_opcode(dynarec_arm_t* dyn, int ninst, uint32_t opcode)
+{
+    dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, arm_print(opcode));
+}
+
+void newinst_pass3(dynarec_arm_t* dyn, int ninst, uintptr_t ip)
+{
+    if(ninst && isInstClean(dyn, ninst)) {
+        dyn->sons_x86[dyn->sons_size] = ip;
+        dyn->sons_arm[dyn->sons_size] = dyn->block;
+        if(box86_dynarec_dump) dynarec_log(LOG_NONE, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);
+        ++dyn->sons_size;
+    }
 }

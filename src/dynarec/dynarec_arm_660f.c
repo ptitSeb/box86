@@ -2311,7 +2311,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VPADDLQ_U32(q0, q0);
             break;
         case 0xF7:
-            INST_NAME("MASKMOVDQU Gx, Ex")
+            INST_NAME("MASKMOVDQU Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0);
