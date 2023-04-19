@@ -630,6 +630,28 @@ static void* findGCallbackFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GCallback callback\n");
     return NULL;
 }
+// GtkPrinterFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkPrinterFunc_fct_##A = 0;                         \
+static int my_GtkPrinterFunc_##A(void* a, void* b)                      \
+{                                                                       \
+    return RunFunction(my_context, my_GtkPrinterFunc_fct_##A, 2, a, b); \
+}
+SUPER()
+#undef GO
+static void* find_GtkPrinterFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkPrinterFunc_fct_##A == (uintptr_t)fct) return my_GtkPrinterFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkPrinterFunc_fct_##A == 0) {my_GtkPrinterFunc_fct_##A = (uintptr_t)fct; return my_GtkPrinterFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkPrinterFunc callback\n");
+    return NULL;
+}
 
 
 #undef SUPER
@@ -1075,6 +1097,12 @@ EXPORT void my_gtk_signal_compat_matched(x86emu_t* emu, void* obj, void* cb, voi
 {
     (void)emu;
     my->gtk_signal_compat_matched(obj, findGCallbackFct(cb), data, match, action);
+}
+
+EXPORT void my_gtk_enumerate_printers(x86emu_t* emu, void* f, void* data, void* d, int wait)
+{
+    (void)emu;
+    my->gtk_enumerate_printers(find_GtkPrinterFunc_Fct(f), data, findGDestroyNotifyFct(d), wait);
 }
 
 #define PRE_INIT    \

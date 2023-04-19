@@ -26,6 +26,7 @@ typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFppiV_t)(void*, void*, int32_t, ...);
 typedef void (*vFppup_t)(void*, void*, uint32_t, void*);
+typedef void (*vFpppi_t)(void*, void*, void*, int32_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpppV_t)(void*, void*, void*, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
@@ -75,6 +76,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_link_button_set_uri_hook, pFppp_t) \
 	GO(gtk_list_store_insert_with_values, vFppiV_t) \
 	GO(gtk_action_group_add_actions, vFppup_t) \
+	GO(gtk_enumerate_printers, vFpppi_t) \
 	GO(gtk_clipboard_request_contents, vFpppp_t) \
 	GO(gtk_object_set_data_full, vFpppp_t) \
 	GO(gtk_stock_set_translate_func, vFpppp_t) \

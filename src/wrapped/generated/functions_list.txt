@@ -986,6 +986,7 @@
 #() vFEppip
 #() vFEppiV
 #() vFEppup
+#() vFEpppi
 #() vFEpppp
 #() vFEpPpp
 #() vFiiiii
@@ -2899,6 +2900,8 @@ wrappedgtkx112:
   - gtk_list_store_insert_with_values
 - vFppup:
   - gtk_action_group_add_actions
+- vFpppi:
+  - gtk_enumerate_printers
 - vFpppp:
   - gtk_clipboard_request_contents
   - gtk_object_set_data_full

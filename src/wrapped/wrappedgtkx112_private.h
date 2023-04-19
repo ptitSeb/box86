@@ -957,7 +957,7 @@ GO(gtk_entry_set_visibility, vFpi)
 GO(gtk_entry_set_width_chars, uFp)
 //GO(gtk_entry_text_index_to_layout_index, 
 //GO(gtk_entry_unset_invisible_char, 
-//GO(gtk_enumerate_printers, 
+GOM(gtk_enumerate_printers, vFEpppi)
 GO(gtk_event_box_get_above_child, iFp)
 GO(gtk_event_box_get_type, iFv)
 GO(gtk_event_box_get_visible_window, iFp)
