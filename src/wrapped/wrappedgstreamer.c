@@ -123,7 +123,7 @@ static void* findGstPadQueryFunctionFct(void* fct)
 static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                         \
 static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)     \
 {                                                                                               \
-    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 5, a, b, c, d, e);   \
+    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 6, a, b, (uint32_t)c, (uint32_t)(c>>32), d, e);   \
 }
 SUPER()
 #undef GO
@@ -240,12 +240,6 @@ EXPORT void my_gst_caps_set_simple_valist(x86emu_t* emu, void* caps, void* field
     (void)emu;
     PREPARE_VALIST_(V);
     my->gst_caps_set_simple_valist(caps, field, VARARGS_(V));
-}
-
-EXPORT void my_gst_debug_log(x86emu_t* emu, void* cat, int level, void* file, void* func, int line, void* obj, void* fmt, void* b) {
-    myStackAlign((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST;
-    my->gst_debug_log_valist(cat, level, file, func, line, obj, fmt, VARARGS);
 }
 
 EXPORT int my_gst_structure_get(x86emu_t* emu, void* structure, void* field, void* b) {

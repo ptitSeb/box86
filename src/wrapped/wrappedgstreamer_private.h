@@ -437,10 +437,10 @@ GO(_gst_debug_category_new, pFppp)
 //GO(gst_debug_is_colored, 
 //GO(gst_debug_level_get_name, 
 //GO(gst_debug_level_get_type, 
-GOM(gst_debug_log, vFEpippippV)
+GO2(gst_debug_log, vFpippippV, gst_debug_log_valist)
 //GO(gst_debug_log_default, 
 //GO(gst_debug_log_get_line, 
-GOM(gst_debug_log_valist, vFEpippippp)
+GO(gst_debug_log_valist, vFpippippp)
 //GO(gst_debug_message_get, 
 DATAB(_gst_debug_min, sizeof(int))
 //GO(_gst_debug_nameof_funcptr, 

@@ -1862,6 +1862,8 @@
 #() vFpiUuupup
 #() vFpippiiuu
 #() vFpippiipi
+#() vFpippippp
+#() vFpippippV
 #() vFpuppLLLL
 #() vFpUiUiupi
 #() vFpUuuUUUi
@@ -1949,8 +1951,6 @@
 #() pFpppuuuuu
 #() pFpppppupp
 #() vFEpiiiiipp
-#() vFEpippippp
-#() vFEpippippV
 #() vFEpuuuippp
 #() vFEppiipppp
 #() vFEpppiippp
@@ -2778,8 +2778,6 @@ wrappedgstreamer:
   - gst_registry_feature_filter
 - pFiplllpp:
   - gst_buffer_new_wrapped_full
-- vFpippippp:
-  - gst_debug_log_valist
 - vFpippippV:
   - gst_debug_log
 wrappedgstreamer010:
