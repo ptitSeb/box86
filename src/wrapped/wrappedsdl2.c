@@ -19,6 +19,7 @@
 #include "sdl2rwops.h"
 #include "myalign.h"
 #include "threads.h"
+#include "gltools.h"
 
 #include "generated/wrappedsdl2defs.h"
 
@@ -726,71 +727,19 @@ EXPORT void my2_SDL_Log(x86emu_t* emu, void* fmt, void *b) {
     #endif
 }
 
-void fillGLProcWrapper(box86context_t*);
 EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name) 
 {
     khint_t k;
     const char* rname = (const char*)name;
-    printf_dlsym(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(\"%s\") => ", rname);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    if(!emu->context->glxprocaddress)
-        emu->context->glxprocaddress = (procaddess_t)my->SDL_GL_GetProcAddress;
-    if(!emu->context->glwrappers) {
-        fillGLProcWrapper(emu->context);
-        // check if libGL is loaded, load it if not (helps DeadCells)
-        if(!my_glhandle && !GetLibInternal(box86_libGL?box86_libGL:"libGL.so.1")) {
+    static int lib_checked = 0;
+    if(!lib_checked) {
+        lib_checked = 1;
+            // check if libGL is loaded, load it if not (helps some Haxe games, like DeadCells or Nuclear Blaze)
+        if(!my_glhandle && !GetLibInternal(box86_libGL?box86_libGL:"libGL.so.1"))
             // use a my_dlopen to actually open that lib, like SDL2 is doing...
             my_glhandle = my_dlopen(emu, box86_libGL?box86_libGL:"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
-        }
     }
-    // get proc adress using actual glXGetProcAddress
-    k = kh_get(symbolmap, emu->context->glmymap, rname);
-    int is_my = (k==kh_end(emu->context->glmymap))?0:1;
-    void* symbol;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
-        symbol = dlsym(emu->context->box86lib, tmp);
-    } else 
-        symbol = my->SDL_GL_GetProcAddress(name);
-    if(!symbol) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
-        return NULL;    // easy
-    }
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret) {
-        printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
-        return (void*)ret; // already bridged
-    }
-    // get wrapper    
-    k = kh_get(symbolmap, emu->context->glwrappers, rname);
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
-        // try again, adding ARB at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "ARB");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "EXT")==NULL) {
-        // try again, adding EXT at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "EXT");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers)) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
-        if(dlsym_error && box86_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
-        return NULL;
-    }
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    const char* constname = kh_key(emu->context->glwrappers, k);
-    ret  = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
-    printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
-    return (void*)ret;
+    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 #define nb_once	16
@@ -987,7 +936,7 @@ void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* device, void* name);
 EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
 {
     if(!emu->context->vkprocaddress)
-        emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
+        emu->context->vkprocaddress = (vkprocaddress_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
 
     if(emu->context->vkprocaddress)
         return (void*)AddCheckBridge(my_lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");

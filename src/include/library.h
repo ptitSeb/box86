@@ -27,10 +27,6 @@ int IsSameLib(library_t* lib, const char* path);    // check if lib is same (pat
 int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int *weak, int version, const char* vername, int local);
 int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local);
 int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local);
-void fillGLProcWrapper(box86context_t* context);
-void freeGLProcWrapper(box86context_t* context);
-void fillALProcWrapper(box86context_t* context);
-void freeALProcWrapper(box86context_t* context);
 needed_libs_t* GetNeededLibs(library_t* lib);
 int GetNeededLibN(library_t* lib);
 library_t* GetNeededLib(library_t* lib, int idx);

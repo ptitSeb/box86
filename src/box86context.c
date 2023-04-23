@@ -23,6 +23,7 @@
 #include "custommem.h"
 #include "dictionnary.h"
 #include "rcfile.h"
+#include "gltools.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/arm_lock_helper.h"
@@ -250,7 +251,7 @@ box86context_t *NewBox86Context(int argc)
 
     return context;
 }
-
+void freeALProcWrapper(box86context_t* context);
 EXPORTDYN
 void FreeBox86Context(box86context_t** context)
 {
