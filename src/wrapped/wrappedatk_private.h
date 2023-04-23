@@ -187,7 +187,7 @@ GO(atk_state_set_new, pFv)
 GO(atk_state_set_or_sets, pFpp)
 GO(atk_state_set_remove_state, iFpi)
 GO(atk_state_set_xor_sets, pFpp)
-//GO(atk_state_type_for_name, 
+GO(atk_state_type_for_name, iFp)
 //GO(atk_state_type_get_name, 
 //GO(atk_state_type_get_type, 
 //GO(atk_state_type_register, 
