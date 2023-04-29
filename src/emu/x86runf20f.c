@@ -1,4 +1,51 @@
+#define _GNU_SOURCE
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "x87emu_private.h"
+#include "box86context.h"
+#include "bridge.h"
+
+#include "modrm.h"
+
+#ifdef TEST_INTERPRETER
+uintptr_t TestF20F(x86test_t *test, uintptr_t addr, int *step)
+#else
+uintptr_t RunF20F(x86emu_t *emu, uintptr_t addr, int *step)
+#endif
+{
+    uint8_t opcode;
+    uint8_t nextop;
+    int8_t tmp8s;
+    uint8_t tmp8u;
+    int32_t tmp32s;
+    int64_t tmp64s0, tmp64s1;
+    reg32_t *oped, *opgd;
+    sse_regs_t *opex, *opgx, eax1;
+    mmx87_regs_t *opgm;
+    #ifndef NOALIGN
+    int is_nan;
+    #endif
+    #ifdef TEST_INTERPRETER
+    x86emu_t*emu = test->emu;
+    #endif
+
     opcode = F8;
+
     switch(opcode) {
 
     case 0x10:  /* MOVSD Gx, Ex */
@@ -255,7 +302,7 @@
         
     GOCOND(0x80
         , tmp32s = F32S; CHECK_FLAGS(emu);
-        , ip += tmp32s;
+        , addr += tmp32s; STEP3;
     )                               /* 0x80 -> 0x8F Jxx */
         
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
@@ -322,6 +369,7 @@
         break;
 
     default:
-        goto _default;
+        return 0;
     }
-
+    return addr;
+}

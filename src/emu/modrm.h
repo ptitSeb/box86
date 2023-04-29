@@ -1,3 +1,23 @@
+#define F8      *(uint8_t*)(addr++)
+#define F8S     *(int8_t*)(addr++)
+#define F16     *(uint16_t*)(addr+=2, addr-2)
+#define F16S    *(int16_t*)(addr+=2, addr-2)
+#define F32     *(uint32_t*)(addr+=4, addr-4)
+#define F32S    *(int32_t*)(addr+=4, addr-4)
+#define F32S64  (uint64_t)(int64_t)F32S
+#define F64     *(uint64_t*)(addr+=8, addr-8)
+#define F64S    *(int64_t*)(addr+=8, addr-8)
+#define PK(a)   *(uint8_t*)(addr+a)
+#ifdef DYNAREC
+#define STEP if(step) return 0;
+#define STEP2 if(step) {R_EIP = addr; return 0;}
+#define STEP3 if(*step) (*step)++;
+#else
+#define STEP
+#define STEP2
+#define STEP3
+#endif
+
 // ModRM utilities macros
 #define getecommon(A, T) \
     if(!(nextop&0xC0)) { \
@@ -127,6 +147,8 @@
     } else getecommon16o(A, reg32_t, O)
 
 // Macros for ModR/M gets
+#ifdef TEST_INTERPRETER
+#warning TODO
 #define GET_EB      geteb(oped)
 #define GET_ED      geted(oped)
 #define GET_ED_OFFS(o) getedo(oped, o)
@@ -135,6 +157,16 @@
 #define GET_EX      getex(opex)
 #define GET_EW16    getew16(oped)
 #define GET_EW16_OFFS(o)    getew16o(oped, o)
+#else
+#define GET_EB      geteb(oped)
+#define GET_ED      geted(oped)
+#define GET_ED_OFFS(o) getedo(oped, o)
+#define GET_EB_OFFS(o) getebo(oped, o)
+#define GET_EM      getem(opem)
+#define GET_EX      getex(opex)
+#define GET_EW16    getew16(oped)
+#define GET_EW16_OFFS(o)    getew16o(oped, o)
+#endif
 #define EB          oped
 #define ED          oped
 #define EM          opem

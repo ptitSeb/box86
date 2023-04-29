@@ -194,17 +194,45 @@ void UpdateFlags(x86emu_t *emu);
 #define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
 #define RESET_FLAGS(emu) emu->df = d_none
 
-void Run67(x86emu_t *emu);
-void Run0F(x86emu_t *emu);
-void Run660F(x86emu_t *emu);
-void Run66D9(x86emu_t *emu);    // x87
-void Run6766(x86emu_t *emu);
-void RunGS(x86emu_t *emu);
-void RunGS0F(x86emu_t *emu, uintptr_t tlsdata);
-void RunFS(x86emu_t *emu);
-void RunFS66(x86emu_t *emu, uintptr_t tlsdata);
-void RunLock(x86emu_t *emu);
-void RunLock66(x86emu_t *emu);
+uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step);
+uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr);
+uintptr_t Run640F(x86emu_t *emu, uintptr_t tlsdata, uintptr_t addr);
+uintptr_t Run6466(x86emu_t *emu, uintptr_t tlsdata, uintptr_t addr);
+uintptr_t Run6467(x86emu_t *emu, uintptr_t tlsdata, uintptr_t addr);
+uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr);
+uintptr_t Run660F(x86emu_t *emu, uintptr_t addr);
+uintptr_t Run6664(x86emu_t *emu, int seg, uintptr_t addr);
+uintptr_t Run66D9(x86emu_t *emu, uintptr_t addr);
+uintptr_t Run66DD(x86emu_t *emu, uintptr_t addr);
+uintptr_t Run66F0(x86emu_t *emu, uintptr_t addr);
+uintptr_t Run67(x86emu_t *emu, int rep, uintptr_t addr);
+uintptr_t Run670F(x86emu_t *emu, int rep, uintptr_t addr);
+uintptr_t Run6766(x86emu_t *emu, int rep, uintptr_t addr);
+uintptr_t Run67660F(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunD8(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunD9(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunDA(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunDB(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunDC(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunDD(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunDE(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunDF(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunF0(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunF066(x86emu_t *emu, uintptr_t addr);
+uintptr_t RunF20F(x86emu_t *emu, uintptr_t addr, int *step);
+uintptr_t RunF30F(x86emu_t *emu, uintptr_t addr);
+
+//void Run67(x86emu_t *emu);
+//void Run0F(x86emu_t *emu);
+//void Run660F(x86emu_t *emu);
+//void Run66D9(x86emu_t *emu);    // x87
+//void Run6766(x86emu_t *emu);
+//void RunGS(x86emu_t *emu);
+//void RunGS0F(x86emu_t *emu, uintptr_t tlsdata);
+//void RunFS(x86emu_t *emu);
+//void RunFS66(x86emu_t *emu, uintptr_t tlsdata);
+//void RunLock(x86emu_t *emu);
+//void RunLock66(x86emu_t *emu);
 
 void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);

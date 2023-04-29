@@ -14,19 +14,14 @@
 #include "x86trace.h"
 #include "box86context.h"
 
-#define F8      *(uint8_t*)(ip++)
-#define F8S     *(int8_t*)(ip++)
-#define F16     *(uint16_t*)(ip+=2, ip-2)
-#define F16S    *(int16_t*)(ip+=2, ip-2)
-#define F32     *(uint32_t*)(ip+=4, ip-4)
-#define F32S    *(int32_t*)(ip+=4, ip-4)
-#define PK(a)   *(uint8_t*)(ip+a)
-
 #include "modrm.h"
 
-void Run660F(x86emu_t *emu)
+#ifdef TEST_INTERPRETER
+uintptr_t Test660F(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
+#endif
 {
-    uintptr_t ip = R_EIP+2; //skip 66 0F
     uint8_t opcode;
     uint8_t nextop;
     reg32_t *oped;
@@ -43,6 +38,9 @@ void Run660F(x86emu_t *emu)
     #endif
 
 
+    #ifdef TEST_INTERPRETER
+    x64emu_t* emu = test->emu;
+    #endif
     opcode = F8;
     switch(opcode) {
 
@@ -144,8 +142,7 @@ void Run660F(x86emu_t *emu)
                 EW->word[0] = 0;    // dummy operation. Should be CR0 -> Ew
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x10:                      /* MOVUPD Gx, Ex */
@@ -544,8 +541,7 @@ void Run660F(x86emu_t *emu)
                 break;
 
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
 
@@ -727,8 +723,7 @@ void Run660F(x86emu_t *emu)
                 break;
 
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
 
@@ -1048,8 +1043,7 @@ void Run660F(x86emu_t *emu)
                     for (int i=0; i<8; ++i) EX->uw[i] <<= tmp8u;
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x72:  /* GRP */
@@ -1075,8 +1069,7 @@ void Run660F(x86emu_t *emu)
                     for (int i=0; i<4; ++i) EX->ud[i] <<= tmp8u;
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x73:  /* GRP */
@@ -1128,8 +1121,7 @@ void Run660F(x86emu_t *emu)
                 }
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x74:  /* PCMPEQB Gx,Ex */
@@ -1364,8 +1356,7 @@ void Run660F(x86emu_t *emu)
                 break;
 
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0xBB:                      /* BTC Ew,Gw */
@@ -1544,8 +1535,7 @@ void Run660F(x86emu_t *emu)
                 if(EX->ub[i]&0x80)
                     GD.dword[0] |= (1<<i);
         } else {
-            ip = R_EIP;
-            UnimpOpcode(emu);
+            return 0;
         }
         break;
     case 0xD8:  /* PSUBUSB Gx,Ex */
@@ -1831,10 +1821,8 @@ void Run660F(x86emu_t *emu)
         break;
  
     default:
-        ip = R_EIP;
-        UnimpOpcode(emu);
+        return 0;
     }
 
-    R_EIP = ip;
-    return;
+    return addr;
 }

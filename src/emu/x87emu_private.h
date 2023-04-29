@@ -14,10 +14,6 @@ typedef struct x86emu_s x86emu_t;
 #define LN2		0.69314718055994531
 #define LG2		0.3010299956639812
 
-void Run66D9(x86emu_t *emu);
-void Run66DD(x86emu_t *emu);
-void RunDF(x86emu_t *emu);
-
 #define ST0 emu->x87[emu->top]
 #define ST1 emu->x87[(emu->top+1)&7]
 #define ST(a) emu->x87[(emu->top+(a))&7]

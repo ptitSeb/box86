@@ -1,3 +1,37 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x87emu_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "box86context.h"
+
+#include "modrm.h"
+
+#ifdef TEST_INTERPRETER
+uintptr_t TestDF(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t RunDF(x86emu_t *emu, uintptr_t addr)
+#endif
+{
+    uint8_t nextop;
+    int16_t tmp16s;
+    int64_t tmp64s;
+    double d;
+    reg32_t *oped;
+    #ifdef TEST_INTERPRETER
+    x86emu_t*emu = test->emu;
+    #endif
+
     nextop = F8;
     switch (nextop) {
     case 0xC0:  /* FFREEP STx */
@@ -84,7 +118,7 @@
     case 0xFD:
     case 0xFE:
     case 0xFF:
-        goto _default;
+        return 0;
 
     default:
         switch((nextop>>3)&7) {
@@ -163,6 +197,8 @@
             fpu_do_pop(emu);
             break;
         default:
-            goto _default;
+            return 0;
         }
     }
+    return addr;
+}
