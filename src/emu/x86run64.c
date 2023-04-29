@@ -20,18 +20,20 @@
 
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test64(x86test_t *test, uintptr_t addr, int *step)
+uintptr_t Test64(x86test_t *test, int seg, uintptr_t addr)
 #else
 uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
 #endif
 {
-    uintptr_t ip = R_EIP+1;
     uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
+    #ifdef TEST_INTERPRETER
+    x86emu_t* emu = test->emu;
+    #endif
     uintptr_t tlsdata = (seg==_FS)?GetFSBaseEmu(emu):GetGSBaseEmu(emu);
     switch(opcode) {
         case 0x01:              /* ADD GS:Ed, Gd */
@@ -55,7 +57,11 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
             break;
 
         case 0x0f:
+            #ifdef TEST_INTERPRETER
+            return Test640F(test, tlsdata, addr);
+            #else
             return Run640F(emu, tlsdata, addr);
+            #endif
 
         case 0x11:              /* ADC GS:Ed, Gd */
             nextop = F8;
@@ -160,12 +166,24 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
 
         case 0x64:              /* FS: */
             // so just ignore that GS: prefix then
+            #ifdef TEST_INTERPRETER
+            return Test64(test, _FS, addr-1); // put FS back
+            #else
             return Run64(emu, _FS, addr-1); // put FS back
+            #endif
 
         case 0x66:
+            #ifdef TEST_INTERPRETER
+            return Test6466(test, tlsdata, addr);
+            #else
             return Run6466(emu, tlsdata, addr);
+            #endif
         case 0x67:
+            #ifdef TEST_INTERPRETER
+            return Test6467(test, tlsdata, addr);
+            #else
             return Run6467(emu, tlsdata, addr);
+            #endif
 
         case 0x69:              /* IMUL Gd,Ed,Id */
             nextop = F8;
@@ -294,8 +312,7 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
 
         case 0x9C:              /* PUSHFD */
             // Segment override if for memory loc, no stack segment 
-            --ip;   // so ignore prefix and continue
-            break;
+            return addr-1;   // so ignore prefix and continue
 
         case 0xA0:              /* MOV AL,Ob */
             tmp32s = F32S;
@@ -395,8 +412,8 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
                     break;
                 case 2:                 /* CALL NEAR Ed */
                     R_EIP = (uintptr_t)getAlternate((void*)ED->dword[0]);
-                    Push(emu, ip);
-                    ip = R_EIP;
+                    Push(emu, addr);
+                    addr = R_EIP;
                     break;
                 case 3:                 /* CALL FAR Ed */
                     if(nextop>0xc0) {
@@ -406,13 +423,13 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
                         return 0;
                     } else {
                         Push16(emu, R_CS);
-                        Push(emu, ip);
-                        ip = ED->dword[0];
+                        Push(emu, addr);
+                        addr = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
-                    ip = (uintptr_t)getAlternate((void*)ED->dword[0]);
+                    addr = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     break;
                 case 5:                 /* JMP FAR Ed */
                     if(nextop>0xc0) {
@@ -421,7 +438,7 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
                         emu->error |= ERR_ILLEGAL;
                         return 0;
                     } else {
-                        ip = ED->dword[0];
+                        addr = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                     }
                     break;

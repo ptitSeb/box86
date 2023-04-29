@@ -140,6 +140,7 @@ typedef struct box86context_s {
     uint32_t            mutex_bridge;
     uint32_t            mutex_dyndump;
     int                 trace_dynarec;
+    pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
     #endif
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)

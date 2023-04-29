@@ -153,12 +153,12 @@ uintptr_t RunDF(x86emu_t *emu, uintptr_t addr)
             fpu_do_pop(emu);
             break;
         case 4: /* FBLD ST0, tbytes */
-            GET_ED;
+            GET_EDT;
             fpu_do_push(emu);
             fpu_fbld(emu, (uint8_t*)ED);
             break;
         case 5: /* FILD ST0, Gq */
-            GET_ED;
+            GET_ED8;
             tmp64s = *(int64_t*)ED;
             fpu_do_push(emu);
             ST0.d = tmp64s;
@@ -166,12 +166,12 @@ uintptr_t RunDF(x86emu_t *emu, uintptr_t addr)
             STll(0).sref = ST0.sq;
             break;
         case 6: /* FBSTP tbytes, ST0 */
-            GET_ED;
+            GET_EDT;
             fpu_fbst(emu, (uint8_t*)ED);
             fpu_do_pop(emu);
             break;
         case 7: /* FISTP i64 */
-            GET_ED;
+            GET_ED8;
             if((uintptr_t)ED & 0x7) {
                 // un-aligned!
                 if(STll(0).sref==ST(0).sq)

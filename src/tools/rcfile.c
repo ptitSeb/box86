@@ -83,6 +83,7 @@ ENTRYINT(BOX86_DYNAREC_SAFEFLAGS, box86_dynarec_safeflags, 0, 2, 2) \
 ENTRYINT(BOX86_DYNAREC_HOTPAGE, box86_dynarec_hotpage, 0, 255, 8)   \
 ENTRYBOOL(BOX86_DYNAREC_BLEEDING_EDGE, box86_dynarec_bleeding_edge) \
 ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
+ENTRYBOOL(BOX86_DYNAREC_TEST, box86_dynarec_test)                   \
 
 #else
 #define SUPER3()                                                    \
@@ -99,6 +100,7 @@ IGNORE(BOX86_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX86_DYNAREC_BLEEDING_EDGE)                                 \
 IGNORE(BOX86_NODYNAREC)                                             \
+IGNORE(BOX86_DYNAREC_TEST)                                          \
 
 #endif
 

@@ -39,7 +39,7 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
 
 
     #ifdef TEST_INTERPRETER
-    x64emu_t* emu = test->emu;
+    x86emu_t* emu = test->emu;
     #endif
     opcode = F8;
     switch(opcode) {
@@ -157,7 +157,7 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         break;
     case 0x12:                      /* MOVLPD Gx, Eq */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         if((uintptr_t)ED & 7)
             memcpy(&GX.q[0], ED, 8);
         else
@@ -165,7 +165,7 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         break;
     case 0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         if((uintptr_t)ED & 7)
             memcpy(ED, &GX.q[0], 8);
         else
@@ -184,12 +184,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         break;
     case 0x16:                      /* MOVHPD Gx, Ed */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         GX.q[1] = *(uint64_t*)ED;
         break;
     case 0x17:                      /* MOVHPD Ed, Gx */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         *(uint64_t*)ED = GX.q[1];
         break;
 
@@ -1214,7 +1214,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
@@ -1241,7 +1246,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
@@ -1287,7 +1297,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u)) {
             SET_FLAG(F_CF);
@@ -1368,7 +1383,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);

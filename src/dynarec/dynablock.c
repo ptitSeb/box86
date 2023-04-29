@@ -398,6 +398,7 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current, 1);
     if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
         if(AreaInHotPage((uintptr_t)db->x86_addr, (uintptr_t)db->x86_addr + db->x86_size - 1)) {
+            emu->test.test = 0;
             dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x86_addr, db->x86_addr+db->x86_size-1, (void*)addr);
             return NULL;
         }
@@ -424,6 +425,8 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
         }
         mutex_unlock(&my_context->mutex_dyndump);
     } 
+    if(!db || !db->block || !db->done)
+        emu->test.test = 0;
     return db;
 }
 
@@ -433,8 +436,10 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL, 1);
     if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
-        if(mutex_trylock(&my_context->mutex_dyndump))
+        if(mutex_trylock(&my_context->mutex_dyndump)) {
+            emu->test.test = 0;
             return NULL;
+        }
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = (getProtection((uintptr_t)father->x86_addr)&PROT_READ)?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {
@@ -453,5 +458,7 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
         }
         mutex_unlock(&my_context->mutex_dyndump);
     } 
+    if(!db || !db->block || !db->done)
+        emu->test.test = 0;
     return db;
 }

@@ -41,15 +41,19 @@ static inline uint32_t Pop(x86emu_t *emu)
     return *st;
 }
 
+#ifdef TEST_INTERPRETER
+#define Push(E, V)  do{E->regs[_SP].dword[0] -=4; test->memsize = 4; *(uint64_t*)test->mem = (V); test->memaddr = E->regs[_SP].dword[0];}while(0)
+#define Push16(E, V)  do{E->regs[_SP].dword[0] -=2; test->memsize = 2; *(uint16_t*)test->mem = (V); test->memaddr = E->regs[_SP].dword[0];}while(0)
+#else
 static inline void Push(x86emu_t *emu, uint32_t v)
 {
     R_ESP -= 4;
     *((uint32_t*)R_ESP) = v;
 }
+#endif
 
-
+#if 0
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
-
 static inline reg32_t* GetECommon(x86emu_t* emu, uint32_t m)
 {
     if (m<=7) {
@@ -188,7 +192,7 @@ static inline sse_regs_t* GetGx(x86emu_t *emu, uint32_t v)
     uint8_t m = (v&0x38)>>3;
     return &emu->xmm[m&7];
 }
-
+#endif
 void UpdateFlags(x86emu_t *emu);
 
 #define CHECK_FLAGS(emu) if(emu->df) UpdateFlags(emu)
@@ -222,17 +226,35 @@ uintptr_t RunF066(x86emu_t *emu, uintptr_t addr);
 uintptr_t RunF20F(x86emu_t *emu, uintptr_t addr, int *step);
 uintptr_t RunF30F(x86emu_t *emu, uintptr_t addr);
 
-//void Run67(x86emu_t *emu);
-//void Run0F(x86emu_t *emu);
-//void Run660F(x86emu_t *emu);
-//void Run66D9(x86emu_t *emu);    // x87
-//void Run6766(x86emu_t *emu);
-//void RunGS(x86emu_t *emu);
-//void RunGS0F(x86emu_t *emu, uintptr_t tlsdata);
-//void RunFS(x86emu_t *emu);
-//void RunFS66(x86emu_t *emu, uintptr_t tlsdata);
-//void RunLock(x86emu_t *emu);
-//void RunLock66(x86emu_t *emu);
+#ifdef DYNAREC
+uintptr_t Test0F(x86test_t *test, uintptr_t addr, int *step);
+uintptr_t Test64(x86test_t *test, int seg, uintptr_t addr);
+uintptr_t Test640F(x86test_t *test, uintptr_t tlsdata, uintptr_t addr);
+uintptr_t Test6466(x86test_t *test, uintptr_t tlsdata, uintptr_t addr);
+uintptr_t Test6467(x86test_t *test, uintptr_t tlsdata, uintptr_t addr);
+uintptr_t Test66(x86test_t *test, int rep, uintptr_t addr);
+uintptr_t Test660F(x86test_t *test, uintptr_t addr);
+uintptr_t Test6664(x86test_t *test, int seg, uintptr_t addr);
+uintptr_t Test66D9(x86test_t *test, uintptr_t addr);
+uintptr_t Test66DD(x86test_t *test, uintptr_t addr);
+uintptr_t Test66F0(x86test_t *test, uintptr_t addr);
+uintptr_t Test67(x86test_t *test, int rep, uintptr_t addr);
+uintptr_t Test670F(x86test_t *test, int rep, uintptr_t addr);
+uintptr_t Test6766(x86test_t *test, int rep, uintptr_t addr);
+uintptr_t Test67660F(x86test_t *test, uintptr_t addr);
+uintptr_t TestD8(x86test_t *test, uintptr_t addr);
+uintptr_t TestD9(x86test_t *test, uintptr_t addr);
+uintptr_t TestDA(x86test_t *test, uintptr_t addr);
+uintptr_t TestDB(x86test_t *test, uintptr_t addr);
+uintptr_t TestDC(x86test_t *test, uintptr_t addr);
+uintptr_t TestDD(x86test_t *test, uintptr_t addr);
+uintptr_t TestDE(x86test_t *test, uintptr_t addr);
+uintptr_t TestDF(x86test_t *test, uintptr_t addr);
+uintptr_t TestF0(x86test_t *test, uintptr_t addr);
+uintptr_t TestF066(x86test_t *test, uintptr_t addr);
+uintptr_t TestF20F(x86test_t *test, uintptr_t addr, int *step);
+uintptr_t TestF30F(x86test_t *test, uintptr_t addr);
+#endif
 
 void x86Syscall(x86emu_t *emu);
 void x86Int3(x86emu_t* emu);

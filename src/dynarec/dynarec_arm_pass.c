@@ -124,13 +124,27 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         dyn->n.stack_push = 0;
         dyn->n.swapped = 0;
         NEW_INST;
+        if(!ninst || isInstClean(dyn, ninst)) {
+            GOTEST(x1, x2);
+        }
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
         fpu_reset_scratch(dyn);
         if((dyn->insts[ninst].x86.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x86.need_before&~X_PEND);
         }
+        if(box86_dynarec_test)  {
+            MESSAGE(LOG_DUMP, "TEST INIT  ----\n");
+            fpu_reflectcache(dyn, ninst, x1, x2, x3);
+            MOV32(x1, ip);
+            STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP));
+            STR_IMM9(x1, xEmu, offsetof(x86emu_t, ip));
+            MOVW(x2, 1);
+            CALL(x86test_init, -1, 0);
+            fpu_unreflectcache(dyn, ninst, x1, x2, x3);
+            MESSAGE(LOG_DUMP, "----------\n");
+        }
 #ifdef HAVE_TRACE
-        if(my_context->dec && box86_dynarec_trace) {
+        else if(my_context->dec && box86_dynarec_trace) {
         if((trace_end == 0) 
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
@@ -140,6 +154,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 STR_IMM9(x1, xEmu, offsetof(x86emu_t, ip));
                 MOVW(x2, 1);
                 CALL(PrintTrace, -1, 0);
+                fpu_unreflectcache(dyn, ninst, x1, x2, x3);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }
@@ -252,12 +267,14 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             dyn->insts[ninst].x86.need_after |= X_PEND;
             #endif
             ++ninst;
+            NOTEST(x3);
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             jump_to_next(dyn, addr, 0, ninst);
             ok=0; need_epilog=0;
         }
     }
     if(need_epilog) {
+        NOTEST(x3);
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
         jump_to_epilog(dyn, ip, 0, ninst);  // no linker here, it's an unknow instruction
     }

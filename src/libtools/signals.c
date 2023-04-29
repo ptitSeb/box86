@@ -277,6 +277,10 @@ uint32_t RunFunctionHandler(int* exit, int dynarec, i386_ucontext_t* sigcontext,
     //trace_start = 0; trace_end = 1; // disabling trace, globably for now...
 
     x86emu_t *emu = thread_get_emu();
+    #ifdef DYNAREC
+    if(box86_dynarec_test)
+        emu->test.test = 0;
+    #endif
 
     printf_log(LOG_DEBUG, "%04d|signal function handler %p called, ESP=%p\n", GetTID(), (void*)fnc, (void*)R_ESP);
     
@@ -307,6 +311,12 @@ uint32_t RunFunctionHandler(int* exit, int dynarec, i386_ucontext_t* sigcontext,
 
     uint32_t ret = R_EAX;
     emu->quitonlongjmp = oldquitonlongjmp;
+
+    #ifdef DYNAREC
+    if(box86_dynarec_test)
+        emu->test.test = 0;
+        emu->test.clean = 0;
+    #endif
 
     if(emu->longjmp) {
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler

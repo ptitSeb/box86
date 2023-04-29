@@ -164,14 +164,14 @@ uintptr_t RunDB(x86emu_t *emu, uintptr_t addr)
                 fpu_do_pop(emu);
                 break;
             case 5: /* FLD ST0, Et */
-                GET_ED;
+                GET_EDT;
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
                 LD2D(&STld(0).ld, &ST(0).d);
                 STld(0).uref = ST0.q;
                 break;
             case 7: /* FSTP tbyte */
-                GET_ED;
+                GET_EDT;
                 if(ST0.q!=STld(0).uref)
                     D2LD(&ST0.d, ED);
                 else

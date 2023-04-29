@@ -965,7 +965,12 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+tmp32s);
+                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
                 ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
+                #endif
             }
             if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
@@ -998,7 +1003,12 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+tmp32s);
+                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
                 ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
+                #endif
             }
             if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
@@ -1029,18 +1039,24 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* FXSAVE m512byte */
+                    #ifndef TEST_INTERPRETER
                     fpu_fxsave(emu, ED);
+                    #endif
                     break;
                 case 1:                 /* FXRSTOR m512byte */
+                    #ifndef TEST_INTERPRETER
                     fpu_fxrstor(emu, ED);
+                    #endif
                     break;
                 case 2:                 /* LDMXCSR Md */
                     emu->mxcsr.x32 = ED->dword[0];
                     break;
                 case 3:                 /* STMXCSR Md */
                     ED->dword[0] = emu->mxcsr.x32;
+                    #ifndef TEST_INTERPRETER
                     if(box86_sse_flushto0)
                         applyFlushTo0(emu);
+                    #endif
                     break;
                 default:
                     return 0;
@@ -1081,7 +1097,12 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+tmp32s);
+                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
                 ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
+                #endif
             }
             if(ED->dword[0] & (1<<tmp8u)) {
                 SET_FLAG(F_CF);
@@ -1162,7 +1183,12 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             tmp32s >>= 5;
             if((nextop&0xC0)!=0xC0)
             {
+                #ifdef TEST_INTERPRETER
+                test->memaddr=((test->memaddr)+tmp32s);
+                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                #else
                 ED=(reg32_t*)(((uint32_t*)(ED))+tmp32s);
+                #endif
             }
             if(ED->dword[0] & (1<<tmp8u))
                 SET_FLAG(F_CF);
@@ -1274,7 +1300,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             break;
         case 0xC7:                      /* CMPXCHG8B Gq */
             nextop = F8;
-            GET_ED;
+            GET_ED8;
             switch((nextop>>3)&7) {
                 case 1:
                     CHECK_FLAGS(emu);

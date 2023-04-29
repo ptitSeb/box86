@@ -116,7 +116,7 @@ uintptr_t RunDC(x86emu_t *emu, uintptr_t addr)
             ST(nextop&7).d /=  ST0.d;
             break;
         default:
-            GET_ED;
+            GET_ED8;
             switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, double */
                 if(!(((uintptr_t)ED)&7))

@@ -861,10 +861,29 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
 }
 
-#ifdef HAVE_TRACE
 static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-    x87_stackcount(dyn, ninst, s1);
+    // Synch top & stack counter
+    int a = dyn->n.x87stack;
+    if(a) {
+    // Add x87stack to emu fpu_stack
+        LDR_IMM9(s1, xEmu, offsetof(x86emu_t, fpu_stack));
+        if(a>0) {
+            ADD_IMM8(s1, s1, a);
+        } else {
+            SUB_IMM8(s1, s1, -a);
+        }
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LDR_IMM9(s1, xEmu, offsetof(x86emu_t, top));
+        if(a>0) {
+            SUB_IMM8(s1, s1, a);
+        } else {
+            ADD_IMM8(s1, s1, -a);
+        }
+        AND_IMM8(s1, s1, 7);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, top));
+    }
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
         if(dyn->n.x87cache[i] != -1)
@@ -887,7 +906,31 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
             }
         }
 }
-#endif
+
+static void x87_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    // go back with the top & stack counter
+    int a = dyn->n.x87stack;
+    if(a) {
+    // Add x87stack to emu fpu_stack
+        LDR_IMM9(s1, xEmu, offsetof(x86emu_t, fpu_stack));
+        if(a>0) {
+            SUB_IMM8(s1, s1, a);
+        } else {
+            ADD_IMM8(s1, s1, -a);
+        }
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LDR_IMM9(s1, xEmu, offsetof(x86emu_t, top));
+        if(a>0) {
+            ADD_IMM8(s1, s1, a);
+        } else {
+            SUB_IMM8(s1, s1, -a);
+        }
+        AND_IMM8(s1, s1, 7);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, top));
+    }
+}
 
 int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
 {
@@ -1223,7 +1266,6 @@ void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
         MESSAGE(LOG_DUMP, "\t------ Purge MMX Cache\n");
     }
 }
-#ifdef HAVE_TRACE
 static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     int old = -1;
@@ -1241,7 +1283,6 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
             VST1_32_W(dyn->n.mmxcache[i], s1);
         }
 }
-#endif
 
 
 // SSE / SSE2 helpers
@@ -1321,7 +1362,6 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
 }
-#ifdef HAVE_TRACE
 static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     int old = -1;
@@ -1345,7 +1385,6 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
             VST1Q_32_W(dyn->n.ssecache[i].reg, s1);
         }
 }
-#endif
 
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
@@ -1843,16 +1882,17 @@ void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2,
         flagsCacheTransform(dyn, ninst, s1);
 }
 
-#ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
-    if(trace_emm)
-       mmx_reflectcache(dyn, ninst, s1);
-    if(trace_xmm)
-       sse_reflectcache(dyn, ninst, s1);
+    mmx_reflectcache(dyn, ninst, s1);
+    sse_reflectcache(dyn, ninst, s1);
 }
-#endif
+
+void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    x87_unreflectcache(dyn, ninst, s1, s2, s3);
+}
 
 void fpu_reset(dynarec_arm_t* dyn)
 {

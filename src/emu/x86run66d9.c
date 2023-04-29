@@ -83,12 +83,16 @@ uintptr_t Run66D9(x86emu_t *emu, uintptr_t addr)
                 case 4:     /* FLDENV m */
                     // warning, incomplete
                     GET_EW;
+                    #ifndef TEST_INTERPRETER
                     fpu_loadenv(emu, (char*)ED, 1);
+                    #endif
                     break;
                 case 6:     /* FNSTENV m */
                     // warning, incomplete
                     GET_EW;
+                    #ifndef TEST_INTERPRETER
                     fpu_savenv(emu, (char*)ED, 1);
+                    #endif
                     break;
                 default:
                     return 0;

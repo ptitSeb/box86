@@ -10,6 +10,7 @@ void SetupX86Emu(x86emu_t *emu);
 void FreeX86Emu(x86emu_t **x86emu);
 void FreeX86EmuFromStack(x86emu_t **emu);
 void CloneEmu(x86emu_t *newemu, const x86emu_t* emu);
+void CopyEmu(x86emu_t *newemu, const x86emu_t* emu);
 void SetTraceEmu(uintptr_t trace_start, uintptr_t trace_end);
 
 box86context_t* GetEmuContext(x86emu_t* emu);

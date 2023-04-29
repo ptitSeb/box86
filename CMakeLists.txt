@@ -297,6 +297,30 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/librarian/symbols.c"
     "${BOX86_ROOT}/src/librarian/globalsymbols.c"
     "${BOX86_ROOT}/src/emu/x86emu.c"
+    "${BOX86_ROOT}/src/emu/x86run_private.c"
+    "${BOX86_ROOT}/src/emu/x86syscall.c"
+    "${BOX86_ROOT}/src/emu/x86primop.c"
+    "${BOX86_ROOT}/src/emu/x86trace.c"
+    "${BOX86_ROOT}/src/emu/x86int3.c"
+    "${BOX86_ROOT}/src/emu/x86tls.c"
+    "${BOX86_ROOT}/src/emu/x87emu_private.c"
+    "${BOX86_ROOT}/src/libtools/auxval.c"
+    "${BOX86_ROOT}/src/libtools/myalign.c"
+    "${BOX86_ROOT}/src/libtools/myalign64.c"
+    "${BOX86_ROOT}/src/libtools/myfts.c"
+    "${BOX86_ROOT}/src/libtools/sdl1rwops.c"
+    "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
+    "${BOX86_ROOT}/src/libtools/signals.c"
+    "${BOX86_ROOT}/src/libtools/threads.c"
+    "${BOX86_ROOT}/src/libtools/vkalign.c"
+    "${BOX86_ROOT}/src/dynarec/dynarec.c"
+    "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
+)
+if(NOT ANDROID)
+    list(APPEND ELFLOADER_SRC "${BOX86_ROOT}/src/libtools/obstack.c")
+endif()
+
+set(INTERPRETER
     "${BOX86_ROOT}/src/emu/x86run.c"
     "${BOX86_ROOT}/src/emu/x86run0f.c"
     "${BOX86_ROOT}/src/emu/x86run64.c"
@@ -321,28 +345,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/emu/x86runf066.c"
     "${BOX86_ROOT}/src/emu/x86runf20f.c"
     "${BOX86_ROOT}/src/emu/x86runf30f.c"
-    "${BOX86_ROOT}/src/emu/x86run_private.c"
-    "${BOX86_ROOT}/src/emu/x86syscall.c"
-    "${BOX86_ROOT}/src/emu/x86primop.c"
-    "${BOX86_ROOT}/src/emu/x86trace.c"
-    "${BOX86_ROOT}/src/emu/x86int3.c"
-    "${BOX86_ROOT}/src/emu/x86tls.c"
-    "${BOX86_ROOT}/src/emu/x87emu_private.c"
-    "${BOX86_ROOT}/src/libtools/auxval.c"
-    "${BOX86_ROOT}/src/libtools/myalign.c"
-    "${BOX86_ROOT}/src/libtools/myalign64.c"
-    "${BOX86_ROOT}/src/libtools/myfts.c"
-    "${BOX86_ROOT}/src/libtools/sdl1rwops.c"
-    "${BOX86_ROOT}/src/libtools/sdl2rwops.c"
-    "${BOX86_ROOT}/src/libtools/signals.c"
-    "${BOX86_ROOT}/src/libtools/threads.c"
-    "${BOX86_ROOT}/src/libtools/vkalign.c"
-    "${BOX86_ROOT}/src/dynarec/dynarec.c"
-    "${BOX86_ROOT}/src/wrapped/generated/wrapper.c"
 )
-if(NOT ANDROID)
-    list(APPEND ELFLOADER_SRC "${BOX86_ROOT}/src/libtools/obstack.c")
-endif()
 
 set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibc.c"
@@ -567,6 +570,7 @@ if(ARM_DYNAREC)
         "${BOX86_ROOT}/src/dynarec/dynarec_arm.c"
         "${BOX86_ROOT}/src/dynarec/dynarec_arm_functions.c"
         "${BOX86_ROOT}/src/dynarec/arm_printer.c"
+        "${BOX86_ROOT}/src/emu/x86test.c"
 
         "${BOX86_ROOT}/src/dynarec/arm_prolog.S"
         "${BOX86_ROOT}/src/dynarec/arm_epilog.S"
@@ -614,6 +618,8 @@ if(ARM_DYNAREC)
     set_target_properties(arm_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
     add_library(arm_pass3 OBJECT ${DYNAREC_PASS})
     set_target_properties(arm_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    add_library(test_interpreter OBJECT ${INTERPRETER})
+    set_target_properties(test_interpreter PROPERTIES COMPILE_FLAGS "-DTEST_INTERPRETER")
     add_dependencies(arm_pass0 WRAPPERS)
     add_dependencies(arm_pass1 WRAPPERS)
     add_dependencies(arm_pass2 WRAPPERS)
@@ -625,6 +631,7 @@ if(ARM_DYNAREC)
         $<TARGET_OBJECTS:arm_pass1>
         $<TARGET_OBJECTS:arm_pass2>
         $<TARGET_OBJECTS:arm_pass3>
+        $<TARGET_OBJECTS:test_interpreter>
     )
 
 endif()
@@ -634,15 +641,17 @@ if(ARM_DYNAREC)
     add_custom_command(
         OUTPUT "${BOX86_ROOT}/src/git_head.h"
         COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX86_ROOT}/src/git_head.h\""
-        DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
+        DEPENDS dynarec ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
         VERBATIM)
 else()
     add_custom_command(
         OUTPUT "${BOX86_ROOT}/src/git_head.h"
         COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX86_ROOT}/src/git_head.h\""
-        DEPENDS ${ELFLOADER_SRC} ${WRAPPEDS}
+        DEPENDS ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
         VERBATIM)
 endif()
+
+add_library(interpreter OBJECT ${INTERPRETER})
 
 if(BOX86LIB)
 #build a static or dynamic lib...
@@ -653,9 +662,9 @@ else()
 endif()
 if(ARM_DYNAREC)
     if(ANDROID)
-        target_link_libraries(${BOX86} dynarec m dl)
+        target_link_libraries(${BOX86} dynarec interpreter m dl)
     else()
-        target_link_libraries(${BOX86} dynarec m dl rt pthread resolv)
+        target_link_libraries(${BOX86} dynarec interpreter m dl rt pthread resolv)
     endif()
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
@@ -681,7 +690,9 @@ else()
     set_target_properties(${BOX86} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -Wl,--as-needed -pthread")
 endif()
 if(ARM_DYNAREC)
-    target_link_libraries(${BOX86} dynarec)
+    target_link_libraries(${BOX86} dynarec interpreter)
+else()
+    target_link_libraries(${BOX86} interpreter)
 endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")

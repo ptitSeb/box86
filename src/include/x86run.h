@@ -3,7 +3,9 @@
 #include <stdint.h>
 
 typedef struct x86emu_s x86emu_t;
+typedef struct x86test_s x86test_t;
 int Run(x86emu_t *emu, int step); // 0 if run was successfull, 1 if error in x86 world
+int RunTest(x86test_t *test);
 int DynaRun(x86emu_t *emu);
 
 uint32_t LibSyscall(x86emu_t *emu);

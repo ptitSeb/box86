@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -275,7 +276,9 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             case 4:     /* FLDENV m */
                 // warning, incomplete
                 GET_ED;
+                #ifndef TEST_INTERPRETER
                 fpu_loadenv(emu, (char*)ED, 0);
+                #endif
                 break;
             case 5:     /* FLDCW Ew */
                 GET_EW;
@@ -285,7 +288,9 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             case 6:     /* FNSTENV m */
                 // warning, incomplete
                 GET_ED;
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
+                #endif
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)

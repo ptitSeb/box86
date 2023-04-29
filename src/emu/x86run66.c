@@ -99,7 +99,11 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             break;
 
         case 0x0F:                      /* 66 0f prefix */
+            #ifdef TEST_INTERPRETER
+            return Test660F(test, addr);
+            #else
             return Run660F(emu, addr);
+            #endif
 
         case 0x1E:                      /* PUSH DS */
             Push16(emu, emu->segs[_DS]);
@@ -191,7 +195,11 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
 
         case 0x64:
             tlsdata = GetFSBaseEmu(emu);
+            #ifdef TEST_INTERPRETER
+            return Test6466(test, tlsdata, addr);
+            #else
             return Run6466(emu, tlsdata, addr);
+            #endif
 
         case 0x68:                       /* PUSH u16 */
             tmp16u = F16;
@@ -320,7 +328,9 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp32u = rep?R_ECX:1;
             while(tmp32u--) {
+                #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
+                #endif
                 R_EDI += tmp8s;
                 R_ESI += tmp8s;
             }
@@ -330,7 +340,9 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
             tmp32u = rep?R_ECX:1;
             while(tmp32u--) {
+                #ifndef TEST_INTERPRETER
                 *(uint16_t*)R_EDI = *(uint16_t*)R_ESI;
+                #endif
                 R_EDI += tmp8s;
                 R_ESI += tmp8s;
             }
@@ -375,7 +387,9 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             tmp8s = ACCESS_FLAG(F_DF)?-2:+2;
             tmp32u = rep?R_ECX:1;
             while(tmp32u--) {
+                #ifndef TEST_INTERPRETER
                 *(uint16_t*)R_EDI = R_AX;
+                #endif
                 R_EDI += tmp8s;
             }
             if(rep) R_ECX = 0;
@@ -453,8 +467,10 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             // need to check status of CS register!
             break;
         case 0xCC:                              /* INT3 */
+            #ifndef TEST_INTERPRETER
             if(my_context->signals[SIGTRAP])
                 raise(SIGTRAP);
+            #endif
             break;
         case 0xD1:                              /* GRP2 Ew,1  */
         case 0xD3:                              /* GRP2 Ew,CL */
@@ -474,13 +490,25 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             break;
         
         case 0xD9:
+            #ifdef TEST_INTERPRETER
+            return Test66D9(test, addr);
+            #else
             return Run66D9(emu, addr);
+            #endif
 
         case 0xDD:
+            #ifdef TEST_INTERPRETER
+            return Test66DD(test, addr);
+            #else
             return Run66DD(emu, addr);
+            #endif
 
         case 0xF0:                      /* LOCK prefix */
+            #ifdef TEST_INTERPRETER
+            return TestF066(test, addr);
+            #else
             return RunF066(emu, addr);
+            #endif
 
         case 0xF5:                      /* CMC */
             CHECK_FLAGS(emu);

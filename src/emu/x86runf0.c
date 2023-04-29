@@ -218,7 +218,12 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
                     tmp8u = GD.byte[0];
                     if((nextop&0xC0)!=0xC0)
                     {
+                        #ifdef TEST_INTERPRETER
+                        test->memaddr=((test->memaddr)+(tmp8u>>5));
+                        *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                        #else
                         ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                        #endif
                     }
                     tmp8u&=31;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -252,7 +257,12 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
                             tmp8u = F8;
                             if((nextop&0xC0)!=0xC0)
                             {
+                                #ifdef TEST_INTERPRETER
+                                test->memaddr=((test->memaddr)+(tmp8u>>5));
+                                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                                #else
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                                #endif
                             }
                             tmp8u&=31;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -275,7 +285,12 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
                             tmp8u = F8;
                             if((nextop&0xC0)!=0xC0)
                             {
+                                #ifdef TEST_INTERPRETER
+                                test->memaddr=((test->memaddr)+(tmp8u>>5));
+                                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                                #else
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                                #endif
                             }
                             tmp8u&=31;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -307,7 +322,12 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
                             tmp8u = F8;
                             if((nextop&0xC0)!=0xC0)
                             {
+                                #ifdef TEST_INTERPRETER
+                                test->memaddr=((test->memaddr)+(tmp8u>>5));
+                                *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                                #else
                                 ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                                #endif
                             }
                             tmp8u&=31;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -344,7 +364,12 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
                     tmp8u = GD.byte[0];
                     if((nextop&0xC0)!=0xC0)
                     {
+                        #ifdef TEST_INTERPRETER
+                        test->memaddr=((test->memaddr)+(tmp8u>>5));
+                        *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                        #else
                         ED=(reg32_t*)(((uint32_t*)(ED))+(tmp8u>>5));
+                        #endif
                     }
                     tmp8u&=31;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
@@ -412,7 +437,7 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
                     break;
                 case 0xC7:                      /* CMPXCHG8B Gq */
                     nextop = F8;
-                    GET_ED;
+                    GET_ED8;
                     switch((nextop>>3)&7) {
                         case 1:
                             CHECK_FLAGS(emu);
@@ -485,7 +510,11 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
             break;
 
         case 0x66:
+            #ifdef TEST_INTERPRETER
+            return TestF066(test, addr);
+            #else
             return RunF066(emu, addr);
+            #endif
 
         case 0x81:              /* GRP Ed,Id */
         case 0x83:              /* GRP Ed,Ib */

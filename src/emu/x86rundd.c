@@ -118,7 +118,7 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
     default:
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
-                GET_ED;
+                GET_ED8;
                 fpu_do_push(emu);
                 if(!(((uintptr_t)ED)&7))
                     ST0.d = *(double*)ED;
@@ -127,7 +127,7 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
                 }
                 break;
             case 1: /* FISTTP ED qword */
-                GET_ED;
+                GET_ED8;
                 if(!(((uintptr_t)ED)&7)) {
                     if(STll(0).sref==ST(0).sq)
                         *(int64_t*)ED = STll(0).sq;
@@ -152,7 +152,7 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
                 fpu_do_pop(emu);
                 break;
             case 2: /* FST double */
-                GET_ED;
+                GET_ED8;
                 if(!(((uintptr_t)ED)&7))
                     *(double*)ED = ST0.d;
                 else {
@@ -160,7 +160,7 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
                 }
                 break;
             case 3: /* FSTP double */
-                GET_ED;
+                GET_ED8;
                 if(!(((uintptr_t)ED)&7))
                     *(double*)ED = ST0.d;
                 else {
@@ -169,8 +169,10 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
-                GET_ED;
+                GET_ED_;
+                #ifndef TEST_INTERPRETER
                 fpu_loadenv(emu, (char*)ED, 0);
+                #endif
                 // get the STx
                 {
                     char* p =(char*)ED;
@@ -182,9 +184,10 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
                 }
                 break;
             case 6: /* FNSAVE m108byte */
-                GET_ED;
+                GET_ED_;
                 // ENV first...
                 // warning, incomplete
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
                 // save the STx
                 {
@@ -195,6 +198,7 @@ uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
                         p+=10;
                     }
                 }
+                #endif
                 reset_fpu(emu);
                 break;
             case 7: /* FNSTSW m2byte */

@@ -67,6 +67,7 @@ int box86_dynarec_hotpage = 16;
 int box86_dynarec_bleeding_edge = 1;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
+int box86_dynarec_test = 0;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
@@ -444,6 +445,18 @@ void LoadLogEnv()
                     sscanf(p, "%x-%x", &box86_nodynarec_start, &box86_nodynarec_end);
             }
             printf_log(LOG_INFO, "No Dynablock creation that start in %p - %p range\n", (void*)box86_nodynarec_start, (void*)box86_nodynarec_end);
+        }
+    }
+    p = getenv("BOX86_DYNAREC_TEST");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_test = p[0]-'0';
+        }
+        if(box86_dynarec_test) {
+            box86_dynarec_fastnan = 0;
+            box86_dynarec_fastround = 0;
+            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }
 

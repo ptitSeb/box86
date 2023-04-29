@@ -30,6 +30,9 @@ uintptr_t Run6766(x86emu_t *emu, int rep, uintptr_t addr)
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
+    #ifdef TEST_INTERPRETER
+    x86emu_t* emu = test->emu;
+    #endif
     uint8_t opcode = F8;
 
     while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
@@ -44,7 +47,7 @@ uintptr_t Run6766(x86emu_t *emu, int rep, uintptr_t addr)
 
         case 0x8D:                              /* LEA Gw,Ew */
             nextop = F8;
-            GET_EW16;
+            GET_EW16_;
             GW.word[0] = (uint16_t)(uintptr_t)ED;
             break;
 

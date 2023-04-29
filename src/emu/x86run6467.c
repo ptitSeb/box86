@@ -25,12 +25,15 @@ uintptr_t Test6467(x86test_t *test, uintptr_t tlsdata, uintptr_t addr)
 uintptr_t Run6467(x86emu_t *emu, uintptr_t tlsdata, uintptr_t addr)
 #endif
 {
-    uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
+    #ifdef TEST_INTERPRETER
+    x86emu_t* emu = test->emu;
+    #endif
+    uint8_t opcode = F8;
     switch(opcode) {
 
         case 0x3B:                              /* CMP GD, FS:Ed16 */
@@ -63,7 +66,13 @@ uintptr_t Run6467(x86emu_t *emu, uintptr_t tlsdata, uintptr_t addr)
             break;
         case 0xA3:                              /* MOV Ov16,EAX */
             tmp32u = F16;
+            #ifdef TEST_INTERPRETER
+            test->memaddr = tlsdata + tmp32u;
+            test->memsize = 4;
+            *(uint32_t*)(test->mem) = R_EAX;
+            #else
             *(uint32_t*)(tlsdata + tmp32u) = R_EAX;
+            #endif
             break;
         case 0xFF:                              /* GRP 5 Ed */
             nextop = F8;

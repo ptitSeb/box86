@@ -110,7 +110,7 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
         memcpy(ed, &STll(0).sq, sizeof(int64_t));
     } else {
         int64_t tmp;
-        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL) || !isfinite(ST0.d))
+        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(ST0.d))
             tmp = 0x8000000000000000LL;
         else
             tmp = fpu_round(emu, ST0.d);
@@ -121,7 +121,7 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
 int64_t arm_fist64_0(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = nearbyint(d);
@@ -130,7 +130,7 @@ int64_t arm_fist64_0(double d)
 int64_t arm_fist64_1(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = floor(d);
@@ -139,7 +139,7 @@ int64_t arm_fist64_1(double d)
 int64_t arm_fist64_2(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = ceil(d);
@@ -148,7 +148,7 @@ int64_t arm_fist64_2(double d)
 int64_t arm_fist64_3(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = trunc(d);
@@ -171,6 +171,7 @@ void arm_fld(x86emu_t* emu, uint8_t* ed)
 
 void arm_ud(x86emu_t* emu)
 {
+    emu->test.test = 0;
     emit_signal(emu, SIGILL, (void*)R_EIP, 0);
 }
 

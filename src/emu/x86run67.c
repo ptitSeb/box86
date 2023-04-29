@@ -68,15 +68,25 @@ uintptr_t Run67(x86emu_t *emu, int rep, uintptr_t addr)
 
         case 0x64:
             tlsdata = GetFSBaseEmu(emu);
+            #ifdef TEST_INTERPRETER
+            return Test6467(test, tlsdata, addr);
+            #else
             return Run6467(emu, tlsdata, addr);
+            #endif
 
         case 0x66:                      /* MoooRE opcodes */
+            #ifdef TEST_INTERPRETER
+            return Test6766(test, rep, addr);
+            #else
             return Run6766(emu, rep, addr);
+            #endif
 
         case 0x6C:                      /* INSB */
             tmp32u = rep?R_CX:1;
             while(tmp32u--) {
+                #ifdef TEST_INTERPRETER
                 *(int8_t*)(R_DI+GetESBaseEmu(emu)) = 0;         // faking port read, using actual segment ES, just in case
+                #endif
                 if(ACCESS_FLAG(F_DF))
                     R_DI-=1;
                 else

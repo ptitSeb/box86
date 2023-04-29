@@ -90,6 +90,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             //CALL(arm_ud, -1, 0);
+            SKIPTEST(x14);
             UDF(0);
             break;
 
@@ -656,6 +657,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x51:
             INST_NAME("SQRTPS Gx, Ex");
+            SKIPTEST(x1);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
@@ -695,6 +697,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
+            SKIPTEST(x1);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
@@ -703,6 +706,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
+            SKIPTEST(x1);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;

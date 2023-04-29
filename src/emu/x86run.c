@@ -30,7 +30,7 @@
 int my_setcontext(x86emu_t* emu, void* ucp);
 
 #ifdef TEST_INTERPRETER
-int RunTest(x64test_t *test)
+int RunTest(x86test_t *test)
 #else
 int Run(x86emu_t *emu, int step)
 #endif
@@ -52,7 +52,7 @@ int Run(x86emu_t *emu, int step)
     sse_regs_t *opex, eax1;
     mmx87_regs_t *opem, eam1;
     #ifdef TEST_INTERPRETER
-    x64emu_t* emu = test->emu;
+    x86emu_t* emu = test->emu;
     int step = 0;
     #endif
     #ifndef NOALIGN
@@ -371,7 +371,6 @@ x86emurun:
             }
             #endif
             break;
-
         case 0x66:                      /* Prefix to change width of intructions, so here, down to 16bits */
             #ifdef TEST_INTERPRETER
             if(!(addr = Test66(test, rep, addr)))
@@ -682,7 +681,7 @@ x86emurun:
             break;
         case 0x8D:                      /* LEA Gd,M */
             nextop = F8;
-            GET_ED;
+            GET_ED_;
             GD.dword[0] = (uint32_t)ED;
             break;
         case 0x8E:                      /* MOV Seg,Ew */
@@ -757,16 +756,30 @@ x86emurun:
             R_EAX = *(uint32_t*)F32;
             break;
         case 0xA2:                      /* MOV Ob,AL */
+            #ifdef TEST_INTERPRETER
+            test->memaddr = F32;
+            test->memsize = 1;
+            *(uint8_t*)(test->mem) = R_AL;
+            #else
             *(uint8_t*)F32 = R_AL;
+            #endif
             break;
         case 0xA3:                      /* MOV Od,EAX */
+            #ifdef TEST_INTERPRETER
+            test->memaddr = F32;
+            test->memsize = 4;
+            *(uint32_t*)(test->mem) = R_EAX;
+            #else
             *(uint32_t*)F32 = R_EAX;
+            #endif
             break;
         case 0xA4:                      /* MOVSB */
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             tmp32u = rep?R_ECX:1;
             while(tmp32u--) {
+                #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_EDI = *(uint8_t*)R_ESI;
+                #endif
                 R_EDI += tmp8s;
                 R_ESI += tmp8s;
             }
@@ -776,7 +789,9 @@ x86emurun:
             tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
             tmp32u = rep?R_ECX:1;
             while(tmp32u--) {
+                #ifndef TEST_INTERPRETER
                 *(uint32_t*)R_EDI = *(uint32_t*)R_ESI;
+                #endif
                 R_EDI += tmp8s;
                 R_ESI += tmp8s;
             }
@@ -876,26 +891,30 @@ x86emurun:
             break;
         case 0xAA:                      /* STOSB */
             tmp32u = rep?R_ECX:1;
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             while(tmp32u--) {
-                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
+                #ifndef TEST_INTERPRETER
                 *(uint8_t*)R_EDI = R_AL;
+                #endif
                 R_EDI += tmp8s;
             }
             if(rep) R_ECX = 0;
             break;
         case 0xAB:                      /* STOSD */
             tmp32u = rep?R_ECX:1;
+            tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
             while(tmp32u--) {
-                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
+                #ifndef TEST_INTERPRETER
                 *(uint32_t*)R_EDI = R_EAX;
+                #endif
                 R_EDI += tmp8s;
             }
             if(rep) R_ECX = 0;
             break;
         case 0xAC:                      /* LODSB */
             tmp32u = rep?R_ECX:1;
+            tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             while(tmp32u--) {
-                tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
                 R_AL = *(uint8_t*)R_ESI;
                 R_ESI += tmp8s;
             }
@@ -903,8 +922,8 @@ x86emurun:
             break;
         case 0xAD:                      /* LODSD */
             tmp32u = rep?R_ECX:1;
+            tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
             while(tmp32u--) {
-                tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
                 R_EAX = *(uint32_t*)R_ESI;
                 R_ESI += tmp8s;
             }
@@ -1096,7 +1115,9 @@ x86emurun:
         case 0xCC:                      /* INT 3 */
             emu->old_ip = R_EIP;
             R_EIP = addr;
+            #ifndef TEST_INTERPRETER
             x86Int3(emu);
+            #endif
             addr = R_EIP;
             if(emu->quit) goto fini;
             break;
@@ -1105,7 +1126,9 @@ x86emurun:
             if(nextop == 0x80) {
                 emu->old_ip = R_EIP;
                 R_EIP = addr;
+                #ifndef TEST_INTERPRETER
                 x86Syscall(emu);
+                #endif
                 addr = R_EIP;
                 if(emu->quit) goto fini;
             } else {
@@ -1120,11 +1143,13 @@ x86emurun:
             break;
         case 0xCE:                      /* INTO */
             emu->old_ip = R_EIP;
+            #ifndef TEST_INTERPRETER
             R_EIP = addr;
             emit_signal(emu, SIGFPE, (void*)R_EIP, FPE_INTOVF);
             addr = R_EIP;
             if(emu->quit) goto fini;
             STEP;
+            #endif
             break;
         case 0xCF:                      /* IRET */
             addr = Pop(emu);
@@ -1392,8 +1417,10 @@ x86emurun:
 
         case 0xF4:                      /* HLT */
             // this is a privilege opcode... should an error be called instead?
+            #ifndef TEST_INTERPRETER
             sched_yield();
             STEP2;
+            #endif
             break;
         case 0xF5:                      /* CMC */
             CHECK_FLAGS(emu);
@@ -1547,7 +1574,15 @@ x86emurun:
                     break;
                 case 6:                 /* Push Ed */
                     tmp32u = ED->dword[0];
+                    #ifdef TEST_INTERPRETER
+                    R_ESP -=4;
+                    if(test->memsize!=4)
+                        *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
+                    test->memsize = 4;
+                    test->memaddr = R_ESP;
+                    #else
                     Push(emu, tmp32u);  // avoid potential issue with push [esp+...]
+                    #endif
                     break;
                 default:
                     emu->old_ip = R_EIP;

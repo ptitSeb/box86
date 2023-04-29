@@ -83,6 +83,7 @@ uintptr_t Run66DD(x86emu_t *emu, uintptr_t addr)
             switch((nextop>>3)&7) {
                 case 4: /* FRSTOR m94byte */
                     GET_EW;
+                    #ifndef TEST_INTERPRETER
                     fpu_loadenv(emu, (char*)ED, 1);
                     // get the STx
                     {
@@ -93,10 +94,12 @@ uintptr_t Run66DD(x86emu_t *emu, uintptr_t addr)
                             p+=10;
                         }
                     }
+                    #endif
                     break;
                 case 6: /* FNSAVE m94byte */
                     GET_EW;
                     // ENV first...
+                    #ifndef TEST_INTERPRETER
                     fpu_savenv(emu, (char*)ED, 1);
                     // save the STx
                     {
@@ -107,6 +110,7 @@ uintptr_t Run66DD(x86emu_t *emu, uintptr_t addr)
                             p+=10;
                         }
                     }
+                    #endif
                     reset_fpu(emu);
                     break;
                 default:

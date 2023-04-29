@@ -147,6 +147,7 @@ static void init_mutexes(box86context_t* context)
     arm_lock_stored(&context->mutex_tls, 0);
     arm_lock_stored(&context->mutex_thread, 0);
     arm_lock_stored(&context->mutex_bridge, 0);
+    pthread_mutex_init(&context->mutex_lock, NULL);
 #else
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -360,7 +361,9 @@ void FreeBox86Context(box86context_t** context)
 
     finiAllHelpers(ctx);
 
-#ifndef DYNAREC
+#ifdef DYNAREC
+    pthread_mutex_destroy(&ctx->mutex_lock);
+#else
     pthread_mutex_destroy(&ctx->mutex_once);
     pthread_mutex_destroy(&ctx->mutex_once2);
     pthread_mutex_destroy(&ctx->mutex_trace);

@@ -25,12 +25,15 @@ uintptr_t Test6466(x86test_t *test, uintptr_t tlsdata, uintptr_t addr)
 uintptr_t Run6466(x86emu_t *emu, uintptr_t tlsdata, uintptr_t addr)
 #endif
 {
-    uint8_t opcode = F8;
     uint8_t nextop;
     reg32_t *oped;
     uint8_t tmp8u;
     uint32_t tmp32u;
     int32_t tmp32s;
+    #ifdef TEST_INTERPRETER
+    x86emu_t* emu = test->emu;
+    #endif
+    uint8_t opcode = F8;
     switch(opcode) {
 
         case 0x03:                              /* ADD Gw, FS:Ew */

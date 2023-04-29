@@ -23,6 +23,17 @@ typedef struct forkpty_s {
     void*   f;  // forkpty function
 } forkpty_t;
 
+typedef struct x86emu_s x86emu_t;
+
+typedef struct x86test_s {
+    x86emu_t*   emu;
+    uintptr_t   memaddr;
+    int         memsize;
+    int         test;
+    int         clean;
+    uint8_t     mem[16];
+} x86test_t;
+
 typedef struct x86emu_s {
     // cpu
 	reg32_t     regs[8];
@@ -63,6 +74,7 @@ typedef struct x86emu_s {
     int         exit;
     int         quitonlongjmp;  // quit if longjmp is called
     int         longjmp;        // if quit because of longjmp
+    x86test_t   test;       // used for dynarec testing
     // parent context
     box86context_t *context;
     // cpu helpers

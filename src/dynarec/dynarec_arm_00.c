@@ -1663,6 +1663,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
                 {
                     addr+=4;
+                    SKIPTEST(x14);
                     MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
                     MOV32(x14, ip+1+2);
                     STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
@@ -1672,6 +1673,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    SKIPTEST(x14);
                     x87_forget(dyn, ninst, x3, x14, 0);
                     if((box86_log<2) && !cycle_log) {   // call the wrapper directly
                         uintptr_t ncall[2]; // to avoid BUSERROR!!!
@@ -1715,6 +1717,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xCD:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            SKIPTEST(x14);
             SMEND();
             if(PK(0)==0x80) {
                 INST_NAME("Syscall");
@@ -2169,12 +2172,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call 0\n");
+                    SKIPTEST(x14);
                     MOV32(xEIP, addr);
                     PUSH1(xEIP);
                     break;
                 case 2:
                     //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
+                    SKIPTEST(x14);
                     u8 = PK(i32+1);
                     gd = xEAX+((u8&0x38)>>3);
                     MOV32(gd, addr);
