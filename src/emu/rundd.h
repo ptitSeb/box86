@@ -94,10 +94,25 @@
                 break;
             case 1: /* FISTTP ED qword */
                 GET_ED;
-                if(!(((uintptr_t)ED)&7))
-                    *(int64_t*)ED = ST0.d;
-                else {
-                    int64_t i64 = ST0.d;
+                if(!(((uintptr_t)ED)&7)) {
+                    if(STll(0).sref==ST(0).sq)
+                        *(int64_t*)ED = STll(0).sq;
+                    else {
+                        if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d))
+                            *(uint64_t*)ED = 0x8000000000000000LL;
+                        else
+                            *(int64_t*)ED = ST0.d;
+                    }
+                } else {
+                    int64_t i64;
+                    if(STll(0).sref==ST(0).sq)
+                        i64 = STll(0).sq;
+                    else {
+                        if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d))
+                            i64 = 0x8000000000000000LL;
+                        else
+                            i64 = ST0.d;
+                    }
                     memcpy(ED, &i64, sizeof(int64_t));
                 }
                 fpu_do_pop(emu);
