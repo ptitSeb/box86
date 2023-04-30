@@ -555,28 +555,28 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
-                        GX.f[0] = nearbyint(EX->f[0]);
-                        GX.f[1] = nearbyint(EX->f[1]);
-                        GX.f[2] = nearbyint(EX->f[2]);
-                        GX.f[3] = nearbyint(EX->f[3]);
+                        GX.f[0] = nearbyintf(EX->f[0]);
+                        GX.f[1] = nearbyintf(EX->f[1]);
+                        GX.f[2] = nearbyintf(EX->f[2]);
+                        GX.f[3] = nearbyintf(EX->f[3]);
                         break;
                     case ROUND_Down:
-                        GX.f[0] = floor(EX->f[0]);
-                        GX.f[1] = floor(EX->f[1]);
-                        GX.f[2] = floor(EX->f[2]);
-                        GX.f[3] = floor(EX->f[3]);
+                        GX.f[0] = floorf(EX->f[0]);
+                        GX.f[1] = floorf(EX->f[1]);
+                        GX.f[2] = floorf(EX->f[2]);
+                        GX.f[3] = floorf(EX->f[3]);
                         break;
                     case ROUND_Up:
-                        GX.f[0] = ceil(EX->f[0]);
-                        GX.f[1] = ceil(EX->f[1]);
-                        GX.f[2] = ceil(EX->f[2]);
-                        GX.f[3] = ceil(EX->f[3]);
+                        GX.f[0] = ceilf(EX->f[0]);
+                        GX.f[1] = ceilf(EX->f[1]);
+                        GX.f[2] = ceilf(EX->f[2]);
+                        GX.f[3] = ceilf(EX->f[3]);
                         break;
                     case ROUND_Chop:
-                        GX.f[0] = trunc(EX->f[0]);
-                        GX.f[1] = trunc(EX->f[1]);
-                        GX.f[2] = trunc(EX->f[2]);
-                        GX.f[3] = trunc(EX->f[3]);
+                        GX.f[0] = truncf(EX->f[0]);
+                        GX.f[1] = truncf(EX->f[1]);
+                        GX.f[2] = truncf(EX->f[2]);
+                        GX.f[3] = truncf(EX->f[3]);
                         break;
                 }
                 break;
@@ -611,16 +611,16 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
-                        GX.f[0] = nearbyint(EX->f[0]);
+                        GX.f[0] = nearbyintf(EX->f[0]);
                         break;
                     case ROUND_Down:
-                        GX.f[0] = floor(EX->f[0]);
+                        GX.f[0] = floorf(EX->f[0]);
                         break;
                     case ROUND_Up:
-                        GX.f[0] = ceil(EX->f[0]);
+                        GX.f[0] = ceilf(EX->f[0]);
                         break;
                     case ROUND_Chop:
-                        GX.f[0] = trunc(EX->f[0]);
+                        GX.f[0] = truncf(EX->f[0]);
                         break;
                 }
                 break;
@@ -661,35 +661,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 if(tmp8u>31)
                     {GX.q[0] = GX.q[1] = 0;}
                 else
-                #if 0
-                    if(tmp8u>15) {
-                    tmp8u=(tmp8u-16)*8;
-                    if (tmp8u < 64) {
-                        GX.q[0] = (GX.q[0] >> tmp8u) | (GX.q[1] << (64 - tmp8u));
-                        GX.q[1] = (GX.q[1] >> tmp8u);
-                    } else {
-                        GX.q[0] = GX.q[1] >> (tmp8u - 64);
-                        GX.q[1] = 0;
-                    }                    
-                } else {
-                    tmp8u*=8;
-                    if (tmp8u < 64) {
-                        GX.q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
-                        GX.q[1] = (EX->q[1] >> tmp8u) | (GX.q[0] << (64-tmp8u));
-                    } else {
-                        tmp8u -= 64;
-                        GX.q[0] = (EX->q[1] >> tmp8u) | (GX.q[0] << (64 - tmp8u));
-                        GX.q[1] = (GX.q[0] >> tmp8u) | (GX.q[1] >> (64 - tmp8u));
-                    }                    
-                }
-                #else
                 {
                     for (int i=0; i<16; ++i, ++tmp8u)
                         eax1.ub[i] = (tmp8u>15)?((tmp8u>31)?0:GX.ub[tmp8u-16]):EX->ub[tmp8u];
                     GX.q[0] = eax1.q[0];
                     GX.q[1] = eax1.q[1];
                 }
-                #endif
                 break;
 
             case 0x16:      // PEXTRD ED, GX, u8
