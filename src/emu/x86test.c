@@ -146,7 +146,7 @@ void x86test_init(x86emu_t* ref, uintptr_t ip)
         uintptr_t prev_ip = test->emu->ip.dword[0];
         if(test->clean)
             x86test_check(ref, ip);
-        if(ip != prev_ip || !test->test) {
+        if(ip != prev_ip || !test->test || !test->clean) {
             CopyEmu(test->emu, ref);
         }
     }
