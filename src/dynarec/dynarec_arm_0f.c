@@ -795,7 +795,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0);
+            // VMIN/VMAX wll put default NaN if any input is NaN
+            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
+            if(!box86_dynarec_fastnan) {
+                if(v0==v1) {
+                    q1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ(q1, v1);
+                } else
+                    q1 = v1;
+            }
             VMINQ_F32(v0, v0, v1);
+            if(!box86_dynarec_fastnan) {
+                q0 = fpu_get_scratch_quad(dyn);
+                VCEQQ_F32(q0, v0, v0);   // 0 is NaN, -1 is not NaN
+                VANDQ(v0, v0, q0);
+                VBICQ(q0, q1, q0);
+                VORRQ(v0, v0, q0);
+            }
             break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
@@ -819,7 +835,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0);
+            // VMIN/VMAX wll put default NaN if any input is NaN
+            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
+            if(!box86_dynarec_fastnan) {
+                if(v0==v1) {
+                    q1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ(q1, v1);
+                } else
+                    q1 = v1;
+            }
             VMAXQ_F32(v0, v0, v1);
+            if(!box86_dynarec_fastnan) {
+                q0 = fpu_get_scratch_quad(dyn);
+                VCEQQ_F32(q0, v0, v0);   // 0 is NaN, -1 is not NaN
+                VANDQ(v0, v0, q0);
+                VBICQ(q0, q1, q0);
+                VORRQ(v0, v0, q0);
+            }
             break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gm,Em");
