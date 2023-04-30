@@ -867,22 +867,22 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     int a = dyn->n.x87stack;
     if(a) {
     // Add x87stack to emu fpu_stack
-        LDR_IMM9(s1, xEmu, offsetof(x86emu_t, fpu_stack));
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
         if(a>0) {
-            ADD_IMM8(s1, s1, a);
+            ADD_IMM8(s2, s2, a);
         } else {
-            SUB_IMM8(s1, s1, -a);
+            SUB_IMM8(s2, s2, -a);
         }
-        STR_IMM9(s1, xEmu, offsetof(x86emu_t, fpu_stack));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
-        LDR_IMM9(s1, xEmu, offsetof(x86emu_t, top));
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
         if(a>0) {
-            SUB_IMM8(s1, s1, a);
+            SUB_IMM8(s2, s2, a);
         } else {
-            ADD_IMM8(s1, s1, -a);
+            ADD_IMM8(s2, s2, -a);
         }
-        AND_IMM8(s1, s1, 7);
-        STR_IMM9(s1, xEmu, offsetof(x86emu_t, top));
+        AND_IMM8(s2, s2, 7);
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
     }
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
@@ -891,13 +891,20 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
     if(!ret)    // nothing to do
         return;
     // Get top
-    LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    if(!a) {
+        // already there
+        LDR_IMM9(s2, xEmu, offsetof(x86emu_t, top));
+    }
     // loop all cache entries
     for (int i=0; i<8; ++i)
         if(dyn->n.x87cache[i]!=-1) {
-            ADD_IMM8(s3, s2, dyn->n.x87cache[i]);
-            AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
-            ADD_REG_LSL_IMM5(s3, xEmu, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+            if(dyn->n.x87cache[i]) {
+                ADD_IMM8(s3, s2, dyn->n.x87cache[i]);
+                AND_IMM8(s3, s3, 7);    // (emu->top + i)&7
+                ADD_REG_LSL_IMM5(s3, xEmu, s3, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
+            } else {
+                ADD_REG_LSL_IMM5(s3, xEmu, s2, 3);
+            }
             if(ST_IS_F(dyn->n.x87cache[i])) {
                 VCVT_F64_F32(0, dyn->n.x87reg[i]*2);    // use D0 as scratch...
                 VSTR_64(0, s3, offsetof(x86emu_t, x87));

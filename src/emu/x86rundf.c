@@ -59,8 +59,11 @@ uintptr_t RunDF(x86emu_t *emu, uintptr_t addr)
         break;
 
     case 0xE0:  /* FNSTSW AX */
-        emu->sw.f.F87_TOP = emu->top&7;
-        R_AX = emu->sw.x16;
+        {
+            x87flags_t sw = emu->sw;
+            sw.f.F87_TOP = emu->top&7;
+            R_AX = sw.x16;
+        }
         break;
 
     case 0xE8:  /* FUCOMIP ST0, STx */

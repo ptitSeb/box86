@@ -422,6 +422,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x31:
             INST_NAME("RDTSC");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
+            SKIPTEST(x14);
             CALL(ReadTSC, xEAX, 0);   // will return the u64 in x1:xEAX
             MOV_REG(xEDX, x1);
             break;

@@ -194,7 +194,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xE8:
             INST_NAME("FLD1");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 VMOV_i_32(v1, 0b01110000);
             } else {
@@ -204,7 +204,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_l2t));
                 VLDR_32(v1, x2, 0);
@@ -216,7 +216,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEA:     
             INST_NAME("FLDL2E");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_l2e));
                 VLDR_32(v1, x2, 0);
@@ -228,7 +228,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEB:
             INST_NAME("FLDPI");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_pi));
                 VLDR_32(v1, x2, 0);
@@ -240,7 +240,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEC:
             INST_NAME("FLDLG2");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_lg2));
                 VLDR_32(v1, x2, 0);
@@ -252,7 +252,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xED:
             INST_NAME("FLDLN2");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_ln2));
                 VLDR_32(v1, x2, 0);
@@ -264,7 +264,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEE:
             INST_NAME("FLDZ");
-            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 VMOV_8(v1/2, 0);  // float is *2...
             } else {
@@ -309,7 +309,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xF2:
             INST_NAME("FPTAN");
-            v2 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
+            v2 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             VMOV_64(0, v1);    // prepare call to tan
             CALL_1D(tan, 0);
@@ -589,7 +589,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("FST float[ED], ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                     if(ST_IS_F(0))
                         s0 = v1;
                     else {
@@ -608,7 +608,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 3:
                     INST_NAME("FSTP float[ED], ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                     if(ST_IS_F(0))
                         s0 = v1;
                     else {
