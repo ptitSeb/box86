@@ -94,6 +94,13 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
             if((a=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaCall %d, fs=0x%x\n", a, ejb->emu->segs[_FS]);
                 addr = R_EIP;   // not sure if it should still be inside DynaCall!
+                #ifdef DYNAREC
+                if(box86_dynarec_test) {
+                    if(emu->test.clean)
+                        x86test_check(emu, R_EIP);
+                    emu->test.clean = 0;
+                }
+                #endif
                 if(a==2)
                     Run(emu, 1);    // "single step" next instruction that is doing auto-smc
             }
@@ -123,6 +130,8 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
+                if(box86_dynarec_test)
+                    emu->test.clean = 0;
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,block->father, emu);
@@ -187,6 +196,13 @@ int DynaRun(x86emu_t* emu)
 #endif
             if((a=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun %d, fs=0x%x\n", a, ejb->emu->segs[_FS]);
+                #ifdef DYNAREC
+                if(box86_dynarec_test) {
+                    if(emu->test.clean)
+                        x86test_check(emu, R_EIP);
+                    emu->test.clean = 0;
+                }
+                #endif
                 if(a==2)
                     Run(emu, 1);    // "single step" next instruction that is doing auto-smc
 
@@ -208,6 +224,8 @@ int DynaRun(x86emu_t* emu)
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
+                if(box86_dynarec_test)
+                    emu->test.clean = 0;
                 Run(emu, 1);
             } else {
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, block->father, emu);

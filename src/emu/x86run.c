@@ -1524,15 +1524,17 @@ x86emurun:
         case 0xFF:                      /* GRP 5 Ed */
             nextop = F8;
             tmp32u2 = addr;
-            GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
+                    GET_ED;
                     ED->dword[0] = inc32(emu, ED->dword[0]);
                     break;
                 case 1:                 /* DEC Ed */
+                    GET_ED;
                     ED->dword[0] = dec32(emu, ED->dword[0]);
                     break;
                 case 2:                 /* CALL NEAR Ed */
+                    GET_ED_;
                     tmp32u = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     Push(emu, addr);
                     addr = tmp32u;
@@ -1547,6 +1549,7 @@ x86emurun:
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
                     } else {
+                        GET_ED_;
                         Push(emu, R_CS);
                         Push(emu, addr);
                         addr = ED->dword[0];
@@ -1555,6 +1558,7 @@ x86emurun:
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
+                    GET_ED_;
                     addr = (uintptr_t)getAlternate((void*)ED->dword[0]);
                     STEP2;
                     break;
@@ -1567,22 +1571,16 @@ x86emurun:
                         emu->error |= ERR_ILLEGAL;
                         goto fini;
                     } else {
+                        GET_ED_;
                         addr = ED->dword[0];
                         R_CS = (ED+1)->word[0];
                         STEP2;
                     }
                     break;
                 case 6:                 /* Push Ed */
+                    GET_ED_;
                     tmp32u = ED->dword[0];
-                    #ifdef TEST_INTERPRETER
-                    R_ESP -=4;
-                    if(test->memsize!=4)
-                        *(uint32_t*)test->mem = *(uint32_t*)test->memaddr;
-                    test->memsize = 4;
-                    test->memaddr = R_ESP;
-                    #else
                     Push(emu, tmp32u);  // avoid potential issue with push [esp+...]
-                    #endif
                     break;
                 default:
                     emu->old_ip = R_EIP;

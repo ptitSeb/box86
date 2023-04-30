@@ -402,8 +402,10 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x86_addr, db->x86_addr+db->x86_size-1, (void*)addr);
             return NULL;
         }
-        if(mutex_trylock(&my_context->mutex_dyndump))
+        if(mutex_trylock(&my_context->mutex_dyndump)) {
+            emu->test.test = 0;
             return NULL;
+        }
         dynablock_t *father = db->father?db->father:db;
         uint32_t hash = (getProtection((uintptr_t)father->x86_addr)&PROT_READ)?X31_hash_code(father->x86_addr, father->x86_size):0;
         if(hash!=father->hash) {

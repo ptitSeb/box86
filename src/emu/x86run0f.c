@@ -181,7 +181,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             break;
         case 0x18:                       /* PREFETCHh Ed */
             nextop = F8;
-            GET_ED;
+            GET_ED_;
             if((nextop&0xC0)==0xC0) {
             } else
             switch((nextop>>3)&7) {
@@ -203,7 +203,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
         case 0x1E:                      /* HINT_NOP (multi-byte) */
         case 0x1F:                      /* NOP (multi-byte) */
             nextop = F8;
-            GET_ED;
+            GET_ED_;
             break;
 
         case 0x28:                      /* MOVAPS Gx,Ex */
