@@ -195,7 +195,7 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
 
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
-        GET_ED;
+        GET_ED_;
         break;
     
     case 0x28:                      /* MOVAPD Gx, Ex */
