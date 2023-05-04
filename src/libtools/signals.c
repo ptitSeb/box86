@@ -771,6 +771,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         // check if SMC inside block
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
+        int db_need_test = db?db->need_test:0;
         dynarec_log(LOG_INFO/*LOG_DEBUG*/, "SIGSEGV with Access error on %p for %p , db=%p(%p)\n", pc, addr, db, db?((void*)db->x86_addr):NULL);
         static uintptr_t repeated_page = 0;
         static int repeated_count = 0;
@@ -782,7 +783,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             repeated_page = (uintptr_t)addr&~0xfff;
             repeated_count = 0;
         }
-        if(db && ((addr>=db->x86_addr && addr<(db->x86_addr+db->x86_size)) || db->need_test)) {
+        if(db && ((addr>=db->x86_addr && addr<(db->x86_addr+db->x86_size)) || db_need_test)) {
             // dynablock got auto-dirty! need to get out of it!!!
             emu_jmpbuf_t* ejb = GetJmpBuf();
             if(ejb->jmpbuf_ok) {
@@ -812,6 +813,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 #ifdef DYNAREC
                 if(Locks & is_dyndump_locked)
                     CancelBlock();
+                ejb->emu->test.clean = 0;
                 #endif
                 siglongjmp(ejb->jmpbuf, 2);
             }
