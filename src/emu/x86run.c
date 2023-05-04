@@ -1132,21 +1132,22 @@ x86emurun:
                 addr = R_EIP;
                 if(emu->quit) goto fini;
             } else {
-                int tid = GetTID();
-                printf_log(LOG_NONE, "%04d|%p: Ignoring Unsupported Int %02Xh\n", tid, (void*)addr, nextop);
-                emu->old_ip = R_EIP;
-                R_EIP = addr;
-                emu->quit = 1;
-                emu->error |= ERR_UNIMPL;
-                goto fini;
+                if(box86_wine && nextop==0x2D) {
+                    // actually ignoring this
+                    printf_log(LOG_DEBUG, "INT 2D called\n");
+                } else {
+                    #ifndef TEST_INTERPRETER
+                    emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+                    if(emu->quit) goto fini;
+                    STEP;
+                    #endif
+                }
             }
             break;
         case 0xCE:                      /* INTO */
             emu->old_ip = R_EIP;
             #ifndef TEST_INTERPRETER
-            R_EIP = addr;
             emit_signal(emu, SIGFPE, (void*)R_EIP, FPE_INTOVF);
-            addr = R_EIP;
             if(emu->quit) goto fini;
             STEP;
             #endif
