@@ -1036,22 +1036,23 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             if((nextop&0xF8)==0xF8) {
                 break;                   /* SFENCE */
             }
-            GET_ED;
             switch((nextop>>3)&7) {
                 case 0:                 /* FXSAVE m512byte */
+                    GET_ED_;
                     #ifndef TEST_INTERPRETER
                     fpu_fxsave(emu, ED);
                     #endif
                     break;
                 case 1:                 /* FXRSTOR m512byte */
-                    #ifndef TEST_INTERPRETER
+                    GET_ED_;
                     fpu_fxrstor(emu, ED);
-                    #endif
                     break;
                 case 2:                 /* LDMXCSR Md */
+                    GET_ED_;
                     emu->mxcsr.x32 = ED->dword[0];
                     break;
                 case 3:                 /* STMXCSR Md */
+                    GET_ED;
                     ED->dword[0] = emu->mxcsr.x32;
                     #ifndef TEST_INTERPRETER
                     if(box86_sse_flushto0)
