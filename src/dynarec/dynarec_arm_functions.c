@@ -740,24 +740,6 @@ const char* getCacheName(int t, int n)
     return buff;
 }
 
-// is inst clean for a son branch?
-int isInstClean(dynarec_arm_t* dyn, int ninst)
-{
-    // check flags cache
-    if(dyn->insts[ninst].f_entry.dfnone || dyn->insts[ninst].f_entry.pending)
-        return 0;
-    if(dyn->insts[ninst].x86.state_flags)
-        return 0;
-    // check neoncache
-    neoncache_t* n = &dyn->insts[ninst].n;
-    if(n->news || n->stack || n->stack_next)
-        return 0;
-    for(int i=0; i<24; ++i)
-        if(n->neoncache[i].v)
-            return 0;
-    return 1;
-}
-
 static int flagsCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     int jmp = dyn->insts[ninst].x86.jmp_insts;
     if(jmp<0)
@@ -852,14 +834,4 @@ void inst_name_pass3(dynarec_arm_t* dyn, int ninst, const char* name)
 void print_opcode(dynarec_arm_t* dyn, int ninst, uint32_t opcode)
 {
     dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, arm_print(opcode));
-}
-
-void newinst_pass3(dynarec_arm_t* dyn, int ninst, uintptr_t ip)
-{
-    if(ninst && isInstClean(dyn, ninst)) {
-        dyn->sons_x86[dyn->sons_size] = ip;
-        dyn->sons_arm[dyn->sons_size] = dyn->block;
-        if(box86_dynarec_dump) dynarec_log(LOG_NONE, "----> potential Son here %p/%p\n", (void*)ip, dyn->block);
-        ++dyn->sons_size;
-    }
 }

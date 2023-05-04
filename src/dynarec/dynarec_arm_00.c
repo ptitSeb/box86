@@ -1719,9 +1719,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
             SKIPTEST(x14);
             SMEND();
-            if(PK(0)==0x80) {
+            u8 = F8;
+            if(u8==0x80) {
                 INST_NAME("Syscall");
-                u8 = F8;
                 BARRIER(BARRIER_FLOAT);
                 MOV32(xEIP, ip+2);
                 STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
@@ -1737,7 +1737,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 jump_to_epilog(dyn, 0, xEIP, ninst);
             } else {
                 INST_NAME("INT Ib");
-                DEFAULT;
+                if(box86_wine && u8==0x2D) {
+                    MESSAGE(LOG_DEBUG, "Hack for wine/int 2d\n");
+                } else {
+                    DEFAULT;
+                }
             }
             break;
 
@@ -2229,11 +2233,17 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
-                        //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    BARRIER(BARRIER_FLOAT);
                     //BARRIER_NEXT(BARRIER_FULL);
+                    if(/*box86_dynarec_callret &&*/ box86_dynarec_bigblock>1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
                     *need_epilog = 0;
                     *ok = 0;
                     MOV32(x2, addr);
@@ -2828,7 +2838,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags), 1) {
+                    PASS2IF((box86_dynarec_safeflags>1) || 
+                        ((ninst && dyn->insts[ninst-1].x86.set_flags)
+                        || ((ninst>1) && dyn->insts[ninst-2].x86.set_flags)), 1)
+                    {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
                         //SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state

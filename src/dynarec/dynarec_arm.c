@@ -478,11 +478,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         return NULL;
     }
     helper.block = p;
-    helper.arm_start = (uintptr_t)p;
-    if(helper.sons_size) {
-        helper.sons_x86 = (uintptr_t*)alloca(helper.sons_size*sizeof(uintptr_t));
-        helper.sons_arm = (void**)alloca(helper.sons_size*sizeof(void*));
-    }
     // pass 3, emit (log emit arm opcode)
     if(box86_dynarec_dump) {
         dynarec_log(LOG_NONE, "%s%04d|Emitting %d bytes for %d x86 bytes", (box86_dynarec_dump>1)?"\e[01;36m":"", GetTID(), helper.arm_size, helper.isize); 
@@ -542,32 +537,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         AddHotPage(addr);
         block->need_test = 1;
         //protectDB(addr, end-addr);
-    }
-    // fill sons if any
-    dynablock_t** sons = NULL;
-    int sons_size = 0;
-    if(helper.sons_size) {
-        sons = (dynablock_t**)box_calloc(helper.sons_size, sizeof(dynablock_t*));
-        for (int i=0; i<helper.sons_size; ++i) {
-            int created = 1;
-            dynablock_t *son = AddNewDynablock(block->parent, helper.sons_x86[i], &created);
-            if(created) {    // avoid breaking a working block!
-                son->block = helper.sons_arm[i];
-                son->x86_addr = (void*)helper.sons_x86[i];
-                son->x86_size = end-helper.sons_x86[i];
-                if(!son->x86_size) {printf_log(LOG_NONE, "Warning, son with null x86 size! (@%p / ARM=%p)", son->x86_addr, son->block);}
-                son->father = block;
-                son->done = 1;
-                sons[sons_size++] = son;
-                if(!son->parent)
-                    son->parent = block->parent;
-            }
-        }
-        if(sons_size) {
-            block->sons = sons;
-            block->sons_size = sons_size;
-        } else
-            box_free(sons);
     }
     box_free(helper.predecessor);
     helper.predecessor = NULL;

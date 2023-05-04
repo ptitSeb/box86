@@ -136,7 +136,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
@@ -231,7 +231,7 @@ int DynaRun(x86emu_t* emu)
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);

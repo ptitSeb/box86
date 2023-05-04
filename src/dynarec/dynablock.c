@@ -63,7 +63,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
     if(db) {
         if(db->gone)
             return; // already in the process of deletion!
-        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x86=%p:%p father=%p, with %d son(s) already gone=%d\n", db, db->block, db->x86_addr, db->x86_addr+db->x86_size, db->father, db->sons_size, db->gone);
+        dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x86=%p:%p already gone=%d\n", db, db->block, db->x86_addr, db->x86_addr+db->x86_size, db->gone);
         if(need_lock)
             mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
@@ -79,17 +79,10 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         // remove jumptable
         setJumpTableDefault(db->x86_addr);
         // remove and free the sons
-        for (int i=0; i<db->sons_size; ++i) {
-            dynablock_t *son = (dynablock_t*)arm_lock_xchg(&db->sons[i], 0);
-            FreeDynablock(son, 0);
-        }
-        // only the father free the DynarecMap
-        if(!db->father) {
-            dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->block, db->size);
-            FreeDynarecMap(db, (uintptr_t)db->block, db->size);
-            box_free(db->sons);
-            box_free(db->instsize);
-        }
+        dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->block, db->size);
+        FreeDynarecMap(db, (uintptr_t)db->block, db->size);
+        box_free(db->instsize);
+
         box_free(db);
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
@@ -105,7 +98,7 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
     dynarec_log(LOG_DEBUG, "Free Dynablocklist %p, with Direct Blocks %p\n", *dynablocks, (*dynablocks)->direct);
     if((*dynablocks)->direct) {
         for (int i=0; i<(*dynablocks)->textsz; ++i) {
-            if((*dynablocks)->direct[i] && !(*dynablocks)->direct[i]->father) 
+            if((*dynablocks)->direct[i]) 
                 FreeDynablock((*dynablocks)->direct[i], my_context?1:0);
         }
         box_free((*dynablocks)->direct);
@@ -119,14 +112,10 @@ void FreeDynablockList(dynablocklist_t** dynablocks)
 void MarkDynablock(dynablock_t* db)
 {
     if(db) {
-        if(db->father)
-            db = db->father;    // mark only father
         if(db->need_test)
             return; // already done
         db->need_test = 1;
         setJumpTableDefault(db->x86_addr);
-        for(int i=0; i<db->sons_size; ++i)
-            setJumpTableDefault(db->sons[i]->x86_addr);
     }
 }
 
@@ -197,8 +186,6 @@ void FreeRangeDynablock(dynablocklist_t* dynablocks, uintptr_t addr, uintptr_t s
                 for(uintptr_t i = start; i<end; ++i) {
                     db = (dynablock_t*)arm_lock_xchg(&dynablocks->direct[i-startdb], 0);
                     if(db) {
-                        if(db->father)
-                            db = db->father;
                         if(db->parent==dynablocks) {
                             k = kh_put(dynablocks, blocks, (uintptr_t)db, &ret);
                             kh_value(blocks, k) = db;
@@ -236,7 +223,7 @@ dynablock_t* FindDynablockDynablocklist(void* addr, kh_dynablocks_t* dynablocks)
         const uintptr_t s = (uintptr_t)db->block;
         const uintptr_t e = (uintptr_t)db->block+db->size;
         if((uintptr_t)addr>=s && (uintptr_t)addr<e)
-            return db->father?db->father:db;
+            return db;
     )
     return NULL;
 }
@@ -380,15 +367,13 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         }
         //protectDB((uintptr_t)block->x86_addr, block->x86_size);   // already protected in FillBlock
         // but check if it already need test
-        if(block->need_test || (block->father && block->father->need_test))
+        if(block->need_test)
             return NULL;
         // fill-in jumptable
         addJumpTableIfDefault(block->x86_addr, block->block);
-        for(int i=0; i<block->sons_size; ++i)
-            addJumpTableIfDefault(block->sons[i]->x86_addr, block->sons[i]->block);
     }
 
-    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes, with %d son(s))\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0, (block)?block->sons_size:0);
+    dynarec_log(LOG_DEBUG, " --- DynaRec Block %s @%p:%p (%p, 0x%x bytes)\n", created?"created":"recycled", (void*)addr, (void*)(addr+((block)?block->x86_size:0)), (block)?block->block:0, (block)?block->size:0);
 
     return block;
 }
@@ -396,7 +381,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
 dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t** current)
 {
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, *current, 1);
-    if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
+    if(db && db->done && db->block && (db->need_test)) {
         if(AreaInHotPage((uintptr_t)db->x86_addr, (uintptr_t)db->x86_addr + db->x86_size - 1)) {
             emu->test.test = 0;
             dynarec_log(LOG_DEBUG, "Not running block %p from %p:%p with for %p because it's in a hotpage\n", db, db->x86_addr, db->x86_addr+db->x86_size-1, (void*)addr);
@@ -406,24 +391,21 @@ dynablock_t* DBGetBlock(x86emu_t* emu, uintptr_t addr, int create, dynablock_t**
             emu->test.test = 0;
             return NULL;
         }
-        dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = (getProtection((uintptr_t)father->x86_addr)&PROT_READ)?X31_hash_code(father->x86_addr, father->x86_size):0;
-        if(hash!=father->hash) {
-            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size, (void*)addr);
+        uint32_t hash = (getProtection((uintptr_t)db->x86_addr)&PROT_READ)?X31_hash_code(db->x86_addr, db->x86_size):0;
+        if(hash!=db->hash) {
+            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) for %p\n", db, db->x86_addr, db->x86_addr+db->x86_size, hash, db->hash, (void*)addr);
             // no more current if it gets invalidated too
-            if(*current && father->x86_addr>=(*current)->x86_addr && (father->x86_addr+father->x86_size)<(*current)->x86_addr)
+            if(*current && db->x86_addr>=(*current)->x86_addr && (db->x86_addr+db->x86_size)<(*current)->x86_addr)
                 *current = NULL;
-            // Free father, it's now invalid!
-            FreeDynablock(father, 0);
+            // Free db, it's now invalid!
+            FreeDynablock(db, 0);
             // start again... (will create a new block)
             db = internalDBGetBlock(emu, addr, addr, create, *current, 0);
         } else {
-            father->need_test = 0;
-            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            db->need_test = 0;
+            protectDB((uintptr_t)db->x86_addr, db->x86_size);
             // fill back jumptable
-            addJumpTableIfDefault(father->x86_addr, father->block);
-            for(int i=0; i<father->sons_size; ++i)
-                addJumpTableIfDefault(father->sons[i]->x86_addr, father->sons[i]->block);
+            addJumpTableIfDefault(db->x86_addr, db->block);
         }
         mutex_unlock(&my_context->mutex_dyndump);
     } 
@@ -437,26 +419,23 @@ dynablock_t* DBAlternateBlock(x86emu_t* emu, uintptr_t addr, uintptr_t filladdr)
     dynarec_log(LOG_DEBUG, "Creating AlternateBlock at %p for %p\n", (void*)addr, (void*)filladdr);
     int create = 1;
     dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, NULL, 1);
-    if(db && db->done && db->block && (db->need_test || (db->father && db->father->need_test))) {
+    if(db && db->done && db->block && (db->need_test)) {
         if(mutex_trylock(&my_context->mutex_dyndump)) {
             emu->test.test = 0;
             return NULL;
         }
-        dynablock_t *father = db->father?db->father:db;
-        uint32_t hash = (getProtection((uintptr_t)father->x86_addr)&PROT_READ)?X31_hash_code(father->x86_addr, father->x86_size):0;
-        if(hash!=father->hash) {
-            dynarec_log(LOG_DEBUG, "Invalidating alt block %p from %p:%p (hash:%X/%X) with %d son(s) for %p\n", father, father->x86_addr, father->x86_addr+father->x86_size, hash, father->hash, father->sons_size, (void*)addr);
-            // Free father, it's now invalid!
-            FreeDynablock(father, 0);
+        uint32_t hash = (getProtection((uintptr_t)db->x86_addr)&PROT_READ)?X31_hash_code(db->x86_addr, db->x86_size):0;
+        if(hash!=db->hash) {
+            dynarec_log(LOG_DEBUG, "Invalidating alt block %p from %p:%p (hash:%X/%X) for %p\n", db, db->x86_addr, db->x86_addr+db->x86_size, hash, db->hash, (void*)addr);
+            // Free db, it's now invalid!
+            FreeDynablock(db, 0);
             // start again... (will create a new block)
             db = internalDBGetBlock(emu, addr, filladdr, create, NULL, 0);
         } else {
-            father->need_test = 0;
-            protectDB((uintptr_t)father->x86_addr, father->x86_size);
+            db->need_test = 0;
+            protectDB((uintptr_t)db->x86_addr, db->x86_size);
             // fill back jumptable
-            addJumpTableIfDefault(father->x86_addr, father->block);
-            for(int i=0; i<father->sons_size; ++i)
-                addJumpTableIfDefault(father->sons[i]->x86_addr, father->sons[i]->block);
+            addJumpTableIfDefault(db->x86_addr, db->block);
         }
         mutex_unlock(&my_context->mutex_dyndump);
     } 
