@@ -2952,6 +2952,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             ret = mmap64(new_addr, length, prot, flags, fd, offset);
             if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
                 munmap(ret, length);
+                errno = EEXIST;
                 ret = (void*)-1;
             }
         }
