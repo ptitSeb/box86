@@ -38,6 +38,7 @@ typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #define DYNAMAP_SIZE (1<<(32-DYNAMAP_SHIFT))
 #define JMPTABL_SHIFT 16
 #define JMPTABL_SIZE (1<<(32-JMPTABL_SHIFT))
+#define JMPTABLE_MASK ((1<<JMPTABL_SHIFT)-1)
 
 typedef void* (*procaddress_t)(const char* name);
 typedef void* (*vkprocaddress_t)(void* instance, const char* name);
@@ -139,6 +140,7 @@ typedef struct box86context_s {
     uint32_t            mutex_thread;
     uint32_t            mutex_bridge;
     uint32_t            mutex_dyndump;
+    uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
     #endif
@@ -206,7 +208,7 @@ typedef struct box86context_s {
 #else
 int GetTID();
 #define mutex_lock(A)       {int tid = GetTID(); while(arm_lock_storeifnull(A, (void*)tid)) sched_yield();}
-#define mutex_trylock(A)    arm_lock_storeifnull(A, (void*)GetTID())
+#define mutex_trylock(A)    (uintptr_t)arm_lock_storeifnull(A, (void*)GetTID())
 #define mutex_unlock(A)     arm_lock_storeifref(A, NULL, (void*)GetTID())
 #endif
 

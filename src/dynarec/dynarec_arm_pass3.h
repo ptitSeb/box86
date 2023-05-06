@@ -1,10 +1,16 @@
 #define INIT    
-#define FINI
-#define EMIT(A)     \
-    if(box86_dynarec_dump) print_opcode(dyn, ninst, (uint32_t)(A)); \
-    *(uint32_t*)(dyn->block) = A;                                   \
-    dyn->block += 4; dyn->arm_size += 4;                            \
-    dyn->insts[ninst].size2 += 4
+#define FINI        \
+    if(ninst)       \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst].x86.size, dyn->insts[ninst].size/4); \
+    addInst(dyn->instsize, &dyn->insts_size, 0, 0);
+#define EMIT(A)                                         \
+    do{                                                 \
+        if(box86_dynarec_dump) print_opcode(dyn, ninst, (uint32_t)(A)); \
+        if((uintptr_t)dyn->block<(uintptr_t)dyn->next-sizeof(void*))\
+            *(uint32_t*)(dyn->block) = (uint32_t)(A);   \
+        dyn->block += 4; dyn->arm_size += 4;            \
+        dyn->insts[ninst].size2 += 4;                   \
+    }while(0)
 
 #define MESSAGE(A, ...)  if(box86_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 // warning, there is some logic, handing of sons, in newinst_pass3

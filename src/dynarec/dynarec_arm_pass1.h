@@ -2,7 +2,6 @@
 #define FINI
 #define MESSAGE(A, ...)  
 #define EMIT(A)     
-
 #define NEW_INST                                \
         dyn->insts[ninst].f_entry = dyn->f;     \
         dyn->n.combined1 = dyn->n.combined2 = 0;\

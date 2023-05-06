@@ -24,6 +24,8 @@ extern uintptr_t box86_nodynarec_start, box86_nodynarec_end;
 extern int box86_dynarec_fastnan;
 extern int box86_dynarec_fastround;
 extern int box86_dynarec_hotpage;
+extern int box86_dynarec_wait;
+extern int box86_dynarec_fastpage;
 extern int box86_dynarec_bleeding_edge;
 extern int box86_dynarec_test;
 #ifdef ARM

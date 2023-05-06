@@ -5,6 +5,7 @@
 
 typedef struct x86emu_s x86emu_t;
 typedef struct dynablock_s dynablock_t;
+typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
@@ -90,6 +91,7 @@ typedef struct dynarec_arm_s {
     void*               block;      // memory pointer where next instruction is emited
     uintptr_t           arm_start;  // start of the arm code
     int                 arm_size;   // size of emitted arm code
+    uintptr_t           jmp_next;   // address of the jump_next address
     flagcache_t         f;
     neoncache_t         n;          // cache for the 8..31 double reg from fpu, plus x87 stack delta
     uintptr_t*          next;       // variable array of "next" jump address
@@ -97,17 +99,22 @@ typedef struct dynarec_arm_s {
     int                 next_cap;
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
+    instsize_t*         instsize;
+    size_t              insts_size; // size of the instruction size array (calculated)
     uint8_t             smread;    // for strongmem model emulation
     uint8_t             smwrite;    // for strongmem model emulation
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
+    uint8_t             always_test;
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
+
+void CreateJmpNext(void* addr, void* next);
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

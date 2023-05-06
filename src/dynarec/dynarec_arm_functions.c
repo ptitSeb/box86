@@ -28,6 +28,7 @@
 #include "dynarec_arm_functions.h"
 #include "bridge.h"
 #include "arm_printer.h"
+#include "custommem.h"
 
 void arm_fstp(x86emu_t* emu, void* p)
 {
@@ -705,13 +706,13 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 #define PK(a)       *(uint8_t*)(addr+a)
 #define PK32(a)     *(uint32_t*)(addr+a)
 
-    if(!addr)
+    if(!addr || !getProtection(addr))
         return 0;
     if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
         uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
         addr = (uintptr_t)getAlternate(*(void**)a1); 
     }
-    if(addr<0x10000)    // too low, that is suspicious
+    if(addr<0x10000 || !getProtection(addr))    // too low, that is suspicious
         return 0;
     onebridge_t *b = (onebridge_t*)(addr);
     if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {

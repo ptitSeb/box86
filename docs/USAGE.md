@@ -175,10 +175,20 @@ Handling of HotPage (Page beeing both executed and writen)
 * 0 : Don't track hotpage
 * 1-255 : Trak HotPage, and disable execution of a page beeing writen for N attempts (default is 16)
 
+#### BOX86_DYNAREC_FASTPAGE *
+Will use a faster handling of HotPage (Page being both executed and written)
+* 0 : use regular hotpage (Default)
+* 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
+
 #### BOX86_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+
+#### BOX86_DYNAREC_WAIT *
+Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+* 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
+* 1 : Dynarec will wait for FillBlock to be ready (Default)
 
 #### BOX86_SSE_FLUSHTO0 *
 Handling of SSE Flush to 0 flags

@@ -2165,8 +2165,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 tmp = dyn->insts[ninst].pass2choice = 1;
             else if ((getProtection(u32)&PROT_READ) && (PKa(u32+0)==0x8B) && (((PKa(u32+1))&0xC7)==0x04) && (PKa(u32+2)==0x24) && (PKa(u32+3)==0xC3))
                 tmp = dyn->insts[ninst].pass2choice = 2;
-            /*else if(isNativeCall(dyn, u32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
-                tmp = dyn->insts[ninst].pass2choice = 3;*/
+            else if(isNativeCall(dyn, u32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
             else 
                 tmp = dyn->insts[ninst].pass2choice = 0;
             #else
@@ -2188,8 +2188,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     gd = xEAX+((u8&0x38)>>3);
                     MOV32(gd, addr);
                     break;
-                // disabling this to avoid fetching data outside current block (in case this part changed, this block will not been marck as dirty)
-                /*case 3:
+                case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     BARRIER(BARRIER_FULL);
                     BARRIER_NEXT(BARRIER_FULL);
@@ -2228,7 +2227,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     B_NEXT(cNE);    // not quitting, so lets continue
                     MARK;
                     jump_to_epilog(dyn, 0, xEIP, ninst);
-                    break;*/
+                    break;
                 default:
                     if((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
@@ -2844,7 +2843,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
-                        //SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
                     GETEDH(xEIP);
                     BARRIER(BARRIER_FLOAT);
