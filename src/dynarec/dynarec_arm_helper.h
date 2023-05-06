@@ -547,6 +547,8 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
 #define fpu_reset       STEPNAME(fpu_reset)
+#define fpu_reset_cache STEPNAME(fpu_reset_cache)
+#define fpu_propagate_stack STEPNAME(fpu_propagate_stack)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #define x87_purgecache  STEPNAME(x87_purgecache)
 #define mmx_purgecache  STEPNAME(mmx_purgecache)
@@ -740,6 +742,10 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // common coproc helpers
 // reset the cache
 void fpu_reset(dynarec_arm_t* dyn);
+// reset the cache with n
+void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n);
+// propagate stack state
+void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst);
 // purge the FPU cache (needs 3 scratch registers) next=1 if for a conditionnal branch jumping out of block (no tracking updated)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);

@@ -45,9 +45,8 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
         printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p/%s)\n", x2, db, x86addr, pcname);
     }
     #endif
-    dynablock_t* current = NULL;
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
+    dynablock_t* block = DBGetBlock(emu, addr, 1);
     if(!block) {
         // no block, let link table as is...
         if(hasAlternate((void*)addr)) {
@@ -55,12 +54,15 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
             addr = (uintptr_t)getAlternate((void*)addr);
             R_EIP = addr;
             printf_log(LOG_INFO, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1, &current);
+            block = DBGetBlock(emu, addr, 1);
         }
         if(!block) {
             #ifdef HAVE_TRACE
-            dynablock_t* db = FindDynablockFromNativeAddress(x2);
-            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x86addr=%p)\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
+            if(LOG_INFO<=box86_dynarec_log) {
+                dynablock_t* db = FindDynablockFromNativeAddress(x2);
+                elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2);
+                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
+            }
             #endif
             //tableupdate(arm_epilog, addr, table);
             return arm_epilog;
@@ -125,7 +127,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         dynablock_t* block = NULL;
         dynablock_t* current = NULL;
         while(!emu->quit) {
-            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1, &current);
+            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1);
             current = block;
             if(!block || !block->block || !block->done) {
                 skip = 0;
@@ -220,7 +222,7 @@ int DynaRun(x86emu_t* emu)
         dynablock_t* block = NULL;
         dynablock_t* current = NULL;
         while(!emu->quit) {
-            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1, &current);
+            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1);
             current = block;
             if(!block || !block->block || !block->done) {
                 skip = 0;

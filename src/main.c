@@ -65,6 +65,8 @@ int box86_dynarec_fastround = 1;
 int box86_dynarec_safeflags = 1;
 int box86_dynarec_hotpage = 16;
 int box86_dynarec_bleeding_edge = 1;
+int box86_dynarec_wait = 1;
+int box86_dynarec_fastpage = 0;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 int box86_dynarec_test = 0;
@@ -416,6 +418,15 @@ void LoadLogEnv()
         else
             printf_log(LOG_INFO, "Dynarec will play %s safe with x86 flags\n", (box86_dynarec_safeflags==1)?"moderatly":"it");
     }
+    p = getenv("BOX86_DYNAREC_WAIT");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_wait = p[0]-'0';
+        }
+        if(!box86_dynarec_wait)
+            printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
+    }
     p = getenv("BOX86_DYNAREC_HOTPAGE");
     if(p) {
         int val = -1;
@@ -428,7 +439,15 @@ void LoadLogEnv()
         else
             printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
     }
-    p = getenv("BOX86_DYNAREC_BLEEDING_EDGE");
+    p = getenv("BOX86_DYNAREC_FASTPAGE");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_fastpage = p[0]-'0';
+        }
+        if(box86_dynarec_fastpage)
+            printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
+    }    p = getenv("BOX86_DYNAREC_BLEEDING_EDGE");
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='1')

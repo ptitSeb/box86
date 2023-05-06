@@ -3038,7 +3038,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
     }
     #endif
     int ret = munmap(addr, length);
-    if(!ret)
+    if(!ret && length)
         freeProtection((uintptr_t)addr, length);
     return ret;
 }
@@ -3051,14 +3051,14 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box86_dynarec) {
+    if(box86_dynarec && len) {
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else
             cleanDBFromAddressRange((uintptr_t)addr, len, 0);
     }
     #endif
-    if(!ret)
+    if(!ret && len)
         updateProtection((uintptr_t)addr, len, prot);
     return ret;
 }
