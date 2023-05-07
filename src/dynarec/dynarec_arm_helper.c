@@ -1874,11 +1874,11 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->f.pending!=SF_PENDING) {
             LDR_IMM9(s1, xEmu, offsetof(x86emu_t, df));
             TSTS_REG_LSL_IMM5(s1, s1, 0);
-            j32 = (GETMARK3)-(dyn->arm_size+8);
+            j32 = (GETMARKF2)-(dyn->arm_size+8);
             Bcond(cEQ, j32);
         }
         CALL_(UpdateFlags, -1, 0);
-        MARK3;
+        MARKF2;
     }
 #endif
 }

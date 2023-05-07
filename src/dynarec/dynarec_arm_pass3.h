@@ -13,7 +13,8 @@
     }while(0)
 
 #define MESSAGE(A, ...)  if(box86_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
-// warning, there is some logic, handing of sons, in newinst_pass3
-#define NEW_INST        
+#define NEW_INST        \
+    if(ninst)                                                   \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x86.size, dyn->insts[ninst-1].size/4);
 #define INST_EPILOG     
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name)
