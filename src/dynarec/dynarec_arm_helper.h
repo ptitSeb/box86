@@ -260,17 +260,19 @@
 // CALL_1RD will use S as scratch. Return value in D0, 1 ARG in R
 #define CALL_1RD(F, R, S, M) call_rd(dyn, ninst, F, R, S, M, 0);
 
-#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
-#define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
-#define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
-#define GETMARK2 ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
-#define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
-#define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
-#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
-#define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
-#define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
-#define GETMARKSEG ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
-#define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
+#define MARK        if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
+#define GETMARK     ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
+#define MARK2       if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
+#define GETMARK2    ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
+#define MARK3       if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
+#define GETMARK3    ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
+#define MARKF       if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
+#define GETMARKF    ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
+#define MARKF2      if(dyn->insts) {dyn->insts[ninst].markf2 = (uintptr_t)dyn->arm_size;}
+#define GETMARKF2   ((dyn->insts)?dyn->insts[ninst].markf2:(dyn->arm_size+4))
+#define MARKSEG     if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
+#define GETMARKSEG  ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
+#define MARKLOCK    if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
 #define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
 
 // Branch to MARK if cond (use j32)
