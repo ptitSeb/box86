@@ -25,6 +25,7 @@ typedef void (*vFpippippV_t)(void*, int32_t, void*, void*, int32_t, void*, void*
 	GO(gst_caps_set_simple_valist, vFppp_t) \
 	GO(gst_caps_set_simple, vFppV_t) \
 	GO(gst_structure_remove_fields, vFppV_t) \
+	GO(gst_caps_foreach, iFppp_t) \
 	GO(gst_structure_get_valist, iFppp_t) \
 	GO(gst_structure_get, iFppV_t) \
 	GO(gst_caps_new_simple, pFppV_t) \

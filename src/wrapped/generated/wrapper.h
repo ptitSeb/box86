@@ -1426,6 +1426,7 @@ void pFppuuu(x86emu_t *emu, uintptr_t fnc);
 void pFppuup(x86emu_t *emu, uintptr_t fnc);
 void pFppddi(x86emu_t *emu, uintptr_t fnc);
 void pFppLLi(x86emu_t *emu, uintptr_t fnc);
+void pFppLpp(x86emu_t *emu, uintptr_t fnc);
 void pFpppii(x86emu_t *emu, uintptr_t fnc);
 void pFpppip(x86emu_t *emu, uintptr_t fnc);
 void pFpppui(x86emu_t *emu, uintptr_t fnc);
