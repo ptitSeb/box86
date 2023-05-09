@@ -212,7 +212,7 @@ GO(gst_caps_copy_nth, pFpu)
 //GO(gst_caps_filter_and_map_in_place, 
 GO(gst_caps_fixate, pFp)
 GO(gst_caps_flags_get_type, pFv)
-//GOM(gst_caps_foreach, iFEpBp)
+GOM(gst_caps_foreach, iFEppp)
 GO(gst_caps_from_string, pFp)
 GO(gst_caps_get_features, pFpu)
 GO(gst_caps_get_size, uFp)
@@ -895,7 +895,7 @@ GO(gst_message_writable_structure, pFp)
 //DATAB(_gst_meta_tag_memory, 
 //DATAB(_gst_meta_transform_copy, 
 //GO(gst_mini_object_add_parent, 
-//GO(gst_mini_object_copy, 
+GO(gst_mini_object_copy, pFp)
 //GO(gst_mini_object_flags_get_type, 
 GO(gst_mini_object_get_qdata, pFpp)
 //GO(gst_mini_object_init, 
@@ -1371,17 +1371,17 @@ GO(gst_static_caps_get_type, pFv)
 //GO(gst_stream_error_get_type, 
 //GO(gst_stream_error_quark, 
 //GO(gst_stream_flags_get_type, 
-//GO(gst_stream_get_caps, 
+GO(gst_stream_get_caps, pFp)
 //GO(gst_stream_get_stream_flags, 
 //GO(gst_stream_get_stream_id, 
 //GO(gst_stream_get_stream_type, 
-//GO(gst_stream_get_tags, 
+GO(gst_stream_get_tags, pFp)
 //GO(gst_stream_get_type, 
-//GO(gst_stream_new, 
-//GO(gst_stream_set_caps, 
+GO(gst_stream_new, pFppuu)
+GO(gst_stream_set_caps, vFpp)
 //GO(gst_stream_set_stream_flags, 
-//GO(gst_stream_set_stream_type, 
-//GO(gst_stream_set_tags, 
+GO(gst_stream_set_stream_type, vFpu)
+GO(gst_stream_set_tags, vFpp)
 //GO(gst_stream_status_type_get_type, 
 //GO(gst_stream_type_get_name, 
 //GO(gst_stream_type_get_type, 

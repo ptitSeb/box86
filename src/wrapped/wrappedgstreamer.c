@@ -228,6 +228,29 @@ static void* findGstPluginFeatureFilterFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPluginFeatureFilter callback\n");
     return NULL;
 }
+
+//GstCapsFilterMapFunc
+#define GO(A)   \
+static uintptr_t my_GstCapsFilterMapFunc_fct_##A = 0;                                   \
+static int my_GstCapsFilterMapFunc_##A(void* a, void* b, void* c)                       \
+{                                                                                       \
+    return (int)RunFunction(my_context, my_GstCapsFilterMapFunc_fct_##A, 3, a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* findGstCapsFilterMapFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_GstCapsFilterMapFunc_fct_##A == (uintptr_t)fct) return my_GstCapsFilterMapFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstCapsFilterMapFunc_fct_##A == 0) {my_GstCapsFilterMapFunc_fct_##A = (uintptr_t)fct; return my_GstCapsFilterMapFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstCapsFilterMapFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_gst_caps_set_simple(x86emu_t* emu, void* caps, void* field, void* b) {
@@ -312,6 +335,11 @@ EXPORT void* my_gst_caps_new_simple(x86emu_t* emu, void* type, void* name, void*
 EXPORT void* my_gst_registry_feature_filter(x86emu_t* emu, void* reg, void* filter, int first, void* data)
 {
     return my->gst_registry_feature_filter(reg, findGstPluginFeatureFilterFct(filter), first, data);
+}
+
+EXPORT int my_gst_caps_foreach(x86emu_t* emu, void* caps, void* f, void* data)
+{
+    return my->gst_caps_foreach(caps, findGstCapsFilterMapFuncFct(f), data);
 }
 
 #define PRE_INIT    \

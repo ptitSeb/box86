@@ -1394,6 +1394,7 @@
 #() pFppuup
 #() pFppddi
 #() pFppLLi
+#() pFppLpp
 #() pFpppii
 #() pFpppip
 #() pFpppui
@@ -2851,6 +2852,7 @@ wrappedgstreamer:
   - gst_caps_set_simple
   - gst_structure_remove_fields
 - iFppp:
+  - gst_caps_foreach
   - gst_structure_get_valist
 - iFppV:
   - gst_structure_get
