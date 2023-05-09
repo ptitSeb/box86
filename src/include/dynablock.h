@@ -3,7 +3,6 @@
 
 typedef struct x86emu_s x86emu_t;
 typedef struct dynablock_s dynablock_t;
-typedef struct dynablocklist_s dynablocklist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 
 uint32_t X31_hash_code(void* addr, int len);

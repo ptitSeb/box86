@@ -1607,16 +1607,12 @@ void* ElfSetBrk(void* newbrk)
 }
 
 #ifdef DYNAREC
-dynablocklist_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
+dynablock_t* GetDynablocksFromAddress(box86context_t *context, uintptr_t addr)
 {
-    // if we are here, the there is not block in standard "space"
-    /*dynablocklist_t* ret = getDBFromAddress(addr);
-    if(ret) {
-        return ret;
-    }*/
+    (void)context;
     if(box86_dynarec_forced) {
         addDBFromAddressRange(addr, 1);
-        return getDB(addr>>DYNAMAP_SHIFT);
+        return getDB(addr);
     }
     //check if address is in an elf... if yes, grant a block (should I warn)
     Dl_info info;

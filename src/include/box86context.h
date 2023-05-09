@@ -30,7 +30,6 @@ typedef struct atfork_fnc_s {
 } atfork_fnc_t;
 #ifdef DYNAREC
 typedef struct dynablock_s      dynablock_t;
-typedef struct dynablocklist_s  dynablocklist_t;
 typedef struct mmaplist_s       mmaplist_t;
 typedef struct kh_dynablocks_s  kh_dynablocks_t;
 #endif

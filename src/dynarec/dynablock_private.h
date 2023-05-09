@@ -1,8 +1,6 @@
 #ifndef __DYNABLOCK_PRIVATE_H_
 #define __DYNABLOCK_PRIVATE_H_
 
-typedef struct dynablocklist_s  dynablocklist_t;
-
 typedef struct instsize_s {
     unsigned char x86:4;
     unsigned char nat:4;
