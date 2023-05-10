@@ -126,7 +126,6 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
 uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
 {
     // check if function alread have a bridge (the function wrapper will not be tested)
-    if (!fnc) return 0;
     khint_t k = kh_get(bridgemap, bridge->bridgemap, (uint32_t)fnc);
     if(k==kh_end(bridge->bridgemap))
         return 0;
