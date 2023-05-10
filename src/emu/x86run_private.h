@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "regs.h"
 #include "x86emu_private.h"
+#include "box86context.h"
 typedef struct x86emu_s x86emu_t;
 
 static inline uint8_t Fetch8(x86emu_t *emu) {return *(uint8_t*)(R_EIP++);}
@@ -51,6 +52,12 @@ static inline void Push(x86emu_t *emu, uint32_t v)
     *((uint32_t*)R_ESP) = v;
 }
 #endif
+
+static inline void PushExit(x86emu_t* emu)
+{
+    R_ESP -= 4;
+    *((uint32_t*)R_ESP) = my_context->exit_bridge;
+}
 
 #if 0
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html

@@ -224,9 +224,12 @@ box86context_t *NewBox86Context(int argc)
     context->system = NewBridge();
     context->globaldefver = NewDefaultVersion();
     context->weakdefver = NewDefaultVersion();
+    // Cannot use Bridge name as the map is not initialized yet
     // create vsyscall
     context->vsyscall = AddBridge(context->system, iFEv, x86Syscall, 0, NULL);
     addAlternate((void*)0xffffe400, (void*)context->vsyscall);
+    // create exit bridge
+    context->exit_bridge = AddBridge(context->system, NULL, NULL, 0, NULL);
 #ifdef BUILD_LIB
     context->box86lib = RTLD_DEFAULT;   // not ideal
 #else

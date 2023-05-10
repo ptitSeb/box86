@@ -113,6 +113,7 @@ typedef struct box86context_s {
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges
+    uintptr_t           exit_bridge;    // exit bridge value
     uintptr_t           vsyscall;       // vsyscall bridge value
     dlprivate_t         *dlprivate;     // dlopen library map
     kh_symbolmap_t      *alwrappers;    // the map of wrapper for alGetProcAddress
