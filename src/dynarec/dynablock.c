@@ -216,6 +216,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
     block->x86_addr = (void*)addr;
     if(sigsetjmp(&dynarec_jmpbuf, 1)) {
         printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, cancelling\n", (void*)addr);
+        FreeDynablock(block, 0);
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
         return NULL;
@@ -227,7 +228,7 @@ static dynablock_t* internalDBGetBlock(x86emu_t* emu, uintptr_t addr, uintptr_t 
         block = NULL;
     }
     // check size
-    if(block && (block->x86_size || (!block->x86_size && !block->done))) {
+    if(block) {
         int blocksz = block->x86_size;
         if(blocksz>my_context->max_db_size)
             my_context->max_db_size = blocksz;
