@@ -1337,7 +1337,7 @@ EXPORT int my_makecontext(x86emu_t* emu, void* ucp, void* fnc, int32_t argc, int
     }
     // push the return value
     --esp;
-    *esp = (uintptr_t)GetExit();
+    *esp = my_context->exit_bridge;
     u->uc_mcontext.gregs[REG_ESP] = (uintptr_t)esp;
     
     return 0;

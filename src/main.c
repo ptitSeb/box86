@@ -1659,7 +1659,7 @@ int main(int argc, const char **argv, char **env)
     // Stack is ready, with stacked: NULL env NULL argv argc
     SetEIP(emu, my_context->ep);
     ResetFlags(emu);
-    PushExit(emu);  // push to pop it just after
+    Push32(emu, my_context->exit_bridge);  // push to pop it just after
     SetEDX(emu, Pop32(emu));    // EDX is exit function
     DynaRun(emu);
     // Get EAX
