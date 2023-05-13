@@ -501,8 +501,8 @@ uint64_t ReadTSC(x86emu_t* emu)
     uint64_t ret;
     __asm__ volatile("rdtsc" : "=A"(ret));
     return ret;
-#if 0
 #elif defined(__ARM_ARCH)
+#if 0
 #if (__ARM_ARCH >= 6)
     static int init = 1;
     if(init) {
