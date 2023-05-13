@@ -1679,6 +1679,13 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
                         CALL(arm_ud, -1, 0);
                         break;
+                    case 7:
+                        INST_NAME("CLFLUSH Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization?\n");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
+                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        CALL_(arm_clflush, -1, 0);
+                        break;
                     default:
                         DEFAULT;
                 }

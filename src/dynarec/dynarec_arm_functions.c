@@ -211,6 +211,10 @@ void arm_fprem1(x86emu_t* emu)
     emu->sw.f.F87_C0 = ((tmp64s>>2)&1);
 }
 
+void arm_clflush(x86emu_t* emu, void* p)
+{
+    cleanDBFromAddressRange((uintptr_t)p, 8, 0);
+}
 
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)

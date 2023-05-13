@@ -1059,6 +1059,13 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
                         applyFlushTo0(emu);
                     #endif
                     break;
+                case 7:                 /* CLFLUSH Ed */
+                    GET_ED_(0);
+                    #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    if(box86_dynarec)
+                        cleanDBFromAddressRange((uintptr_t)ED, 8, 0);
+                    #endif
+                    break;
                 default:
                     return 0;
             }

@@ -71,6 +71,8 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
                 R_EAX |= cpu<<24;
             }
             R_EDX =   1         // fpu 
+                    | 1<<2      // debugging extension (checked by Burnout Paradise
+                    | 1<<3      // Large Page Extension
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
                     | 1<<11     // sep (sysenter & sysexit)
