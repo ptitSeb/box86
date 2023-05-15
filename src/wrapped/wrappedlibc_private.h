@@ -1121,6 +1121,7 @@ GO(memchr, pFpiL)
 GO(memcmp, iFppL)
 GO(memcpy, pFppL)
 GO(__memcpy_chk, pFppuL)
+GO(memfd_create, iFpu)
 // memfrob
 GO(memmem, pFpupu)
 GO(memmove, pFppL)
