@@ -23,6 +23,7 @@
 #include <sys/mman.h>
 #include "custommem.h"
 #include "threads.h"
+//#define TRACE_MEMSTAT
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/dynablock_private.h"
@@ -34,7 +35,6 @@
 
 // init inside dynablocks.c
 static mmaplist_t          *mmaplist = NULL;
-//#define TRACE_MEMSTAT
 #ifdef TRACE_MEMSTAT
 static size_t jmptbl_allocated = 0, jmptbl_allocated1 = 0;
 #endif
@@ -57,7 +57,7 @@ static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags b
 static uint8_t             hotpages[MEMPROT_SIZE] = {0};
 #endif
 #ifdef TRACE_MEMSTAT
-static uint64_t  memprot_allocated = 0, memprot_max_allocated = 0;
+static uint32_t  memprot_allocated = 0, memprot_max_allocated = 0;
 #endif
 static int inited = 0;
 
@@ -504,7 +504,7 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
 }
 
 #ifdef TRACE_MEMSTAT
-static uint64_t dynarec_allocated = 0;
+static uint32_t dynarec_allocated = 0;
 #endif
 uintptr_t AllocDynarecMap(size_t size)
 {
@@ -642,6 +642,16 @@ void addDBFromAddressRange(uintptr_t addr, size_t size)
     // do nothing, dynablock are allowed based on memory protection flags
 }
 
+int isJmpTableEmpty(uintptr_t *tbl)
+{
+    if(tbl == box86_jmptbl_default)
+        return 0;
+    for(int i=0; i<1<<JMPTABL_SHIFT; ++i)
+        if(tbl[i]!=(uintptr_t)arm_next)
+            return 0;
+    return 1;
+}
+
 void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
 {
     uintptr_t start_addr = my_context?((addr<my_context->max_db_size)?0:(addr-my_context->max_db_size)):addr;
@@ -657,6 +667,20 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
                 MarkRangeDynablock(db, addr, size);
         }
     }
+    start_addr = addr;
+    end = addr+size;
+    while (start_addr<end) {
+        uintptr_t* tbl;
+        if(isJmpTableEmpty((tbl=box86_jmptbl[start_addr>>JMPTABL_SHIFT]))) {
+            if(arm_lock_storeifref(&box86_jmptbl[start_addr>>JMPTABL_SHIFT], box86_jmptbl_default, tbl)==box86_jmptbl_default) {
+                box_free(tbl);
+                #ifdef TRACE_MEMSTAT
+                jmptbl_allocated -= (1<<JMPTABL_SHIFT)*sizeof(uintptr_t);
+                #endif
+            }
+        }
+        start_addr += 1<<JMPTABL_SHIFT;
+    }
 }
 
 static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1)
@@ -670,7 +694,7 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1)
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT)*sizeof(uintptr_t);
-            ++jmptbl_allocated;
+            ++jmptbl_allocated1;
         }
 #endif
     }
@@ -1192,18 +1216,18 @@ void fini_custommem_helper(box86context_t *ctx)
 {
     (void)ctx;
 #ifdef TRACE_MEMSTAT
-    uintptr_t njmps = 0, njmps_in_lv1_max = 0;
-    for (uintptr_t idx1 = 0; idx1 < (1 << JMPTABL_SHIFT); ++idx1) {
+    size_t njmps = 0, njmps_in_lv1_max = 0;
+    for (size_t idx1 = 0; idx1 < (1 << JMPTABL_SHIFT); ++idx1) {
         if (box86_jmptbl[idx1] == box86_jmptbl_default) continue;
-        uintptr_t njmps_in_cur_lv1 = 0;
-        for (uintptr_t idx0 = 0; idx0 < (1 << JMPTABL_SHIFT); ++idx0) {
+        size_t njmps_in_cur_lv1 = 0;
+        for (size_t idx0 = 0; idx0 < (1 << JMPTABL_SHIFT); ++idx0) {
             if (box86_jmptbl[idx1][idx0] == (uintptr_t)arm_next) continue;
             ++njmps;
             ++njmps_in_cur_lv1;
         }
         if (njmps_in_cur_lv1 > njmps_in_lv1_max) njmps_in_lv1_max = njmps_in_cur_lv1;
     }
-    printf_log(LOG_INFO, "Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- memprot: %lld kio (peak at %lld kio)\n- jump table: %lld kio (%lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, memprot_allocated / 1024, memprot_max_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+    printf_log(LOG_INFO, "Allocation:\n- dynarec: %lu kio\n- customMalloc: %zu kio\n- memprot: %lu kio (peak at %ld kio)\n- jump table: %zu kio (%zu level 1 table allocated, for %zu jumps, with at most %zu per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, memprot_allocated / 1024, memprot_max_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated1, njmps, njmps_in_lv1_max);
 #endif
     if(!inited)
         return;
