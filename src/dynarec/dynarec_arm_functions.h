@@ -31,6 +31,7 @@ int64_t arm_fist64_2(double d);
 int64_t arm_fist64_3(double d);
 
 void arm_ud(x86emu_t* emu);
+void arm_singlestep(x86emu_t* emu);
 
 #define FPUFIRST    8
 

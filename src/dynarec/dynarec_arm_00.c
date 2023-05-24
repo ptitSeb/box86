@@ -1245,6 +1245,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
             ORR_IMM8(xFlags, xFlags, 2, 0);
             SET_DFNONE(x1);
+            if(box86_wine) {    // should this be done all the time?
+                TSTS_IMM8_ROR(xFlags, 0x1, 12); // 0x100 == F_TF
+                B_NEXT(cEQ);
+                MOV32(x1, addr);
+                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP));
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, ip));
+                CALL(arm_singlestep, -1, 0);
+                BFC(xFlags, F_TF, 1);   // should not be needed
+            }
             break;
         case 0x9E:
             INST_NAME("SAHF");

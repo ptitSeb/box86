@@ -734,6 +734,15 @@ x86emurun:
         case 0x9D:                      /* POPF */
             emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
+            #ifndef TEST_INTERPRETER
+            if(ACCESS_FLAG(F_TF)) {
+                R_EIP = addr;
+                emit_signal(emu, SIGTRAP, (void*)addr, 1);
+                if(emu->quit) goto fini;
+                CLEAR_FLAG(F_TF);
+                STEP;
+            }
+            #endif
             break;
         case 0x9E:                      /* SAHF */
             tmp8u = emu->regs[_AX].byte[1];

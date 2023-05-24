@@ -304,6 +304,8 @@ uint32_t RunFunctionHandler(int* exit, int dynarec, i386_ucontext_t* sigcontext,
     int oldquitonlongjmp = emu->quitonlongjmp;
     emu->quitonlongjmp = 2;
 
+    emu->eflags.x32 &= ~(1<<F_TF); // this one needs to cleared
+
     if(dynarec)
         DynaCall(emu, fnc);
     else
@@ -618,6 +620,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
     }
     else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
+    else if(sig==SIGTRAP)
+        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = info->si_code;
     // call the signal handler
     i386_mcontext_t sigmcontext_copy = sigcontext->uc_mcontext;
     // save old value from emu
