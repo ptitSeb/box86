@@ -1232,9 +1232,13 @@ int LoadNeededLibs(elfheader_t* h, lib_t* maplib, needed_libs_t* neededlibs, lib
 
     DumpDynamicNeeded(h);
     int cnt = 0;
-    for (uint32_t i=0; i<h->numDynamic; ++i)
+    // count the number of needed libs, and also grab soname
+    for (uint32_t i=0; i<h->numDynamic; ++i) {
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             ++cnt;
+        if(h->Dynamic[i].d_tag==DT_SONAME)
+            h->soname = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
+    }
     const char* nlibs[cnt];
     int j=0;
     for (uint32_t i=0; i<h->numDynamic; ++i)

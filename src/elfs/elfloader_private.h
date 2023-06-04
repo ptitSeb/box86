@@ -11,6 +11,7 @@ typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 struct elfheader_s {
     char*       name;
     char*       path;   // Resolved path to file
+    char*       soname; // soname of the elf
     uint16_t    numPHEntries;
     Elf32_Phdr  *PHEntries;
     uint16_t    numSHEntries;
