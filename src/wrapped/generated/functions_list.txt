@@ -4341,6 +4341,7 @@ wrappedsdl2:
   - SDL_IsJoystickHIDAPI
   - SDL_IsJoystickXInput
 - IFp:
+  - SDL_RWsize
   - SDL_RWtell
 - uFp:
   - SDL_ReadBE16

@@ -62,6 +62,7 @@ typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t)
 	GO(SDL_mutexV, iFp_t) \
 	GO(SDL_IsJoystickHIDAPI, iFJ_t) \
 	GO(SDL_IsJoystickXInput, iFJ_t) \
+	GO(SDL_RWsize, IFp_t) \
 	GO(SDL_RWtell, IFp_t) \
 	GO(SDL_ReadBE16, uFp_t) \
 	GO(SDL_ReadBE32, uFp_t) \

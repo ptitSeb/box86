@@ -429,6 +429,13 @@ EXPORT int64_t my2_SDL_RWseek(x86emu_t* emu, void* a, int64_t offset, int32_t wh
     RWNativeEnd2(rw);
     return ret;
 }
+EXPORT int64_t my2_SDL_RWsize(x86emu_t* emu, void* a)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = my->SDL_RWsize(rw);
+    RWNativeEnd2(rw);
+    return ret;
+}
 EXPORT int64_t my2_SDL_RWtell(x86emu_t* emu, void* a)
 {
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);

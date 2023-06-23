@@ -686,6 +686,7 @@ GOM(SDL_WriteU8, uFEpu)
 
 GOM(SDL_RWseek, IFEpIi)
 GOM(SDL_RWtell, IFEp)
+GOM(SDL_RWsize, IFEp)
 GOM(SDL_RWread, uFEppuu)
 GOM(SDL_RWwrite, uFEppuu)
 GOM(SDL_RWclose, iFEp)
