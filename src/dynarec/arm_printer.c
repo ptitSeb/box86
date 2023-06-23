@@ -159,7 +159,7 @@ const char* print_register_list_fpu(uint8_t start, uint8_t size, uint8_t double_
 		start = (start >> 4) + ((start & 0xF) << 1);
 	}
 	
-	char tmp[6];
+	char tmp[7];
 	for (int cur = start; cur < start + size - 1; ++cur) {
 		sprintf(tmp, "%c%d, ", regChr, cur);
 		strcat(ret, tmp);
@@ -3049,7 +3049,7 @@ const char* arm_print(uint32_t opcode) {
 		int param1_1 = (opcode >> 5) & 0x1;
 		int param2_1 = (opcode >> 4) & 0x1;
 		
-		char align[4];
+		char align[5];
 		if (param2_1 == 1) {
 			sprintf(align, ":%d", 16 << size);
 		} else {
@@ -3064,7 +3064,7 @@ const char* arm_print(uint32_t opcode) {
 		int param1_1 = (opcode >> 5) & 0x1;
 		int param2_1 = (opcode >> 4) & 0x1;
 		
-		char align[4];
+		char align[5];
 		if (param2_1 == 1) {
 			sprintf(align, ":%d", 16 << size);
 		} else {
@@ -3080,7 +3080,7 @@ const char* arm_print(uint32_t opcode) {
 		int param1_1 = (opcode >> 5) & 0x1;
 		int param2_1 = (opcode >> 4) & 0x1;
 		
-		char align[4];
+		char align[5];
 		if (param2_1 == 1) {
 			sprintf(align, ":%d", 16 << size);
 		} else {

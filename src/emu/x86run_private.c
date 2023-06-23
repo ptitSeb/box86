@@ -890,7 +890,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
                 const uint8_t pk1 = PK(1);
                 if(((pk1>>3)&7)==2 || ((pk1>>3)&7)==4) { // jmp/call near
                     uintptr_t nextaddr = (uintptr_t)getAlternate((void*)evalED(emu, ip+1));
-                    printf_log(LOG_NONE, " => %p", nextaddr);
+                    printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, " / ");
                 }
             }

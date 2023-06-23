@@ -23,6 +23,7 @@
 #include "signals.h"
 #ifdef DYNAREC
 #include "../dynarec/arm_lock_helper.h"
+#include "custommem.h"
 #endif
 
 #include "modrm.h"

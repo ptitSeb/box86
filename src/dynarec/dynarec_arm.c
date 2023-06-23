@@ -553,7 +553,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     block->hash = X31_hash_code(block->x86_addr, block->x86_size);
     // Check if something changed, to abbort if it as
     if((block->hash != hash)) {
-        dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x86_addr, block->x86_size, block->hash, hash);
+        dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%zu)=%x/%x\n", block->x86_addr, block->x86_size, block->hash, hash);
         AddHotPage(addr);
         CancelBlock(0);
         return NULL;
@@ -573,7 +573,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         return NULL;
     }
     if(!isprotectedDB(addr, end-addr)) {
-        dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%ld, marking as need_test\n", block->x86_addr, block->x86_size);
+        dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%zu, marking as need_test\n", block->x86_addr, block->x86_size);
         AddHotPage(addr);
         block->dirty = 1;
         //protectDB(addr, end-addr);

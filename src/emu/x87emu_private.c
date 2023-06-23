@@ -305,6 +305,7 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
+    p->MxCsr_Mask = 0;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
         tags |= (emu->p_regs[i].tag==0b11)?0:(1<<(i*2));
