@@ -1223,8 +1223,13 @@ int main(int argc, const char **argv, char **env)
             wine_prereserve(prereserve);
         // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
-            printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
-            exit(0);    // exiting, it doesn't work anyway
+            if(getenv("BOX86_WINEDBG")) {
+                box86_nobanner = 1;
+                box86_log = 0;
+            } else {
+                printf_log(LOG_NONE, "winedbg detected, not launching it!\n");
+                exit(0);    // exiting, it doesn't work anyway
+            }
         }
         box86_wine = 1;
     }
