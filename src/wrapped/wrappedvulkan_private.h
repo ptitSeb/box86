@@ -643,3 +643,6 @@ GO(vkCmdSetShadingRateImageEnableNV, vFpi)
 GO(vkCmdSetTessellationDomainOriginEXT, vFpi)
 GO(vkCmdSetViewportSwizzleNV, vFpuup)
 GO(vkCmdSetViewportWScalingEnableNV, vFpi)
+
+// VK_EXT_swapchain_maintenance1
+GO(vkReleaseSwapchainImagesEXT, iFpp)
