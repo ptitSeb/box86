@@ -169,6 +169,8 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
     }
 }
 
+#define THRESHOLD   (128-2*sizeof(blockmark_t))
+
 static void* allocBlock(void* block, void *sub, size_t size, void** pstart)
 {
     (void)block;
@@ -178,25 +180,26 @@ static void* allocBlock(void* block, void *sub, size_t size, void** pstart)
 
     s->next.fill = 1;
     // check if a new mark is worth it
-    if(s->next.size>size+2*sizeof(blockmark_t))
+    if(s->next.size>size+2*sizeof(blockmark_t)+THRESHOLD) {
+        size_t old_size = s->next.size;
         s->next.size = size;
-    blockmark_t *m = NEXT_BLOCK(s);   // this is new n
-    m->prev.fill = 1;
-    if(n!=m) {
-        // new mark
+        blockmark_t *m = NEXT_BLOCK(s);
+        m->prev.fill = 1;
         m->prev.size = s->next.size;
         m->next.fill = 0;
-        m->next.size = ((uintptr_t)n - (uintptr_t)m) - sizeof(blockmark_t);
+        m->next.size = old_size - (size + sizeof(blockmark_t));
         n->prev.fill = 0;
         n->prev.size = m->next.size;
+        n = m;
+    } else {
+        n->prev.fill = 1;
     }
 
     if(pstart && sub==*pstart) {
         // get the next free block
-        m = (blockmark_t*)*pstart;
-        while(m->next.fill)
-            m = NEXT_BLOCK(m);
-        *pstart = (void*)m;
+        while(n->next.fill)
+            n = NEXT_BLOCK(n);
+        *pstart = (void*)n;
     }
     return (void*)((uintptr_t)sub + sizeof(blockmark_t));
 }
@@ -210,7 +213,7 @@ static size_t freeBlock(void *block, void* sub, void** pstart)
     s->next.fill = 0;
     n->prev.fill = 0;
     // check if merge with previous
-    if (s->prev.x32 && !s->prev.fill) {
+    if (m!=s && s->prev.x32 && !s->prev.fill) {
         // remove s...
         m->next.size += s->next.size + sizeof(blockmark_t);
         n->prev.size = m->next.size;
@@ -246,7 +249,7 @@ static int expandBlock(void* block, void* sub, size_t newsize)
     if((size_t)(s->next.size + n->next.size + sizeof(blockmark_t)) < newsize)
         return 0;   // free space too short
     // ok, doing the alloc!
-    if((s->next.size+n->next.size+sizeof(blockmark_t))-newsize<2*sizeof(blockmark_t))
+    if((s->next.size+n->next.size+sizeof(blockmark_t))-newsize<THRESHOLD+2*sizeof(blockmark_t))
         s->next.size += n->next.size+sizeof(blockmark_t);
     else
         s->next.size = newsize+sizeof(blockmark_t);
@@ -326,8 +329,6 @@ void testAllBlocks()
     }
     printf_log(LOG_NONE, "Total %d blocks, for %zd allocated memory, max_free %zd, toatal fragmented free %zd\n", n_blocks, total, max_free, fragmented_free);
 }
-
-#define THRESHOLD   (128-2*sizeof(blockmark_t))
 
 static size_t roundSize(size_t size)
 {
