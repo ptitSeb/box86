@@ -423,46 +423,14 @@ x86emurun:
             GD.dword[0] = imul32(emu, ED->dword[0], (uint32_t)tmp32s);
             break;
         case 0x6C:                      /* INSB */
-            tmp32u = rep?R_ECX:1;
-            while(tmp32u--) {
-                *(int8_t*)(R_EDI+GetESBaseEmu(emu)) = 0;   // faking port read, using explicit ES segment
-                if(ACCESS_FLAG(F_DF))
-                    R_EDI-=1;
-                else
-                    R_EDI+=1;
-            }
-            if(rep)
-                R_ECX = 0;
-            break;
         case 0x6D:                      /* INSD */
-            tmp32u = rep?R_ECX:1;
-            while(tmp32u--) {
-                *(int32_t*)(R_EDI+GetESBaseEmu(emu)) = 0;   // faking port read, using explicit ES segment
-                if(ACCESS_FLAG(F_DF))
-                    R_EDI-=4;
-                else
-                    R_EDI+=4;
-            }
-            if(rep)
-                R_ECX = 0;
-            break;
         case 0x6E:                      /* OUTSB */
-            // faking port write, using explicit ES segment
-            if(ACCESS_FLAG(F_DF))
-                R_ESI-=rep?R_ECX:1;
-            else
-                R_ESI+=1?R_ECX:1;
-            if(rep)
-                R_ECX = 0;
-            break;
         case 0x6F:                      /* OUTSD */
-            // faking port write, using explicit ES segment
-            if(ACCESS_FLAG(F_DF))
-                R_ESI-=(rep?R_ECX:1)*4;
-            else
-                R_ESI+=(rep?R_ECX:1)*4;
-            if(rep)
-                R_ECX = 0;
+            #ifndef TEST_INTERPRETER
+            // this is a privilege opcode
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            STEP;
+            #endif
             break;
 
         #define GOCOND(BASE, PREFIX, CONDITIONAL) \
@@ -1366,20 +1334,14 @@ x86emurun:
             STEP2;
             break;
         case 0xE4:                      /* IN AL, Ib */
-            tmp32s = F8;   // port address
-            R_AL = 0;  // nothing... should do a warning maybe?
-            break;
         case 0xE5:                      /* IN EAX, Ib */
-            tmp32s = F8;   // port address
-            R_EAX = 0;  // nothing... should do a warning maybe?
-            break;
         case 0xE6:                      /* OUT Ib, AL */
-            tmp32s = F8;    // port address
-            //nothing goes out...
-            break;
         case 0xE7:                      /* OUT Ib, EAX */
-            tmp32s = F8;    // port address
-            //nothing goes out...
+            #ifndef TEST_INTERPRETER
+            // this is a privilege opcode
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            STEP;
+            #endif
             break;
         case 0xE8:                      /* CALL Id */
             tmp32s = F32S; // call is relative
@@ -1399,13 +1361,14 @@ x86emurun:
             STEP2;
             break;
         case 0xEC:                      /* IN AL, DX */
-            R_AL = 0;  // nothing... should do a warning maybe?
-            break;
         case 0xED:                      /* IN EAX, DX */
-            R_EAX = 0;  // nothing... should do a warning maybe?
-            break;
         case 0xEE:                      /* OUT DX, AL */
-            //nothing goes out...
+        case 0xEF:                      /* OUT DX, EAX */
+            #ifndef TEST_INTERPRETER
+            // this is a privilege opcode
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            STEP;
+            #endif
             break;
 
         case 0xF0:                      /* LOCK */
@@ -1428,10 +1391,10 @@ x86emurun:
             break;
 
         case 0xF4:                      /* HLT */
-            // this is a privilege opcode... should an error be called instead?
             #ifndef TEST_INTERPRETER
-            sched_yield();
-            STEP2;
+            // this is a privilege opcode
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            STEP;
             #endif
             break;
         case 0xF5:                      /* CMC */
@@ -1507,10 +1470,12 @@ x86emurun:
             SET_FLAG(F_CF);
             break;
         case 0xFA:                      /* CLI */
-            CLEAR_FLAG(F_IF);   //not really handled...
-            break;
         case 0xFB:                      /* STI */
-            SET_FLAG(F_IF);
+            #ifndef TEST_INTERPRETER
+            // this is a privilege opcode
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            STEP;
+            #endif
             break;
         case 0xFC:                      /* CLD */
             CLEAR_FLAG(F_DF);

@@ -2294,9 +2294,19 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             *ok = 0;
             break;
         
-        case 0xEE:
-            INST_NAME("OUT dx, al");
-            //ignored!
+        case 0xEC:                      /* IN AL, DX */
+        case 0xED:                      /* IN EAX, DX */
+        case 0xEE:                      /* OUT DX, AL */
+        case 0xEF:                      /* OUT DX, EAX */
+            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX? AL":"OUT DX, EAX")));
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+            STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            CALL(arm_priv, -1, 0);
+            LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            jump_to_epilog(dyn, 0, xEIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         case 0xF0:
@@ -2787,13 +2797,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             ORRS_IMM8(xFlags, xFlags, 1, 0);
             break;
         case 0xFA:
-            INST_NAME("CLI");
-            BFC(xFlags, F_IF, 1);
-            break;
         case 0xFB:
-            INST_NAME("STI");
-            MOVW(x1, 1);
-            BFI(xFlags, x1, F_IF, 1);
+            INST_NAME(opcode==0xFA?"STI":"CLI");
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+            STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            CALL(arm_priv, -1, 0);
+            LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            jump_to_epilog(dyn, 0, xEIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
         case 0xFC:
             INST_NAME("CLD");
@@ -2846,7 +2859,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((box86_dynarec_safeflags>1) || 
+                    PASS2IF((box86_dynarec_safeflags>1) ||
                         ((ninst && dyn->insts[ninst-1].x86.set_flags)
                         || ((ninst>1) && dyn->insts[ninst-2].x86.set_flags)), 1)
                     {

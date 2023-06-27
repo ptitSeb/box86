@@ -596,8 +596,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
         sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
         if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP]) {
-            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0010;    // execution flag issue (probably)
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+            sigcontext->uc_mcontext.gregs[REG_ERR] = (info->si_errno==0x1234)?0:0x0010;    // execution flag issue (probably), unless it's a #GP(0)
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR || (info->si_errno==0x1234) || (uintptr_t)info->si_addr==0)?13:14;
         } else if((info->si_code==SEGV_ACCERR) && !(prot&PROT_WRITE)) {
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
             /*if(abs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
@@ -605,7 +605,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
             else*/
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14; // PAGE_FAULT
         } else {
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
             //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box86 anyway
         }
@@ -834,6 +834,9 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             return;
         }
         mutex_unlock(&mutex_dynarec_prot);
+    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC_R)) {
+        // unprotect and continue to signal handler, because Write is not there on purpose
+        unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
         mutex_lock(&mutex_dynarec_prot);
         db = FindDynablockFromNativeAddress(pc);
@@ -884,9 +887,6 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             glitch2_prot = 0;
         }
         mutex_unlock(&mutex_dynarec_prot);
-    } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC_R)) {
-        // unprotect and continue to signal handler, because Write is not there on purpose
-        unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
     }
     if(!db_searched)
         db = FindDynablockFromNativeAddress(pc);
@@ -1044,7 +1044,7 @@ void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
     void* db = NULL;
     siginfo_t info = {0};
     info.si_signo = sig;
-    info.si_errno = 0;
+    info.si_errno = (sig==SIGSEGV)?0x1234:0;    // Mark as a sign this is a #GP(0) (like privileged instruction)
     info.si_code = code;
     info.si_addr = addr;
     printf_log(LOG_INFO, "Emit Signal %d at IP=%p / addr=%p, code=%d\n", sig, (void*)R_EIP, addr, code);

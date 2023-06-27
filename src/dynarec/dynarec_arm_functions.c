@@ -176,6 +176,12 @@ void arm_ud(x86emu_t* emu)
     emit_signal(emu, SIGILL, (void*)R_EIP, 0);
 }
 
+void arm_priv(x86emu_t* emu)
+{
+    emu->test.test = 0;
+    emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+}
+
 void arm_singlestep(x86emu_t* emu)
 {
     emu->test.test = 0;
