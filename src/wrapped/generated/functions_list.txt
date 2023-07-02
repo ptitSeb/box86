@@ -4027,6 +4027,11 @@ wrappedlibxxf86vm:
   - XF86VidModeGetGamma
   - XF86VidModeSetGamma
 wrappedlibz:
+- iFp:
+  - deflateEnd
+  - inflateEnd
+- iFpi:
+  - inflate
 - iFppi:
   - inflateInit_
 - iFpipi:
