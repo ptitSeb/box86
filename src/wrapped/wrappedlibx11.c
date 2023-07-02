@@ -111,10 +111,10 @@ GO(15)
 
 // wire_to_event
 #define GO(A)   \
-static uintptr_t my_wire_to_event_fct_##A = 0;                      \
-static int my_wire_to_event_##A(void* dpy, void* re, void* event)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_wire_to_event_fct_##A, 3, dpy, re, event);\
+static uintptr_t my_wire_to_event_fct_##A = 0;                                              \
+static int my_wire_to_event_##A(void* dpy, void* re, void* event)                           \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_wire_to_event_fct_##A, "ppp", dpy, re, event);\
 }
 SUPER()
 #undef GO
@@ -144,10 +144,10 @@ static void* reverse_wire_to_eventFct(library_t* lib, void* fct)
 
 // event_to_wire
 #define GO(A)   \
-static uintptr_t my_event_to_wire_fct_##A = 0;                      \
-static int my_event_to_wire_##A(void* dpy, void* re, void* event)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_event_to_wire_fct_##A, 3, dpy, re, event);\
+static uintptr_t my_event_to_wire_fct_##A = 0;                                              \
+static int my_event_to_wire_##A(void* dpy, void* re, void* event)                           \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_event_to_wire_fct_##A, "ppp", dpy, re, event);\
 }
 SUPER()
 #undef GO
@@ -177,10 +177,10 @@ static void* reverse_event_to_wireFct(library_t* lib, void* fct)
 
 // error_handler
 #define GO(A)   \
-static uintptr_t my_error_handler_fct_##A = 0;                      \
-static int my_error_handler_##A(void* dpy, void* error)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_error_handler_fct_##A, 2, dpy, error);\
+static uintptr_t my_error_handler_fct_##A = 0;                                          \
+static int my_error_handler_##A(void* dpy, void* error)                                 \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_error_handler_fct_##A, "pp", dpy, error); \
 }
 SUPER()
 #undef GO
@@ -210,10 +210,10 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
 
 // ioerror_handler
 #define GO(A)   \
-static uintptr_t my_ioerror_handler_fct_##A = 0;                      \
-static int my_ioerror_handler_##A(void* dpy)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_ioerror_handler_fct_##A, 1, dpy);\
+static uintptr_t my_ioerror_handler_fct_##A = 0;                                    \
+static int my_ioerror_handler_##A(void* dpy)                                        \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_context, my_ioerror_handler_fct_##A, "p", dpy);   \
 }
 SUPER()
 #undef GO
@@ -243,10 +243,10 @@ static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
 
 // exterror_handler
 #define GO(A)   \
-static uintptr_t my_exterror_handler_fct_##A = 0;                      \
-static int my_exterror_handler_##A(void* dpy, void* err, void* codes, int* ret_code)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_exterror_handler_fct_##A, 4, dpy, err, codes, ret_code);\
+static uintptr_t my_exterror_handler_fct_##A = 0;                                                           \
+static int my_exterror_handler_##A(void* dpy, void* err, void* codes, int* ret_code)                        \
+{                                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_exterror_handler_fct_##A, "pppp", dpy, err, codes, ret_code); \
 }
 SUPER()
 #undef GO
@@ -276,10 +276,10 @@ static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
 
 // close_display
 #define GO(A)   \
-static uintptr_t my_close_display_fct_##A = 0;                      \
-static int my_close_display_##A(void* dpy, void* codes)   \
-{                                                                   \
-    return (int)RunFunction(my_context, my_close_display_fct_##A, 2, dpy, codes);\
+static uintptr_t my_close_display_fct_##A = 0;                                          \
+static int my_close_display_##A(void* dpy, void* codes)                                 \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_close_display_fct_##A, "pp", dpy, codes); \
 }
 SUPER()
 #undef GO
@@ -309,10 +309,10 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
 
 // register_im
 #define GO(A)   \
-static uintptr_t my_register_im_fct_##A = 0;                        \
-static void my_register_im_##A(void* dpy, void* u, void* d)         \
-{                                                                   \
-    RunFunction(my_context, my_register_im_fct_##A, 3, dpy, u, d);  \
+static uintptr_t my_register_im_fct_##A = 0;                                \
+static void my_register_im_##A(void* dpy, void* u, void* d)                 \
+{                                                                           \
+    RunFunctionFmt(my_context, my_register_im_fct_##A, "ppp", dpy, u, d);   \
 }
 SUPER()
 #undef GO
@@ -342,10 +342,10 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
 
 // XConnectionWatchProc
 #define GO(A)   \
-static uintptr_t my_XConnectionWatchProc_fct_##A = 0;                               \
-static void my_XConnectionWatchProc_##A(void* dpy, void* data, int op, void* d)     \
-{                                                                                   \
-    RunFunction(my_context, my_XConnectionWatchProc_fct_##A, 4, dpy, data, op, d);  \
+static uintptr_t my_XConnectionWatchProc_fct_##A = 0;                                       \
+static void my_XConnectionWatchProc_##A(void* dpy, void* data, int op, void* d)             \
+{                                                                                           \
+    RunFunctionFmt(my_context, my_XConnectionWatchProc_fct_##A, "ppip", dpy, data, op, d);  \
 }
 SUPER()
 #undef GO
@@ -364,10 +364,10 @@ static void* findXConnectionWatchProcFct(void* fct)
 }
 // xifevent
 #define GO(A)   \
-static uintptr_t my_xifevent_fct_##A = 0;                                   \
-static int my_xifevent_##A(void* dpy, void* event, void* d)                 \
-{                                                                           \
-    return RunFunction(my_context, my_xifevent_fct_##A, 3, dpy, event, d);  \
+static uintptr_t my_xifevent_fct_##A = 0;                                           \
+static int my_xifevent_##A(void* dpy, void* event, void* d)                         \
+{                                                                                   \
+    return RunFunctionFmt(my_context, my_xifevent_fct_##A, "ppp", dpy, event, d);   \
 }
 SUPER()
 #undef GO
@@ -386,10 +386,10 @@ static void* findxifeventFct(void* fct)
 }
 // XInternalAsyncHandler
 #define GO(A)   \
-static uintptr_t my_XInternalAsyncHandler_fct_##A = 0;                                              \
-static int my_XInternalAsyncHandler_##A(void* dpy, void* rep, void* buf, int len, void* data)       \
-{                                                                                                   \
-    return RunFunction(my_context, my_XInternalAsyncHandler_fct_##A, 5, dpy, rep, buf, len, data);  \
+static uintptr_t my_XInternalAsyncHandler_fct_##A = 0;                                                      \
+static int my_XInternalAsyncHandler_##A(void* dpy, void* rep, void* buf, int len, void* data)               \
+{                                                                                                           \
+    return RunFunctionFmt(my_context, my_XInternalAsyncHandler_fct_##A, "pppip", dpy, rep, buf, len, data); \
 }
 SUPER()
 #undef GO
@@ -504,20 +504,20 @@ GO(XNStatusDrawCallback)            \
 GO(XNR6PreeditCallback)             \
 GO(XNStringConversionCallback)
 
-#define GO(A)                                                               \
-static uintptr_t my_XICProc_fct_##A = 0;                                    \
-static int my_XICProc_##A(void* a, void* b, void* c)                        \
-{                                                                           \
-    if (my_XICProc_fct_##A == 0)                                            \
-        printf_log(LOG_NONE, "%s cannot find XICProc callback\n", __func__);\
-    return (int)RunFunction(my_context, my_XICProc_fct_##A, 3, a, b, c);    \
-}                                                                           \
-static uintptr_t my_XIMProc_fct_##A = 0;                                    \
-static void my_XIMProc_##A(void* a, void* b, void* c)                       \
-{                                                                           \
-    if (my_XIMProc_fct_##A == 0)                                            \
-        printf_log(LOG_NONE, "%s cannot find XIMProc callback\n", __func__);\
-    RunFunction(my_context, my_XIMProc_fct_##A, 3, a, b, c);                \
+#define GO(A)                                                                   \
+static uintptr_t my_XICProc_fct_##A = 0;                                        \
+static int my_XICProc_##A(void* a, void* b, void* c)                            \
+{                                                                               \
+    if (my_XICProc_fct_##A == 0)                                                \
+        printf_log(LOG_NONE, "%s cannot find XICProc callback\n", __func__);    \
+    return (int)RunFunctionFmt(my_context, my_XICProc_fct_##A, "ppp", a, b, c); \
+}                                                                               \
+static uintptr_t my_XIMProc_fct_##A = 0;                                        \
+static void my_XIMProc_##A(void* a, void* b, void* c)                           \
+{                                                                               \
+    if (my_XIMProc_fct_##A == 0)                                                \
+        printf_log(LOG_NONE, "%s cannot find XIMProc callback\n", __func__);    \
+    RunFunctionFmt(my_context, my_XIMProc_fct_##A, "ppp", a, b, c);             \
 }
 SUPER()
 #undef GO

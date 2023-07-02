@@ -35,10 +35,10 @@ GO(4)
 
 // XRecordInterceptProc ...
 #define GO(A)   \
-static uintptr_t my_XRecordInterceptProc_fct_##A = 0;                   \
-static void my_XRecordInterceptProc_##A(void* a, void* b)               \
-{                                                                       \
-    RunFunction(my_context, my_XRecordInterceptProc_fct_##A, 2, a, b);  \
+static uintptr_t my_XRecordInterceptProc_fct_##A = 0;                       \
+static void my_XRecordInterceptProc_##A(void* a, void* b)                   \
+{                                                                           \
+    RunFunctionFmt(my_context, my_XRecordInterceptProc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
