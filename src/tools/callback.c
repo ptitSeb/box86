@@ -114,6 +114,162 @@ uint64_t RunFunction64(box86context_t *context, uintptr_t fnc, int nargs, ...)
 }
 
 EXPORTDYN
+uint32_t RunFunctionFmt(box86context_t *context, uintptr_t fnc, const char* fmt, ...)
+{
+    (void)context;
+    x86emu_t *emu = thread_get_emu();
+    int nargs = 0;
+    int ni = 0;
+    int ndf = 0;
+    for (int i=0; fmt[i]; ++i) {
+        switch(fmt[i]) {
+            case 'd': 
+            case 'I': 
+            case 'U': nargs+=2; break;
+            case 'f': 
+            case 'p': 
+            case 'i': 
+            case 'u': 
+            case 'L': 
+            case 'l': 
+            case 'w': 
+            case 'W': 
+            case 'c': 
+            case 'C': ++nargs; break;
+            default:
+                ++nargs; break;
+        }
+    }
+    int align = nargs&1;
+    int stackn = align + nargs;
+
+    Push(emu, R_EBP);   // push ebp
+    R_EBP = R_ESP;      // mov ebp, esp
+
+    R_ESP -= stackn*sizeof(void*);   // need to push in reverse order
+
+    uint32_t *p = (uint32_t*)R_ESP;
+
+    #define GO(c, B, B2, N) case c: *((B*)p) = va_arg(va, B2); p+=N; break
+    va_list va;
+    va_start (va, fmt);
+    for (int i=0; fmt[i]; ++i) {
+        switch(fmt[i]) {
+            GO('f', float, double, 1);
+            GO('d', double, double, 2);
+            GO('p', void*, void*, 1);
+            GO('i', int, int, 1);
+            GO('u', uint32_t, uint32_t, 1);
+            GO('I', int64_t, int64_t, 2);
+            GO('U', uint64_t, uint64_t, 2);
+            GO('L', uint32_t, uint32_t, 1);
+            GO('l', int32_t, int32_t, 1);
+            GO('w', int16_t, int, 1);
+            GO('W', uint16_t, int, 1);
+            GO('c', int8_t, int, 1);
+            GO('C', uint8_t, int, 1);
+            default:
+                printf_log(LOG_NONE, "Error, unhandled arg %d: '%c' in RunFunctionFmt\n", i, fmt[i]);
+                *p = va_arg(va, uint32_t);
+                ++p; 
+                break;
+        }
+    }
+    va_end (va);
+
+    uintptr_t oldip = R_EIP;
+    DynaCall(emu, fnc);
+    R_ESP+=(nargs*4);
+
+    if(oldip==R_EIP) {
+        R_ESP = R_EBP;      // mov esp, ebp
+        R_EBP = Pop(emu);   // pop ebp
+    }
+
+    uint32_t ret = R_EAX;
+
+    return ret;
+}
+
+EXPORTDYN
+uint64_t RunFunctionFmt64(box86context_t *context, uintptr_t fnc, const char* fmt, ...)
+{
+    (void)context;
+    x86emu_t *emu = thread_get_emu();
+    int nargs = 0;
+    int ni = 0;
+    int ndf = 0;
+    for (int i=0; fmt[i]; ++i) {
+        switch(fmt[i]) {
+            case 'd': 
+            case 'I': 
+            case 'U': nargs+=2; break;
+            case 'f': 
+            case 'p': 
+            case 'i': 
+            case 'u': 
+            case 'L': 
+            case 'l': 
+            case 'w': 
+            case 'W': 
+            case 'c': 
+            case 'C': ++nargs; break;
+            default:
+                ++nargs; break;
+        }
+    }
+    int align = nargs&1;
+    int stackn = align + nargs;
+
+    Push(emu, R_EBP);   // push ebp
+    R_EBP = R_ESP;      // mov ebp, esp
+
+    R_ESP -= stackn*sizeof(void*);   // need to push in reverse order
+
+    uint32_t *p = (uint32_t*)R_ESP;
+
+    #define GO(c, B, B2, N) case c: *((B*)p) = va_arg(va, B2); p+=N; break
+    va_list va;
+    va_start (va, fmt);
+    for (int i=0; fmt[i]; ++i) {
+        switch(fmt[i]) {
+            GO('f', float, double, 1);
+            GO('d', double, double, 2);
+            GO('p', void*, void*, 1);
+            GO('i', int, int, 1);
+            GO('u', uint32_t, uint32_t, 1);
+            GO('I', int64_t, int64_t, 2);
+            GO('U', uint64_t, uint64_t, 2);
+            GO('L', uint32_t, uint32_t, 1);
+            GO('l', int32_t, int32_t, 1);
+            GO('w', int16_t, int, 1);
+            GO('W', uint16_t, int, 1);
+            GO('c', int8_t, int, 1);
+            GO('C', uint8_t, int, 1);
+            default:
+                printf_log(LOG_NONE, "Error, unhandled arg %d: '%c' in RunFunctionFmt\n", i, fmt[i]);
+                *p = va_arg(va, uint32_t);
+                ++p; 
+                break;
+        }
+    }
+    va_end (va);
+
+    uintptr_t oldip = R_EIP;
+    DynaCall(emu, fnc);
+    R_ESP+=(nargs*4);
+
+    if(oldip==R_EIP) {
+        R_ESP = R_EBP;      // mov esp, ebp
+        R_EBP = Pop(emu);   // pop ebp
+    }
+
+    uint64_t ret = (uint64_t)R_EAX | ((uint64_t)R_EDX)<<32;
+
+    return ret;
+}
+
+EXPORTDYN
 uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
 {
     R_ESP -= nargs*4;   // need to push in reverse order

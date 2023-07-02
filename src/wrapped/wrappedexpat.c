@@ -78,10 +78,10 @@ static void* find_End_Fct(void* fct)
 }
 // CharData ...
 #define GO(A)   \
-static uintptr_t my_CharData_fct_##A = 0;                       \
-static void my_CharData_##A(void* data, void* s, int l)         \
-{                                                               \
-    RunFunction(my_context, my_CharData_fct_##A, 3, data, s, l);\
+static uintptr_t my_CharData_fct_##A = 0;                               \
+static void my_CharData_##A(void* data, void* s, int l)                 \
+{                                                                       \
+    RunFunctionFmt(my_context, my_CharData_fct_##A, "ppi", data, s, l); \
 }
 SUPER()
 #undef GO

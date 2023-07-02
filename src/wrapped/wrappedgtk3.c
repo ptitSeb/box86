@@ -159,10 +159,10 @@ static void* findGtkFunctionFct(void* fct)
 
 // GtkClipboardGetFunc
 #define GO(A)   \
-static uintptr_t my_clipboardget_fct_##A = 0;   \
-static void my_clipboardget_##A(void* clipboard, void* selection, uint32_t info, void* data)     \
-{                                       \
-    RunFunction(my_context, my_clipboardget_fct_##A, 4, clipboard, selection, info, data);\
+static uintptr_t my_clipboardget_fct_##A = 0;                                                       \
+static void my_clipboardget_##A(void* clipboard, void* selection, uint32_t info, void* data)        \
+{                                                                                                   \
+    RunFunctionFmt(my_context, my_clipboardget_fct_##A, "ppup", clipboard, selection, info, data);  \
 }
 SUPER()
 #undef GO
@@ -228,10 +228,10 @@ static void* findGtkCallbackFct(void* fct)
 
 // GtkTextCharPredicate
 #define GO(A)   \
-static uintptr_t my_textcharpredicate_fct_##A = 0;   \
-static int my_textcharpredicate_##A(uint32_t ch, void* data)     \
-{                                       \
-    return (int)RunFunction(my_context, my_textcharpredicate_fct_##A, 2, ch, data);\
+static uintptr_t my_textcharpredicate_fct_##A = 0;                                          \
+static int my_textcharpredicate_##A(uint32_t ch, void* data)                                \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_textcharpredicate_fct_##A, "up", ch, data);   \
 }
 SUPER()
 #undef GO
@@ -274,10 +274,10 @@ static void* findToolbarFct(void* fct)
 
 // Builder
 #define GO(A)   \
-static uintptr_t my_builderconnect_fct_##A = 0;   \
-static void my_builderconnect_##A(void* builder, void* object, void* signal, void* handler, void* connect, int flags, void* data)     \
-{                                       \
-    RunFunction(my_context, my_builderconnect_fct_##A, 7, builder, object, signal, handler, connect, flags, data);\
+static uintptr_t my_builderconnect_fct_##A = 0;                                                                                     \
+static void my_builderconnect_##A(void* builder, void* object, void* signal, void* handler, void* connect, int flags, void* data)   \
+{                                                                                                                                   \
+    RunFunctionFmt(my_context, my_builderconnect_fct_##A, "pppppip", builder, object, signal, handler, connect, flags, data);       \
 }
 SUPER()
 #undef GO
@@ -297,10 +297,10 @@ static void* findBuilderConnectFct(void* fct)
 
 // GtkTreeViewSearchEqualFunc
 #define GO(A)   \
-static uintptr_t my_GtkTreeViewSearchEqualFunc_fct_##A = 0;                                                     \
-static int my_GtkTreeViewSearchEqualFunc_##A(void* model, int column, void* key, void* iter, void* data)        \
-{                                                                                                               \
-    return RunFunction(my_context, my_GtkTreeViewSearchEqualFunc_fct_##A, 5, model, column, key, iter, data);   \
+static uintptr_t my_GtkTreeViewSearchEqualFunc_fct_##A = 0;                                                             \
+static int my_GtkTreeViewSearchEqualFunc_##A(void* model, int column, void* key, void* iter, void* data)                \
+{                                                                                                                       \
+    return RunFunctionFmt(my_context, my_GtkTreeViewSearchEqualFunc_fct_##A, "pippp", model, column, key, iter, data);  \
 }
 SUPER()
 #undef GO

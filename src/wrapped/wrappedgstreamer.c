@@ -74,10 +74,10 @@ static void* findDestroyFct(void* fct)
 }
 //GstPadActivateModeFunction
 #define GO(A)   \
-static uintptr_t my_GstPadActivateModeFunction_fct_##A = 0;                                     \
-static int my_GstPadActivateModeFunction_##A(void* a, void* b, int c, int d)                    \
-{                                                                                               \
-    return (int)RunFunction(my_context, my_GstPadActivateModeFunction_fct_##A, 4, a, b, c, d);  \
+static uintptr_t my_GstPadActivateModeFunction_fct_##A = 0;                                             \
+static int my_GstPadActivateModeFunction_##A(void* a, void* b, int c, int d)                            \
+{                                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_GstPadActivateModeFunction_fct_##A, "ppii", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -120,10 +120,10 @@ static void* findGstPadQueryFunctionFct(void* fct)
 }
 //GstPadGetRangeFunction
 #define GO(A)   \
-static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                         \
-static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)     \
-{                                                                                               \
-    return (int)RunFunction(my_context, my_GstPadGetRangeFunction_fct_##A, 6, a, b, (uint32_t)c, (uint32_t)(c>>32), d, e);   \
+static uintptr_t my_GstPadGetRangeFunction_fct_##A = 0;                                                 \
+static int my_GstPadGetRangeFunction_##A(void* a, void* b, uint64_t c, uint32_t d, void* e)             \
+{                                                                                                       \
+    return (int)RunFunctionFmt(my_context, my_GstPadGetRangeFunction_fct_##A, "ppUup", a, b, c, d, e);  \
 }
 SUPER()
 #undef GO

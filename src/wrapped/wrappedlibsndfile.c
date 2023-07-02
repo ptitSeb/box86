@@ -35,10 +35,10 @@ GO(4)
 
 // sf_vio_get_filelen ...
 #define GO(A)   \
-static uintptr_t my_sf_vio_get_filelen_fct_##A = 0;                                 \
-static int64_t my_sf_vio_get_filelen_##A(void* a)                                   \
-{                                                                                   \
-    return (int64_t)RunFunction64(my_context, my_sf_vio_get_filelen_fct_##A, 1, a); \
+static uintptr_t my_sf_vio_get_filelen_fct_##A = 0;                                     \
+static int64_t my_sf_vio_get_filelen_##A(void* a)                                       \
+{                                                                                       \
+    return (int64_t)RunFunctionFmt64(my_context, my_sf_vio_get_filelen_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
@@ -57,10 +57,10 @@ static void* find_sf_vio_get_filelen_Fct(void* fct)
 }
 // sf_vio_seek ...
 #define GO(A)   \
-static uintptr_t my_sf_vio_seek_fct_##A = 0;                                        \
-static int64_t my_sf_vio_seek_##A(int64_t offset, int whence, void *user_data)      \
-{                                                                                   \
-    return (int64_t)RunFunction64(my_context, my_sf_vio_seek_fct_##A, 4, (uint32_t)(offset&0xffffffff), (uint32_t)(offset>>32), whence, user_data); \
+static uintptr_t my_sf_vio_seek_fct_##A = 0;                                                                \
+static int64_t my_sf_vio_seek_##A(int64_t offset, int whence, void *user_data)                              \
+{                                                                                                           \
+    return (int64_t)RunFunctionFmt64(my_context, my_sf_vio_seek_fct_##A, "Iip", offset, whence, user_data); \
 }
 SUPER()
 #undef GO
@@ -79,10 +79,10 @@ static void* find_sf_vio_seek_Fct(void* fct)
 }
 // sf_vio_read ...
 #define GO(A)   \
-static uintptr_t my_sf_vio_read_fct_##A = 0;                                        \
-static int64_t my_sf_vio_read_##A(void* ptr, int64_t count, void *user_data)        \
-{                                                                                   \
-    return (int64_t)RunFunction64(my_context, my_sf_vio_read_fct_##A, 4, ptr, (uint32_t)(count&0xffffffff), (uint32_t)(count>>32), user_data); \
+static uintptr_t my_sf_vio_read_fct_##A = 0;                                                            \
+static int64_t my_sf_vio_read_##A(void* ptr, int64_t count, void *user_data)                            \
+{                                                                                                       \
+    return (int64_t)RunFunctionFmt64(my_context, my_sf_vio_read_fct_##A, "pIp", ptr, count, user_data); \
 }
 SUPER()
 #undef GO
@@ -101,10 +101,10 @@ static void* find_sf_vio_read_Fct(void* fct)
 }
 // sf_vio_write ...
 #define GO(A)   \
-static uintptr_t my_sf_vio_write_fct_##A = 0;                                       \
-static int64_t my_sf_vio_write_##A(const void* ptr, int64_t count, void *user_data) \
-{                                                                                   \
-    return (int64_t)RunFunction64(my_context, my_sf_vio_write_fct_##A, 4, ptr, (uint32_t)(count&0xffffffff), (uint32_t)(count>>32), user_data); \
+static uintptr_t my_sf_vio_write_fct_##A = 0;                                                           \
+static int64_t my_sf_vio_write_##A(const void* ptr, int64_t count, void *user_data)                     \
+{                                                                                                       \
+    return (int64_t)RunFunctionFmt64(my_context, my_sf_vio_write_fct_##A, "pIp", ptr, count, user_data);\
 }
 SUPER()
 #undef GO
@@ -123,10 +123,10 @@ static void* find_sf_vio_write_Fct(void* fct)
 }
 // sf_vio_tell ...
 #define GO(A)   \
-static uintptr_t my_sf_vio_tell_fct_##A = 0;                                 \
-static int64_t my_sf_vio_tell_##A(void* a)                                   \
+static uintptr_t my_sf_vio_tell_fct_##A = 0;                                        \
+static int64_t my_sf_vio_tell_##A(void* a)                                          \
 {                                                                                   \
-    return (int64_t)RunFunction64(my_context, my_sf_vio_tell_fct_##A, 1, a); \
+    return (int64_t)RunFunctionFmt64(my_context, my_sf_vio_tell_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO

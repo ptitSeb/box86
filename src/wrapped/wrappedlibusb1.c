@@ -42,10 +42,10 @@ GO(9)   \
 
 // hotplug
 #define GO(A)   \
-static uintptr_t my_hotplug_fct_##A = 0;                                                    \
-static int my_hotplug_##A(void* ctx, void* device, int event, void* data)                   \
-{                                                                                           \
-    return (int)RunFunction(my_context, my_hotplug_fct_##A, 4, ctx, device, event, data);   \
+static uintptr_t my_hotplug_fct_##A = 0;                                                            \
+static int my_hotplug_##A(void* ctx, void* device, int event, void* data)                           \
+{                                                                                                   \
+    return (int)RunFunctionFmt(my_context, my_hotplug_fct_##A, "ppip", ctx, device, event, data);   \
 }
 SUPER()
 #undef GO
@@ -67,7 +67,7 @@ static void* findhotplugFct(void* fct)
 static uintptr_t my_transfert_fct_##A = 0;                      \
 static void my_transfert_##A(void* ctx)                         \
 {                                                               \
-    RunFunction(my_context, my_transfert_fct_##A, 1, ctx);      \
+    RunFunctionFmt(my_context, my_transfert_fct_##A, "p", ctx); \
 }
 SUPER()
 #undef GO

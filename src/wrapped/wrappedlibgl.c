@@ -58,7 +58,7 @@ GO(4)
 static uintptr_t my_debug_callback_fct_##A = 0;                                                                         \
 static void my_debug_callback_##A(int32_t a, int32_t b, uint32_t c, int32_t d, int32_t e, const char* f, const void* g) \
 {                                                                                                                       \
-    RunFunction(my_context, my_debug_callback_fct_##A, 7, a, b, c, d, e, f, g);                                         \
+    RunFunctionFmt(my_context, my_debug_callback_fct_##A, "iiiiipp", a, b, c, d, e, f, g);                              \
 }
 SUPER()
 #undef GO
@@ -76,11 +76,11 @@ static void* find_debug_callback_Fct(void* fct)
     return NULL;
 }
 // program_callback ...
-#define GO(A)                                                       \
-static uintptr_t my_program_callback_fct_##A = 0;                   \
-static void my_program_callback_##A(int32_t a, void* b)             \
-{                                                                   \
-    RunFunction(my_context, my_program_callback_fct_##A, 2, a, b);  \
+#define GO(A)                                                           \
+static uintptr_t my_program_callback_fct_##A = 0;                       \
+static void my_program_callback_##A(int32_t a, void* b)                 \
+{                                                                       \
+    RunFunctionFmt(my_context, my_program_callback_fct_##A, "ip", a, b);\
 }
 SUPER()
 #undef GO

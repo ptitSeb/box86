@@ -416,11 +416,11 @@ static void* findAccumulatorFct(void* fct)
 // GClosureMarshal
 #define GO(A)   \
 static uintptr_t my_marshal_fct_##A = 0;   \
-static void my_marshal_##A(void* closure, void* return_value, uint32_t n, void* values, void* hint, void* data)     \
-{                                                                                                                   \
-    void* newvalues = vkStructUnalign(values, "idd", n);                                                              \
-    RunFunction(my_context, my_marshal_fct_##A, 6, closure, return_value, n, newvalues, hint, data);                \
-    box_free(newvalues);                                                                                                \
+static void my_marshal_##A(void* closure, void* return_value, uint32_t n, void* values, void* hint, void* data) \
+{                                                                                                               \
+    void* newvalues = vkStructUnalign(values, "idd", n);                                                        \
+    RunFunctionFmt(my_context, my_marshal_fct_##A, "ppuppp", closure, return_value, n, newvalues, hint, data);  \
+    box_free(newvalues);                                                                                        \
 }
 SUPER()
 #undef GO

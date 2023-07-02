@@ -74,7 +74,7 @@ typedef struct jmpbuf_helper {
 #define RunFunction_helper(...) \
     jmpbuf_helper* helper = ((jpeg_common_struct_t*)cinfo)->client_data; \
     ((jpeg_common_struct_t*)cinfo)->client_data = helper->client_data; \
-    uint32_t ret = RunFunction(__VA_ARGS__); \
+    uint32_t ret = RunFunctionFmt(__VA_ARGS__); \
     ((jpeg_common_struct_t*)cinfo)->client_data = helper;
 
 static jpeg_error_mgr_t native_err_mgr;
@@ -295,7 +295,7 @@ static void* is_reset_error_mgrFct(void* fct)
 static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
 static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, "p", cinfo);\
     return (int)ret; \
 }
 SUPER()

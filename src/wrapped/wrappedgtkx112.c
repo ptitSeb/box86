@@ -209,10 +209,10 @@ static void* findGtkFunctionFct(void* fct)
 
 // GtkClipboardGetFunc
 #define GO(A)   \
-static uintptr_t my_clipboardget_fct_##A = 0;   \
-static void my_clipboardget_##A(void* clipboard, void* selection, uint32_t info, void* data)     \
-{                                       \
-    RunFunction(my_context, my_clipboardget_fct_##A, 4, clipboard, selection, info, data);\
+static uintptr_t my_clipboardget_fct_##A = 0;                                                       \
+static void my_clipboardget_##A(void* clipboard, void* selection, uint32_t info, void* data)        \
+{                                                                                                   \
+    RunFunctionFmt(my_context, my_clipboardget_fct_##A, "ppup", clipboard, selection, info, data);  \
 }
 SUPER()
 #undef GO
@@ -278,10 +278,10 @@ static void* findGtkCallbackFct(void* fct)
 
 // GtkTextCharPredicate
 #define GO(A)   \
-static uintptr_t my_textcharpredicate_fct_##A = 0;   \
-static int my_textcharpredicate_##A(uint32_t ch, void* data)     \
-{                                       \
-    return (int)RunFunction(my_context, my_textcharpredicate_fct_##A, 2, ch, data);\
+static uintptr_t my_textcharpredicate_fct_##A = 0;                                          \
+static int my_textcharpredicate_##A(uint32_t ch, void* data)                                \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_textcharpredicate_fct_##A, "up", ch, data);   \
 }
 SUPER()
 #undef GO
@@ -324,10 +324,10 @@ static void* findToolbarFct(void* fct)
 
 // Builder
 #define GO(A)   \
-static uintptr_t my_builderconnect_fct_##A = 0;   \
-static void my_builderconnect_##A(void* builder, void* object, void* signal, void* handler, void* connect, int flags, void* data)     \
-{                                       \
-    RunFunction(my_context, my_builderconnect_fct_##A, 7, builder, object, signal, handler, connect, flags, data);\
+static uintptr_t my_builderconnect_fct_##A = 0;                                                                                     \
+static void my_builderconnect_##A(void* builder, void* object, void* signal, void* handler, void* connect, int flags, void* data)   \
+{                                                                                                                                   \
+    RunFunctionFmt(my_context, my_builderconnect_fct_##A, "pppppip", builder, object, signal, handler, connect, flags, data);       \
 }
 SUPER()
 #undef GO
@@ -462,10 +462,10 @@ static void* findGtkClipboardTextReceivedFuncFct(void* fct)
 
 // GtkTreeViewSearchEqualFunc
 #define GO(A)   \
-static uintptr_t my_GtkTreeViewSearchEqualFunc_fct_##A = 0;                                                     \
-static int my_GtkTreeViewSearchEqualFunc_##A(void* model, int column, void* key, void* iter, void* data)        \
-{                                                                                                               \
-    return RunFunction(my_context, my_GtkTreeViewSearchEqualFunc_fct_##A, 5, model, column, key, iter, data);   \
+static uintptr_t my_GtkTreeViewSearchEqualFunc_fct_##A = 0;                                                             \
+static int my_GtkTreeViewSearchEqualFunc_##A(void* model, int column, void* key, void* iter, void* data)                \
+{                                                                                                                       \
+    return RunFunctionFmt(my_context, my_GtkTreeViewSearchEqualFunc_fct_##A, "pippp", model, column, key, iter, data);  \
 }
 SUPER()
 #undef GO
@@ -508,10 +508,10 @@ static void* findGtkTreeIterCompareFuncFct(void* fct)
 
 // GdkInputFunction
 #define GO(A)   \
-static uintptr_t my_GdkInputFunction_fct_##A = 0;                                  \
-static void my_GdkInputFunction_##A(void* data, int source, int cond)              \
-{                                                                                   \
-    RunFunction(my_context, my_GdkInputFunction_fct_##A, 3, data, source, cond);   \
+static uintptr_t my_GdkInputFunction_fct_##A = 0;                                       \
+static void my_GdkInputFunction_##A(void* data, int source, int cond)                   \
+{                                                                                       \
+    RunFunctionFmt(my_context, my_GdkInputFunction_fct_##A, "pip", data, source, cond); \
 }
 SUPER()
 #undef GO
@@ -531,10 +531,10 @@ static void* findGdkInputFunctionFct(void* fct)
 
 // GtkCallbackMarshal
 #define GO(A)   \
-static uintptr_t my_GtkCallbackMarshal_fct_##A = 0;                                 \
-static void my_GtkCallbackMarshal_##A(void* obj, void* data, uint32_t n, void* args)\
-{                                                                                   \
-    RunFunction(my_context, my_GtkCallbackMarshal_fct_##A, 4, obj, data, n, args);  \
+static uintptr_t my_GtkCallbackMarshal_fct_##A = 0;                                         \
+static void my_GtkCallbackMarshal_##A(void* obj, void* data, uint32_t n, void* args)        \
+{                                                                                           \
+    RunFunctionFmt(my_context, my_GtkCallbackMarshal_fct_##A, "ppup", obj, data, n, args);  \
 }
 SUPER()
 #undef GO

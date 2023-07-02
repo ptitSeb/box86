@@ -229,10 +229,10 @@ static void* find_FTC_Face_Requester_Fct(void* fct)
 
 // FT_Stream_IoFunc
 #define GO(A)   \
-static uintptr_t my_FT_Stream_IoFunc_fct_##A = 0;                                                   \
-static unsigned long my_FT_Stream_IoFunc_##A(void* a, unsigned long b, void* c, unsigned long d)    \
-{                                                                                                   \
-    return (unsigned long)RunFunction(my_context, my_FT_Stream_IoFunc_fct_##A, 4, a, b, c, d);      \
+static uintptr_t my_FT_Stream_IoFunc_fct_##A = 0;                                                       \
+static unsigned long my_FT_Stream_IoFunc_##A(void* a, unsigned long b, void* c, unsigned long d)        \
+{                                                                                                       \
+    return (unsigned long)RunFunctionFmt(my_context, my_FT_Stream_IoFunc_fct_##A, "pLpL", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -373,10 +373,10 @@ static void* find_FT_Outline_CubicToFunc_Fct(void* fct)
 
 // FT_Alloc
 #define GO(A)   \
-static uintptr_t my_FT_Alloc_fct_##A = 0;                                       \
-static void* my_FT_Alloc_##A(void* memory, long size)                           \
-{                                                                               \
-    return (void*)RunFunction(my_context, my_FT_Alloc_fct_##A, 2, memory, size);\
+static uintptr_t my_FT_Alloc_fct_##A = 0;                                               \
+static void* my_FT_Alloc_##A(void* memory, long size)                                   \
+{                                                                                       \
+    return (void*)RunFunctionFmt(my_context, my_FT_Alloc_fct_##A, "pl", memory, size);  \
 }
 SUPER()
 #undef GO
@@ -419,10 +419,10 @@ static void* find_FT_Free_Fct(void* fct)
 }
 // FT_Realloc
 #define GO(A)   \
-static uintptr_t my_FT_Realloc_fct_##A = 0;                                                 \
-static void* my_FT_Realloc_##A(void* memory, long cur, long size, void* p)                  \
-{                                                                                           \
-    return (void*)RunFunction(my_context, my_FT_Realloc_fct_##A, 4, memory, cur, size, p);  \
+static uintptr_t my_FT_Realloc_fct_##A = 0;                                                         \
+static void* my_FT_Realloc_##A(void* memory, long cur, long size, void* p)                          \
+{                                                                                                   \
+    return (void*)RunFunctionFmt(my_context, my_FT_Realloc_fct_##A, "pllp", memory, cur, size, p);  \
 }
 SUPER()
 #undef GO

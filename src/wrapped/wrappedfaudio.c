@@ -34,10 +34,10 @@ GO(4)
 
 // FAudioMalloc ...
 #define GO(A)   \
-static uintptr_t my_FAudioMalloc_fct_##A = 0;                               \
-static void* my_FAudioMalloc_##A(size_t a)                                  \
-{                                                                           \
-    return (void*)RunFunction(my_context, my_FAudioMalloc_fct_##A, 1, a);   \
+static uintptr_t my_FAudioMalloc_fct_##A = 0;                                   \
+static void* my_FAudioMalloc_##A(size_t a)                                      \
+{                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_FAudioMalloc_fct_##A, "L", a);  \
 }
 SUPER()
 #undef GO
@@ -78,10 +78,10 @@ static void* find_FAudioFree_Fct(void* fct)
 }
 // FAudioRealloc ...
 #define GO(A)   \
-static uintptr_t my_FAudioRealloc_fct_##A = 0;                                  \
-static void* my_FAudioRealloc_##A(void* a, size_t b)                            \
-{                                                                               \
-    return (void*)RunFunction(my_context, my_FAudioRealloc_fct_##A, 2, a, b);   \
+static uintptr_t my_FAudioRealloc_fct_##A = 0;                                      \
+static void* my_FAudioRealloc_##A(void* a, size_t b)                                \
+{                                                                                   \
+    return (void*)RunFunctionFmt(my_context, my_FAudioRealloc_fct_##A, "pL", a, b); \
 }
 SUPER()
 #undef GO
@@ -100,10 +100,10 @@ static void* find_FAudioRealloc_Fct(void* fct)
 }
 // OnCriticalErrorFunc ...
 #define GO(A)   \
-static uintptr_t my_OnCriticalErrorFunc_fct_##A = 0;                    \
-static void my_OnCriticalErrorFunc_##A(void* a, uint32_t b)             \
-{                                                                       \
-    RunFunction(my_context, my_OnCriticalErrorFunc_fct_##A, 2, a, b);   \
+static uintptr_t my_OnCriticalErrorFunc_fct_##A = 0;                        \
+static void my_OnCriticalErrorFunc_##A(void* a, uint32_t b)                 \
+{                                                                           \
+    RunFunctionFmt(my_context, my_OnCriticalErrorFunc_fct_##A, "pu", a, b); \
 }
 SUPER()
 #undef GO
@@ -260,10 +260,10 @@ static void* find_OnStreamEndFunc_Fct(void* fct)
 }
 // OnVoiceErrorFunc ...
 #define GO(A)   \
-static uintptr_t my_OnVoiceErrorFunc_fct_##A = 0;                       \
-static void my_OnVoiceErrorFunc_##A(void* a, void* b, uint32_t c)       \
-{                                                                       \
-    RunFunction(my_context, my_OnVoiceErrorFunc_fct_##A, 3, a, b, c);   \
+static uintptr_t my_OnVoiceErrorFunc_fct_##A = 0;                               \
+static void my_OnVoiceErrorFunc_##A(void* a, void* b, uint32_t c)               \
+{                                                                               \
+    RunFunctionFmt(my_context, my_OnVoiceErrorFunc_fct_##A, "ppu", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -304,10 +304,10 @@ static void* find_OnVoiceProcessingPassEndFunc_Fct(void* fct)
 }
 // OnVoiceProcessingPassStartFunc ...
 #define GO(A)   \
-static uintptr_t my_OnVoiceProcessingPassStartFunc_fct_##A = 0;                     \
-static void my_OnVoiceProcessingPassStartFunc_##A(void* a, uint32_t b)              \
-{                                                                                   \
-    RunFunction(my_context, my_OnVoiceProcessingPassStartFunc_fct_##A, 2, a, b);    \
+static uintptr_t my_OnVoiceProcessingPassStartFunc_fct_##A = 0;                         \
+static void my_OnVoiceProcessingPassStartFunc_##A(void* a, uint32_t b)                  \
+{                                                                                       \
+    RunFunctionFmt(my_context, my_OnVoiceProcessingPassStartFunc_fct_##A, "pu", a, b);  \
 }
 SUPER()
 #undef GO
