@@ -409,10 +409,10 @@ static void* findXInternalAsyncHandlerFct(void* fct)
 
 // XSynchronizeProc
 #define GO(A)   \
-static uintptr_t my_XSynchronizeProc_fct_##A = 0;                       \
-static int my_XSynchronizeProc_##A()                                    \
-{                                                                       \
-    return (int)RunFunction(my_context, my_XSynchronizeProc_fct_##A, 0);\
+static uintptr_t my_XSynchronizeProc_fct_##A = 0;                           \
+static int my_XSynchronizeProc_##A()                                        \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_XSynchronizeProc_fct_##A, "");\
 }
 SUPER()
 #undef GO

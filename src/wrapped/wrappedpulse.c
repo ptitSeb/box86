@@ -365,10 +365,10 @@ static void* find_signal_destroy_Fct(void* fct)
 
 // prefork
 #define GO(A)   \
-static uintptr_t my_prefork_fct_##A = 0;            \
-static void my_prefork_##A()                        \
-{                                                   \
-    RunFunction(my_context, my_prefork_fct_##A, 0); \
+static uintptr_t my_prefork_fct_##A = 0;                \
+static void my_prefork_##A()                            \
+{                                                       \
+    RunFunctionFmt(my_context, my_prefork_fct_##A, ""); \
 }
 SUPER()
 #undef GO
@@ -387,10 +387,10 @@ static void* find_prefork_Fct(void* fct)
 }
 // postfork
 #define GO(A)   \
-static uintptr_t my_postfork_fct_##A = 0;           \
-static void my_postfork_##A()                       \
-{                                                   \
-    RunFunction(my_context, my_postfork_fct_##A, 0);\
+static uintptr_t my_postfork_fct_##A = 0;               \
+static void my_postfork_##A()                           \
+{                                                       \
+    RunFunctionFmt(my_context, my_postfork_fct_##A, "");\
 }
 SUPER()
 #undef GO
@@ -409,10 +409,10 @@ static void* find_postfork_Fct(void* fct)
 }
 // atfork
 #define GO(A)   \
-static uintptr_t my_atfork_fct_##A = 0;             \
-static void my_atfork_##A()                         \
-{                                                   \
-    RunFunction(my_context, my_atfork_fct_##A, 0);  \
+static uintptr_t my_atfork_fct_##A = 0;                 \
+static void my_atfork_##A()                             \
+{                                                       \
+    RunFunctionFmt(my_context, my_atfork_fct_##A, "");  \
 }
 SUPER()
 #undef GO

@@ -37,10 +37,10 @@ GO(4)
 
 // ENGINE_ctrl_cb
 #define GO(A)   \
-static uintptr_t my_ENGINE_ctrl_cb_fct_##A = 0;             \
-static void my_ENGINE_ctrl_cb_##A()                         \
-{                                                           \
-    RunFunction(my_context, my_ENGINE_ctrl_cb_fct_##A, 0);  \
+static uintptr_t my_ENGINE_ctrl_cb_fct_##A = 0;                 \
+static void my_ENGINE_ctrl_cb_##A()                             \
+{                                                               \
+    RunFunctionFmt(my_context, my_ENGINE_ctrl_cb_fct_##A, "");  \
 }
 SUPER()
 #undef GO
@@ -109,10 +109,10 @@ static void* find_free_fnc_Fct(void* fct)
 
 // id_func
 #define GO(A)   \
-static uintptr_t my_id_func_fct_##A = 0;                                    \
-static unsigned long my_id_func_##A()                                       \
-{                                                                           \
-    return (unsigned long)RunFunction(my_context, my_id_func_fct_##A, 0);   \
+static uintptr_t my_id_func_fct_##A = 0;                                        \
+static unsigned long my_id_func_##A()                                           \
+{                                                                               \
+    return (unsigned long)RunFunctionFmt(my_context, my_id_func_fct_##A, "");   \
 }
 SUPER()
 #undef GO

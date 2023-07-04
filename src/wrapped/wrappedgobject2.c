@@ -63,10 +63,10 @@ static int signal_cb(void* a, void* b, void* c, void* d)
     }
     printf_log(LOG_DEBUG, "gobject2 Signal called, sig=%p, handler=%p, NArgs=%d\n", sig, (void*)sig->c_handler, i);
     switch(i) {
-        case 1: return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
-        case 2: return (int)RunFunction(my_context, sig->c_handler, 2, a, sig->data);
-        case 3: return (int)RunFunction(my_context, sig->c_handler, 3, a, b, sig->data);
-        case 4: return (int)RunFunction(my_context, sig->c_handler, 4, a, b, c, sig->data);
+        case 1: return (int)RunFunctionFmt(my_context, sig->c_handler, "p", sig->data);
+        case 2: return (int)RunFunctionFmt(my_context, sig->c_handler, "pp", a, sig->data);
+        case 3: return (int)RunFunctionFmt(my_context, sig->c_handler, "ppp", a, b, sig->data);
+        case 4: return (int)RunFunctionFmt(my_context, sig->c_handler, "pppp", a, b, c, sig->data);
     }
     printf_log(LOG_NONE, "Warning, GObject2 signal callback but no data found!");
     return 0;
@@ -75,47 +75,47 @@ static int signal_cb_swapped(my_signal_t* sig, void* b, void* c, void* d)
 {
     // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 swaped4 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 4, sig->data, b, c, d);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "pppp", sig->data, b, c, d);
 }
 static int signal_cb_5(void* a, void* b, void* c, void* d, my_signal_t* sig)
 {
     printf_log(LOG_DEBUG, "gobject2 5 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 5, a, b, c, d, sig->data);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "ppppp", a, b, c, d, sig->data);
 }
 static int signal_cb_swapped_5(my_signal_t* sig, void* b, void* c, void* d, void* e)
 {
     // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 swaped5 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 5, sig->data, b, c, d, e);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "ppppp", sig->data, b, c, d, e);
 }
 static int signal_cb_6(void* a, void* b, void* c, void* d, void* e, my_signal_t* sig)
 {
     printf_log(LOG_DEBUG, "gobject2 6 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 6, a, b, c, d, e, sig->data);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "pppppp", a, b, c, d, e, sig->data);
 }
 static int signal_cb_swapped_6(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f)
 {
     // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 swaped6 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 6, sig->data, b, c, d, e, f);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "pppppp", sig->data, b, c, d, e, f);
 }
 static int signal_cb_8(void* a, void* b, void* c, void* d, void* e, void* f, void* g, my_signal_t* sig)
 {
     printf_log(LOG_DEBUG, "gobject2 8 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 8, a, b, c, d, e, f, g, sig->data);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "pppppppp", a, b, c, d, e, f, g, sig->data);
 }
 static int signal_cb_swapped_8(my_signal_t* sig, void* b, void* c, void* d, void* e, void* f, void* g, void* h)
 {
     // data is in front here...
     printf_log(LOG_DEBUG, "gobject2 swaped8 Signal called, sig=%p\n", sig);
-    return (int)RunFunction(my_context, sig->c_handler, 8, sig->data, b, c, d, e, f, g, h);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "pppppppp", sig->data, b, c, d, e, f, g, h);
 }
 
 static void signal_delete(my_signal_t* sig, void* b)
 {
     uintptr_t d = sig->destroy;
     if(d) {
-        RunFunction(my_context, d, 2, sig->data, b);
+        RunFunctionFmt(my_context, d, "pp", sig->data, b);
     }
     printf_log(LOG_DEBUG, "gobject2 Signal deleted, sig=%p, destroy=%p\n", sig, (void*)d);
     box_free(sig);
@@ -350,10 +350,10 @@ GO(98)   \
 GO(99)   \
 
 #define GO(A)   \
-static uintptr_t my_copy_fct_##A = 0;   \
-static void* my_copy_##A(void* data)     \
-{                                       \
-    return (void*)RunFunction(my_context, my_copy_fct_##A, 1, data);\
+static uintptr_t my_copy_fct_##A = 0;                                       \
+static void* my_copy_##A(void* data)                                        \
+{                                                                           \
+    return (void*)RunFunctionFmt(my_context, my_copy_fct_##A, "p", data);   \
 }
 SUPER()
 #undef GO
@@ -371,10 +371,10 @@ static void* findCopyFct(void* fct)
 }
 
 #define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;   \
-static void my_free_##A(void* data)     \
-{                                       \
-    RunFunction(my_context, my_free_fct_##A, 1, data);\
+static uintptr_t my_free_fct_##A = 0;                       \
+static void my_free_##A(void* data)                         \
+{                                                           \
+    RunFunctionFmt(my_context, my_free_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -392,10 +392,10 @@ static void* findFreeFct(void* fct)
 }
 // GSignalAccumulator
 #define GO(A)   \
-static uintptr_t my_accumulator_fct_##A = 0;   \
-static int my_accumulator_##A(void* ihint, void* return_accu, void* handler_return, void* data)     \
-{                                       \
-    return RunFunction(my_context, my_accumulator_fct_##A, 4, ihint, return_accu, handler_return, data);\
+static uintptr_t my_accumulator_fct_##A = 0;                                                                    \
+static int my_accumulator_##A(void* ihint, void* return_accu, void* handler_return, void* data)                 \
+{                                                                                                               \
+    return RunFunctionFmt(my_context, my_accumulator_fct_##A, "pppp", ihint, return_accu, handler_return, data);\
 }
 SUPER()
 #undef GO
@@ -440,10 +440,10 @@ static void* findMarshalFct(void* fct)
 
 // GClosureNotify
 #define GO(A)   \
-static uintptr_t my_GClosureNotify_fct_##A = 0;   \
-static int my_GClosureNotify_func_##A(void* a, void* b)     \
-{                                       \
-    return RunFunction(my_context, my_GClosureNotify_fct_##A, 2, a, b);\
+static uintptr_t my_GClosureNotify_fct_##A = 0;                                 \
+static int my_GClosureNotify_func_##A(void* a, void* b)                         \
+{                                                                               \
+    return RunFunctionFmt(my_context, my_GClosureNotify_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -463,13 +463,13 @@ static void* findGClosureNotify_Fct(void* fct)
 
 // GValueTransform
 #define GO(A)   \
-static uintptr_t my_valuetransform_fct_##A = 0;                             \
-static void my_valuetransform_##A(void* src, void* dst)                     \
-{                                                                           \
-    my_GValue_t asrc, adst;                                                 \
-    alignNGValue(&asrc, src, 1);                                            \
-    RunFunction(my_context, my_valuetransform_fct_##A, 2, &asrc, &adst);    \
-    unalignNGValue(dst, &adst, 1);                                          \
+static uintptr_t my_valuetransform_fct_##A = 0;                                 \
+static void my_valuetransform_##A(void* src, void* dst)                         \
+{                                                                               \
+    my_GValue_t asrc, adst;                                                     \
+    alignNGValue(&asrc, src, 1);                                                \
+    RunFunctionFmt(my_context, my_valuetransform_fct_##A, "pp", &asrc, &adst);  \
+    unalignNGValue(dst, &adst, 1);                                              \
 }
 SUPER()
 #undef GO
@@ -488,10 +488,10 @@ static void* findValueTransformFct(void* fct)
 }
 // GCallback  (generic function with 6 arguments, hopefully it's enough)
 #define GO(A)   \
-static uintptr_t my_GCallback_fct_##A = 0;                                             \
-static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)    \
-{                                                                                           \
-    return (void*)RunFunction(my_context, my_GCallback_fct_##A, 6, a, b, c, d, e, f);  \
+static uintptr_t my_GCallback_fct_##A = 0;                                                      \
+static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)             \
+{                                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_GCallback_fct_##A, "pppppp", a, b, c, d, e, f); \
 }
 SUPER()
 #undef GO
@@ -529,25 +529,25 @@ SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
-static uintptr_t fct_funcs_instance_init_##A = 0;                   \
-static void my_funcs_instance_init_##A(void* pspec) {               \
-    RunFunction(my_context, fct_funcs_instance_init_##A, 1, pspec); \
+static uintptr_t fct_funcs_instance_init_##A = 0;                       \
+static void my_funcs_instance_init_##A(void* pspec) {                   \
+    RunFunctionFmt(my_context, fct_funcs_instance_init_##A, "p", pspec);\
 }   \
 static uintptr_t fct_funcs_finalize_##A = 0;                        \
 static void my_funcs_finalize_##A(void* pspec) {                    \
-    RunFunction(my_context, fct_funcs_finalize_##A, 1, pspec);      \
+    RunFunctionFmt(my_context, fct_funcs_finalize_##A, "p", pspec); \
 }   \
-static uintptr_t fct_funcs_value_set_default_##A = 0;               \
-static void my_funcs_value_set_default_##A(void* pspec, void* value) {          \
-    RunFunction(my_context, fct_funcs_value_set_default_##A, 2, pspec, value);  \
+static uintptr_t fct_funcs_value_set_default_##A = 0;                                   \
+static void my_funcs_value_set_default_##A(void* pspec, void* value) {                  \
+    RunFunctionFmt(my_context, fct_funcs_value_set_default_##A, "pp", pspec, value);    \
 }   \
-static uintptr_t fct_funcs_value_validate_##A = 0;                  \
-static int my_funcs_value_validate_##A(void* pspec, void* value) {  \
-    return (int)RunFunction(my_context, fct_funcs_value_validate_##A, 2, pspec, value); \
+static uintptr_t fct_funcs_value_validate_##A = 0;                                              \
+static int my_funcs_value_validate_##A(void* pspec, void* value) {                              \
+    return (int)RunFunctionFmt(my_context, fct_funcs_value_validate_##A, "pp", pspec, value);   \
 }   \
-static uintptr_t fct_funcs_values_cmp_##A = 0;                      \
-static int my_funcs_values_cmp_##A(void* pspec, void* value1, void* value2) {   \
-    return (int)RunFunction(my_context, fct_funcs_values_cmp_##A, 3, pspec, value1, value2);    \
+static uintptr_t fct_funcs_values_cmp_##A = 0;                                                      \
+static int my_funcs_values_cmp_##A(void* pspec, void* value1, void* value2) {                       \
+    return (int)RunFunctionFmt(my_context, fct_funcs_values_cmp_##A, "ppp", pspec, value1, value2); \
 }
 
 SUPER()
@@ -581,10 +581,10 @@ static my_GParamSpecTypeInfo_t* findFreeGParamSpecTypeInfo(my_GParamSpecTypeInfo
 
 // GInterfaceInitFunc
 #define GO(A)   \
-static uintptr_t my_GInterfaceInitFunc_fct_##A = 0;                     \
-static void my_GInterfaceInitFunc_##A(void* src, void* dst)            \
-{                                                                   \
-    RunFunction(my_context, my_GInterfaceInitFunc_fct_##A, 2, src, dst);\
+static uintptr_t my_GInterfaceInitFunc_fct_##A = 0;                             \
+static void my_GInterfaceInitFunc_##A(void* src, void* dst)                     \
+{                                                                               \
+    RunFunctionFmt(my_context, my_GInterfaceInitFunc_fct_##A, "pp", src, dst);  \
 }
 SUPER()
 #undef GO
@@ -603,10 +603,10 @@ static void* findGInterfaceInitFuncFct(void* fct)
 }
 // GInterfaceFinalizeFunc
 #define GO(A)   \
-static uintptr_t my_GInterfaceFinalizeFunc_fct_##A = 0;                     \
-static void my_GInterfaceFinalizeFunc_##A(void* src, void* dst)            \
-{                                                                   \
-    RunFunction(my_context, my_GInterfaceFinalizeFunc_fct_##A, 2, src, dst);\
+static uintptr_t my_GInterfaceFinalizeFunc_fct_##A = 0;                             \
+static void my_GInterfaceFinalizeFunc_##A(void* src, void* dst)                     \
+{                                                                                   \
+    RunFunctionFmt(my_context, my_GInterfaceFinalizeFunc_fct_##A, "pp", src, dst);  \
 }
 SUPER()
 #undef GO
@@ -625,10 +625,10 @@ static void* findGInterfaceFinalizeFuncFct(void* fct)
 }
 // compare
 #define GO(A)   \
-static uintptr_t my_compare_fct_##A = 0;                                \
-static int my_compare_##A(void* a, void* b, void* data)                 \
-{                                                                       \
-    return RunFunction(my_context, my_compare_fct_##A, 3, a, b, data);  \
+static uintptr_t my_compare_fct_##A = 0;                                        \
+static int my_compare_##A(void* a, void* b, void* data)                         \
+{                                                                               \
+    return RunFunctionFmt(my_context, my_compare_fct_##A, "ppp", a, b, data);   \
 }
 SUPER()
 #undef GO
@@ -769,7 +769,7 @@ static int my_signal_emission_hook(void* ihint, uint32_t n, my_GValue_t* values,
     printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook called, sig=%p\n", sig);
     void* my_values = alloca(n*(4+2*8));
     unalignNGValue(my_values, values, n);
-    return (int)RunFunction(my_context, sig->c_handler, 4, ihint, n, my_values, sig->data);
+    return (int)RunFunctionFmt(my_context, sig->c_handler, "pupp", ihint, n, my_values, sig->data);
 }
 EXPORT unsigned long my_g_signal_add_emission_hook(x86emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
 {

@@ -51,10 +51,10 @@ GO(3)
 
 // snd_async_callback_t
 #define GO(A)   \
-static uintptr_t my_async_fct_##A = 0;   \
-static void* my_async_##A(void* handler)     \
-{                                       \
-    return (void*)RunFunction(my_context, my_async_fct_##A, 1, handler);\
+static uintptr_t my_async_fct_##A = 0;                                          \
+static void* my_async_##A(void* handler)                                        \
+{                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_async_fct_##A, "p", handler);   \
 }
 SUPER()
 #undef GO

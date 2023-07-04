@@ -201,10 +201,10 @@ GO(15)
 
 // compare
 #define GO(A)   \
-static uintptr_t my_compare_fct_##A = 0;        \
-static int my_compare_##A(void* a, void* b)     \
-{                                               \
-    return (int)RunFunction(my_context, my_compare_fct_##A, 2, a, b);\
+static uintptr_t my_compare_fct_##A = 0;                                    \
+static int my_compare_##A(void* a, void* b)                                 \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_compare_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -345,10 +345,10 @@ static void* findgloberrFct(void* fct)
 #undef dirent
 // filter_dir
 #define GO(A)   \
-static uintptr_t my_filter_dir_fct_##A = 0;                               \
-static int my_filter_dir_##A(const struct dirent* a)                    \
-{                                                                       \
-    return (int)RunFunction(my_context, my_filter_dir_fct_##A, 1, a);     \
+static uintptr_t my_filter_dir_fct_##A = 0;                                 \
+static int my_filter_dir_##A(const struct dirent* a)                        \
+{                                                                           \
+    return (int)RunFunctionFmt(my_context, my_filter_dir_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -368,10 +368,10 @@ static void* findfilter_dirFct(void* fct)
 }
 // compare_dir
 #define GO(A)   \
-static uintptr_t my_compare_dir_fct_##A = 0;                                  \
-static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)    \
-{                                                                           \
-    return (int)RunFunction(my_context, my_compare_dir_fct_##A, 2, a, b);     \
+static uintptr_t my_compare_dir_fct_##A = 0;                                    \
+static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)   \
+{                                                                               \
+    return (int)RunFunctionFmt(my_context, my_compare_dir_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -395,7 +395,7 @@ static void* findcompare_dirFct(void* fct)
 static uintptr_t my_filter64_fct_##A = 0;                               \
 static int my_filter64_##A(const struct dirent64* a)                    \
 {                                                                       \
-    return (int)RunFunction(my_context, my_filter64_fct_##A, 1, a);     \
+    return (int)RunFunctionFmt(my_context, my_filter64_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
@@ -418,7 +418,7 @@ static void* findfilter64Fct(void* fct)
 static uintptr_t my_compare64_fct_##A = 0;                                      \
 static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
 {                                                                               \
-    return (int)RunFunction(my_context, my_compare64_fct_##A, 2, a, b);         \
+    return (int)RunFunctionFmt(my_context, my_compare64_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO

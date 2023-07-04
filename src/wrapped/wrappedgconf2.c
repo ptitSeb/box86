@@ -35,10 +35,10 @@ GO(4)
 
 // GFreeFunc ...
 #define GO(A)   \
-static uintptr_t my_GFreeFunc_fct_##A = 0;                  \
-static void my_GFreeFunc_##A(void* a)                       \
-{                                                           \
-    RunFunction(my_context, my_GFreeFunc_fct_##A, 1, a);    \
+static uintptr_t my_GFreeFunc_fct_##A = 0;                      \
+static void my_GFreeFunc_##A(void* a)                           \
+{                                                               \
+    RunFunctionFmt(my_context, my_GFreeFunc_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO

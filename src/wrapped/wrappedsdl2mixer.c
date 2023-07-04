@@ -133,10 +133,10 @@ static void* find_ChannelFinished_Fct(void* fct)
 
 // MusicFinished
 #define GO(A)   \
-static uintptr_t my_MusicFinished_fct_##A = 0;              \
-static void my_MusicFinished_##A()                          \
-{                                                           \
-    RunFunction(my_context, my_MusicFinished_fct_##A, 0);   \
+static uintptr_t my_MusicFinished_fct_##A = 0;                  \
+static void my_MusicFinished_##A()                              \
+{                                                               \
+    RunFunctionFmt(my_context, my_MusicFinished_fct_##A, "");   \
 }
 SUPER()
 #undef GO

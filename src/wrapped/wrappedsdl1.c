@@ -66,10 +66,10 @@ GO(4)
 
 // AudioCallback ...
 #define GO(A)   \
-static uintptr_t my_AudioCallback_fct_##A = 0;                                      \
-static void my_AudioCallback_##A(void *userdata, uint8_t *stream, int32_t len)      \
-{                                                                                   \
-    RunFunction(my_context, my_AudioCallback_fct_##A, 3, userdata, stream, len);    \
+static uintptr_t my_AudioCallback_fct_##A = 0;                                          \
+static void my_AudioCallback_##A(void *userdata, uint8_t *stream, int32_t len)          \
+{                                                                                       \
+    RunFunctionFmt(my_context, my_AudioCallback_fct_##A, "ppi", userdata, stream, len); \
 }
 SUPER()
 #undef GO
@@ -88,10 +88,10 @@ static void* find_AudioCallback_Fct(void* fct)
 }
 // TimerCallback ...
 #define GO(A)   \
-static uintptr_t my_TimerCallback_fct_##A = 0;                                                  \
-static uint32_t my_TimerCallback_##A(uint32_t interval, void *userdata)                         \
-{                                                                                               \
-    return (uint32_t)RunFunction(my_context, my_TimerCallback_fct_##A, 2, interval, userdata);  \
+static uintptr_t my_TimerCallback_fct_##A = 0;                                                      \
+static uint32_t my_TimerCallback_##A(uint32_t interval, void *userdata)                             \
+{                                                                                                   \
+    return (uint32_t)RunFunctionFmt(my_context, my_TimerCallback_fct_##A, "up", interval, userdata);\
 }
 SUPER()
 #undef GO
@@ -110,10 +110,10 @@ static void* find_TimerCallback_Fct(void* fct)
 }
 // EvtFilter ...
 #define GO(A)   \
-static uintptr_t my_EvtFilter_fct_##A = 0;                      \
-static int my_EvtFilter_##A(void* p)                            \
-{                                                               \
-    return RunFunction(my_context, my_EvtFilter_fct_##A, 1, p); \
+static uintptr_t my_EvtFilter_fct_##A = 0;                          \
+static int my_EvtFilter_##A(void* p)                                \
+{                                                                   \
+    return RunFunctionFmt(my_context, my_EvtFilter_fct_##A, "p", p);\
 }
 SUPER()
 #undef GO

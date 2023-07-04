@@ -50,10 +50,10 @@ GO(3)   \
 
 // GDestroyFunc ...
 #define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;   \
-static int my_destroyfunc_##A(void* a, void* b)     \
-{                                       \
-    return RunFunction(my_context, my_destroyfunc_fct_##A, 2, a, b);\
+static uintptr_t my_destroyfunc_fct_##A = 0;                                \
+static int my_destroyfunc_##A(void* a, void* b)                             \
+{                                                                           \
+    return RunFunctionFmt(my_context, my_destroyfunc_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -97,10 +97,10 @@ static void* findGstPadActivateModeFunctionFct(void* fct)
 }
 //GstPadQueryFunction
 #define GO(A)   \
-static uintptr_t my_GstPadQueryFunction_fct_##A = 0;                                    \
-static int my_GstPadQueryFunction_##A(void* a, void* b, void* c)                        \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GstPadQueryFunction_fct_##A, 3, a, b, c);    \
+static uintptr_t my_GstPadQueryFunction_fct_##A = 0;                                        \
+static int my_GstPadQueryFunction_##A(void* a, void* b, void* c)                            \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_GstPadQueryFunction_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -143,10 +143,10 @@ static void* findGstPadGetRangeFunctionFct(void* fct)
 }
 //GstPadChainFunction
 #define GO(A)   \
-static uintptr_t my_GstPadChainFunction_fct_##A = 0;                                    \
-static int my_GstPadChainFunction_##A(void* a, void* b, void* c)                        \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GstPadChainFunction_fct_##A, 3, a, b, c);    \
+static uintptr_t my_GstPadChainFunction_fct_##A = 0;                                        \
+static int my_GstPadChainFunction_##A(void* a, void* b, void* c)                            \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_GstPadChainFunction_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -166,10 +166,10 @@ static void* findGstPadChainFunctionFct(void* fct)
 }
 //GstPadEventFunction
 #define GO(A)   \
-static uintptr_t my_GstPadEventFunction_fct_##A = 0;                                    \
-static int my_GstPadEventFunction_##A(void* a, void* b, void* c)                        \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GstPadEventFunction_fct_##A, 3, a, b, c);    \
+static uintptr_t my_GstPadEventFunction_fct_##A = 0;                                        \
+static int my_GstPadEventFunction_##A(void* a, void* b, void* c)                            \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_GstPadEventFunction_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -187,10 +187,10 @@ static void* findGstPadEventFunctionFct(void* fct)
 }
 //GstBusSyncHandler
 #define GO(A)   \
-static uintptr_t my_GstBusSyncHandler_fct_##A = 0;                                    \
-static int my_GstBusSyncHandler_##A(void* a, void* b, void* c)                        \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GstBusSyncHandler_fct_##A, 3, a, b, c);    \
+static uintptr_t my_GstBusSyncHandler_fct_##A = 0;                                          \
+static int my_GstBusSyncHandler_##A(void* a, void* b, void* c)                              \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_GstBusSyncHandler_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -209,10 +209,10 @@ static void* findGstBusSyncHandlerFct(void* fct)
 
 //GstPluginFeatureFilter
 #define GO(A)   \
-static uintptr_t my_GstPluginFeatureFilter_fct_##A = 0;                                 \
-static int my_GstPluginFeatureFilter_##A(void* a, void* b)                              \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GstPluginFeatureFilter_fct_##A, 2, a, b);    \
+static uintptr_t my_GstPluginFeatureFilter_fct_##A = 0;                                     \
+static int my_GstPluginFeatureFilter_##A(void* a, void* b)                                  \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_GstPluginFeatureFilter_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -231,10 +231,10 @@ static void* findGstPluginFeatureFilterFct(void* fct)
 
 //GstCapsFilterMapFunc
 #define GO(A)   \
-static uintptr_t my_GstCapsFilterMapFunc_fct_##A = 0;                                   \
-static int my_GstCapsFilterMapFunc_##A(void* a, void* b, void* c)                       \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GstCapsFilterMapFunc_fct_##A, 3, a, b, c);   \
+static uintptr_t my_GstCapsFilterMapFunc_fct_##A = 0;                                       \
+static int my_GstCapsFilterMapFunc_##A(void* a, void* b, void* c)                           \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_context, my_GstCapsFilterMapFunc_fct_##A, "ppp", a, b, c);\
 }
 SUPER()
 #undef GO
