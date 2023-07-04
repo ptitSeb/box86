@@ -190,10 +190,10 @@ GO(4)
 
 // Allocation ...
 #define GO(A)   \
-static uintptr_t my_Allocation_fct_##A = 0;                                         \
-static void* my_Allocation_##A(void* a, size_t b, size_t c, int d)                  \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_Allocation_fct_##A, 4, a, b, c, d);    \
+static uintptr_t my_Allocation_fct_##A = 0;                                             \
+static void* my_Allocation_##A(void* a, size_t b, size_t c, int d)                      \
+{                                                                                       \
+    return (void*)RunFunctionFmt(my_context, my_Allocation_fct_##A, "pLLi", a, b, c, d);\
 }
 SUPER()
 #undef GO
@@ -212,10 +212,10 @@ static void* find_Allocation_Fct(void* fct)
 }
 // Reallocation ...
 #define GO(A)   \
-static uintptr_t my_Reallocation_fct_##A = 0;                                           \
-static void* my_Reallocation_##A(void* a, void* b, size_t c, size_t d, int e)           \
-{                                                                                       \
-    return (void*)RunFunction(my_context, my_Reallocation_fct_##A, 5, a, b, c, d, e);   \
+static uintptr_t my_Reallocation_fct_##A = 0;                                                   \
+static void* my_Reallocation_##A(void* a, void* b, size_t c, size_t d, int e)                   \
+{                                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_Reallocation_fct_##A, "ppLLi", a, b, c, d, e);  \
 }
 SUPER()
 #undef GO
@@ -237,7 +237,7 @@ static void* find_Reallocation_Fct(void* fct)
 static uintptr_t my_Free_fct_##A = 0;                       \
 static void my_Free_##A(void* a, void* b)                   \
 {                                                           \
-    RunFunction(my_context, my_Free_fct_##A, 2, a, b);      \
+    RunFunctionFmt(my_context, my_Free_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -256,10 +256,10 @@ static void* find_Free_Fct(void* fct)
 }
 // InternalAllocNotification ...
 #define GO(A)   \
-static uintptr_t my_InternalAllocNotification_fct_##A = 0;                          \
-static void my_InternalAllocNotification_##A(void* a, size_t b, int c, int d)       \
-{                                                                                   \
-    RunFunction(my_context, my_InternalAllocNotification_fct_##A, 4, a, b, c, d);   \
+static uintptr_t my_InternalAllocNotification_fct_##A = 0;                                  \
+static void my_InternalAllocNotification_##A(void* a, size_t b, int c, int d)               \
+{                                                                                           \
+    RunFunctionFmt(my_context, my_InternalAllocNotification_fct_##A, "pLii", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -278,10 +278,10 @@ static void* find_InternalAllocNotification_Fct(void* fct)
 }
 // InternalFreeNotification ...
 #define GO(A)   \
-static uintptr_t my_InternalFreeNotification_fct_##A = 0;                           \
-static void my_InternalFreeNotification_##A(void* a, size_t b, int c, int d)        \
-{                                                                                   \
-    RunFunction(my_context, my_InternalFreeNotification_fct_##A, 4, a, b, c, d);    \
+static uintptr_t my_InternalFreeNotification_fct_##A = 0;                               \
+static void my_InternalFreeNotification_##A(void* a, size_t b, int c, int d)            \
+{                                                                                       \
+    RunFunctionFmt(my_context, my_InternalFreeNotification_fct_##A, "pLii", a, b, c, d);\
 }
 SUPER()
 #undef GO
@@ -300,10 +300,10 @@ static void* find_InternalFreeNotification_Fct(void* fct)
 }
 // DebugReportCallbackEXT ...
 #define GO(A)   \
-static uintptr_t my_DebugReportCallbackEXT_fct_##A = 0;                                                                                                 \
-static int my_DebugReportCallbackEXT_##A(int a, int b, uint64_t c, size_t d, int e, void* f, void* g, void* h)                                          \
-{                                                                                                                                                       \
-    return RunFunction(my_context, my_DebugReportCallbackEXT_fct_##A, 9, a, b, (uint32_t)(c&0xffffffff), (uint32_t)(c>>32)&0xffffffff, d, e, f, g, h);  \
+static uintptr_t my_DebugReportCallbackEXT_fct_##A = 0;                                                        \
+static int my_DebugReportCallbackEXT_##A(int a, int b, uint64_t c, size_t d, int e, void* f, void* g, void* h) \
+{                                                                                                              \
+    return RunFunctionFmt(my_context, my_DebugReportCallbackEXT_fct_##A, "iiULippp", a, b, c, d, e, f, g, h);  \
 }
 SUPER()
 #undef GO

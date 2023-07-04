@@ -36,10 +36,10 @@ GO(4)
 
 // SECKEYGetPasswordKey ...
 #define GO(A)   \
-static uintptr_t my_SECKEYGetPasswordKey_fct_##A = 0;                               \
-static void* my_SECKEYGetPasswordKey_##A(void* a, void* b)                          \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_SECKEYGetPasswordKey_fct_##A, 2, a, b);\
+static uintptr_t my_SECKEYGetPasswordKey_fct_##A = 0;                                       \
+static void* my_SECKEYGetPasswordKey_##A(void* a, void* b)                                  \
+{                                                                                           \
+    return (void*)RunFunctionFmt(my_context, my_SECKEYGetPasswordKey_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -59,10 +59,10 @@ static void* find_SECKEYGetPasswordKey_Fct(void* fct)
 
 // digestOpenFn ...
 #define GO(A)   \
-static uintptr_t my_digestOpenFn_fct_##A = 0;                           \
-static int my_digestOpenFn_##A(void* a, int b)                          \
-{                                                                       \
-    return RunFunction(my_context, my_digestOpenFn_fct_##A, 2, a, b);   \
+static uintptr_t my_digestOpenFn_fct_##A = 0;                               \
+static int my_digestOpenFn_##A(void* a, int b)                              \
+{                                                                           \
+    return RunFunctionFmt(my_context, my_digestOpenFn_fct_##A, "pi", a, b); \
 }
 SUPER()
 #undef GO
@@ -82,10 +82,10 @@ static void* find_digestOpenFn_Fct(void* fct)
 
 // digestCloseFn ...
 #define GO(A)   \
-static uintptr_t my_digestCloseFn_fct_##A = 0;                          \
-static int my_digestCloseFn_##A(void* a, int b)                         \
-{                                                                       \
-    return RunFunction(my_context, my_digestCloseFn_fct_##A, 2, a, b);  \
+static uintptr_t my_digestCloseFn_fct_##A = 0;                              \
+static int my_digestCloseFn_##A(void* a, int b)                             \
+{                                                                           \
+    return RunFunctionFmt(my_context, my_digestCloseFn_fct_##A, "pi", a, b);\
 }
 SUPER()
 #undef GO
@@ -105,10 +105,10 @@ static void* find_digestCloseFn_Fct(void* fct)
 
 // digestIOFn ...
 #define GO(A)   \
-static uintptr_t my_digestIOFn_fct_##A = 0;                             \
-static int my_digestIOFn_##A(void* a, void* b, unsigned long c)         \
-{                                                                       \
-    return RunFunction(my_context, my_digestIOFn_fct_##A, 3, a, b, c);  \
+static uintptr_t my_digestIOFn_fct_##A = 0;                                     \
+static int my_digestIOFn_##A(void* a, void* b, unsigned long c)                 \
+{                                                                               \
+    return RunFunctionFmt(my_context, my_digestIOFn_fct_##A, "ppL", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -128,10 +128,10 @@ static void* find_digestIOFn_Fct(void* fct)
 
 // SEC_PKCS12NicknameCollisionCallback ...
 #define GO(A)   \
-static uintptr_t my_SEC_PKCS12NicknameCollisionCallback_fct_##A = 0;                                    \
-static void* my_SEC_PKCS12NicknameCollisionCallback_##A(void* a, void* b, void* c)                      \
-{                                                                                                       \
-    return (void*)RunFunction(my_context, my_SEC_PKCS12NicknameCollisionCallback_fct_##A, 3, a, b, c);  \
+static uintptr_t my_SEC_PKCS12NicknameCollisionCallback_fct_##A = 0;                                            \
+static void* my_SEC_PKCS12NicknameCollisionCallback_##A(void* a, void* b, void* c)                              \
+{                                                                                                               \
+    return (void*)RunFunctionFmt(my_context, my_SEC_PKCS12NicknameCollisionCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -151,10 +151,10 @@ static void* find_SEC_PKCS12NicknameCollisionCallback_Fct(void* fct)
 
 // SEC_PKCS12EncoderOutputCallback ...
 #define GO(A)   \
-static uintptr_t my_SEC_PKCS12EncoderOutputCallback_fct_##A = 0;                        \
-static void my_SEC_PKCS12EncoderOutputCallback_##A(void* a, void* b, unsigned long c)   \
-{                                                                                       \
-    RunFunction(my_context, my_SEC_PKCS12EncoderOutputCallback_fct_##A, 3, a, b, c);    \
+static uintptr_t my_SEC_PKCS12EncoderOutputCallback_fct_##A = 0;                            \
+static void my_SEC_PKCS12EncoderOutputCallback_##A(void* a, void* b, unsigned long c)       \
+{                                                                                           \
+    RunFunctionFmt(my_context, my_SEC_PKCS12EncoderOutputCallback_fct_##A, "ppL", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -174,10 +174,10 @@ static void* find_SEC_PKCS12EncoderOutputCallback_Fct(void* fct)
 
 // NSSCMSContentCallback ...
 #define GO(A)   \
-static uintptr_t my_NSSCMSContentCallback_fct_##A = 0;                      \
-static void my_NSSCMSContentCallback_##A(void* a, void* b, unsigned long c) \
-{                                                                           \
-    RunFunction(my_context, my_NSSCMSContentCallback_fct_##A, 3, a, b, c);  \
+static uintptr_t my_NSSCMSContentCallback_fct_##A = 0;                              \
+static void my_NSSCMSContentCallback_##A(void* a, void* b, unsigned long c)         \
+{                                                                                   \
+    RunFunctionFmt(my_context, my_NSSCMSContentCallback_fct_##A, "ppL", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -197,10 +197,10 @@ static void* find_NSSCMSContentCallback_Fct(void* fct)
 
 // PK11PasswordFunc ...
 #define GO(A)   \
-static uintptr_t my_PK11PasswordFunc_fct_##A = 0;                                   \
-static void* my_PK11PasswordFunc_##A(void* a, int b, void* c)                       \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_PK11PasswordFunc_fct_##A, 3, a, b, c); \
+static uintptr_t my_PK11PasswordFunc_fct_##A = 0;                                           \
+static void* my_PK11PasswordFunc_##A(void* a, int b, void* c)                               \
+{                                                                                           \
+    return (void*)RunFunctionFmt(my_context, my_PK11PasswordFunc_fct_##A, "pip", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -220,10 +220,10 @@ static void* find_PK11PasswordFunc_Fct(void* fct)
 
 // NSSCMSGetDecryptKeyCallback ...
 #define GO(A)   \
-static uintptr_t my_NSSCMSGetDecryptKeyCallback_fct_##A = 0;                                \
-static void* my_NSSCMSGetDecryptKeyCallback_##A(void* a, void* b)                           \
-{                                                                                           \
-    return (void*)RunFunction(my_context, my_NSSCMSGetDecryptKeyCallback_fct_##A, 2, a, b); \
+static uintptr_t my_NSSCMSGetDecryptKeyCallback_fct_##A = 0;                                        \
+static void* my_NSSCMSGetDecryptKeyCallback_##A(void* a, void* b)                                   \
+{                                                                                                   \
+    return (void*)RunFunctionFmt(my_context, my_NSSCMSGetDecryptKeyCallback_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
