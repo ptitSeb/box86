@@ -38,10 +38,10 @@ GO(4)
 
 // PRCallOnceWithArg ...
 #define GO(A)   \
-static uintptr_t my_PRCallOnceWithArg_fct_##A = 0;                              \
-static int my_PRCallOnceWithArg_##A(void* a)                                    \
-{                                                                               \
-    return (int)RunFunction(my_context, my_PRCallOnceWithArg_fct_##A, 1, a);    \
+static uintptr_t my_PRCallOnceWithArg_fct_##A = 0;                                  \
+static int my_PRCallOnceWithArg_##A(void* a)                                        \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_context, my_PRCallOnceWithArg_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO

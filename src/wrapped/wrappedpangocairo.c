@@ -44,10 +44,10 @@ GO(4)
 
 // ShapeRenderer ...
 #define GO(A)   \
-static uintptr_t my_ShapeRenderer_fct_##A = 0;                          \
-static void my_ShapeRenderer_##A(void* a, void* b, int c, void* d)      \
-{                                                                       \
-    RunFunction(my_context, my_ShapeRenderer_fct_##A, 4, a, b, c, d);   \
+static uintptr_t my_ShapeRenderer_fct_##A = 0;                                  \
+static void my_ShapeRenderer_##A(void* a, void* b, int c, void* d)              \
+{                                                                               \
+    RunFunctionFmt(my_context, my_ShapeRenderer_fct_##A, "ppip", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -76,10 +76,10 @@ static void* reverse_ShapeRenderer_Fct(void* fct)
 }
 // GDestroyNotify
 #define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;   \
-static void my_GDestroyNotify_##A(void* data)     \
-{                                       \
-    RunFunction(my_context, my_GDestroyNotify_fct_##A, 1, data);\
+static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
+static void my_GDestroyNotify_##A(void* data)                           \
+{                                                                       \
+    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data);   \
 }
 SUPER()
 #undef GO

@@ -34,10 +34,10 @@ GO(3)
 
 // user_write
 #define GO(A)   \
-static uintptr_t my_user_write_fct_##A = 0;   \
-static void my_user_write_##A(void* png_ptr, void* data, int32_t length)    \
-{                                       \
-    RunFunction(my_context, my_user_write_fct_##A, 3, png_ptr, data, length);\
+static uintptr_t my_user_write_fct_##A = 0;                                         \
+static void my_user_write_##A(void* png_ptr, void* data, int32_t length)            \
+{                                                                                   \
+    RunFunctionFmt(my_context, my_user_write_fct_##A, "ppi", png_ptr, data, length);\
 }
 SUPER()
 #undef GO
@@ -56,10 +56,10 @@ static void* finduser_writeFct(void* fct)
 }
 // user_flush
 #define GO(A)   \
-static uintptr_t my_user_flush_fct_##A = 0;   \
-static void my_user_flush_##A(void* png_ptr)    \
-{                                       \
-    RunFunction(my_context, my_user_flush_fct_##A, 1, png_ptr);\
+static uintptr_t my_user_flush_fct_##A = 0;                         \
+static void my_user_flush_##A(void* png_ptr)                        \
+{                                                                   \
+    RunFunctionFmt(my_context, my_user_flush_fct_##A, "p", png_ptr);\
 }
 SUPER()
 #undef GO
@@ -78,10 +78,10 @@ static void* finduser_flushFct(void* fct)
 }
 // user_read
 #define GO(A)   \
-static uintptr_t my_user_read_fct_##A = 0;   \
-static void my_user_read_##A(void* png_ptr, void* data, int32_t length)    \
-{                                       \
-    RunFunction(my_context, my_user_read_fct_##A, 3, png_ptr, data, length);\
+static uintptr_t my_user_read_fct_##A = 0;                                          \
+static void my_user_read_##A(void* png_ptr, void* data, int32_t length)             \
+{                                                                                   \
+    RunFunctionFmt(my_context, my_user_read_fct_##A, "ppi", png_ptr, data, length); \
 }
 SUPER()
 #undef GO
@@ -100,10 +100,10 @@ static void* finduser_readFct(void* fct)
 }
 // error
 #define GO(A)   \
-static uintptr_t my_error_fct_##A = 0;   \
-static void my_error_##A(void* a, void* b)    \
-{                                       \
-    RunFunction(my_context, my_error_fct_##A, 2, a, b);\
+static uintptr_t my_error_fct_##A = 0;                          \
+static void my_error_##A(void* a, void* b)                      \
+{                                                               \
+    RunFunctionFmt(my_context, my_error_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -122,10 +122,10 @@ static void* finderrorFct(void* fct)
 }
 // warning
 #define GO(A)   \
-static uintptr_t my_warning_fct_##A = 0;   \
-static void my_warning_##A(void* a, void* b)    \
-{                                       \
-    RunFunction(my_context, my_warning_fct_##A, 2, a, b);\
+static uintptr_t my_warning_fct_##A = 0;                        \
+static void my_warning_##A(void* a, void* b)                    \
+{                                                               \
+    RunFunctionFmt(my_context, my_warning_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -144,10 +144,10 @@ static void* findwarningFct(void* fct)
 }
 // malloc
 #define GO(A)   \
-static uintptr_t my_malloc_fct_##A = 0;   \
-static void my_malloc_##A(void* a, unsigned long b)    \
-{                                       \
-    RunFunction(my_context, my_malloc_fct_##A, 2, a, b);\
+static uintptr_t my_malloc_fct_##A = 0;                         \
+static void my_malloc_##A(void* a, unsigned long b)             \
+{                                                               \
+    RunFunctionFmt(my_context, my_malloc_fct_##A, "pL", a, b);  \
 }
 SUPER()
 #undef GO
@@ -166,10 +166,10 @@ static void* findmallocFct(void* fct)
 }
 // free
 #define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;   \
-static void my_free_##A(void* a, void* b)    \
-{                                       \
-    RunFunction(my_context, my_free_fct_##A, 2, a, b);\
+static uintptr_t my_free_fct_##A = 0;                       \
+static void my_free_##A(void* a, void* b)                   \
+{                                                           \
+    RunFunctionFmt(my_context, my_free_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -189,10 +189,10 @@ static void* findfreeFct(void* fct)
 
 // progressive_info
 #define GO(A)   \
-static uintptr_t my_progressive_info_fct_##A = 0;   \
-static void my_progressive_info_##A(void* a, void* b)    \
-{                                       \
-    RunFunction(my_context, my_progressive_info_fct_##A, 2, a, b);\
+static uintptr_t my_progressive_info_fct_##A = 0;                       \
+static void my_progressive_info_##A(void* a, void* b)                   \
+{                                                                       \
+    RunFunctionFmt(my_context, my_progressive_info_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -212,10 +212,10 @@ static void* findprogressive_infoFct(void* fct)
 
 // progressive_end
 #define GO(A)   \
-static uintptr_t my_progressive_end_fct_##A = 0;   \
-static void my_progressive_end_##A(void* a, void* b)    \
-{                                       \
-    RunFunction(my_context, my_progressive_end_fct_##A, 2, a, b);\
+static uintptr_t my_progressive_end_fct_##A = 0;                        \
+static void my_progressive_end_##A(void* a, void* b)                    \
+{                                                                       \
+    RunFunctionFmt(my_context, my_progressive_end_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -235,10 +235,10 @@ static void* findprogressive_endFct(void* fct)
 
 // progressive_row
 #define GO(A)   \
-static uintptr_t my_progressive_row_fct_##A = 0;   \
-static void my_progressive_row_##A(void* a, void* b, uint32_t c, int d)    \
-{                                       \
-    RunFunction(my_context, my_progressive_row_fct_##A, 4, a, b, c, d);\
+static uintptr_t my_progressive_row_fct_##A = 0;                                \
+static void my_progressive_row_##A(void* a, void* b, uint32_t c, int d)         \
+{                                                                               \
+    RunFunctionFmt(my_context, my_progressive_row_fct_##A, "ppui", a, b, c, d); \
 }
 SUPER()
 #undef GO

@@ -34,10 +34,10 @@ GO(4)
 
 // PK11PasswordFunc ...
 #define GO(A)   \
-static uintptr_t my_PK11PasswordFunc_fct_##A = 0;                                   \
-static void* my_PK11PasswordFunc_##A(void* a, int b, void* c)                       \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_PK11PasswordFunc_fct_##A, 3, a, b, c); \
+static uintptr_t my_PK11PasswordFunc_fct_##A = 0;                                           \
+static void* my_PK11PasswordFunc_##A(void* a, int b, void* c)                               \
+{                                                                                           \
+    return (void*)RunFunctionFmt(my_context, my_PK11PasswordFunc_fct_##A, "pip", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -57,10 +57,10 @@ static void* find_PK11PasswordFunc_Fct(void* fct)
 
 // NSS_ShutdownFunc ...
 #define GO(A)   \
-static uintptr_t my_NSS_ShutdownFunc_fct_##A = 0;                               \
-static int my_NSS_ShutdownFunc_##A(void* a, void* b)                            \
-{                                                                               \
-    return (int)RunFunction(my_context, my_NSS_ShutdownFunc_fct_##A, 2, a, b);  \
+static uintptr_t my_NSS_ShutdownFunc_fct_##A = 0;                                   \
+static int my_NSS_ShutdownFunc_##A(void* a, void* b)                                \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_context, my_NSS_ShutdownFunc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -80,10 +80,10 @@ static void* find_NSS_ShutdownFunc_Fct(void* fct)
 
 // CERT_StringFromCertFcn ...
 #define GO(A)   \
-static uintptr_t my_CERT_StringFromCertFcn_fct_##A = 0;                             \
-static void* my_CERT_StringFromCertFcn_##A(void* a)                                 \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_CERT_StringFromCertFcn_fct_##A, 1, a); \
+static uintptr_t my_CERT_StringFromCertFcn_fct_##A = 0;                                 \
+static void* my_CERT_StringFromCertFcn_##A(void* a)                                     \
+{                                                                                       \
+    return (void*)RunFunctionFmt(my_context, my_CERT_StringFromCertFcn_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
