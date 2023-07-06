@@ -176,7 +176,7 @@ GOM(dbus_pending_call_set_data, iFEpipp)
 GOM(dbus_pending_call_set_notify, iFEpppp)
 GO(dbus_pending_call_steal_reply, pFp)
 GO(dbus_pending_call_unref, vFp)
-GO(dbus_realloc, pFpL)
+GO(dbus_realloc, pFpp)
 //GO(dbus_server_allocate_data_slot, 
 //GO(dbus_server_disconnect, 
 //GO(dbus_server_free_data_slot, 
@@ -215,6 +215,7 @@ GO(dbus_type_is_basic, iFi)
 GO(dbus_type_is_container, iFi)
 GO(dbus_type_is_fixed, iFi)
 GO(dbus_type_is_valid, iFi)
+GO(dbus_try_get_local_machine_id, pFp)
 GO(dbus_validate_bus_name, iFpp)
 GO(dbus_validate_error_name, iFpp)
 GO(dbus_validate_interface, iFpp)
