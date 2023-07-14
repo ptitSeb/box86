@@ -279,6 +279,13 @@ static void fillPredecessors(dynarec_arm_t* dyn)
             ++dyn->insts[dyn->insts[i].x86.jmp_insts].pred_sz;
         }
     }
+    // remove "has_next" from orphean branch
+    for(int i=0; i<dyn->size-1; ++i) {
+        if(!dyn->insts[i].x86.has_next) {
+            if(dyn->insts[i+1].x86.has_next && !dyn->insts[i+1].pred_sz)
+                dyn->insts[i+1].x86.has_next = 0;
+        }
+    }
     // second the "has_next"
     for(int i=0; i<dyn->size-1; ++i) {
         if(dyn->insts[i].x86.has_next) {
