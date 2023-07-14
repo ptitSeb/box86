@@ -4864,3 +4864,70 @@ void iFpvpV(x86emu_t *emu, uintptr_t fcn) { iFppV_t fn = (iFppV_t)fcn; R_EAX=fn(
 #if !defined(NOALIGN)
 void iFEivpV(x86emu_t *emu, uintptr_t fcn) { iFEipV_t fn = (iFEipV_t)fcn; R_EAX=fn(emu, *(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 12), (void*)(R_ESP + 16)); }
 #endif
+
+int isRetX87Wrapper(wrapper_t fun) {
+	if (fun == &fFi) return 1;
+	if (fun == &fFf) return 1;
+	if (fun == &fFp) return 1;
+	if (fun == &fFG) return 1;
+	if (fun == &dFv) return 1;
+	if (fun == &dFi) return 1;
+	if (fun == &dFu) return 1;
+	if (fun == &dFd) return 1;
+	if (fun == &dFp) return 1;
+	if (fun == &dFG) return 1;
+	if (fun == &fFEp) return 1;
+	if (fun == &fFif) return 1;
+	if (fun == &fFfi) return 1;
+	if (fun == &fFff) return 1;
+	if (fun == &fFfD) return 1;
+	if (fun == &fFfp) return 1;
+	if (fun == &fFpp) return 1;
+	if (fun == &dFid) return 1;
+	if (fun == &dFuu) return 1;
+	if (fun == &dFdi) return 1;
+	if (fun == &dFdd) return 1;
+	if (fun == &dFdD) return 1;
+	if (fun == &dFdp) return 1;
+	if (fun == &dFpi) return 1;
+	if (fun == &dFpd) return 1;
+	if (fun == &dFpp) return 1;
+	if (fun == &DFpp) return 1;
+	if (fun == &fFuii) return 1;
+	if (fun == &fFfff) return 1;
+	if (fun == &fFffp) return 1;
+	if (fun == &fFppu) return 1;
+	if (fun == &fFppp) return 1;
+	if (fun == &dFddd) return 1;
+	if (fun == &dFddp) return 1;
+	if (fun == &dFpdd) return 1;
+	if (fun == &dFppi) return 1;
+	if (fun == &dFppu) return 1;
+	if (fun == &dFppp) return 1;
+	if (fun == &dFpppp) return 1;
+
+#if !defined(NOALIGN)
+	if (fun == &dFEp) return 1;
+	if (fun == &dFEpi) return 1;
+#endif
+
+#if defined(HAVE_LD80BITS)
+	if (fun == &DFD) return 1;
+	if (fun == &DFDD) return 1;
+	if (fun == &DFDp) return 1;
+	if (fun == &DFppi) return 1;
+	if (fun == &DFppu) return 1;
+	if (fun == &DFppip) return 1;
+#endif
+
+#if !defined(HAVE_LD80BITS)
+	if (fun == &KFK) return 1;
+	if (fun == &KFKK) return 1;
+	if (fun == &KFKp) return 1;
+	if (fun == &KFpp) return 1;
+	if (fun == &KFppi) return 1;
+	if (fun == &KFppu) return 1;
+	if (fun == &KFppip) return 1;
+#endif
+	return 0;
+}

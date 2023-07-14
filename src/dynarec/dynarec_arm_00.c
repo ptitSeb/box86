@@ -27,6 +27,8 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+int isRetX87Wrapper(wrapper_t fun);
+
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
@@ -2205,7 +2207,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
-                    x87_forget(dyn, ninst, x3, x14, 0);
+                    if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2))) {
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x14, x1);
+                    }
                     if((box86_log<2) && !cycle_log && dyn->insts[ninst].natcall) {   // call the wrapper directly
                         uintptr_t ncall[2];
                         memcpy(ncall,  (void*)(dyn->insts[ninst].natcall+2), 2*sizeof(void*));   // the wrapper + function

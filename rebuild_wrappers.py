@@ -1276,6 +1276,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 			# Generic function
 			f.write(vals[FileSpec.values.index(N.orig[0])].format(function_args(args)[:-2]) + " }\n")
 	
+	return_x87: str = "DKdf"
+
 	# Rewrite the wrapper.c file:
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.c"), 'w') as file:
 		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
@@ -1309,6 +1311,23 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 			if not clauses.empty():
 				file.write("#endif\n")
 		
+		# Write the isRetX87Wrapper function
+		file.write("\nint isRetX87Wrapper(wrapper_t fun) {\n")
+		for clauses in gbls:
+			go = False
+			for funtype in gbls[clauses]:
+				if funtype.orig[0] in return_x87:
+					go = True
+			if go:
+				if not clauses.empty():
+					file.write("\n#if " + str(clauses) + "\n")
+				for funtype in gbls[clauses]:
+					if funtype.orig[0] in return_x87:
+						file.write("\tif (fun == &" + funtype.orig + ") return 1;\n")
+				if not clauses.empty():
+					file.write("#endif\n")
+		file.write("\treturn 0;\n}\n")
+
 		file.write(files_guard["wrapper.c"].format(lbr="{", rbr="}", version=ver))
 	
 	# Rewrite the wrapper.h file:
