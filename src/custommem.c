@@ -342,7 +342,6 @@ static size_t roundSize(size_t size)
     return size;
 }
 
-
 #ifdef TRACE_MEMSTAT
 static size_t customMalloc_allocated = 0;
 #endif
@@ -668,19 +667,22 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
                 MarkRangeDynablock(db, addr, size);
         }
     }
-    start_addr = addr;
-    end = addr+size;
-    while (start_addr<end) {
-        uintptr_t* tbl;
-        if(isJmpTableEmpty((tbl=box86_jmptbl[start_addr>>JMPTABL_SHIFT]))) {
-            if(arm_lock_storeifref(&box86_jmptbl[start_addr>>JMPTABL_SHIFT], box86_jmptbl_default, tbl)==box86_jmptbl_default) {
-                box_free(tbl);
-                #ifdef TRACE_MEMSTAT
-                jmptbl_allocated -= (1<<JMPTABL_SHIFT)*sizeof(uintptr_t);
-                #endif
+    if(destroy) {
+        // remove only if the page is destroyed
+        start_addr = addr;
+        end = addr+size;
+        while (start_addr<end) {
+            uintptr_t* tbl;
+            if(isJmpTableEmpty((tbl=box86_jmptbl[start_addr>>JMPTABL_SHIFT]))) {
+                if(arm_lock_storeifref(&box86_jmptbl[start_addr>>JMPTABL_SHIFT], box86_jmptbl_default, tbl)==box86_jmptbl_default) {
+                    box_free(tbl);
+                    #ifdef TRACE_MEMSTAT
+                    jmptbl_allocated -= (1<<JMPTABL_SHIFT)*sizeof(uintptr_t);
+                    #endif
+                }
             }
+            start_addr += 1<<JMPTABL_SHIFT;
         }
-        start_addr += 1<<JMPTABL_SHIFT;
     }
 }
 
@@ -1018,8 +1020,6 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 #ifdef DYNAREC
 int IsInHotPage(uintptr_t addr) {
-    if(addr>=(1LL<<48))
-        return 0;
     int idx = (addr>>MEMPROT_SHIFT);
     if(!hotpages[idx])
         return 0;
