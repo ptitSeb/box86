@@ -138,7 +138,7 @@ void*(*__libc_calloc)(size_t, size_t) = NULL;
 void (*__libc_free)(void*) = NULL;
 void*(*__libc_memalign)(size_t, size_t) = NULL;
 #endif
-size_t(*box_malloc_usable_size)(void*) = NULL;
+size_t(*box_malloc_usable_size)(const void*) = NULL;
 
 int GetTID();
 uint32_t getProtection(uintptr_t addr);
@@ -303,7 +303,7 @@ EXPORT void cfree(void* p)
     box_free(p);
 }
 
-EXPORT size_t malloc_usable_size(void* p)
+EXPORT size_t malloc_usable_size(const void* p)
 {
     if(malloc_hack_2 && real_malloc_usable_size) {
         if(getMmapped((uintptr_t)p))

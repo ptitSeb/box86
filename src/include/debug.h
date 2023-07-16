@@ -100,7 +100,7 @@ void init_malloc_hook();
 #define box_free        free
 #define box_memalign    memalign 
 #else
-extern size_t(*box_malloc_usable_size)(void*);
+extern size_t(*box_malloc_usable_size)(const void*);
 extern void* __libc_malloc(size_t);
 extern void* __libc_realloc(void*, size_t);
 extern void* __libc_calloc(size_t, size_t);
