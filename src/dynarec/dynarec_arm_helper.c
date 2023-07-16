@@ -177,8 +177,8 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     uint32_t m = nextop&0xC7;
     uint32_t n = (m>>6)&3;
     int32_t offset = 0;
-    if(!n && m==6) {
-        offset = F16;
+    if(!n && (m&7)==6) {
+        offset = F16S;
         MOVW(ret, offset);
     } else {
         switch(n) {

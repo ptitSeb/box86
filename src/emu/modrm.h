@@ -107,7 +107,7 @@
             case 7: base =      R_BX; break;    \
         }                                       \
         switch((m>>6)&3) {                      \
-            case 0: if(m==6) base = F16; break; \
+            case 0: if(m&7==6) base = F16S; break; \
             case 1: base += F8S; break;         \
             case 2: base += F16S; break;        \
         }                                       \
