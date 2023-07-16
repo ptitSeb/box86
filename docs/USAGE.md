@@ -185,6 +185,11 @@ Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
 
+#### BOX86_DYNAREC_JVM *
+Detect libjvm and apply conservative settings
+* 0 : Don't detect libjvm
+* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+
 #### BOX86_DYNAREC_WAIT *
 Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
@@ -199,6 +204,11 @@ Handling of SSE Flush to 0 flags
 Handling of x87 80bits long double
 * 0 : Try to handle 80bits long double as precise as possible (Default)
 * 1 : Handle them as double
+
+#### BOX86_LIBCEF *
+Detect libcef and apply malloc_hack settings
+* 0 : Don't detect libcef
+* 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
 
 #### BOX86_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
@@ -296,3 +306,8 @@ Will use yyyy as x86_64 interpretor, to launch x64_64 binaries
 
 #### BOX86_NORCFILES
 If the env var exist, no rc files (like /etc/box86.box86rc and ~/.box86rc) will be loaded
+
+#### BOX86_NOSANDBOX
+ * 0 : Nothing special
+ * 1 : Added "--no-sandbox" to command line arguments (usefull for chrome based programs)
+
