@@ -12,7 +12,6 @@
 #include "x86emu.h"
 #include "box86context.h"
 #include "elfloader.h"
-#include "symbols.h"
 
 #include "bridge.h"
 
@@ -20,7 +19,6 @@ KHASH_MAP_IMPL_INT(mapoffsets, cstr_t);
 
 lib_t *NewLibrarian(box86context_t* context, int ownlibs)
 {
-    (void)context;
     lib_t *maplib = (lib_t*)box_calloc(1, sizeof(lib_t));
     
     maplib->mapoffsets = kh_init(mapoffsets);
@@ -31,39 +29,7 @@ lib_t *NewLibrarian(box86context_t* context, int ownlibs)
 
     return maplib;
 }
-static void freeLibraryRecurse(lib_t *maplib, x86emu_t *emu, int idx, char *freed, library_t* owner) {
-    if (freed[idx]) return; // Already freed
-    
-    library_t *lib = maplib->libraries[idx];
-    if(lib==owner) return;  // don't free owner of maplib
-    freed[idx] = 1; // Avoid infinite loops
-    printf_log(LOG_DEBUG, "Unloading %s\n", lib->name);
-    for (int i = lib->dependedby.size - 1; i >= 0; --i) {
-        int j;
-        for (j = 0; j < maplib->libsz; ++j) {
-            if (lib->dependedby.libs[i] == maplib->libraries[j]) break;
-        }
-        if (j == maplib->libsz) {
-            // dependant lib already freed
-            // library as been freed already
-            continue;
-        }
-        if (freed[j] == 1) {
-            printf_log(LOG_DEBUG, "Cyclic dependancy detected (cycle is between %s and %s)\n", lib->name, lib->dependedby.libs[i]->name);
-            continue;
-        }
-        freeLibraryRecurse(maplib, emu, j, freed, owner);
-        if (freed[idx] != 1) {
-            printf_log(LOG_DEBUG, "Note: library already freed (cyclic dependancy break)\n");
-            return;
-        }
-    }
-    
-    library_t *ptr = maplib->libraries[idx];
-    if(maplib->ownlibs/* && (!maplib->owner || ptr->maplib==maplib)*/)
-        Free1Library(&ptr, emu);
-    freed[idx] = 2;
-}
+
 void FreeLibrarian(lib_t **maplib, x86emu_t *emu)
 {
     // should that be in reverse order?
@@ -72,26 +38,13 @@ void FreeLibrarian(lib_t **maplib, x86emu_t *emu)
 
     library_t* owner = (*maplib)->owner;
     (*maplib)->owner = NULL;    // to avoid recursive free...
-    
-    if((*maplib)->ownlibs && (*maplib)->libsz) {
-        printf_log(LOG_DEBUG, "Closing %d libs from maplib %p\n", (*maplib)->libsz, *maplib);
-        char *freed = (char*)box_calloc((*maplib)->libsz, sizeof(char));
-        if (!freed) {
-            printf_log(LOG_INFO, "Failed to malloc freed table, using old algorithm (a crash is likely)\n");
-            for (int i=(*maplib)->libsz-1; i>=0; --i) 
-                if((*maplib)->libraries[i]!=owner) {
-                    printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
-                    Free1Library(&(*maplib)->libraries[i], emu);
-                }
-        } else {
-            for (int i=(*maplib)->libsz-1; i>=0; --i) {
-                freeLibraryRecurse(*maplib, emu, i, freed, owner);
-            }
-            memset((*maplib)->libraries, 0, (*maplib)->libsz*sizeof(library_t*)); // NULL = 0 anyway
-            (*maplib)->libsz = 0;
-            box_free(freed);
+
+    /*if((*maplib)->ownlibs && (*maplib)->libsz) {
+        for(int i=0; i<(*maplib)->libsz; ++i) {
+            printf_log(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
+            DecRefCount(&(*maplib)->libraries[i], emu);
         }
-    }
+    }*/
     box_free((*maplib)->libraries);
     (*maplib)->libraries = NULL;
 
@@ -111,7 +64,6 @@ void FreeLibrarian(lib_t **maplib, x86emu_t *emu)
 
 box86context_t* GetLibrarianContext(lib_t* maplib)
 {
-    (void)maplib;
     return my_context;
 }
 
@@ -153,8 +105,6 @@ void MapLibAddLib(lib_t* maplib, library_t* lib)
     ++maplib->libsz;
 }
 
-static void MapLibRemoveLib(lib_t* maplib, library_t* lib);
-
 static void MapLibAddMapLib(lib_t* dest, library_t* lib_src, lib_t* src)
 {
     if(!src)
@@ -175,7 +125,7 @@ static void MapLibAddMapLib(lib_t* dest, library_t* lib_src, lib_t* src)
         FreeLibrarian(&src, NULL);
 }
 
-static void MapLibRemoveLib(lib_t* maplib, library_t* lib)
+void MapLibRemoveLib(lib_t* maplib, library_t* lib)
 {
     if(!maplib || !lib)
         return;
@@ -206,14 +156,36 @@ static void MapLibRemoveMapLib(lib_t* dest, lib_t* src)
     }
 }
 
-int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, const char* path, box86context_t* box86, x86emu_t* emu)
+void promoteLocalLibGlobal(library_t* lib)
 {
+    if(!lib || !my_context)
+        return;
+    // promote lib from local to global...
+    // for add the depending local libs...
+    if(lib->maplib) {
+        MapLibAddMapLib(my_context->maplib, lib, lib->maplib);
+    }
+    if(!libraryInMapLib(my_context->maplib, lib))
+        MapLibAddLib(my_context->maplib, lib);
+    MapLibRemoveMapLib(my_context->local_maplib, my_context->maplib);
+}
+
+int isLibLocal(library_t* lib)
+{
+    if(!lib || !my_context)
+        return 0;
+    return libraryInMapLib(my_context->local_maplib, lib);
+}
+
+static int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, elfheader_t* verneeded, box86context_t* box86, x86emu_t* emu)
+{
+    const char* path = needed->names[n];
     printf_log(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
     // first check if lib is already loaded
     library_t *lib = getLib(my_context->maplib, path);
     if(lib) {
-        add_neededlib(neededlibs, lib);
-        if (lib && deplib) add_dependedbylib(&lib->dependedby, deplib);
+        IncRefCount(lib, emu);   // increment cntref
+        needed->libs[n] = lib;
         printf_log(LOG_DEBUG, "Already present in maplib => success\n");
         return 0;
     }
@@ -221,6 +193,8 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
     lib = getLib(my_context->local_maplib, path);
     if(lib) {
         printf_log(LOG_DEBUG, "Already present in local_maplib => success\n");
+        needed->libs[n] = lib;
+        IncRefCount(lib, emu);   // increment cntref
         if(local) {
             // add lib to maplib...
             if(maplib) {
@@ -234,27 +208,16 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
             }
         } else {
             // promote lib from local to global...
-            // for add the depending local libs...
-            if(lib->maplib) {
-                MapLibAddMapLib(my_context->maplib, lib, lib->maplib);
-            }
-            if(!libraryInMapLib(my_context->maplib, lib))
-                MapLibAddLib(my_context->maplib, lib);
-            MapLibRemoveMapLib(my_context->local_maplib, my_context->maplib);
+            promoteLocalLibGlobal(lib);
         }
-        add_neededlib(neededlibs, lib);
-        if (lib && deplib) add_dependedbylib(&lib->dependedby, deplib);
         return 0;
     }
     // load a new one
-    lib = NewLibrary(path, box86);
+    needed->libs[n] = lib = NewLibrary(path, box86, verneeded);
     if(!lib) {
         printf_log(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error
     }
-
-    add_neededlib(neededlibs, lib);
-    if (lib && deplib) add_dependedbylib(&lib->dependedby, deplib);
 
     // add lib now
     if(local) {
@@ -287,38 +250,49 @@ int AddNeededLib_add(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib
             printf_log(LOG_DEBUG, "Failure to add lib linkmap\n");
             return 1;
         }
-        lm->l_addr = (Elf32_Addr)GetElfDelta(my_context->elfs[lib->e.elf_index]);
+        lm->l_addr = (Elf32_Addr)GetElfDelta(lib->e.elf);
         lm->l_name = lib->name;
-        lm->l_ld = GetDynamicSection(my_context->elfs[lib->e.elf_index]);
+        lm->l_ld = GetDynamicSection(lib->e.elf);
     }
     return 0;
 }
 
-int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, library_t* lib, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib_init(lib_t* maplib, int local, int bindnow, library_t* lib, elfheader_t* verneeded, box86context_t* box86, x86emu_t* emu)
 {
-    (void)neededlibs; (void)deplib;
+    if(!lib)    // no lib, error is already detected, no need to return a new one
+        return 0;
     if(!maplib)
         maplib = (local)?lib->maplib:my_context->maplib;
 
-    int mainelf = GetElfIndex(lib);
+    elfheader_t* mainelf = GetElf(lib);
 
-    if(mainelf==-1) {
+    if(!mainelf) {
         // It's a native libs, nothing else to do
     } else {
         // it's an emulated lib, 
         // load dependancies and launch init sequence
-        if(LoadNeededLibs(box86->elfs[mainelf], maplib, &lib->needed, lib, 0, bindnow, box86, emu)) {
+        if(LoadNeededLibs(mainelf, maplib, 0, bindnow, box86, emu)) {
             printf_log(LOG_DEBUG, "Failure to Add dependant lib => fail\n");
             return 1;
         }
         // some special case, where dependancies may not be correct
         if(!strcmp(GetNameLib(lib), "libCgGL.so")) {
-            const char* libs[] = {"libGL.so.1"};
-            AddNeededLib(maplib, &lib->needed, lib, 0, 0, libs, 1, box86, emu);
+            char* names[] = {"libGL.so.1"};    // TODO: it will never be uninit...
+            library_t* libs[] = { NULL };
+            needed_libs_t tmp = {0};
+            tmp.size = tmp.cap = 1;
+            tmp.names = names;
+            tmp.libs = libs;
+            AddNeededLib(maplib, 0, 0, &tmp, verneeded, box86, emu);
         }
         if(!strcmp(GetNameLib(lib), "libmss.so.6")) {
-            const char* libs[] = {"libSDL-1.2.so.0", "libdl.so.2"};
-            AddNeededLib(maplib, &lib->needed, lib, 0, 0, libs, 2, box86, emu);
+            char* names[] = {"libSDL-1.2.so.0", "libdl.so.2"}; // TODO: they will never be uninit...
+            library_t* libs[] = { NULL, NULL };
+            needed_libs_t tmp = {0};
+            tmp.size = tmp.cap = 2;
+            tmp.names = names;
+            tmp.libs = libs;
+            AddNeededLib(maplib, 0, 0, &tmp, verneeded, box86, emu);
         }
 
         // finalize the lib
@@ -332,30 +306,54 @@ int AddNeededLib_init(lib_t* maplib, needed_libs_t* neededlibs, library_t* depli
     
     return 0;
 }
+void AddNeededLib_remove(lib_t* maplib, int local, library_t** lib, box86context_t* box86, x86emu_t* emu)
+{
+    
+    if(!lib || !*lib)    // no lib, error is already detected, no need to return a new one
+        return;
+    if(!maplib)
+        maplib = (local)?(*lib)->maplib:my_context->maplib;
+
+    DecRefCount(lib, emu);
+}
 
 EXPORTDYN
-int AddNeededLib(lib_t* maplib, needed_libs_t* neededlibs, library_t* deplib, int local, int bindnow, const char** paths, int npath, box86context_t* box86, x86emu_t* emu)
+int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, elfheader_t* verneeded, box86context_t* box86, x86emu_t* emu)
 {
+    if(!needed) // no needed libs, no problems
+        return 0;
     box86_mapclean = 0;
-    if(!neededlibs) {
-        neededlibs = box_calloc(1, sizeof(needed_libs_t));
-    }
-    int idx = neededlibs->size;
+    int ret = 0;
     // Add libs and symbol
-    for(int i=0; i<npath; ++i) {
-        if(AddNeededLib_add(maplib, neededlibs, deplib, local, paths[i], box86, emu)) {
-            printf_log(strchr(paths[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", paths[i]);
-            return 1;
+    for(int i=0; i<needed->size; ++i) {
+        if(AddNeededLib_add(maplib, local, needed, i, verneeded, box86, emu)) {
+            printf_log(strchr(needed->names[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", needed->names[i]);
+            ret = 1;
         }
     }
-    int idx_end = neededlibs->size;
+    // error while loadind lib, unload...
+    if(ret) {
+        return ret;
+    }
     // add dependant libs and init them
-    for (int i=idx; i<idx_end; ++i)
-        if(AddNeededLib_init(maplib, neededlibs, deplib, local, bindnow, neededlibs->libs[i], box86, emu)) {
-            printf_log(LOG_INFO, "Error initializing needed lib %s\n", neededlibs->libs[i]->name);
-            if(!allow_missing_libs) return 1;
+    for (int i=0; i<needed->size; ++i)
+        if(AddNeededLib_init(maplib, local, bindnow, needed->libs[i], verneeded, box86, emu)) {
+            printf_log(LOG_INFO, "Error initializing needed lib %s\n", needed->names[i]);
+            if(!allow_missing_libs) ret = 1;
         }
-    return 0;
+    // error while loadind lib, unload...
+    return ret;
+}
+EXPORTDYN
+void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box86context_t* box86, x86emu_t* emu)
+{
+    if(!needed) // no needed libs, no problems
+        return;
+    for(int i=0; i<needed->size; ++i) {
+        if(box86_log>=LOG_DEBUG && needed->libs[i])
+            printf_log(LOG_DEBUG, "Will remove after failed init %s\n", needed->names[i]);
+        AddNeededLib_remove(maplib, local, &needed->libs[i], box86, emu);
+    }
 }
 
 library_t* GetLibMapLib(lib_t* maplib, const char* name)
@@ -376,7 +374,9 @@ EXPORTDYN
 uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name, int version, const char* vername)
 {
     uintptr_t start = 0, end = 0;
-    if(GetGlobalSymbolStartEnd(maplib, name, &start, &end, (void*)1, version, vername))
+    const char *globdefver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==maplib)?NULL:maplib, 0, name);
+    const char *weakdefver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==maplib)?NULL:maplib, 1, name);
+    if(GetGlobalSymbolStartEnd(maplib, name, &start, &end, (void*)1, version, vername, globdefver, weakdefver))
         return start;
     return 0;
 }
@@ -388,7 +388,7 @@ static int isLocal(elfheader_t* self, library_t* l)
     return 0;
 }
 
-int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, size_t size, int version, const char* vername)
+int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, size_t size, int version, const char* vername, const char* globdefver, const char* weakdefver)
 {
     assert(self);   // need self for this one
     //search for the self, to start "next"
@@ -401,38 +401,36 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     if(go<0)
         go = 0; // not found...
     for(int i=go; i<maplib->libsz; ++i) {
-        if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
-            if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0))
+        if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
+            if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0, globdefver))
                 if(*start)
                     return 1;
     }
     for(int i=go; i<maplib->libsz; ++i)
-        if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
-            GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0);
+        if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
+            GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0, weakdefver);
     // loop done, weak symbol found
     if(weak && *start)
         return 1;
     // if self defined, give it another chance with self...
     if(self) {
         if(my_context->elfs[0]!=self) {
-            const char* defver = GetDefaultVersion(my_context->globaldefver, name);
-            if(GetSizedSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, size, version, vername, 1, defver))
+            if(GetSizedSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, size, version, vername, 1, globdefver))
                 if(*start)
                     return 1;
-            defver = GetDefaultVersion(my_context->weakdefver, name);
-            if(GetSizedSymbolStartEnd(GetWeakSymbols(my_context->elfs[0]), name, start, end, size, version, vername, 1, defver))
+            if(GetSizedSymbolStartEnd(GetWeakSymbols(my_context->elfs[0]), name, start, end, size, version, vername, 1, weakdefver))
                 if(*start)
                     weak = 1;
         }
         for(int i=0; i<go; ++i) {
-            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
-                if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1))
+            if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
+                if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, globdefver))
                     if(*start)
                         return 1;
         }
         for(int i=0; i<go; ++i) {
-            if(GetElfIndex(maplib->libraries[i])==-1 || (my_context->elfs[GetElfIndex(maplib->libraries[i])]!=self))
-                GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1);
+            if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
+                GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, weakdefver);
         }
     if(weak && *start)
         return 1;
@@ -440,39 +438,43 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     // nope, not found
     return 0;
 }
-static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername)
+static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername, const char* globdefver, const char* weakdefver)
 {
     int weak = 0;
     size_t size = 0;
-    // check with default version...
-    const char* defver = GetDefaultVersion(my_context->globaldefver, name);
+    // search in needed libs from preloaded first, in order
+    if(my_context->preload)
+        for(int i=0; i<my_context->preload->size; ++i)
+            if(GetLibGlobalSymbolStartEnd(my_context->preload->libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->preload->libs[i]), globdefver))
+                if(*start)
+                    return 1;
     // search non-weak symbol, from older to newer (first GLOBAL object wins)
-    if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, defver))
+    if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, globdefver))
         if(*start)
             return 1;
     // TODO: create a temporary map to search lib only 1 time, and in order of needed...
     // search in needed libs from neededlibs first, in order
-    for(int i=0; i<my_context->neededlibs.size; ++i)
-        if(GetLibGlobalSymbolStartEnd(my_context->neededlibs.libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->neededlibs.libs[i])))
-            if(*start)
-                return 1;
+    if(my_context->neededlibs)
+        for(int i=0; i<my_context->neededlibs->size; ++i)
+            if(GetLibGlobalSymbolStartEnd(my_context->neededlibs->libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->neededlibs->libs[i]), globdefver))
+                if(*start)
+                    return 1;
     // search in global symbols
     for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i])))
+        if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i]), globdefver))
             if(*start)
                 return 1;
     }
 
     // check with default version...
-    defver = GetDefaultVersion(my_context->weakdefver, name);
     int ok = 0;
     // GetSymbolStartEnd should not change start/end if symbol is not found
-    if(GetSymbolStartEnd(GetWeakSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, defver))
+    if(GetSymbolStartEnd(GetWeakSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, weakdefver))
         if(*start)
             ok = 1;
 
     for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i])))
+        if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i]), weakdefver))
             if(*start)
                 ok = 1;
     }
@@ -481,15 +483,15 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
 }
 void** my_GetGTKDisplay();
 void** my_GetGthreadsGotInitialized();
-int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername)
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername, const char* globdefver, const char* weakdefver)
 {
-    if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, version, vername)) {
+    if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, version, vername, globdefver, weakdefver)) {
         if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
             uintptr_t start2, end2;
-            char* buff = (char*)box_malloc(strlen(name) + strlen("_END") + 1);
+            char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
             strcpy(buff, name);
             strcat(buff, "_END");
-            if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, version, vername)) {
+            if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, version, vername, globdefver, weakdefver)) {
                 if(end2>*end && start2==end2)
                     *end = end2;
             }
@@ -514,6 +516,30 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     return 0;
 }
 
+const char* GetMaplibDefaultVersion(lib_t *maplib, lib_t* local_maplib, int isweak, const char* symname)
+{
+    const char* ret = GetDefaultVersion(isweak?GetWeakDefaultVersion(my_context->elfs[0]):GetGlobalDefaultVersion(my_context->elfs[0]), symname);
+    if(ret)
+        return ret;
+    for(int i=0; i<maplib->libsz; ++i) {
+        elfheader_t *h = GetElf(maplib->libraries[i]);
+        if(h)
+            ret = GetDefaultVersion(isweak?GetWeakDefaultVersion(h):GetGlobalDefaultVersion(h), symname);
+        if(ret)
+            return ret;
+    }
+    if(local_maplib)
+        for(int i=0; i<local_maplib->libsz; ++i) {
+            elfheader_t *h = GetElf(local_maplib->libraries[i]);
+            if(h)
+                ret = GetDefaultVersion(isweak?GetWeakDefaultVersion(h):GetGlobalDefaultVersion(h), symname);
+            if(ret)
+                return ret;
+        }
+
+    return NULL;
+}
+
 elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, const char* vername)
 {
     uintptr_t start = 0;
@@ -522,63 +548,65 @@ elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, co
     int weak = 0;
     elfheader_t* ret = NULL;
     // check with default version...
-    const char* defver = GetDefaultVersion(my_context->globaldefver, name);
+    const char* defver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==maplib)?NULL:maplib, 0, name);
 
     if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, &start, &end, version, vername, 1, defver))
         return my_context->elfs[0];
     for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, &start, &end, size, &weak, version, vername, 1)) {
-            int idx = GetElfIndex(maplib->libraries[i]);
-            if(idx==-1) {
+        if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, &start, &end, size, &weak, version, vername, 1, defver)) {
+            elfheader_t* h = GetElf(maplib->libraries[i]);
+            if(!h) {
                 printf_log(LOG_NONE, "Warning, getting Elf info for a native symbol \"%s\" from lib \"%s\"\n", name, GetNameLib(maplib->libraries[i]));
                 return NULL;
             }
             if(weak)
-                ret = my_context->elfs[idx];
+                ret = h;
             else
-                return my_context->elfs[idx];
+                return h;
         }
     }
 
-    defver = GetDefaultVersion(my_context->weakdefver, name);
+    defver = GetMaplibDefaultVersion(my_context->maplib, (my_context->maplib==maplib)?NULL:maplib, 1, name);
     if(GetSymbolStartEnd(GetWeakSymbols(my_context->elfs[0]), name, &start, &end, version, vername, 1, defver))
         ret = my_context->elfs[0];
     for(int i=0; i<maplib->libsz; ++i) {
-        if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, &start, &end, size, &weak, version, vername, 1)) {
-            int idx = GetElfIndex(maplib->libraries[i]);
-            if(idx==-1) {
+        if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, &start, &end, size, &weak, version, vername, 1, defver)) {
+            elfheader_t* h = GetElf(maplib->libraries[i]);
+            if(!h) {
                 printf_log(LOG_NONE, "Warning, getting Elf info for a native symbol \"%s\" from lib \"%s\"\n", name, GetNameLib(maplib->libraries[i]));
                 return NULL;
             }
             if(weak)
-                ret = my_context->elfs[idx];
+                ret = h;
             else
-                return my_context->elfs[idx];
+                return h;
         }
     }
     // return what has been found (maybe nothing)
     return ret;
 }
 
-int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername)
+int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, const char* defver)
 {
     int weak = 0;
     size_t size = 0;
+    // check global GLOB_DAT kind of symbols
+    if(GetSymbolStartEnd(GetGlobalData(maplib), name, start, end, version, vername, 1, defver))
+        if(*start || *end)
+            return 1;
     // check with default version...
-    const char* defver = GetDefaultVersion(my_context->globaldefver, name);
-
     if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, 1, defver))
         if(*start || *end)
             return 1;
     for(int i=0; i<maplib->libsz; ++i)
-        if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1))
+        if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, defver))
             if(*start || *end)
                 return 1;
     // nope, not found
     return 0;
 }
 
-int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername)
+int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername, const char* defver)
 {
     uintptr_t start, end;
     size_t size = 0;
@@ -586,7 +614,7 @@ int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, c
     // check with default version...
     for(int i=0; i<maplib->libsz; ++i)
         if(GetElfIndex(maplib->libraries[i])==-1)
-            if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, &start, &end, size, &weak, version, vername, 1))
+            if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, &start, &end, size, &weak, version, vername, 1, defver))
                 if(start || end)
                     return 1;
     // nope, not found
@@ -594,22 +622,23 @@ int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, c
 
 }
 
-int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername)
+int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, const char* globdefver, const char* weakdefver)
 {
     // check with default version...
     int weak;
     size_t size = 0;
+    const char* defver = globdefver?globdefver:weakdefver;
 
     if(my_context->elfs[0]==self || !self) {
-        if(GetSymbolStartEnd(GetLocalSymbols(my_context->elfs[0]), name, start, end, version, vername, 1, NULL))
+        if(GetSymbolStartEnd(GetLocalSymbols(my_context->elfs[0]), name, start, end, version, vername, 1, defver))
             if(*start || *end)
                 return 1;
         if(self)
             return 0;
     }
     for(int i=0; i<maplib->libsz; ++i) {
-        if(GetElfIndex(maplib->libraries[i])!=-1 && (!self || my_context->elfs[GetElfIndex(maplib->libraries[i])]==self)) {
-            if(GetLibLocalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1))
+        if(GetElfIndex(maplib->libraries[i])!=-1 && (!self || GetElf(maplib->libraries[i])==self)) {
+            if(GetLibLocalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, defver))
                 if(*start || *end)
                     return 1;
             if(self)
@@ -623,7 +652,6 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
 
 const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, const char** libname, void** base, library_t** lib)
 {
-    (void)maplib;
     // first, search in self...
     const char* ret = NULL;
     uintptr_t offs = 0;
@@ -645,15 +673,15 @@ const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint32_t* sz, c
                 *lib = NULL;    // main elf
             else {
                 for(int i=0; i<my_context->maplib->libsz; ++i) {
-                    int idx = GetElfIndex(my_context->maplib->libraries[i]);
-                    if((idx!=-1) && (my_context->elfs[idx]==h)) {
+                    elfheader_t* head = GetElf(my_context->maplib->libraries[i]);
+                    if((head) && (head==h)) {
                         *lib = my_context->maplib->libraries[i];
                         return ret;
                     }
                 }
                 for(int i=0; i<my_context->local_maplib->libsz; ++i) {
-                    int idx = GetElfIndex(my_context->local_maplib->libraries[i]);
-                    if((idx!=-1) && (my_context->elfs[idx]==h)) {
+                    elfheader_t* head = GetElf(my_context->local_maplib->libraries[i]);
+                    if((head) && (head==h)) {
                         *lib = my_context->local_maplib->libraries[i];
                         return ret;
                     }

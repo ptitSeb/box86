@@ -17,6 +17,7 @@ typedef struct bridge_s bridge_t;
 typedef struct dlprivate_s dlprivate_t;
 typedef struct kh_symbolmap_s kh_symbolmap_t;
 typedef struct kh_defaultversion_s kh_defaultversion_t;
+typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct library_s library_t;
 typedef struct linkmap_s linkmap_t;
 typedef struct kh_fts_s kh_fts_t;
@@ -56,9 +57,15 @@ void free_tlsdatasize(void* p);
 typedef struct needed_libs_s {
     int         cap;
     int         size;
-    library_t   **libs;
+    char**      names;
+    library_t** libs;
 } needed_libs_t;
-void free_neededlib(needed_libs_t* needed); // defined in library.c
+
+void free_neededlib(needed_libs_t* needed);
+needed_libs_t* new_neededlib(int n);
+needed_libs_t* copy_neededlib(needed_libs_t* needed);
+void add1_neededlib(needed_libs_t* needed);
+void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name);
 
 typedef struct base_segment_s {
     uintptr_t       base;
@@ -100,7 +107,8 @@ typedef struct box86context_s {
     int                 elfcap;
     int                 elfsize;        // number of elf loaded
 
-    needed_libs_t       neededlibs;     // needed libs for main elf
+    needed_libs_t       *neededlibs;    // needed libs for main elf
+    needed_libs_t       *preload;
 
     uintptr_t           ep;             // entry point
 
@@ -109,7 +117,8 @@ typedef struct box86context_s {
 
     lib_t               *maplib;        // lib and symbols handling
     lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
-    dic_t               *versym;        // dictionnary of versionned symbols
+    dic_t               *versym;        // dictionnary of versioned symbols
+    kh_mapsymbols_t     *globdata;      // GLOBAL_DAT relocation for COPY mapping in main elf
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges
@@ -120,8 +129,6 @@ typedef struct box86context_s {
     kh_symbolmap_t      *almymap;       // link to the mysymbolmap if libOpenAL
     kh_symbolmap_t      *vkwrappers;    // the map of wrapper for VulkanProcs (TODO: check SDL2)
     kh_symbolmap_t      *vkmymap;       // link to the mysymbolmap of libGL
-    kh_defaultversion_t *globaldefver;  // the global default version for symbols (the XXX@@vvvv of symbols)
-    kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
     vkprocaddress_t     vkprocaddress;
 
     #ifndef DYNAREC
@@ -157,10 +164,10 @@ typedef struct box86context_s {
     void*               sdl2allocrw;    // AllocRW/FreeRW functions from SDL2
     void*               sdl2freerw;
 
-    int                 deferedInit;
-    elfheader_t         **deferedInitList;
-    int                 deferedInitSz;
-    int                 deferedInitCap;
+    int                 deferredInit;
+    elfheader_t         **deferredInitList;
+    int                 deferredInitSz;
+    int                 deferredInitCap;
 
     pthread_key_t       tlskey;     // then tls key to have actual tlsdata
     void*               tlsdata;    // the initial global tlsdata
@@ -169,9 +176,9 @@ typedef struct box86context_s {
 
     uintptr_t           *auxval_start;
 
-    cleanup_t   *cleanups;          // atexit functions
-    int         clean_sz;
-    int         clean_cap;
+    cleanup_t           *cleanups;      // atexit functions
+    int                 clean_sz;
+    int                 clean_cap;
 #ifndef NOALIGN
     kh_fts_t            *ftsmap;
 #endif
@@ -224,6 +231,8 @@ void print_cycle_log(int loglevel);
 
 // return the index of the added header
 int AddElfHeader(box86context_t* ctx, elfheader_t* head);
+// remove an elf from list (but list is never reduced, so there can be holes)
+void RemoveElfHeader(box86context_t* ctx, elfheader_t* head);
 
 // return the tlsbase (negative) for the new TLS partition created (no partition index is stored in the context)
 int AddTLSPartition(box86context_t* context, int tlssize);

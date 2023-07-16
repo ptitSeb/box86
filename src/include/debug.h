@@ -28,16 +28,19 @@ extern int box86_dynarec_wait;
 extern int box86_dynarec_fastpage;
 extern int box86_dynarec_bleeding_edge;
 extern int box86_dynarec_test;
+extern int box86_dynarec_jvm;
 #ifdef ARM
 extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 extern int arm_swap;
 extern int arm_div;
 #endif
 #endif
+extern int box86_libcef;
 extern int dlsym_error;  // log dlsym error
 extern int cycle_log;    // if using rolling logs
 extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
+extern int box86_malloc_hack;
 extern int box86_sse_flushto0;
 extern int box86_x87_no80bits;
 extern int allow_missing_libs;
@@ -45,6 +48,7 @@ extern int box86_prefer_wrapped;
 extern int box86_prefer_emulated;
 extern int box86_steam;
 extern int box86_wine;
+extern int box86_musl;
 extern int box86_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box86_nogtk; // disabling the use of wrapped gtk
 extern int box86_novulkan;  // disabling the use of wrapped vulkan
@@ -60,6 +64,7 @@ extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal
 extern uint32_t default_fs;
 extern int jit_gdb; // launch gdb when a segfault is trapped
 extern int box86_tcmalloc_minimal;  // when using tcmalloc_minimal
+extern int box86_isglibc234; // is the program linked with glibc 2.34+
 extern int box86_x11threads;
 extern int box86_x11glx;
 extern char* box86_libGL;

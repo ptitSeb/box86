@@ -49,6 +49,8 @@ ENTRYSTRING_(BOX86_BASH, bash)                          \
 ENTRYINT(BOX86_JITGDB, jit_gdb, 0, 2, 2)                \
 ENTRYSTRING_(BOX86_BOX64, box64)                        \
 ENTRYSTRING_(BOX86_LD_PRELOAD, ld_preload)              \
+ENTRYBOOL(BOX86_LIBCEF, box86_libcef)                   \
+ENTRYINT(BOX86_MALLOC_HACK, box86_malloc_hack, 0, 2, 2) \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -84,6 +86,7 @@ ENTRYINT(BOX86_DYNAREC_HOTPAGE, box86_dynarec_hotpage, 0, 255, 8)   \
 ENTRYBOOL(BOX86_DYNAREC_FASTPAGE, box86_dynarec_fastpage)           \
 ENTRYBOOL(BOX86_DYNAREC_WAIT, box86_dynarec_wait)                   \
 ENTRYBOOL(BOX86_DYNAREC_BLEEDING_EDGE, box86_dynarec_bleeding_edge) \
+ENTRYBOOL(BOX86_DYNAREC_JVM, box86_dynarec_jvm)                     \
 ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
 ENTRYBOOL(BOX86_DYNAREC_TEST, box86_dynarec_test)                   \
 
@@ -103,6 +106,7 @@ IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX86_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX86_DYNAREC_WAIT)                                          \
 IGNORE(BOX86_DYNAREC_BLEEDING_EDGE)                                 \
+IGNORE(BOX86_DYNAREC_JVM)                                           \
 IGNORE(BOX86_NODYNAREC)                                             \
 IGNORE(BOX86_DYNAREC_TEST)                                          \
 

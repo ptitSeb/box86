@@ -10,8 +10,10 @@ void** my_GetGthreadsGotInitialized();  // defined in wrappedgthread2
 
 // NCurse / TInfo
 void my_checkGlobalTInfo();
+void my_updateGlobalTInfo(void);
 
 // getopt
 void my_checkGlobalOpt();
+void my_updateGlobalOpt(void);
 
 #endif //_GLOBAL_SYMBOLS_H_

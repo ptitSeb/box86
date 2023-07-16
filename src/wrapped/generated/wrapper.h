@@ -1048,6 +1048,7 @@ void pFpupu(x86emu_t *emu, uintptr_t fnc);
 void pFpdIU(x86emu_t *emu, uintptr_t fnc);
 void pFplpl(x86emu_t *emu, uintptr_t fnc);
 void pFpLip(x86emu_t *emu, uintptr_t fnc);
+void pFpLLp(x86emu_t *emu, uintptr_t fnc);
 void pFppii(x86emu_t *emu, uintptr_t fnc);
 void pFppiu(x86emu_t *emu, uintptr_t fnc);
 void pFppiL(x86emu_t *emu, uintptr_t fnc);

@@ -51,6 +51,8 @@ int box86_dynarec_log = LOG_NONE;
 uintptr_t box86_pagesize;
 uintptr_t box86_load_addr = 0;
 int box86_showbt = 0;
+int box86_isglibc234 = 0;
+int box86_malloc_hack = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
@@ -65,6 +67,7 @@ int box86_dynarec_fastround = 1;
 int box86_dynarec_safeflags = 1;
 int box86_dynarec_hotpage = 16;
 int box86_dynarec_bleeding_edge = 1;
+int box86_dynarec_jvm = 1;
 int box86_dynarec_wait = 1;
 int box86_dynarec_fastpage = 0;
 uintptr_t box86_nodynarec_start = 0;
@@ -79,6 +82,7 @@ int arm_v8 = 0;
 #else   //DYNAREC
 int box86_dynarec = 0;
 #endif
+int box86_libcef = 1;
 int dlsym_error = 0;
 int cycle_log = 0;
 int trace_xmm = 0;
@@ -111,6 +115,7 @@ int box86_prefer_wrapped = 0;
 int box86_prefer_emulated = 0;
 int box86_steam = 0;
 int box86_wine = 0;
+int box86_musl = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
@@ -447,7 +452,8 @@ void LoadLogEnv()
         }
         if(box86_dynarec_fastpage)
             printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
-    }    p = getenv("BOX86_DYNAREC_BLEEDING_EDGE");
+    }
+    p = getenv("BOX86_DYNAREC_BLEEDING_EDGE");
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='1')
@@ -455,6 +461,15 @@ void LoadLogEnv()
         }
         if(!box86_dynarec_bleeding_edge)
             printf_log(LOG_INFO, "Dynarec will not detect MonoBleedingEdge\n");
+    }
+    p = getenv("BOX86_DYNAREC_JVM");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_jvm = p[0]-'0';
+        }
+        if(!box86_dynarec_jvm)
+            printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {
@@ -514,6 +529,15 @@ void LoadLogEnv()
 #endif
 #endif
     // Other BOX86 env. var.
+    p = getenv("BOX86_LIBCEF");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_libcef = p[0]-'0';
+        }
+        if(!box86_libcef)
+            printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
+    }
     p = getenv("BOX86_LOAD_ADDR");
     if(p) {
         if(sscanf(p, "0x%zx", &box86_load_addr)!=1)
@@ -589,6 +613,19 @@ void LoadLogEnv()
         }
         if(allow_missing_symbols)
             printf_log(LOG_INFO, "Allow missing needed symbols\n");
+    }
+    p = getenv("BOX86_MALLOC_HACK");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+2)
+                box86_malloc_hack = p[0]-'0';
+        }
+        if(!box86_malloc_hack) {
+            if(box86_malloc_hack==1) {
+                printf_log(LOG_INFO, "Malloc hook will not be redirected\n");
+            } else
+                printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurrences\n");
+        }
     }
     p = getenv("BOX86_NOPULSE");
         if(p) {
@@ -923,28 +960,31 @@ void LoadEnvVars(box86context_t *context)
 }
 
 EXPORTDYN
-void setupTraceInit(box86context_t* context)
+void setupTraceInit()
 {
 #ifdef HAVE_TRACE
     char* p = trace_init;
     if(p) {
         setbuf(stdout, NULL);
-        uintptr_t trace_start=0, trace_end=0;
+        uintptr_t s_trace_start=0, s_trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            if(sscanf(p, "%ld-%ld", &s_trace_start, &s_trace_end)!=2) {
+                if(sscanf(p, "0x%zX-0x%zX", &s_trace_start, &s_trace_end)!=2)
+                    sscanf(p, "%zx-%zx", &s_trace_start, &s_trace_end);
             }
-            if(trace_start || trace_end)
-                SetTraceEmu(trace_start, trace_end);
+            if(s_trace_start || s_trace_end)
+                SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
-                SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, disabling trace\n", p);
+                printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, disabling trace\n", p);
                 SetTraceEmu(0, 100);  // disabling trace, mostly
             }
         }
@@ -954,43 +994,41 @@ void setupTraceInit(box86context_t* context)
             if (strcmp(p, "0"))
                 SetTraceEmu(0, 1);
     }
-#else
-    (void)context;
 #endif
 }
 
 EXPORTDYN
-void setupTrace(box86context_t* context)
+void setupTrace()
 {
 #ifdef HAVE_TRACE
     char* p = box86_trace;
     if(p) {
         setbuf(stdout, NULL);
-        uintptr_t trace_start=0, trace_end=0;
+        uintptr_t s_trace_start=0, s_trace_end=0;
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%d-%d", &trace_start, &trace_end)!=2) {
-                if(sscanf(p, "0x%X-0x%X", &trace_start, &trace_end)!=2)
-                    sscanf(p, "%x-%x", &trace_start, &trace_end);
+            if(sscanf(p, "%zd-%zd", &s_trace_start, &s_trace_end)!=2) {
+                if(sscanf(p, "0x%zX-0x%zX", &s_trace_start, &s_trace_end)!=2)
+                    sscanf(p, "%zx-%zx", &s_trace_start, &s_trace_end);
             }
-            if(trace_start || trace_end) {
-                SetTraceEmu(trace_start, trace_end);
-                if(!trace_start && trace_end==1) {
+            if(s_trace_start || s_trace_end) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                if(!s_trace_start && s_trace_end==1) {
                     printf_log(LOG_INFO, "TRACE enabled but inactive\n");
                 } else {
-                    printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+                    printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
                 }
             }
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
-                SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
-            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &trace_start, &trace_end, NULL, -1, NULL)) {
-                SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)trace_start, (void*)trace_end);
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+                SetTraceEmu(s_trace_start, s_trace_end);
+                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to Traced (\"%s\") not found, trying to set trace later\n", p);
+                printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
                 if(trace_func)
                     box_free(trace_func);
@@ -998,8 +1036,6 @@ void setupTrace(box86context_t* context)
             }
         }
     }
-#else
-    (void)context;
 #endif
 }
 
@@ -1609,6 +1645,9 @@ int main(int argc, const char **argv, char **env)
     setupTraceInit(my_context);
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbols(elf_header), GetWeakSymbols(elf_header), GetLocalSymbols(elf_header), elf_header);
+    box86_isglibc234 = GetVersionIndice(elf_header, "GLIBC_2.34")?1:0;
+    if(box86_isglibc234)
+        printf_log(LOG_DEBUG, "Program linked with GLIBC 2.34+\n");
     if(wine_preloaded) {
         uintptr_t wineinfo = FindSymbol(GetMapSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
         if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
@@ -1625,15 +1664,24 @@ int main(int argc, const char **argv, char **env)
     AddMainElfToLinkmap(elf_header);
     // pre-load lib if needed
     if(ld_preload.size) {
-        for(int i=0; i<ld_preload.size; ++i)
-            if(AddNeededLib(my_context->maplib, &my_context->neededlibs, NULL, 0, 0, (const char**)&ld_preload.paths[i], 1, my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load the lib (%s)\n", ld_preload.paths[i]);
-            }            
+        my_context->preload = new_neededlib(0);
+        for(int i=0; i<ld_preload.size; ++i) {
+            needed_libs_t* tmp = new_neededlib(1);
+            tmp->names[0] = ld_preload.paths[i];
+            if(AddNeededLib(my_context->maplib, 0, 0, tmp, elf_header, my_context, emu)) {
+                printf_log(LOG_INFO, "Warning, cannot pre-load of %s\n", tmp->names[0]);
+                RemoveNeededLib(my_context->maplib, 0, tmp, my_context, emu);
+            } else {
+                for(int j=0; j<tmp->size; ++j)
+                    add1lib_neededlib(my_context->preload, tmp->libs[j], tmp->names[j]);
+                free_neededlib(tmp);
+            }
+        }
     }
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
-    if(LoadNeededLibs(elf_header, my_context->maplib, &my_context->neededlibs, NULL, 0, 0, my_context, emu)) {
-        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->fullpath);
+    if(LoadNeededLibs(elf_header, my_context->maplib, 0, 0, my_context, emu)) {
+        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox86Context(&my_context);
         return -1;
     }
@@ -1647,17 +1695,19 @@ int main(int argc, const char **argv, char **env)
     // and handle PLT
     RelocateElfPlt(my_context->maplib, NULL, 0, elf_header);
     // defered init
-    RunDeferedElfInit(emu);
+    setupTraceInit();
+    RunDeferredElfInit(emu);
     // update TLS of main elf
     RefreshElfTLS(elf_header);
     // do some special case check, _IO_2_1_stderr_ and friends, that are setup by libc, but it's already done here, so need to do a copy
     ResetSpecialCaseMainElf(elf_header);
     // init...
-    setupTrace(my_context);
+    setupTrace();
     // get entrypoint
     my_context->ep = GetEntryPoint(my_context->maplib, elf_header);
 
     atexit(endBox86);
+    loadProtectionFromMap();
     
     // emulate!
     printf_log(LOG_DEBUG, "Start x86emu on Main\n");

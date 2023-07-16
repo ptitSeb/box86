@@ -212,7 +212,7 @@ box86context_t *NewBox86Context(int argc)
 #ifdef BUILD_LIB
     context->deferedInit = 0;
 #else
-    context->deferedInit = 1;
+    context->deferredInit = 1;
 #endif
     context->sel_serial = 1;
 
@@ -222,8 +222,6 @@ box86context_t *NewBox86Context(int argc)
     context->local_maplib = NewLibrarian(context, 1);
     context->versym = NewDictionnary();
     context->system = NewBridge();
-    context->globaldefver = NewDefaultVersion();
-    context->weakdefver = NewDefaultVersion();
     // Cannot use Bridge name as the map is not initialized yet
     // create vsyscall
     context->vsyscall = AddBridge(context->system, iFEv, x86Syscall, 0, NULL);
@@ -250,6 +248,8 @@ box86context_t *NewBox86Context(int argc)
     for (int i=0; i<4; ++i) context->canary[i] = 1 +  getrand(255);
     context->canary[/*getrand(4)*/0] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at GS:0x14, value:%08X\n", *(uint32_t*)context->canary);
+
+    context->globdata = NewMapSymbols();
 
     initAllHelpers(context);
 
@@ -293,8 +293,8 @@ void FreeBox86Context(box86context_t** context)
     if(ctx->zydis)
         DeleteX86Trace(ctx);
 
-    if(ctx->deferedInitList)
-        box_free(ctx->deferedInitList);
+    if(ctx->deferredInitList)
+        box_free(ctx->deferredInitList);
 
     /*box_free(ctx->argv);*/
     
@@ -355,12 +355,13 @@ void FreeBox86Context(box86context_t** context)
         }
     }
 
-    free_neededlib(&ctx->neededlibs);
+    free_neededlib(ctx->neededlibs);
+    ctx->neededlibs = NULL;
 
     if(ctx->emu_sig)
         FreeX86Emu(&ctx->emu_sig);
-    FreeDefaultVersion(&ctx->globaldefver);
-    FreeDefaultVersion(&ctx->weakdefver);
+
+    FreeMapSymbols(&ctx->globdata);
 
     finiAllHelpers(ctx);
 
@@ -382,20 +383,45 @@ void FreeBox86Context(box86context_t** context)
 }
 
 int AddElfHeader(box86context_t* ctx, elfheader_t* head) {
-    int idx = ctx->elfsize;
-    if(idx==ctx->elfcap) {
-        // resize...
-        ctx->elfcap += 16;
-        ctx->elfs = (elfheader_t**)box_realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
+    int idx = 0;
+    while(idx<ctx->elfsize && ctx->elfs[idx]) idx++;
+    if(idx == ctx->elfsize) {
+        if(idx==ctx->elfcap) {
+            // resize...
+            ctx->elfcap += 16;
+            ctx->elfs = (elfheader_t**)box_realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
+        }
+        ctx->elfs[idx] = head;
+        ctx->elfsize++;
+    } else {
+        ctx->elfs[idx] = head;
     }
-    ctx->elfs[idx] = head;
-    ctx->elfsize++;
     printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
 }
 
+void RemoveElfHeader(box86context_t* ctx, elfheader_t* head) {
+    if(GetTLSBase(head)) {
+        // should remove the tls info
+        int tlsbase = GetTLSBase(head);
+        /*if(tlsbase == -ctx->tlssize) {
+            // not really correct, but will do for now
+            ctx->tlssize -= GetTLSSize(head);
+            if(!(++ctx->sel_serial))
+                ++ctx->sel_serial;
+        }*/
+    }
+    for(int i=0; i<ctx->elfsize; ++i)
+        if(ctx->elfs[i] == head) {
+            ctx->elfs[i] = NULL;
+            return;
+        }
+}
+
+
 int AddTLSPartition(box86context_t* context, int tlssize) {
     int oldsize = context->tlssize;
+    // should in fact first try to map a hole, but rewinding all elfs and checking filled space, like with the mapmem utilities
     context->tlssize += tlssize;
     context->tlsdata = box_realloc(context->tlsdata, context->tlssize);
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap

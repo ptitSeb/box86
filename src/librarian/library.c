@@ -31,9 +31,10 @@
 #include "wrappedlibs.h"
 // create the native lib list
 #define GO(P, N) int wrapped##N##_init(library_t* lib, box86context_t *box86); \
-                 void wrapped##N##_fini(library_t* lib); \
+                 void wrapped##N##_fini(library_t* lib);
 
 #include "library_list.h"
+
 #undef GO
 
 #define GO(P, N) {P, wrapped##N##_init, wrapped##N##_fini},
@@ -45,14 +46,14 @@ wrappedlib_t wrappedlibs[] = {
 typedef struct bridged_s {
     char*       name;
     uintptr_t   start;
-    uint32_t    end;
+    uintptr_t   end;
 } bridged_t;
 
 KHASH_MAP_INIT_STR(bridgemap, bridged_t)
 
-KHASH_MAP_IMPL_STR(datamap, uint32_t)
 KHASH_MAP_IMPL_STR(symbolmap, wrapper_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
+KHASH_MAP_IMPL_STR(datamap, uint32_t)
 
 char* Path2Name(const char* path)
 {
@@ -83,16 +84,14 @@ int NbDot(const char* name)
     return ret;
 }
 
-void WrappedLib_CommonInit(library_t* lib)
-{
+void WrappedLib_CommonInit(library_t *lib) {
     lib->w.bridge = NewBridge();
-// Create maps
+    
     lib->w.symbolmap = kh_init(symbolmap);
     lib->w.wsymbolmap = kh_init(symbolmap);
     lib->w.mysymbolmap = kh_init(symbolmap);
     lib->w.wmysymbolmap = kh_init(symbolmap);
     lib->w.stsymbolmap = kh_init(symbolmap);
-    lib->w.wstsymbolmap = kh_init(symbolmap);
     lib->w.symbol2map = kh_init(symbol2map);
     lib->w.datamap = kh_init(datamap);
     lib->w.wdatamap = kh_init(datamap);
@@ -101,7 +100,6 @@ void WrappedLib_CommonInit(library_t* lib)
 
 void EmuLib_Fini(library_t* lib)
 {
-    (void)lib;
 }
 void WrappedLib_FinishFini(library_t* lib)
 {
@@ -110,20 +108,19 @@ void WrappedLib_FinishFini(library_t* lib)
     lib->w.lib = NULL;
     if(lib->w.altprefix)
         box_free(lib->w.altprefix);
-    if(lib->w.neededlibs) {
-        for(int i=0; i<lib->w.needed; ++i)
-            box_free(lib->w.neededlibs[i]);
-        box_free(lib->w.neededlibs);
+    if(lib->w.altmy)
+        box_free(lib->w.altmy);
+    if(lib->w.needed) {
+        free_neededlib(lib->w.needed);
     }
     FreeBridge(&lib->w.bridge);
 }
 
-int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int *weak, int version, const char* vername, int local)
+int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
 {
     // ignoring asked size on wrapped libs
-    (void)asked_size;
     uintptr_t addr = 0;
-    uint32_t size = 0;
+    uintptr_t size = 0;
     int wk = 0;
     if (!getSymbolInMaps(lib, name, 0, &addr, &size, &wk, version, vername, local)) {
         return 0;
@@ -137,10 +134,10 @@ int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32
     *weak = wk;
     return 1;
 }
-int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local)
+int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int*weak, int version, const char* vername, int local, const char* defver)
 {
+    // symbols...
     uintptr_t start, end;
-    const char* defver = GetDefaultVersion(my_context->weakdefver, name);
     // weak symbols...
     if(GetSizedSymbolStartEnd(GetWeakSymbols(lib->e.elf), name, &start, &end, asked_size, version, vername, local, defver))
     {
@@ -151,12 +148,11 @@ int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uint32_t *
     }
     return 0;
 }
-int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local)
+int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
 {
     // ignoring asked size on wrapped libs
-    (void)asked_size;
     uintptr_t addr = 0;
-    uint32_t size = 0;
+    uintptr_t size = 0;
     int wk = 0;
     if (!getSymbolInMaps(lib, name, 1, &addr, &size, &wk, version, vername, local)) {
         return 0;
@@ -170,10 +166,9 @@ int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint
     *weak = 0;
     return 1;
 }
-int EmuLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int *weak, int version, const char* vername, int local)
+int EmuLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
 {
     uintptr_t start, end;
-    const char* defver = GetDefaultVersion(my_context->globaldefver, name);
     if(GetSizedSymbolStartEnd(GetMapSymbols(lib->e.elf), name, &start, &end, asked_size, version, vername, local, defver))
     {
         *offs = start;
@@ -183,12 +178,11 @@ int EmuLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint32_t
     }
     return 0;
 }
-int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int *weak, int version, const char* vername, int local)
+int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
 {
+    // ignoring asked size on wrapped libs
     uintptr_t start, end;
-    const char* defver = GetDefaultVersion(my_context->globaldefver, name);
-    if(!defver) defver = GetDefaultVersion(my_context->weakdefver, name);
-    if(GetSizedSymbolStartEnd(GetLocalSymbols(lib->e.elf), name, &start, &end, asked_size, version, vername, local, defver))
+    if(GetSymbolStartEnd(GetLocalSymbols(lib->e.elf), name, &start, &end, version, vername, local, defver))
     {
         *offs = start;
         *sz = end-start;
@@ -198,9 +192,9 @@ int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t 
     return 0;
 }
 
-int WrappedLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uint32_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local)
+int WrappedLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    (void)lib; (void)name; (void)offs; (void)sz; (void)asked_size; (void)weak; (void)version; (void)vername; (void)local;
+    (void)lib; (void)name; (void)offs; (void)sz; (void)version; (void)vername; (void)local;
     return 0;
 }
 
@@ -221,15 +215,13 @@ static void initWrappedLib(library_t *lib, box86context_t* context) {
             lib->getweak = WrappedLib_GetWeak;
             lib->getlocal = WrappedLib_GetLocal;
             lib->type = LIB_WRAPPED;
+            lib->w.refcnt = 1;
             // Call librarian to load all dependant elf
-            if(AddNeededLib(context->maplib, &lib->needed, lib, 0, 0, (const char**)lib->w.neededlibs, lib->w.needed, context, NULL)) {  // probably all native, not emulated, so that's fine
+            if(AddNeededLib(context->maplib, 0, 0, lib->w.needed, NULL, context, thread_get_emu())) {
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
 
-            #ifdef ANDROID
-            printf_log(LOG_DEBUG, "No dlinfo on Android %s\n", lib->name);
-            #else
             linkmap_t *lm = addLinkMapLib(lib);
             if(!lm) {
                 // Crashed already
@@ -237,22 +229,18 @@ static void initWrappedLib(library_t *lib, box86context_t* context) {
                 break;
             }
             struct link_map real_lm;
-            #ifndef RTLD_DI_LINKMAP
-            #define RTLD_DI_LINKMAP 2
-            #endif
             if(dlinfo(lib->w.lib, RTLD_DI_LINKMAP, &real_lm)) {
                 printf_log(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
             }
             lm->l_addr = real_lm.l_addr;
             lm->l_name = real_lm.l_name;
             lm->l_ld = real_lm.l_ld;
-            #endif
             break;
         }
     }
 }
 
-static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* context)
+static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* context, elfheader_t* verneeded)
 {
     if(FileExist(libname, IS_FILE))
     {
@@ -267,28 +255,36 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
             fclose(f);
             return 0;
         }
-        int mainelf = AddElfHeader(context, elf_header);
 
         if(CalcLoadAddr(elf_header)) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
+            FreeElfHeader(&elf_header);
             fclose(f);
             return 0;
         }
         // allocate memory
         if(AllocElfMemory(context, elf_header, 0)) {
             printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
+            FreeElfHeader(&elf_header);
             fclose(f);
             return 0;
         }
         // Load elf into memory
         if(LoadElfMemory(f, context, elf_header)) {
             printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
+            FreeElfHeader(&elf_header);
             fclose(f);
             return 0;
         }
         // can close the file now
         fclose(f);
+        if(verneeded && !isElfHasNeededVer(elf_header, lib->name, verneeded)) {
+            // incompatible, discard and continue the search
+            FreeElfHeader(&elf_header);
+            return 0;
+        }
 
+        int mainelf = AddElfHeader(context, elf_header);
         ElfAttachLib(elf_header, lib);
 
         lib->type = LIB_EMULATED;
@@ -305,7 +301,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
             if(!lib->path)
                 lib->path = box_strdup(libname);
         }
-        
+
         printf_log(LOG_INFO, "Using emulated %s\n", libname);
         #ifdef DYNAREC
         if(libname && box86_dynarec_bleeding_edge && strstr(libname, "libmonobdwgc-2.0.so")) {
@@ -313,30 +309,28 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
             box86_dynarec_bigblock = 0;
             box86_dynarec_strongmem = 1;
         }
+        if(libname && box86_dynarec_jvm && strstr(libname, "libjvm.so")) {
+            printf_log(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
+            box86_dynarec_bigblock = 0;
+            box86_dynarec_strongmem = 1;
+        }
         #endif
-        // spacial case for spd_readdir, to allow override a few symbols
-        if(libname && strstr(libname, "spd_readdir.so")) {
-            printf_log(LOG_INFO, "spd_readdir detected, hacking wrapped libc\n");
-            const char* symbols[] = {"opendir", "readdir", "readdir_r", "readdir64", "closedir", "telldir", "seekdir", "dirfd"};
-            for(unsigned int i=0; i<sizeof(symbols)/sizeof(symbols[0]); ++i) {
-                const char* symname = AddDictionnary(my_context->versym, symbols[i]);
-                const char* vername = AddDictionnary(my_context->versym, "GLIBC_2.0");
-                AddDefaultVersion(my_context->globaldefver, symname, vername);
-            }
-
+        if(libname && box86_libcef && strstr(libname, "libcef.so")) {
+            printf_log(LOG_INFO, "libcef detected, using malloc_hack_2\n");
+            box86_malloc_hack = 2;
         }
         return 1;
     }
     return 0;
 }
 
-static void initEmulatedLib(const char* path, library_t *lib, box86context_t* context)
+static void initEmulatedLib(const char* path, library_t *lib, box86context_t* context, elfheader_t* verneeded)
 {
     char libname[MAX_PATH];
     strcpy(libname, path);
     int found = FileIsX86ELF(libname);
     if(found)
-        if(loadEmulatedLib(libname, lib, context))
+        if(loadEmulatedLib(libname, lib, context, verneeded))
             return;
     if(!strchr(path, '/'))
         for(int i=0; i<context->box86_ld_lib.size; ++i)
@@ -344,8 +338,15 @@ static void initEmulatedLib(const char* path, library_t *lib, box86context_t* co
             strcpy(libname, context->box86_ld_lib.paths[i]);
             strcat(libname, path);
             if(FileIsX86ELF(libname))
-                if(loadEmulatedLib(libname, lib, context))
+                if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;
+            // also try i686 variant
+            strcpy(libname, context->box86_ld_lib.paths[i]);
+            strcat(libname, "i686/");
+            strcat(libname, path);
+            if(FileIsX86ELF(libname))
+                if(loadEmulatedLib(libname, lib, context, verneeded))
+                    return;            
         }
 }
 
@@ -361,13 +362,13 @@ static const char* essential_libs[] = {
     "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4"
 };
 static int isEssentialLib(const char* name) {
-    for (unsigned int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
+    for (int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
         if(!strcmp(name, essential_libs[i]))
             return 1;
     return 0;
 }
 
-library_t *NewLibrary(const char* path, box86context_t* context)
+library_t *NewLibrary(const char* path, box86context_t* context, elfheader_t* verneeded)
 {
     printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
@@ -413,7 +414,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
         initWrappedLib(lib, context);
     // then look for a native one
     if(lib->type==LIB_UNNKNOW)
-        initEmulatedLib(path, lib, context);
+        initEmulatedLib(path, lib, context, verneeded);
     // still not loaded but notwrapped indicated: use wrapped...
     if(lib->type==LIB_UNNKNOW && notwrapped && !precise)
         initWrappedLib(lib, context);
@@ -425,7 +426,6 @@ library_t *NewLibrary(const char* path, box86context_t* context)
         box_free(lib);
         return NULL;
     }
-
     lib->gbridgemap = kh_init(bridgemap);
     lib->wbridgemap = kh_init(bridgemap);
     lib->lbridgemap = kh_init(bridgemap);
@@ -435,7 +435,7 @@ library_t *NewLibrary(const char* path, box86context_t* context)
 int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x86emu_t* emu)
 {
     (void)emu;
-    lib->active = 1;
+
     if(lib->type==LIB_EMULATED) {
         elfheader_t *elf_header = lib->e.elf;
         // add symbols
@@ -457,16 +457,19 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x86emu_t* 
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        RelocateElfPlt(my_context->maplib, local_maplib, bindnow, elf_header);
+        if(RelocateElfPlt(my_context->maplib, local_maplib, bindnow, elf_header)) {
+            printf_log(LOG_NONE, "Error: relocating Plt symbols in elf %s\n", lib->name);
+            return 1;
+        }
 #ifdef HAVE_TRACE
         if(trace_func) {
             int weak;
-            if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL)) {
+            if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL, NULL, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 box_free(trace_func);
                 trace_func = NULL;
-            } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end, 0, &weak, -1, NULL, 0)) {
+            } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end, 0, &weak, -1, NULL, 0, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 box_free(trace_func);
@@ -481,9 +484,8 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x86emu_t* 
 
 int ReloadLibrary(library_t* lib, x86emu_t* emu)
 {
-    lib->active = 1;
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
+        elfheader_t *elf_header = lib->e.elf;
         // reload image in memory and re-run the mapping
         char libname[MAX_PATH];
         strcpy(libname, lib->path);
@@ -512,6 +514,7 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
         }
         // can close the file now
         fclose(f);
+        // should bindnow be store in a per/library basis?
         if(RelocateElf(my_context->maplib, lib->maplib, 0, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
@@ -523,91 +526,96 @@ int ReloadLibrary(library_t* lib, x86emu_t* emu)
     return 0;
 }
 
-void InactiveLibrary(library_t* lib)
+int FiniLibrary(library_t* lib, x86emu_t* emu)
 {
-    lib->active = 0;
-    #ifdef DYNAREC
-    // free Dynablocks associated with this lib
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            return 0;
+        case LIB_EMULATED:
+            RunElfFini(lib->e.elf, emu);
+            return 0;
+    }
+    return 1;   // bad type
+}
+
+void Free1Library(library_t **the_lib, x86emu_t* emu)
+{
+    if(!(*the_lib)) return;
+
+    library_t* lib = *the_lib;
+
+    printf_log(LOG_DEBUG, "Free1Library %s\n", lib->name);
+    // remove lib from maplib/local_maplib...
+    if(my_context) {
+        MapLibRemoveLib(my_context->maplib, lib);
+        MapLibRemoveLib(my_context->local_maplib, lib);
+    }
+    // free elf is relevant
     if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
-        cleanDBFromAddressRange((uintptr_t)GetBaseAddress(elf_header), GetBaseSize(elf_header), 1);
+        FreeElfHeader(&lib->e.elf);
     }
-    #endif
+
+    // No "Fini" logic here, only memory handling
+    if(lib->maplib)
+        FreeLibrarian(&lib->maplib, emu);
+
+    if(lib->type!=LIB_UNNKNOW && lib->fini) {
+        lib->fini(lib);
+    }
+    box_free(lib->name);
+    box_free(lib->path);
+
+    if(lib->gbridgemap) {
+        bridged_t *br;
+        kh_foreach_value_ref(lib->gbridgemap, br,
+            box_free(br->name);
+        );
+        kh_destroy(bridgemap, lib->gbridgemap);
+    }
+    if(lib->wbridgemap) {
+        bridged_t *br;
+        kh_foreach_value_ref(lib->wbridgemap, br,
+            box_free(br->name);
+        );
+        kh_destroy(bridgemap, lib->wbridgemap);
+    }
+    if(lib->lbridgemap) {
+        bridged_t *br;
+        kh_foreach_value_ref(lib->lbridgemap, br,
+            box_free(br->name);
+        );
+        kh_destroy(bridgemap, lib->lbridgemap);
+    }
+    if(lib->type == LIB_WRAPPED) {
+        if(lib->w.symbolmap)
+            kh_destroy(symbolmap, lib->w.symbolmap);
+        if(lib->w.wsymbolmap)
+            kh_destroy(symbolmap, lib->w.wsymbolmap);
+        if(lib->w.datamap)
+            kh_destroy(datamap, lib->w.datamap);
+        if(lib->w.wdatamap)
+            kh_destroy(datamap, lib->w.wdatamap);
+        if(lib->w.mydatamap)
+            kh_destroy(datamap, lib->w.mydatamap);
+        if(lib->w.mysymbolmap)
+            kh_destroy(symbolmap, lib->w.mysymbolmap);
+        if(lib->w.wmysymbolmap)
+            kh_destroy(symbolmap, lib->w.wmysymbolmap);
+        if(lib->w.stsymbolmap)
+            kh_destroy(symbolmap, lib->w.stsymbolmap);
+        if(lib->w.symbol2map)
+            kh_destroy(symbol2map, lib->w.symbol2map);
+    }
+
+    // remove frim the dlopen collection
+    if(lib->dlopen)
+        RemoveDlopen(the_lib, lib->dlopen);
+    box_free(lib);
+    if(*the_lib == lib)
+        *the_lib = NULL;
 }
 
-void Free1Library(library_t **lib, x86emu_t* emu)
-{
-    if(!(*lib)) return;
-    if(--(*lib)->refcnt)
-        return;
-    printf_log(LOG_DEBUG, "Freeing %s\n", (*lib)->name);
-
-    if((*lib)->type==LIB_EMULATED && emu) {
-        elfheader_t *elf_header = my_context->elfs[(*lib)->e.elf_index];
-        RunElfFini(elf_header, emu);
-    }
-
-    if((*lib)->maplib && ((*lib)->maplib->owner==(*lib)))
-        FreeLibrarian(&(*lib)->maplib, emu);
-
-    if((*lib)->type!=-1 && (*lib)->fini) {
-        (*lib)->fini(*lib);
-    }
-    box_free((*lib)->name);
-    box_free((*lib)->path);
-
-    if((*lib)->gbridgemap) {
-        bridged_t *br;
-        kh_foreach_value_ref((*lib)->gbridgemap, br,
-            box_free(br->name);
-        );
-        kh_destroy(bridgemap, (*lib)->gbridgemap);
-    }
-    if((*lib)->wbridgemap) {
-        bridged_t *br;
-        kh_foreach_value_ref((*lib)->wbridgemap, br,
-            box_free(br->name);
-        );
-        kh_destroy(bridgemap, (*lib)->wbridgemap);
-    }
-    if((*lib)->lbridgemap) {
-        bridged_t *br;
-        kh_foreach_value_ref((*lib)->lbridgemap, br,
-            box_free(br->name);
-        );
-        kh_destroy(bridgemap, (*lib)->lbridgemap);
-    }
-    if((*lib)->type==LIB_WRAPPED) {
-        box_free((*lib)->w.altmy);
-        if((*lib)->w.symbolmap)
-            kh_destroy(symbolmap, (*lib)->w.symbolmap);
-        if((*lib)->w.wsymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.wsymbolmap);
-        if((*lib)->w.mysymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.mysymbolmap);
-        if((*lib)->w.wmysymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.wmysymbolmap);
-        if((*lib)->w.stsymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.stsymbolmap);
-        if((*lib)->w.wstsymbolmap)
-            kh_destroy(symbolmap, (*lib)->w.wstsymbolmap);
-        if((*lib)->w.symbol2map)
-            kh_destroy(symbol2map, (*lib)->w.symbol2map);
-        if((*lib)->w.datamap)
-            kh_destroy(datamap, (*lib)->w.datamap);
-        if((*lib)->w.wdatamap)
-            kh_destroy(datamap, (*lib)->w.wdatamap);
-        if((*lib)->w.mydatamap)
-            kh_destroy(datamap, (*lib)->w.mydatamap);
-    }
-    free_neededlib(&(*lib)->needed);
-    free_neededlib(&(*lib)->dependedby);
-
-    box_free(*lib);
-    *lib = NULL;
-}
-
-char* GetNameLib(library_t *lib)
+char* GetNameLib(library_t* lib)
 {
     return lib->name;
 }
@@ -615,6 +623,8 @@ int IsSameLib(library_t* lib, const char* path)
 {
     int ret = 0;
     if(!lib) 
+        return 0;
+    if(lib->type==LIB_UNNKNOW)
         return 0;
     char* name = Path2Name(path);
     if(!strchr(path, '/') || lib->type==LIB_WRAPPED || !lib->path) {
@@ -627,8 +637,9 @@ int IsSameLib(library_t* lib, const char* path)
         box_realpath(path, rpath);
         if(!strcmp(rpath, lib->path))
             ret=1;
-        if(lib->type==LIB_EMULATED && lib->e.elf->path && !strcmp(lib->e.elf->path, rpath))
+        if(lib->type==LIB_EMULATED && lib->e.elf->path && !strcmp(lib->e.elf->path, rpath)) {
             ret=1;
+        }
     }
     if(!ret) {
         int n = NbDot(name);
@@ -640,23 +651,23 @@ int IsSameLib(library_t* lib, const char* path)
     box_free(name);
     return ret;
 }
-int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local)
+int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0] || !lib || !lib->active)
+    if(!name[0])
         return 0;
     khint_t k;
     // get a new symbol
-    if(lib->getweak(lib, name, start, end, size, weak, version, vername, local)) {
+    if(lib->getweak(lib, name, start, end, size, weak, version, vername, local, defver)) {
         *end += *start;     // lib->get(...) gives size, not end
         kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
         // check first if already in the map
-        k = kh_get(bridgemap, map, VersionnedName(name, version, vername));
+        k = kh_get(bridgemap, map, VersionedName(name, version, vername));
         if(k!=kh_end(map)) {
             *start = kh_value(map, k).start;
             *end = kh_value(map, k).end;
             return 1;
         }
-        char* symbol = box_strdup(VersionnedName(name, version, vername));
+        char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, map, symbol, &ret);
         kh_value(map, k).name = symbol;
@@ -667,23 +678,23 @@ int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start,
     // nope
     return 0;
 }
-int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int *weak, int version, const char* vername, int local)
+int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0] || !lib || !lib->active)
+    if(!name[0] || !lib)
         return 0;
     khint_t k;
     // get a new symbol
-    if(lib->getglobal(lib, name, start, end, size, weak, version, vername, local)) {
+    if(lib->getglobal(lib, name, start, end, size, weak, version, vername, local, defver)) {
         *end += *start;     // lib->get(...) gives size, not end
         kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
         // check if already in the map
-        k = kh_get(bridgemap, map, VersionnedName(name, version, vername));
+        k = kh_get(bridgemap, map, VersionedName(name, version, vername));
         if(k!=kh_end(map)) {
             *start = kh_value(map, k).start;
             *end = kh_value(map, k).end;
             return 1;
         }
-        char* symbol = box_strdup(VersionnedName(name, version, vername));
+        char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, map, symbol, &ret);
         kh_value(map, k).name = symbol;
@@ -694,22 +705,22 @@ int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* star
     // nope
     return 0;
 }
-int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local)
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0] || !lib || !lib->active)
+    if(!name[0])
         return 0;
     khint_t k;
     // get a new symbol
-    if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local)) {
+    if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local, defver)) {
         *end += *start;     // lib->get(...) gives size, not end
         // check first if already in the map
-        k = kh_get(bridgemap, lib->lbridgemap, VersionnedName(name, version, vername));
+        k = kh_get(bridgemap, lib->lbridgemap, VersionedName(name, version, vername));
         if(k!=kh_end(lib->lbridgemap)) {
             *start = kh_value(lib->lbridgemap, k).start;
             *end = kh_value(lib->lbridgemap, k).end;
             return 1;
         }
-        char* symbol = box_strdup(VersionnedName(name, version, vername));
+        char* symbol = box_strdup(VersionedName(name, version, vername));
         int ret;
         k = kh_put(bridgemap, lib->lbridgemap, symbol, &ret);
         kh_value(lib->lbridgemap, k).name = symbol;
@@ -733,7 +744,7 @@ elfheader_t* GetElf(library_t* lib)
     return lib->e.elf;
 }
 
-static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size, int* weak)
+static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak)
 {
     void* symbol;
     khint_t k = kh_get(datamap, lib->w.datamap, name);
@@ -782,8 +793,7 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
     }
     return 0;
 }
-
-static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size, int* weak)
+static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak)
 {
     void* symbol;
     // check in mysymbolmap
@@ -819,7 +829,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
         } else 
             AddOffsetSymbol(my_context->maplib, symbol, name);
-        *addr = AddBridge(lib->w.bridge, kh_value(lib->w.stsymbolmap, k), symbol, 4, name);    // all of this for this little "4"
+        *addr = AddBridge(lib->w.bridge, kh_value(lib->w.stsymbolmap, k), symbol, sizeof(void*), name);
         *size = sizeof(void*);
         *weak = 0;
         return 1;
@@ -835,12 +845,12 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             symbol = dlsym(lib->w.lib, newname);
         }
         if(!symbol)
-            symbol = GetNativeSymbolUnversionned(lib->w.lib, name);
+            symbol = GetNativeSymbolUnversioned(lib->w.lib, name);
         if(!symbol && lib->w.altprefix) {
             char newname[200];
             strcpy(newname, lib->w.altprefix);
             strcat(newname, name);
-            symbol = GetNativeSymbolUnversionned(lib->w.lib, newname);
+            symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
         }
         if(!symbol) {
             printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
@@ -853,7 +863,8 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         return 1;
     }
     if(!noweak) {
-        k = kh_get(symbolmap, lib->w.wmysymbolmap, name);
+        // check in wmysymbolmap
+        khint_t k = kh_get(symbolmap, lib->w.wmysymbolmap, name);
         if (k!=kh_end(lib->w.wmysymbolmap)) {
             char buff[200];
             if(lib->w.altmy)
@@ -871,24 +882,6 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             *weak = 1;
             return 1;
         }
-        k = kh_get(symbolmap, lib->w.wstsymbolmap, name);
-        if (k!=kh_end(lib->w.wstsymbolmap)) {
-            char buff[200];
-            if(lib->w.altmy)
-                strcpy(buff, lib->w.altmy);
-            else
-                strcpy(buff, "my_");
-            strcat(buff, name);
-            symbol = dlsym(my_context->box86lib, buff);
-            if(!symbol) {
-                printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
-            } else 
-                AddOffsetSymbol(my_context->maplib, symbol, name);
-            *addr = AddBridge(lib->w.bridge, kh_value(lib->w.wstsymbolmap, k), symbol, 4, name); // all of this for this little "4"
-            *size = sizeof(void*);
-            *weak = 1;
-            return 1;
-        }
         k = kh_get(symbolmap, lib->w.wsymbolmap, name);
         if (k!=kh_end(lib->w.wsymbolmap)) {
             symbol = dlsym(lib->w.lib, name);
@@ -899,12 +892,12 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 symbol = dlsym(lib->w.lib, newname);
             }
             if(!symbol)
-                symbol = GetNativeSymbolUnversionned(lib->w.lib, name);
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, name);
             if(!symbol && lib->w.altprefix) {
                 char newname[200];
                 strcpy(newname, lib->w.altprefix);
                 strcat(newname, name);
-                symbol = GetNativeSymbolUnversionned(lib->w.lib, newname);
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
             }
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
@@ -926,7 +919,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(!symbol)
                 symbol = dlsym(RTLD_DEFAULT, kh_value(lib->w.symbol2map, k).name);    // search globaly maybe
             if(!symbol)
-                symbol = GetNativeSymbolUnversionned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
             if(!symbol) {
                 printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
                 return 0;
@@ -937,22 +930,19 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             *weak = kh_value(lib->w.symbol2map, k).weak;
             return 1;
         }
-    
+
     return 0;
 }
 
-int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uint32_t *size, int* weak, int version, const char* vername, int local)
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak, int version, const char* vername, int local)
 {
-    (void)local;
-    if(!lib->active)
-        return 0;
     if(version==-2) // don't send global native symbol for a version==-2 search
         return 0;
     // check in datamaps (but no version, it's not handled there)
     if(getSymbolInDataMaps(lib, name, noweak, addr, size, weak))
         return 1;
 
-    if(getSymbolInSymbolMaps(lib, VersionnedName(name, version, vername), noweak, addr, size, weak))
+    if(getSymbolInSymbolMaps(lib, VersionedName(name, version, vername), noweak, addr, size, weak))
         return 1;
 
     if(getSymbolInSymbolMaps(lib, name, noweak, addr, size, weak))
@@ -961,18 +951,34 @@ int getSymbolInMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr
     return 0;
 }
 
-int GetNeededLibN(library_t* lib) {
-    return lib->needed.size;
+int GetNeededLibsN(library_t* lib) {
+    switch (lib->type) {
+        case LIB_WRAPPED: return lib->w.needed?lib->w.needed->size:0;
+        case LIB_EMULATED: return lib->e.elf->needed->size;
+    }
+    return 0;
 }
 library_t* GetNeededLib(library_t* lib, int idx)
 {
-    if(idx<0 || idx>=lib->needed.size)
-        return NULL;
-    return lib->needed.libs[idx];
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            if(idx<0 || !lib->w.needed || idx>=lib->w.needed->size)
+                return NULL;
+            return lib->w.needed->libs[idx];
+        case LIB_EMULATED:
+            if(idx<0 || idx>=lib->e.elf->needed->size)
+                return NULL;
+            return lib->e.elf->needed->libs[idx];
+    }
+    return NULL;
 }
-needed_libs_t* GetNeededLibs(library_t* lib)
+char** GetNeededLibs(library_t* lib)
 {
-    return &lib->needed;
+    switch (lib->type) {
+        case LIB_WRAPPED: return lib->w.needed?lib->w.needed->names:NULL;
+        case LIB_EMULATED: return lib->e.elf->needed->names;
+    }
+    return NULL;
 }
 
 void* GetHandle(library_t* lib)
@@ -991,12 +997,21 @@ lib_t* GetMaplib(library_t* lib)
     return lib->maplib;
 }
 
-
 linkmap_t* getLinkMapLib(library_t* lib)
 {
     linkmap_t* lm = my_context->linkmap;
     while(lm) {
         if(lm->l_lib == lib)
+            return lm;
+        lm = lm->l_next;
+    }
+    return NULL;
+}
+linkmap_t* getLinkMapElf(elfheader_t* h)
+{
+    linkmap_t* lm = my_context->linkmap;
+    while(lm) {
+        if(lm->l_lib && lm->l_lib->type==LIB_EMULATED && lm->l_lib->e.elf == h)
             return lm;
         lm = lm->l_next;
     }
@@ -1037,74 +1052,157 @@ void AddMainElfToLinkmap(elfheader_t* elf)
     lm->l_ld = GetDynamicSection(elf);
 }
 
-static int is_neededlib_present(needed_libs_t* needed, library_t* lib)
+needed_libs_t* new_neededlib(int n)
 {
-    if(!needed || !lib)
-        return 0;
-    if(!needed->size)
-        return 0;
-    for(int i=0; i<needed->size; ++i)
-        if(needed->libs[i] == lib)
-            return 1;
-    return 0;
-}
-
-void add_neededlib(needed_libs_t* needed, library_t* lib)
-{
-    ++lib->refcnt;
-    if(!needed)
-        return;
-    if(is_neededlib_present(needed, lib))
-        return;
-    if(needed->size == needed->cap) {
-        needed->cap += 8;
-        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
-    }
-    needed->libs[needed->size++] = lib;
+    needed_libs_t* ret = (needed_libs_t*)calloc(1, sizeof(needed_libs_t));
+    ret->cap = ret->size = n;
+    ret->libs = (library_t**)calloc(n, sizeof(library_t*));
+    ret->names = (char**)calloc(n, sizeof(char*));
+    return ret;
 }
 void free_neededlib(needed_libs_t* needed)
 {
     if(!needed)
         return;
-    needed->cap = 0;
-    needed->size = 0;
-    if(needed->libs)
-        box_free(needed->libs);
+    free(needed->libs);
+    free(needed->names);
     needed->libs = NULL;
+    needed->names = NULL;
+    needed->cap = needed->size = 0;
+    free(needed);
 }
-void add_dependedbylib(needed_libs_t* dependedby, library_t* lib)
+void add1_neededlib(needed_libs_t* needed)
 {
-    if(!dependedby)
+    if(!needed)
         return;
-    if(is_neededlib_present(dependedby, lib))
+    if(needed->size+1<=needed->cap)
         return;
-    if(dependedby->size == dependedby->cap) {
-        dependedby->cap += 8;
-        dependedby->libs = (library_t**)box_realloc(dependedby->libs, dependedby->cap*sizeof(library_t*));
-    }
-    dependedby->libs[dependedby->size++] = lib;
+    needed->cap = needed->size+1;
+    needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+    needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    needed->size++;
 }
-void free_dependedbylib(needed_libs_t* dependedby)
+void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name)
 {
-    if(!dependedby)
+    if(!needed || !lib)
         return;
-    dependedby->cap = 0;
-    dependedby->size = 0;
-    if(dependedby->libs)
-        box_free(dependedby->libs);
-    dependedby->libs = NULL;
+    // check if lib is already present
+    for (int i=0; i<needed->size; ++i)
+        if(needed->libs[i]==lib)
+            return;
+    // add it
+    if(needed->size+1<=needed->cap)
+        return;
+    needed->cap = needed->size+1;
+    needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+    needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    needed->libs[needed->size] = lib;
+    needed->names[needed->size] = (char*)name;
+    needed->size++;
+}
+needed_libs_t* copy_neededlib(needed_libs_t* needed)
+{
+    if(!needed)
+        return NULL;
+    needed_libs_t* ret = (needed_libs_t*)calloc(1, sizeof(needed_libs_t));
+    ret->cap = needed->cap;
+    ret->size = needed->size;
+    ret->libs = (library_t**)calloc(ret->cap, sizeof(library_t*));
+    ret->names = (char**)calloc(ret->cap, sizeof(char*));
+    memcpy(ret->libs, needed->libs, ret->size*sizeof(library_t*));
+    memcpy(ret->names, needed->names, ret->size*sizeof(char*));
+    return ret;
 }
 
 void setNeededLibs(library_t* lib, int n, ...)
 {
     if(lib->type!=LIB_WRAPPED && lib->type!=LIB_UNNKNOW)
         return;
-    lib->w.needed = n;
-    lib->w.neededlibs = (char**)box_calloc(n, sizeof(char*));
+    lib->w.needed = new_neededlib(n);
     va_list va;
     va_start (va, n);
     for (int i=0; i<n; ++i) {
-        lib->w.neededlibs[i] = box_strdup(va_arg(va, char*));
+        lib->w.needed->names[i] = va_arg(va, char*);
     }
     va_end (va);
+}
+
+void IncRefCount(library_t* lib, x86emu_t* emu)
+{
+    if(!lib || lib->type==LIB_UNNKNOW)
+        return;
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            ++lib->w.refcnt;
+            /*if(lib->w.needed)
+                for(int i=0; i<lib->w.needed->size; ++i) {
+                    IncRefCount(lib->w.needed->libs[i], emu);
+                }*/
+            break;
+        case LIB_EMULATED:
+            ++lib->e.elf->refcnt;
+            /*if(lib->e.elf->needed)
+                for(int i=0; i<lib->e.elf->needed->size; ++i)   // some libs may not be loaded yet
+                    IncRefCount(lib->e.elf->needed->libs[i], emu);*/
+    }
+}
+
+int DecRefCount(library_t** lib, x86emu_t* emu)
+{
+    if(!lib || !*lib)
+        return 1;
+    if((*lib)->type==LIB_UNNKNOW) {
+        Free1Library(lib, emu);
+        return 0;
+    }
+    int ret = 1;
+    needed_libs_t* needed = NULL;
+    int freed = 0;
+    switch ((*lib)->type) {
+        case LIB_WRAPPED:
+            needed = (*lib)->w.needed;
+            ret=--(*lib)->w.refcnt;
+            if(!ret) {
+                needed = copy_neededlib(needed);
+                freed=1;
+                Free1Library(lib, emu);
+            }
+            break;
+        case LIB_EMULATED:
+            needed = (*lib)->e.elf->needed;
+            ret=--(*lib)->e.elf->refcnt;
+            if(!ret) {
+                needed = copy_neededlib(needed);
+                freed=1;
+                removeLinkMapLib(*lib);
+                FiniLibrary(*lib, emu);
+                Free1Library(lib, emu);
+            }
+            break;
+    }
+    /*if(needed)
+        for(int i=0; i<needed->size; ++i)
+            DecRefCount(&needed->libs[i], emu);*/
+    if(freed)
+        free_neededlib(needed);
+    return ret;
+}
+
+int GetRefCount(library_t* lib)
+{
+    switch (lib->type) {
+        case LIB_WRAPPED:
+            return lib->w.refcnt;
+            break;
+        case LIB_EMULATED:
+            return lib->e.elf->refcnt;
+        default:
+            return 0;
+    }
+}
+
+void SetDlOpenIdx(library_t* lib, int dlopen)
+{
+    if(lib)
+        lib->dlopen = dlopen;
 }

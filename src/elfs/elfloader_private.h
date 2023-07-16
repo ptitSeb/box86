@@ -35,6 +35,7 @@ struct elfheader_s {
     Elf32_Verdef*   VerDef;
     int         szVerDef;
     int         e_type;
+    uint32_t    flags;
 
     intptr_t    delta;  // should be 0
 
@@ -67,6 +68,9 @@ struct elfheader_s {
     int         textsz;
     uintptr_t   bss;
     int         bsssz;
+    uintptr_t   ehframe;
+    uintptr_t   ehframe_end;
+    uintptr_t   ehframehdr;
 
     uintptr_t   paddr;
     uintptr_t   vaddr;
@@ -84,6 +88,8 @@ struct elfheader_s {
 
     int         init_done;
     int         fini_done;
+    int         refcnt;     // ref count for the elf
+    int         malloc_hook_2;  // this elf hook malloc, hacking it
 
     char*       memory; // char* and not void* to allow math on memory pointer
     void**      multiblock;
@@ -92,11 +98,13 @@ struct elfheader_s {
     int         multiblock_n;
 
     library_t   *lib;
-    needed_libs_t *neededlibs;
+    needed_libs_t *needed;
 
     kh_mapsymbols_t   *mapsymbols;
     kh_mapsymbols_t   *weaksymbols;
     kh_mapsymbols_t   *localsymbols;
+    kh_defaultversion_t *globaldefver;  // the global default version for symbols (the XXX@@vvvv of symbols)
+    kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
 };
 
 #define R_386_NONE	0
