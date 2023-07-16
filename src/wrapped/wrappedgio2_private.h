@@ -1307,20 +1307,20 @@ GOM(g_memory_input_stream_new_from_data, pFEplp)
 //GO(g_settings_delay, 
 //GO(g_settings_get, 
 GO(g_settings_get_boolean, iFpp)
-//GO(g_settings_get_child, 
-//GO(g_settings_get_default_value, 
+GO(g_settings_get_child, pFpp)
+GO(g_settings_get_default_value, pFpp)
 GO(g_settings_get_double, dFpp)
-//GO(g_settings_get_enum, 
-//GO(g_settings_get_flags, 
-//GO(g_settings_get_has_unapplied, 
+GO(g_settings_get_enum, iFpp)
+GO(g_settings_get_flags, uFpp)
+GO(g_settings_get_has_unapplied, iFp)
 GO(g_settings_get_int, iFpp)
 //GO(g_settings_get_mapped, 
 //GO(g_settings_get_range, 
-//GO(g_settings_get_string, 
+GO(g_settings_get_string, pFpp)
 GO(g_settings_get_strv, pFpp)
-//GO(g_settings_get_type, 
-//GO(g_settings_get_uint, 
-//GO(g_settings_get_user_value, 
+GO(g_settings_get_type, pFv)
+GO(g_settings_get_uint, uFpp)
+GO(g_settings_get_user_value, pFpp)
 //GO(g_settings_get_value, 
 //GO(g_settings_is_writable, 
 //GO(g_settings_list_children, 
@@ -1341,23 +1341,23 @@ GO(g_settings_new_with_path, pFpp)
 //GO(g_settings_schema_get_type, 
 GO(g_settings_schema_has_key, iFpp)
 //GO(g_settings_schema_key_get_default_value, 
-//GO(g_settings_schema_key_get_description, 
-//GO(g_settings_schema_key_get_range, 
+GO(g_settings_schema_key_get_description, pFp)
+GO(g_settings_schema_key_get_range, pFp)
 //GO(g_settings_schema_key_get_summary, 
 //GO(g_settings_schema_key_get_type, 
-//GO(g_settings_schema_key_get_value_type, 
-//GO(g_settings_schema_key_range_check, 
-//GO(g_settings_schema_key_ref, 
+GO(g_settings_schema_key_get_value_type, pFp)
+GO(g_settings_schema_key_range_check, iFpp)
+GO(g_settings_schema_key_ref, pFp)
 //GO(g_settings_schema_key_unref, 
-//GO(g_settings_schema_ref, 
-//GO(g_settings_schema_source_get_default, 
-//GO(g_settings_schema_source_get_type, 
-//GO(g_settings_schema_source_list_schemas, 
-//GO(g_settings_schema_source_lookup, 
-//GO(g_settings_schema_source_new_from_directory, 
-//GO(g_settings_schema_source_ref, 
-//GO(g_settings_schema_source_unref, 
-//GO(g_settings_schema_unref, 
+GO(g_settings_schema_ref, pFp)
+GO(g_settings_schema_source_get_default, pFv)
+GO(g_settings_schema_source_get_type, LFv)
+GO(g_settings_schema_source_list_schemas, vFpipp)
+GO(g_settings_schema_source_lookup, pFppi)
+GO(g_settings_schema_source_new_from_directory, pFppip)
+GO(g_settings_schema_source_ref, pFp)
+GO(g_settings_schema_source_unref, vFp)
+GO(g_settings_schema_unref, vFp)
 //GO(g_settings_set, 
 //GO(g_settings_set_boolean, 
 //GO(g_settings_set_double, 
