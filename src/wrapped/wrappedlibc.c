@@ -2212,6 +2212,10 @@ EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
+EXPORT char** my_environ = NULL;
+EXPORT char** my__environ = NULL;
+EXPORT char** my___environ = NULL;  // all aliases
+
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");
@@ -2220,24 +2224,43 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
     if(script && FileIsX64ELF(my_context->bashpath)) x64 = 1;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    if (x86 || x64 || script || self) {
+    #if 1
+    if (x64 || x86 || script || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
+            skip_first++;
+        else if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
         int toadd = script?2:1;
-        const char** newargv = (const char**)alloca((n+toadd+1)*sizeof(char*));
-        memset(newargv, 0, (n+toadd+1)*sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
-        if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
-        int ret = execv(newargv[0], (char* const*)newargv);
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
+        if(self)
+            newargv[1] = emu->context->fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], skip_first?argv[skip_first]:path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = skip_first?argv[skip_first]:path;
+        }
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        char** envv = NULL;
+        if(my_environ!=my_context->envv) envv = my_environ;
+        if(my__environ!=my_context->envv) envv = my__environ;
+        if(my___environ!=my_context->envv) envv = my___environ;
+        int ret;
+        if(envv)
+            ret = execve(newargv[0], (char* const*)newargv, envv);
+        else
+            ret = execv(newargv[0], (char* const*)newargv);
+        box_free(newargv);
         return ret;
     }
+    #endif
     return execv(path, argv);
 }
 
@@ -3345,10 +3368,6 @@ EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
         memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
-
-EXPORT char** my_environ = NULL;
-EXPORT char** my__environ = NULL;
-EXPORT char** my___environ = NULL;  // all aliases
 
 EXPORT char* my___progname = NULL;
 EXPORT char* my___progname_full = NULL;
