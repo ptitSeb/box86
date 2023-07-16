@@ -74,7 +74,7 @@ void add_next(dynarec_arm_t *dyn, uintptr_t addr) {
     // add slots
     if(dyn->next_sz == dyn->next_cap) {
         dyn->next_cap += 64;
-        dyn->next = (uintptr_t*)customRealloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        dyn->next = (uintptr_t*)dynaRealloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
     }
     dyn->next[dyn->next_sz++] = addr;
 }
@@ -293,7 +293,7 @@ static void fillPredecessors(dynarec_arm_t* dyn)
             ++dyn->insts[i+1].pred_sz;
         }
     }
-    dyn->predecessor = (int*)customMalloc(pred_sz*sizeof(int));
+    dyn->predecessor = (int*)dynaMalloc(pred_sz*sizeof(int));
     // fill pred pointer
     int* p = dyn->predecessor;
     for(int i=0; i<dyn->size; ++i) {
@@ -310,8 +310,6 @@ static void fillPredecessors(dynarec_arm_t* dyn)
             dyn->insts[j].pred[dyn->insts[j].pred_sz++] = i;
         }
     }
-
-
 }
 
 // updateNeed goes backward, from last intruction to top
@@ -354,9 +352,9 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
             else
                 updateNeed(dyn, dyn->insts[ninst].pred[i], need);
         }
-        if(!ok)
-            return ninst - 1;
         --ninst;
+        if(!ok)
+            return ninst;
     }
     return ninst;
 }
@@ -370,9 +368,9 @@ void CancelBlock(int need_lock)
     dynarec_arm_t* helper = (dynarec_arm_t*)current_helper;
     current_helper = NULL;
     if(helper) {
-        customFree(helper->next);
-        customFree(helper->insts);
-        customFree(helper->predecessor);
+        dynaFree(helper->next);
+        dynaFree(helper->insts);
+        dynaFree(helper->predecessor);
         if(helper->dynablock && helper->dynablock->actual_block) {
             FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
             helper->dynablock->actual_block = NULL;
@@ -447,11 +445,11 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     helper.start = addr;
     uintptr_t start = addr;
     helper.cap = 64; // needs epilog handling
-    helper.insts = (instruction_arm_t*)customCalloc(helper.cap, sizeof(instruction_arm_t));
+    helper.insts = (instruction_arm_t*)dynaCalloc(helper.cap, sizeof(instruction_arm_t));
     // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
     // no need for next anymore
-    customFree(helper.next);
+    dynaFree(helper.next);
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
     // basic checks
@@ -524,7 +522,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     block->actual_block = actual_p;
     helper.arm_start = (uintptr_t)p;
     helper.jmp_next = (uintptr_t)next+sizeof(void*);
-    helper.insts_size = 0;  // reset
     helper.instsize = (instsize_t*)instsize;
     *(dynablock_t**)actual_p = block;
     // pass 3, emit (log emit native opcode)
@@ -534,15 +531,17 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
     }
     size_t oldarmsize = helper.arm_size;
+    size_t oldinstsize = helper.insts_size;
     helper.arm_size = 0;
+    helper.insts_size = 0;  // reset
     arm_pass3(&helper, addr);
     // keep size of instructions for signal handling
     block->instsize = instsize;
     // ok, free the helper now
-    customFree(helper.insts);
+    dynaFree(helper.insts);
     helper.insts = NULL;
     helper.instsize = NULL;
-    customFree(helper.predecessor);
+    dynaFree(helper.predecessor);
     helper.predecessor = NULL;
     block->size = sz;
     block->isize = helper.size;
@@ -578,6 +577,9 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         printf_log(LOG_NONE, " ------------\n");
         CancelBlock(0);
         return NULL;
+    }
+    if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
+        printf_log(LOG_NONE, "BOX86: Warning, ists_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%zu, marking as need_test\n", block->x86_addr, block->x86_size);

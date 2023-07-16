@@ -44,4 +44,17 @@ typedef struct instruction_x86_s {
 
 void printf_x86_instruction(zydis_dec_t* dec, instruction_x86_t* inst, const char* name);
 
+//#define USE_CUSTOM_MEM
+#ifdef USE_CUSTOM_MEM
+#define dynaMalloc customMalloc
+#define dynaCalloc customCalloc
+#define dynaRealloc customRealloc
+#define dynaFree customFree
+#else
+#define dynaMalloc box_malloc
+#define dynaCalloc box_calloc
+#define dynaRealloc box_realloc
+#define dynaFree box_free
+#endif
+
 #endif //__DYNAREC_PRIVATE_H_
