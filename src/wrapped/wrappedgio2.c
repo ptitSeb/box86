@@ -333,17 +333,17 @@ SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
-static uintptr_t fct_funcs_method_call_##A = 0;                   \
-static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* invocation, void* user_data) {   \
-    RunFunctionFmt(my_context, fct_funcs_method_call_##A, "pppppppp", connection, sender, object_path, interface_name, method_name, invocation, user_data);             \
-}   \
-static uintptr_t fct_funcs_get_property_##A = 0;                        \
-static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* error, void* user_data) {                     \
-    return (void*)RunFunctionFmt(my_context, fct_funcs_get_property_##A, "ppppppp", connection, sender, object_path, interface_name, error, user_data);             \
-}   \
-static uintptr_t fct_funcs_set_property_##A = 0;                        \
-static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* value, void* error, void* user_data) {          \
-    return (int)RunFunctionFmt(my_context, fct_funcs_set_property_##A, "pppppppp", connection, sender, object_path, interface_name, value, error, user_data);       \
+static uintptr_t fct_funcs_method_call_##A = 0; \
+static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* parameters, void* invocation, void* user_data) { \
+    RunFunctionFmt(my_context, fct_funcs_method_call_##A, "pppppppp", connection, sender, object_path, interface_name, method_name, parameters, invocation, user_data); \
+} \
+static uintptr_t fct_funcs_get_property_##A = 0; \
+static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* error, void* user_data) { \
+    return (void*)RunFunctionFmt(my_context, fct_funcs_get_property_##A, "ppppppp", connection, sender, object_path, interface_name, property_name, error, user_data); \
+} \
+static uintptr_t fct_funcs_set_property_##A = 0; \
+static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* value, void* error, void* user_data) { \
+    return (int)RunFunctionFmt(my_context, fct_funcs_set_property_##A, "pppppppp", connection, sender, object_path, interface_name, property_name, value, error, user_data); \
 }
 
 SUPER()
