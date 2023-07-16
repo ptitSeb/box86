@@ -52,6 +52,7 @@ uintptr_t box86_pagesize;
 uintptr_t box86_load_addr = 0;
 int box86_showbt = 0;
 int box86_isglibc234 = 0;
+int box86_nosandbox = 0;
 int box86_malloc_hack = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
@@ -1429,6 +1430,19 @@ int main(int argc, const char **argv, char **env)
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
+    }
+    if(box86_nosandbox)
+    {
+        // check if sandbox is already there
+        int there = 0;
+        for(int i=1; i<my_context->argc && !there; ++i)
+            if(!strcmp(my_context->argv[i], "--no-sandbox"))
+                there = 1;
+        if(!there) {
+            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
+            my_context->argv[my_context->argc] = box_strdup("--no-sandbox");
+            my_context->argc++;
+        }
     }
 
     // check if file exist

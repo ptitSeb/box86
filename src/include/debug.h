@@ -40,6 +40,7 @@ extern int dlsym_error;  // log dlsym error
 extern int cycle_log;    // if using rolling logs
 extern int trace_xmm;    // include XMM reg in trace?
 extern int trace_emm;    // include EMM reg in trace?
+extern int box86_nosandbox;
 extern int box86_malloc_hack;
 extern int box86_sse_flushto0;
 extern int box86_x87_no80bits;

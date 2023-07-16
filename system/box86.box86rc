@@ -35,6 +35,13 @@ BOX86_PREFER_EMULATED=1
 # Little Inferno use an old libvorbis
 BOX86_EMULATED_LIBS=libvorbis.so.0
 
+[cefprocess.bin.x86]
+BOX86_NOSANDBOX=1
+BOX86_MALLOC_HACK=2
+
+[Hacknet.bin.x86]
+BOX86_NOSANDBOX=1
+
 [hl_linux]
 BOX86_PREFER_EMULATED=1
 
