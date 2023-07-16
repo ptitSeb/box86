@@ -1309,7 +1309,7 @@ GOM(g_memory_input_stream_new_from_data, pFEplp)
 GO(g_settings_get_boolean, iFpp)
 //GO(g_settings_get_child, 
 //GO(g_settings_get_default_value, 
-//GO(g_settings_get_double, 
+GO(g_settings_get_double, dFpp)
 //GO(g_settings_get_enum, 
 //GO(g_settings_get_flags, 
 //GO(g_settings_get_has_unapplied, 
@@ -1327,11 +1327,11 @@ GO(g_settings_get_strv, pFpp)
 //GO(g_settings_list_keys, 
 //GO(g_settings_list_relocatable_schemas, 
 //GO(g_settings_list_schemas, 
-//GO(g_settings_new, 
-//GO(g_settings_new_full, 
-//GO(g_settings_new_with_backend, 
-//GO(g_settings_new_with_backend_and_path, 
-//GO(g_settings_new_with_path, 
+GO(g_settings_new, pFp)
+GO(g_settings_new_full, pFppp)
+GO(g_settings_new_with_backend, pFpp)
+GO(g_settings_new_with_backend_and_path, pFppp)
+GO(g_settings_new_with_path, pFpp)
 //GO(g_settings_range_check, 
 //GO(g_settings_reset, 
 //GO(g_settings_revert, 
