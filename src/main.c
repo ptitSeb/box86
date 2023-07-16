@@ -971,7 +971,7 @@ void setupTraceInit()
         if (strcmp(p, "1")==0)
             SetTraceEmu(0, 0);
         else if (strchr(p,'-')) {
-            if(sscanf(p, "%ld-%ld", &s_trace_start, &s_trace_end)!=2) {
+            if(sscanf(p, "%zd-%zd", &s_trace_start, &s_trace_end)!=2) {
                 if(sscanf(p, "0x%zX-0x%zX", &s_trace_start, &s_trace_end)!=2)
                     sscanf(p, "%zx-%zx", &s_trace_start, &s_trace_end);
             }
