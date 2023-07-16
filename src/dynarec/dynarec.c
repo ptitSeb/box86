@@ -46,27 +46,26 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
     }
     #endif
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1);
+    dynablock_t* block = NULL;
+    if(hasAlternate((void*)addr)) {
+        printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
+        addr = (uintptr_t)getAlternate((void*)addr);
+        R_EIP = addr;
+        printf_log(LOG_INFO, " -> %p\n", (void*)addr);
+        block = DBGetBlock(emu, addr, 1);
+    } else
+        block = DBGetBlock(emu, addr, 1);
     if(!block) {
         // no block, let link table as is...
-        if(hasAlternate((void*)addr)) {
-            printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
-            addr = (uintptr_t)getAlternate((void*)addr);
-            R_EIP = addr;
-            printf_log(LOG_INFO, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1);
+        #ifdef HAVE_TRACE
+        if(LOG_INFO<=box86_dynarec_log) {
+            dynablock_t* db = FindDynablockFromNativeAddress(x2);
+            elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2);
+            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
         }
-        if(!block) {
-            #ifdef HAVE_TRACE
-            if(LOG_INFO<=box86_dynarec_log) {
-                dynablock_t* db = FindDynablockFromNativeAddress(x2);
-                elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2);
-                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
-            }
-            #endif
-            //tableupdate(arm_epilog, addr, table);
-            return arm_epilog;
-        }
+        #endif
+        //tableupdate(arm_epilog, addr, table);
+        return arm_epilog;
     }
     if(!block->done) {
         // not finished yet... leave linker

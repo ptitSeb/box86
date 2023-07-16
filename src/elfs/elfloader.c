@@ -1900,6 +1900,8 @@ EXPORT void PltResolver(x86emu_t* emu)
     if(!offs && !end && !version)
         GetGlobalSymbolStartEnd(my_context->maplib, symname, &offs, &end, h, -1, NULL);
 
+    offs = (uintptr_t)getAlternate((void*)offs);
+
     if (!offs) {
         printf_log(LOG_NONE, "Error: PltResolver: Symbol %s(ver %d: %s%s%s) not found, cannot apply R_386_JMP_SLOT %p (%p) in %s\n", symname, version, symname, vername?"@":"", vername?vername:"", p, *(void**)p, h->name);
         emu->quit = 1;

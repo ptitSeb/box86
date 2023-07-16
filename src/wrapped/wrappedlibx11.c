@@ -714,7 +714,7 @@ void BridgeImageFunc(x86emu_t *emu, XImage *img)
 
     #define GO(A, W) \
     fnc = CheckBridged(system, img->f.A); \
-    if(!fnc) fnc = AddAutomaticBridge(emu, system, W, img->f.A, 0); \
+    if(!fnc) fnc = AddAutomaticBridge(emu, system, W, img->f.A, 0, #A); \
     img->f.A = (W##_t)fnc;
 
     uintptr_t fnc;
@@ -1167,12 +1167,12 @@ EXPORT void* my_XOpenDisplay(x86emu_t* emu, void* d)
     #define GO(A, W)\
     if(dpy->A)      \
         if(!CheckBridged(system, dpy->A)) \
-            AddAutomaticBridge(emu, system, W, dpy->A, 0); \
+            AddAutomaticBridge(emu, system, W, dpy->A, 0, #A); \
 
     #define GO2(A, B, W) \
     if(dpy->A && dpy->A->B)  \
         if(!CheckBridged(system, dpy->A->B)) \
-            AddAutomaticBridge(emu, system, W, dpy->A->B, 0); \
+            AddAutomaticBridge(emu, system, W, dpy->A->B, 0, #A "_" #B); \
 
 
     GO2(free_funcs, atoms, vFp)

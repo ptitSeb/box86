@@ -150,13 +150,13 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const 
     return ret;
 }
 
-uintptr_t AddAutomaticBridge(x86emu_t* emu, bridge_t* bridge, wrapper_t w, void* fnc, int N)
+uintptr_t AddAutomaticBridge(x86emu_t* emu, bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
     if(!fnc)
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
     if(!ret)
-        ret = AddBridge(bridge, w, fnc, N, NULL);
+        ret = AddBridge(bridge, w, fnc, N, name);
     if(!hasAlternate(fnc)) {
         printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
