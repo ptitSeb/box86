@@ -41,7 +41,7 @@ GO(4)
 static uintptr_t my_PRCallOnceWithArg_fct_##A = 0;                                  \
 static int my_PRCallOnceWithArg_##A(void* a)                                        \
 {                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_PRCallOnceWithArg_fct_##A, "p", a);   \
+    return (int)RunFunctionFmt(my_PRCallOnceWithArg_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO
@@ -63,7 +63,7 @@ static void* find_PRCallOnceWithArg_Fct(void* fct)
 static uintptr_t my_PRCallOnce_fct_##A = 0;                             \
 static int my_PRCallOnce_##A()                                          \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_PRCallOnce_fct_##A, "");  \
+    return (int)RunFunctionFmt(my_PRCallOnce_fct_##A, "");  \
 }
 SUPER()
 #undef GO

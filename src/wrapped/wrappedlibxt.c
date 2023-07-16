@@ -40,7 +40,7 @@ GO(7)
 static uintptr_t my_Event_fct_##A = 0;                                  \
 static void my_Event_##A(void* w, void* data, void* event)              \
 {                                                                       \
-    RunFunctionFmt(my_context, my_Event_fct_##A, "ppp", w, data, event);\
+    RunFunctionFmt(my_Event_fct_##A, "ppp", w, data, event);\
 }
 SUPER()
 #undef GO

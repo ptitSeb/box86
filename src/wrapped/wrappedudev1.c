@@ -39,7 +39,7 @@ GO(4)
 static uintptr_t my_log_fn_fct_##A = 0;                                                 \
 static void my_log_fn_##A(void* a, int b, void* c, int d, void* e, void* f, void* va)   \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_log_fn_fct_##A, "pipippp", a, b, c, d, e, f, va);     \
+    RunFunctionFmt(my_log_fn_fct_##A, "pipippp", a, b, c, d, e, f, va);     \
 }
 SUPER()
 #undef GO

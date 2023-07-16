@@ -47,7 +47,7 @@ GO(4)
 static uintptr_t my_ShapeRenderer_fct_##A = 0;                                  \
 static void my_ShapeRenderer_##A(void* a, void* b, int c, void* d)              \
 {                                                                               \
-    RunFunctionFmt(my_context, my_ShapeRenderer_fct_##A, "ppip", a, b, c, d);   \
+    RunFunctionFmt(my_ShapeRenderer_fct_##A, "ppip", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -79,7 +79,7 @@ static void* reverse_ShapeRenderer_Fct(void* fct)
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
 static void my_GDestroyNotify_##A(void* data)                           \
 {                                                                       \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data);   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data);   \
 }
 SUPER()
 #undef GO

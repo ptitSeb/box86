@@ -14,9 +14,8 @@
 #include "dynarec.h"
 
 EXPORTDYN
-uint32_t RunSafeFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
+uint32_t RunSafeFunction(uintptr_t fnc, int nargs, ...)
 {
-    (void)context;
     x86emu_t *emu = thread_get_emu();
 
     Push(emu, R_EBP); // push rbp
@@ -62,9 +61,8 @@ uint32_t RunSafeFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 }
 
 EXPORTDYN
-uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
+uint32_t RunFunction(uintptr_t fnc, int nargs, ...)
 {
-    (void)context;
     x86emu_t *emu = thread_get_emu();
 
     R_ESP -= nargs*4;   // need to push in reverse order
@@ -88,9 +86,8 @@ uint32_t RunFunction(box86context_t *context, uintptr_t fnc, int nargs, ...)
 }
 
 EXPORTDYN
-uint64_t RunFunction64(box86context_t *context, uintptr_t fnc, int nargs, ...)
+uint64_t RunFunction64(uintptr_t fnc, int nargs, ...)
 {
-    (void)context;
     x86emu_t *emu = thread_get_emu();
 
     R_ESP -= nargs*4;   // need to push in reverse order
@@ -114,9 +111,8 @@ uint64_t RunFunction64(box86context_t *context, uintptr_t fnc, int nargs, ...)
 }
 
 EXPORTDYN
-uint32_t RunFunctionFmt(box86context_t *context, uintptr_t fnc, const char* fmt, ...)
+uint32_t RunFunctionFmt(uintptr_t fnc, const char* fmt, ...)
 {
-    (void)context;
     x86emu_t *emu = thread_get_emu();
     int nargs = 0;
     int ni = 0;
@@ -192,9 +188,8 @@ uint32_t RunFunctionFmt(box86context_t *context, uintptr_t fnc, const char* fmt,
 }
 
 EXPORTDYN
-uint64_t RunFunctionFmt64(box86context_t *context, uintptr_t fnc, const char* fmt, ...)
+uint64_t RunFunctionFmt64(uintptr_t fnc, const char* fmt, ...)
 {
-    (void)context;
     x86emu_t *emu = thread_get_emu();
     int nargs = 0;
     int ni = 0;

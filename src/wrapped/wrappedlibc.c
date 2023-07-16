@@ -204,7 +204,7 @@ GO(15)
 static uintptr_t my_compare_fct_##A = 0;                                    \
 static int my_compare_##A(void* a, void* b)                                 \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_compare_fct_##A, "pp", a, b); \
+    return (int)RunFunctionFmt(my_compare_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -228,7 +228,7 @@ static void* findcompareFct(void* fct)
 static uintptr_t my_ftw_fct_##A = 0;                                                \
 static int my_ftw_##A(void* fpath, void* sb, int flag)                              \
 {                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_ftw_fct_##A, "ppi", fpath, sb, flag); \
+    return (int)RunFunctionFmt(my_ftw_fct_##A, "ppi", fpath, sb, flag); \
 }
 SUPER()
 #undef GO
@@ -254,7 +254,7 @@ static int my_ftw64_##A(void* fpath, void* sb, int flag)                        
 {                                                                                           \
     struct i386_stat64 i386st;                                                              \
     UnalignStat64(sb, &i386st);                                                             \
-    return (int)RunFunctionFmt(my_context, my_ftw64_fct_##A, "ppi", fpath, &i386st, flag);  \
+    return (int)RunFunctionFmt(my_ftw64_fct_##A, "ppi", fpath, &i386st, flag);  \
 }
 SUPER()
 #undef GO
@@ -276,7 +276,7 @@ static void* findftw64Fct(void* fct)
 static uintptr_t my_nftw_fct_##A = 0;                                                           \
 static int my_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)                          \
 {                                                                                               \
-    return (int)RunFunctionFmt(my_context, my_nftw_fct_##A, "ppip", fpath, sb, flag, ftwbuff);  \
+    return (int)RunFunctionFmt(my_nftw_fct_##A, "ppip", fpath, sb, flag, ftwbuff);  \
 }
 SUPER()
 #undef GO
@@ -302,7 +302,7 @@ static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)        
 {                                                                                                       \
     struct i386_stat64 i386st;                                                                          \
     UnalignStat64(sb, &i386st);                                                                         \
-    return (int)RunFunctionFmt(my_context, my_nftw64_fct_##A, "ppip", fpath, &i386st, flag, ftwbuff);   \
+    return (int)RunFunctionFmt(my_nftw64_fct_##A, "ppip", fpath, &i386st, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
@@ -324,7 +324,7 @@ static void* findnftw64Fct(void* fct)
 static uintptr_t my_globerr_fct_##A = 0;                                            \
 static int my_globerr_##A(void* epath, int eerrno)                                  \
 {                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_globerr_fct_##A, "pi", epath, eerrno);\
+    return (int)RunFunctionFmt(my_globerr_fct_##A, "pi", epath, eerrno);\
 }
 SUPER()
 #undef GO
@@ -348,7 +348,7 @@ static void* findgloberrFct(void* fct)
 static uintptr_t my_filter_dir_fct_##A = 0;                                 \
 static int my_filter_dir_##A(const struct dirent* a)                        \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_filter_dir_fct_##A, "p", a);  \
+    return (int)RunFunctionFmt(my_filter_dir_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -371,7 +371,7 @@ static void* findfilter_dirFct(void* fct)
 static uintptr_t my_compare_dir_fct_##A = 0;                                    \
 static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)   \
 {                                                                               \
-    return (int)RunFunctionFmt(my_context, my_compare_dir_fct_##A, "pp", a, b); \
+    return (int)RunFunctionFmt(my_compare_dir_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -395,7 +395,7 @@ static void* findcompare_dirFct(void* fct)
 static uintptr_t my_filter64_fct_##A = 0;                               \
 static int my_filter64_##A(const struct dirent64* a)                    \
 {                                                                       \
-    return (int)RunFunctionFmt(my_context, my_filter64_fct_##A, "p", a);\
+    return (int)RunFunctionFmt(my_filter64_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
@@ -418,7 +418,7 @@ static void* findfilter64Fct(void* fct)
 static uintptr_t my_compare64_fct_##A = 0;                                      \
 static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
 {                                                                               \
-    return (int)RunFunctionFmt(my_context, my_compare64_fct_##A, "pp", a, b);   \
+    return (int)RunFunctionFmt(my_compare64_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -441,7 +441,7 @@ static void* findcompare64Fct(void* fct)
 static uintptr_t my_on_exit_fct_##A = 0;                        \
 static void my_on_exit_##A(int a, const void* b)                \
 {                                                               \
-    RunFunctionFmt(my_context, my_on_exit_fct_##A, "ip", a, b); \
+    RunFunctionFmt(my_on_exit_fct_##A, "ip", a, b); \
 }
 SUPER()
 #undef GO
@@ -3073,24 +3073,24 @@ typedef struct my_cookie_s {
 static ssize_t my_cookie_read(void *p, char *buf, size_t size)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return (ssize_t)RunFunctionFmt(my_context, cookie->r, "ppL", cookie->cookie, buf, size);
+    return (ssize_t)RunFunctionFmt(cookie->r, "ppL", cookie->cookie, buf, size);
 }
 static ssize_t my_cookie_write(void *p, const char *buf, size_t size)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return (ssize_t)RunFunctionFmt(my_context, cookie->w, "ppL", cookie->cookie, buf, size);
+    return (ssize_t)RunFunctionFmt(cookie->w, "ppL", cookie->cookie, buf, size);
 }
 static int my_cookie_seek(void *p, off64_t *offset, int whence)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return RunFunctionFmt(my_context, cookie->s, "ppi", cookie->cookie, offset, whence);
+    return RunFunctionFmt(cookie->s, "ppi", cookie->cookie, offset, whence);
 }
 static int my_cookie_close(void *p)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
     int ret = 0;
     if(cookie->c)
-        ret = RunFunctionFmt(my_context, cookie->c, "p", cookie->cookie);
+        ret = RunFunctionFmt(cookie->c, "p", cookie->cookie);
     free(cookie);
     return ret;
 }

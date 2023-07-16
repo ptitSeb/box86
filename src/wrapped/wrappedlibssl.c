@@ -41,7 +41,7 @@ GO(4)
 static uintptr_t my_pem_passwd_cb_fct_##A = 0;                                                              \
 static int my_pem_passwd_cb_##A(void* buf, int size, int rwflag, void* password)                            \
 {                                                                                                           \
-    return (int)RunFunctionFmt(my_context, my_pem_passwd_cb_fct_##A, "piip", buf, size, rwflag, password);  \
+    return (int)RunFunctionFmt(my_pem_passwd_cb_fct_##A, "piip", buf, size, rwflag, password);  \
 }
 SUPER()
 #undef GO
@@ -65,7 +65,7 @@ static void* find_pem_passwd_cb_Fct(void* fct)
 static uintptr_t my_anonymous_fct_##A = 0;                                              \
 static void* my_anonymous_##A(void* a, void* b, void* c, void *d)                       \
 {                                                                                       \
-    return (void*)RunFunctionFmt(my_context, my_anonymous_fct_##A, "pppp", a, b, c, d); \
+    return (void*)RunFunctionFmt(my_anonymous_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -90,7 +90,7 @@ static void* find_anonymous_Fct(void* fct)
 static uintptr_t my_verify_fct_##A = 0;                                     \
 static int my_verify_##A(int a, void* b)                                    \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_verify_fct_##A, "pp", a, b);  \
+    return (int)RunFunctionFmt(my_verify_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -114,7 +114,7 @@ static void* find_verify_Fct(void* fct)
 static uintptr_t my_ex_new_fct_##A = 0;                                                         \
 static void my_ex_new_##A(void* parent, void* ptr, void* ad, int idx, long argl, void* argp)    \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_ex_new_fct_##A, "pppilp", parent, ptr, ad, idx, argl, argp);  \
+    RunFunctionFmt(my_ex_new_fct_##A, "pppilp", parent, ptr, ad, idx, argl, argp);  \
 }
 SUPER()
 #undef GO
@@ -138,7 +138,7 @@ static void* find_ex_new_Fct(void* fct)
 static uintptr_t my_ex_free_fct_##A = 0;                                                        \
 static void my_ex_free_##A(void* parent, void* ptr, void* ad, int idx, long argl, void* argp)   \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_ex_free_fct_##A, "ppilp", parent, ptr, ad, idx, argl, argp);  \
+    RunFunctionFmt(my_ex_free_fct_##A, "ppilp", parent, ptr, ad, idx, argl, argp);  \
 }
 SUPER()
 #undef GO
@@ -162,7 +162,7 @@ static void* find_ex_free_Fct(void* fct)
 static uintptr_t my_ex_dup_fct_##A = 0;                                                                     \
 static int my_ex_dup_##A(void* to, void* from, void* from_d, int idx, long argl, void* argp)                \
 {                                                                                                           \
-    return (int) RunFunctionFmt(my_context, my_ex_dup_fct_##A, "pppilp", to, from, from_d, idx, argl, argp);\
+    return (int) RunFunctionFmt(my_ex_dup_fct_##A, "pppilp", to, from, from_d, idx, argl, argp);\
 }
 SUPER()
 #undef GO
@@ -186,7 +186,7 @@ static void* find_ex_dup_Fct(void* fct)
 static uintptr_t my_client_cb_fct_##A = 0;                                                                              \
 static uint32_t my_client_cb_##A(void* ssl, void* hint, void* identity, uint32_t id_len, void* psk, uint32_t psk_len)   \
 {                                                                                                                       \
-    return RunFunctionFmt(my_context, my_client_cb_fct_##A, "pppupu", ssl, hint, identity, id_len, psk, psk_len);       \
+    return RunFunctionFmt(my_client_cb_fct_##A, "pppupu", ssl, hint, identity, id_len, psk, psk_len);       \
 }
 SUPER()
 #undef GO
@@ -210,7 +210,7 @@ static void* find_client_cb_Fct(void* fct)
 static uintptr_t my_proto_select_fct_##A = 0;                                                                   \
 static int my_proto_select_##A(void* s, void* out, void* outlen, void* in, uint32_t inlen, void* arg)           \
 {                                                                                                               \
-    return (int)RunFunctionFmt(my_context, my_proto_select_fct_##A, "ppppup", s, out, outlen, in, inlen, arg);  \
+    return (int)RunFunctionFmt(my_proto_select_fct_##A, "ppppup", s, out, outlen, in, inlen, arg);  \
 }
 SUPER()
 #undef GO
@@ -233,7 +233,7 @@ static void* find_proto_select_Fct(void* fct)
 static uintptr_t my_new_session_cb_fct_##A = 0;                                     \
 static int my_new_session_cb_##A(void* a, void* b)                                  \
 {                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_new_session_cb_fct_##A, "pp", a, b);  \
+    return (int)RunFunctionFmt(my_new_session_cb_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO

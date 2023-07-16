@@ -206,7 +206,7 @@ std::string WrapperGenerator::GenCallbackWrap(clang::ASTContext *Ctx,
       res += ") {\\\n";
       res += "    ";
       res +=
-          "return RunFunction(my_context, " + my_funcname + "_fct_##A" + ", ",
+          "return RunFunction(" + my_funcname + "_fct_##A" + ", ",
           std::to_string(arg_size);
       if (arg_size) {
         for (int i = 0; i < arg_size; i++) {
@@ -266,7 +266,7 @@ std::string WrapperGenerator::GenCallbackWrap(clang::ASTContext *Ctx,
       }
       res += ") {\\\n";
       res += "    ";
-      res += "return RunFunction(my_context, " + my_funcname + "_fct_##A" +
+      res += "return RunFunction(" + my_funcname + "_fct_##A" +
              ", " + std::to_string(arg_size);
       if (arg_size) {
         for (int i = 0; i < arg_size; i++) {

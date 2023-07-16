@@ -43,7 +43,7 @@ GO(4)
 static uintptr_t my_cmsLogErrorHandlerFunction_fct_##A = 0;                             \
 static void my_cmsLogErrorHandlerFunction_##A(void* a, uint32_t b, void* c)             \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_cmsLogErrorHandlerFunction_fct_##A, "pup", a, b, c);  \
+    RunFunctionFmt(my_cmsLogErrorHandlerFunction_fct_##A, "pup", a, b, c);  \
 }
 SUPER()
 #undef GO

@@ -184,7 +184,7 @@ GO(15)  \
 static uintptr_t my_free_fct_##A = 0;                       \
 static void my_free_##A(void* data)                         \
 {                                                           \
-    RunFunctionFmt(my_context, my_free_fct_##A, "p", data); \
+    RunFunctionFmt(my_free_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -206,7 +206,7 @@ static void* findFreeFct(void* fct)
 static uintptr_t my_free_api_fct_##A = 0;                                   \
 static void my_free_api_##A(my_pa_mainloop_api_t* api, void* p, void* data) \
 {                                                                           \
-    RunFunctionFmt(my_context, my_free_api_fct_##A, "ppp", api, p, data);   \
+    RunFunctionFmt(my_free_api_fct_##A, "ppp", api, p, data);   \
 }
 SUPER()
 #undef GO
@@ -229,7 +229,7 @@ static uintptr_t my_io_event_fct_##A = 0;                                       
 static void my_io_event_##A(my_pa_mainloop_api_t* api, void* e, int fd, int events, void* data) \
 {                                                                                               \
     if(api==my_mainloop_orig) api=my_mainloop_ref;                                              \
-    RunFunctionFmt(my_context, my_io_event_fct_##A, "ppiip", api, e, fd, events, data);         \
+    RunFunctionFmt(my_io_event_fct_##A, "ppiip", api, e, fd, events, data);         \
 }
 SUPER()
 #undef GO
@@ -252,7 +252,7 @@ static uintptr_t my_time_event_fct_##A = 0;                                     
 static void my_time_event_##A(my_pa_mainloop_api_t* api, void* e, void* tv, void* data) \
 {                                                                                       \
     if(api==my_mainloop_orig) api=my_mainloop_ref;                                      \
-    RunFunctionFmt(my_context, my_time_event_fct_##A, "pppp", api, e, tv, data);        \
+    RunFunctionFmt(my_time_event_fct_##A, "pppp", api, e, tv, data);        \
 }
 SUPER()
 #undef GO
@@ -276,7 +276,7 @@ static uintptr_t my_defer_event_fct_##A = 0;                                    
 static void my_defer_event_##A(my_pa_mainloop_api_t* api, void* e, void* data)  \
 {                                                                               \
     if(api==my_mainloop_orig) api=my_mainloop_ref;                              \
-    RunFunctionFmt(my_context, my_defer_event_fct_##A, "ppp", api, e, data);    \
+    RunFunctionFmt(my_defer_event_fct_##A, "ppp", api, e, data);    \
 }
 SUPER()
 #undef GO
@@ -299,7 +299,7 @@ static void* findDeferEventFct(void* fct)
 static uintptr_t my_poll_fct_##A = 0;                                                           \
 static int my_poll_##A(void* ufds, unsigned long nfds, int timeout, void* data)                 \
 {                                                                                               \
-    return (int)RunFunctionFmt(my_context, my_poll_fct_##A, "pLip", ufds, nfds, timeout, data); \
+    return (int)RunFunctionFmt(my_poll_fct_##A, "pLip", ufds, nfds, timeout, data); \
 }
 SUPER()
 #undef GO
@@ -322,7 +322,7 @@ static uintptr_t my_signal_fct_##A = 0;   \
 static void my_signal_##A(my_pa_mainloop_api_t* api, void* e, int sig, void *data)  \
 {                                                                                   \
     if(api==my_mainloop_orig) api=my_mainloop_ref;                                  \
-    RunFunctionFmt(my_context, my_signal_fct_##A, "ppip", api, e, sig, data);       \
+    RunFunctionFmt(my_signal_fct_##A, "ppip", api, e, sig, data);       \
 }
 SUPER()
 #undef GO
@@ -345,7 +345,7 @@ static uintptr_t my_signal_destroy_fct_##A = 0;   \
 static void my_signal_destroy_##A(my_pa_mainloop_api_t* api, void* e, void *data)   \
 {                                                                                   \
     if(api==my_mainloop_orig) api=my_mainloop_ref;                                  \
-    RunFunctionFmt(my_context, my_signal_destroy_fct_##A, "ppp", api, e, data);     \
+    RunFunctionFmt(my_signal_destroy_fct_##A, "ppp", api, e, data);     \
 }
 SUPER()
 #undef GO
@@ -368,7 +368,7 @@ static void* find_signal_destroy_Fct(void* fct)
 static uintptr_t my_prefork_fct_##A = 0;                \
 static void my_prefork_##A()                            \
 {                                                       \
-    RunFunctionFmt(my_context, my_prefork_fct_##A, ""); \
+    RunFunctionFmt(my_prefork_fct_##A, ""); \
 }
 SUPER()
 #undef GO
@@ -390,7 +390,7 @@ static void* find_prefork_Fct(void* fct)
 static uintptr_t my_postfork_fct_##A = 0;               \
 static void my_postfork_##A()                           \
 {                                                       \
-    RunFunctionFmt(my_context, my_postfork_fct_##A, "");\
+    RunFunctionFmt(my_postfork_fct_##A, "");\
 }
 SUPER()
 #undef GO
@@ -412,7 +412,7 @@ static void* find_postfork_Fct(void* fct)
 static uintptr_t my_atfork_fct_##A = 0;                 \
 static void my_atfork_##A()                             \
 {                                                       \
-    RunFunctionFmt(my_context, my_atfork_fct_##A, "");  \
+    RunFunctionFmt(my_atfork_fct_##A, "");  \
 }
 SUPER()
 #undef GO
@@ -435,7 +435,7 @@ static void* find_atfork_Fct(void* fct)
 static uintptr_t my_state_context_fct_##A = 0;                                  \
 static void my_state_context_##A(void* context, void* data)                     \
 {                                                                               \
-    RunFunctionFmt(my_context, my_state_context_fct_##A, "pp", context, data);  \
+    RunFunctionFmt(my_state_context_fct_##A, "pp", context, data);  \
 }
 SUPER()
 #undef GO
@@ -457,7 +457,7 @@ static void* find_state_context_Fct(void* fct)
 static uintptr_t my_notify_context_fct_##A = 0;                                 \
 static void my_notify_context_##A(void* context, void* data)                    \
 {                                                                               \
-    RunFunctionFmt(my_context, my_notify_context_fct_##A, "pp", context, data); \
+    RunFunctionFmt(my_notify_context_fct_##A, "pp", context, data); \
 }
 SUPER()
 #undef GO
@@ -479,7 +479,7 @@ static void* find_notify_context_Fct(void* fct)
 static uintptr_t my_success_context_fct_##A = 0;                                            \
 static void my_success_context_##A(void* context, int success, void* data)                  \
 {                                                                                           \
-    RunFunctionFmt(my_context, my_success_context_fct_##A, "pip", context, success, data);  \
+    RunFunctionFmt(my_success_context_fct_##A, "pip", context, success, data);  \
 }
 SUPER()
 #undef GO
@@ -501,7 +501,7 @@ static void* find_success_context_Fct(void* fct)
 static uintptr_t my_event_context_fct_##A = 0;                                              \
 static void my_event_context_##A(void* context, void* name, void* p, void* data)            \
 {                                                                                           \
-    RunFunctionFmt(my_context, my_event_context_fct_##A, "pppp", context, name, p, data);   \
+    RunFunctionFmt(my_event_context_fct_##A, "pppp", context, name, p, data);   \
 }
 SUPER()
 #undef GO
@@ -523,7 +523,7 @@ static void* find_event_context_Fct(void* fct)
 static uintptr_t my_module_info_fct_##A = 0;                                            \
 static void my_module_info_##A(void* context, void* i, int eol, void* data)             \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_module_info_fct_##A, "ppip", context, i, eol, data);  \
+    RunFunctionFmt(my_module_info_fct_##A, "ppip", context, i, eol, data);  \
 }
 SUPER()
 #undef GO
@@ -547,7 +547,7 @@ static void my_sink_info_##A(void* context, my_pa_sink_info_t* i, int eol, void*
 {                                                                                               \
     x86_pa_sink_info_t info = {0};                                                              \
     unalign_pa_sink_info(&info, i);                                                             \
-    RunFunctionFmt(my_context, my_sink_info_fct_##A, "ppip", context, i?&info:NULL, eol, data); \
+    RunFunctionFmt(my_sink_info_fct_##A, "ppip", context, i?&info:NULL, eol, data); \
 }
 SUPER()
 #undef GO
@@ -569,7 +569,7 @@ static void* find_sink_info_Fct(void* fct)
 static uintptr_t my_server_info_fct_##A = 0;                                    \
 static void my_server_info_##A(void* context, void* i, void* data)              \
 {                                                                               \
-    RunFunctionFmt(my_context, my_server_info_fct_##A, "ppp", context, i, data);\
+    RunFunctionFmt(my_server_info_fct_##A, "ppp", context, i, data);\
 }
 SUPER()
 #undef GO
@@ -591,7 +591,7 @@ static void* find_server_info_Fct(void* fct)
 static uintptr_t my_client_info_fct_##A = 0;                                            \
 static void my_client_info_##A(void* context, void* i, int eol, void* data)             \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_client_info_fct_##A, "ppip", context, i, eol, data);  \
+    RunFunctionFmt(my_client_info_fct_##A, "ppip", context, i, eol, data);  \
 }
 SUPER()
 #undef GO
@@ -613,7 +613,7 @@ static void* find_client_info_Fct(void* fct)
 static uintptr_t my_context_index_fct_##A = 0;                                      \
 static void my_context_index_##A(void* context, uint32_t idx, void* data)           \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_context_index_fct_##A, "pup", context, idx, data);\
+    RunFunctionFmt(my_context_index_fct_##A, "pup", context, idx, data);\
 }
 SUPER()
 #undef GO
@@ -635,7 +635,7 @@ static void* find_context_index_Fct(void* fct)
 static uintptr_t my_subscribe_context_fct_##A = 0;                                              \
 static void my_subscribe_context_##A(void* context, int evt, uint32_t idx, void* data)          \
 {                                                                                               \
-    RunFunctionFmt(my_context, my_subscribe_context_fct_##A, "piup", context, evt, idx, data);  \
+    RunFunctionFmt(my_subscribe_context_fct_##A, "piup", context, evt, idx, data);  \
 }
 SUPER()
 #undef GO
@@ -658,7 +658,7 @@ static void* find_subscribe_context_Fct(void* fct)
 static uintptr_t my_stream_state_fct_##A = 0;                           \
 static void my_stream_state_##A(void* s, void* data)                    \
 {                                                                       \
-    RunFunctionFmt(my_context, my_stream_state_fct_##A, "pp", s, data); \
+    RunFunctionFmt(my_stream_state_fct_##A, "pp", s, data); \
 }
 SUPER()
 #undef GO
@@ -680,7 +680,7 @@ static void* find_stream_state_Fct(void* fct)
 static uintptr_t my_stream_success_fct_##A = 0;                                     \
 static void my_stream_success_##A(void* s, int success, void* data)                 \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_stream_success_fct_##A, "pip", s, success, data); \
+    RunFunctionFmt(my_stream_success_fct_##A, "pip", s, success, data); \
 }
 SUPER()
 #undef GO
@@ -702,7 +702,7 @@ static void* find_stream_success_Fct(void* fct)
 static uintptr_t my_stream_notify_fct_##A = 0;                          \
 static void my_stream_notify_##A(void* s, void* data)                   \
 {                                                                       \
-    RunFunctionFmt(my_context, my_stream_notify_fct_##A, "pp", s, data);\
+    RunFunctionFmt(my_stream_notify_fct_##A, "pp", s, data);\
 }
 SUPER()
 #undef GO
@@ -724,7 +724,7 @@ static void* find_stream_notify_Fct(void* fct)
 static uintptr_t my_stream_event_fct_##A = 0;                                       \
 static void my_stream_event_##A(void* s, void* name, void* pl, void* data)          \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_stream_event_fct_##A, "pppp", s, name, pl, data); \
+    RunFunctionFmt(my_stream_event_fct_##A, "pppp", s, name, pl, data); \
 }
 SUPER()
 #undef GO
@@ -746,7 +746,7 @@ static void* find_stream_event_Fct(void* fct)
 static uintptr_t my_stream_request_fct_##A = 0;                                     \
 static void my_stream_request_##A(void* s, size_t nbytes, void* data)               \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_stream_request_fct_##A, "pLp", s, nbytes, data);  \
+    RunFunctionFmt(my_stream_request_fct_##A, "pLp", s, nbytes, data);  \
 }
 SUPER()
 #undef GO
@@ -768,7 +768,7 @@ static void* find_stream_request_Fct(void* fct)
 static uintptr_t my_device_restore_read_device_formats_fct_##A = 0;                                 \
 static void my_device_restore_read_device_formats_##A(void* a, void* b, int c, void* d)             \
 {                                                                                                   \
-    RunFunctionFmt(my_context, my_device_restore_read_device_formats_fct_##A, "ppip", a, b, c, d);  \
+    RunFunctionFmt(my_device_restore_read_device_formats_fct_##A, "ppip", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -790,7 +790,7 @@ static void* find_device_restore_read_device_formats_Fct(void* fct)
 static uintptr_t my_card_info_fct_##A = 0;                                  \
 static void my_card_info_##A(void* a, void* b, int c, void* d)              \
 {                                                                           \
-    RunFunctionFmt(my_context, my_card_info_fct_##A, "ppip", a, b, c, d);   \
+    RunFunctionFmt(my_card_info_fct_##A, "ppip", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -812,7 +812,7 @@ static void* find_card_info_Fct(void* fct)
 static uintptr_t my_source_output_info_fct_##A = 0;                                 \
 static void my_source_output_info_##A(void* a, void* b, int c, void* d)             \
 {                                                                                   \
-    RunFunctionFmt(my_context, my_source_output_info_fct_##A, "ppip", a, b, c, d);  \
+    RunFunctionFmt(my_source_output_info_fct_##A, "ppip", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -834,7 +834,7 @@ static void* find_source_output_info_Fct(void* fct)
 static uintptr_t my_device_restore_subscribe_fct_##A = 0;                               \
 static void my_device_restore_subscribe_##A(void* a, int b, uint32_t c, void* d)        \
 {                                                                                       \
-    RunFunctionFmt(my_context, my_device_restore_subscribe_fct_##A, "piup", a, b, c, d);\
+    RunFunctionFmt(my_device_restore_subscribe_fct_##A, "piup", a, b, c, d);\
 }
 SUPER()
 #undef GO
@@ -947,7 +947,7 @@ static void* my_io_new(void* api, int fd, int events, void* cb, void *userdata)
     if(cb)
         b = AddCheckBridge(bridge, vFppiip, cb, 0, NULL);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
-    return (void*)RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->io_new, "piipp", api, fd, events, b, userdata);
+    return (void*)RunFunctionFmt((uintptr_t)my_mainloop_ref->io_new, "piipp", api, fd, events, b, userdata);
 }
 static void my_io_enable(void* e, int events)
 {
@@ -956,7 +956,7 @@ static void my_io_enable(void* e, int events)
     if(fnc)
         return ((vFpi_t)fnc)(e, events);
 
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->io_enable, "pi", e, events);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->io_enable, "pi", e, events);
 }
 static void my_io_free(void* e)
 {
@@ -965,7 +965,7 @@ static void my_io_free(void* e)
     if(fnc)
         return ((vFp_t)fnc)(e);
 
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->io_free, "p", e);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->io_free, "p", e);
 }
 static void my_io_set_destroy(void* e, void* cb)
 {
@@ -981,7 +981,7 @@ static void my_io_set_destroy(void* e, void* cb)
         if(!b)
             b = AddBridge(bridge, vFppp, cb, 0, NULL);
     }
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->io_set_destroy, "pp", e, b);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->io_set_destroy, "pp", e, b);
 }
 
 static void* my_time_new(void* api, void* tv, void* cb, void* data)
@@ -999,7 +999,7 @@ static void* my_time_new(void* api, void* tv, void* cb, void* data)
     if(cb)
         b = AddCheckBridge(bridge, vFpppp, cb, 0, NULL);
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
-    return (void*)RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->time_new, "pppp", api, tv, b, data);
+    return (void*)RunFunctionFmt((uintptr_t)my_mainloop_ref->time_new, "pppp", api, tv, b, data);
 }
 static void my_time_restart(void* e, void* tv)
 {
@@ -1008,7 +1008,7 @@ static void my_time_restart(void* e, void* tv)
     if(fnc)
         return ((vFpp_t)fnc)(e, tv);
 
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->time_restart, "pp", e, tv);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->time_restart, "pp", e, tv);
 }
 static void my_time_free(void* e)
 {
@@ -1017,7 +1017,7 @@ static void my_time_free(void* e)
     if(fnc)
         return ((vFp_t)fnc)(e);
 
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->time_free, "p", e);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->time_free, "p", e);
 }
 static void my_time_set_destroy(void* e, void* cb)
 {
@@ -1030,7 +1030,7 @@ static void my_time_set_destroy(void* e, void* cb)
     uintptr_t b = 0;
     if(cb)
             b = AddCheckBridge(bridge, vFppp, cb, 0, NULL);
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->time_set_destroy, "pp", e, b);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->time_set_destroy, "pp", e, b);
 }
 
 static void* my_defer_new(void* api, void* cb, void* data)
@@ -1051,7 +1051,7 @@ static void* my_defer_new(void* api, void* cb, void* data)
             b = AddBridge(bridge, vFppp, cb, 0, NULL);
     }
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
-    return (void*)RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->defer_new, "ppp", api, b, data);
+    return (void*)RunFunctionFmt((uintptr_t)my_mainloop_ref->defer_new, "ppp", api, b, data);
 }
 static void my_defer_enable(void* e, int b)
 {
@@ -1060,7 +1060,7 @@ static void my_defer_enable(void* e, int b)
     if(fnc)
         return ((vFpi_t)fnc)(e, b);
 
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->defer_enable, "pi", e, b);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->defer_enable, "pi", e, b);
 }
 static void my_defer_free(void* e)
 {
@@ -1069,7 +1069,7 @@ static void my_defer_free(void* e)
     if(fnc)
         return ((vFp_t)fnc)(e);
 
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->defer_free, "p", e);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->defer_free, "p", e);
 }
 static void my_defer_set_destroy(void* e, void* cb)
 {
@@ -1082,7 +1082,7 @@ static void my_defer_set_destroy(void* e, void* cb)
     uintptr_t b = 0;
     if(cb)
         b = AddCheckBridge(bridge, vFppp, cb, 0, NULL);
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->defer_set_destroy, "pp", e, b);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->defer_set_destroy, "pp", e, b);
 }
 
 static void my_quit(void* api, int retval)
@@ -1095,7 +1095,7 @@ static void my_quit(void* api, int retval)
     }
 
     if(api==my_mainloop_orig) api=my_mainloop_ref;    // need emulated version
-    RunFunctionFmt(my_context, (uintptr_t)my_mainloop_ref->quit, "pi", api, retval);
+    RunFunctionFmt((uintptr_t)my_mainloop_ref->quit, "pi", api, retval);
 }
 
 static void bridgeMainloopAPI(bridge_t* bridge, my_pa_mainloop_api_t* api)

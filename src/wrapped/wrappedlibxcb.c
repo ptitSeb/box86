@@ -183,7 +183,7 @@ GO(3)   \
 static uintptr_t my_return_socket_fct_##A = 0;                      \
 static void my_return_socket_##A(void* a)                           \
 {                                                                   \
-    RunFunctionFmt(my_context, my_return_socket_fct_##A, "p", a);   \
+    RunFunctionFmt(my_return_socket_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO

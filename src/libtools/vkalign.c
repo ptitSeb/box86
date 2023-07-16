@@ -1138,7 +1138,7 @@ GO(4)
 static uintptr_t my_vkDebugReportCallback_fct_##A = 0;                                                                  \
 static int my_vkDebugReportCallback_##A(int a, int b, uint64_t c, size_t d, int e, void* f, void* g, void* h)           \
 {                                                                                                                       \
-    return (int)RunFunctionFmt(my_context, my_vkDebugReportCallback_fct_##A, "iiULuppp", a, b, c, d, e, f, g, h);       \
+    return (int)RunFunctionFmt(my_vkDebugReportCallback_fct_##A, "iiULuppp", a, b, c, d, e, f, g, h);       \
 }
 SUPER()
 #undef GO

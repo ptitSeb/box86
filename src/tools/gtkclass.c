@@ -57,7 +57,7 @@ static uintptr_t my_##NAME##_fct_##A = 0;   \
 static RET my_##NAME##_##A DEF              \
 {                                           \
     printf_log(LOG_DEBUG, "Calling " #NAME "_" #A " wrapper\n");             \
-    return (RET)RunFunctionFmt(my_context, my_##NAME##_fct_##A, N, __VA_ARGS__);\
+    return (RET)RunFunctionFmt(my_##NAME##_fct_##A, N, __VA_ARGS__);\
 }
 
 #define FIND(A, NAME) \
@@ -1636,32 +1636,32 @@ SUPER()
 static uintptr_t fct_funcs_value_init_##A = 0;                                          \
 static void my_funcs_value_init_##A(void* value) {                                      \
     printf_log(LOG_DEBUG, "Calling fct_funcs_value_init_" #A " wrapper\n");             \
-    RunFunctionFmt(my_context, fct_funcs_value_init_##A, "p", value);                   \
+    RunFunctionFmt(fct_funcs_value_init_##A, "p", value);                   \
 }   \
 static uintptr_t fct_funcs_value_free_##A = 0;                                          \
 static void my_funcs_value_free_##A(void* value) {                                      \
     printf_log(LOG_DEBUG, "Calling fct_funcs_value_free_" #A " wrapper\n");             \
-    RunFunctionFmt(my_context, fct_funcs_value_free_##A, "p", value);                   \
+    RunFunctionFmt(fct_funcs_value_free_##A, "p", value);                   \
 }   \
 static uintptr_t fct_funcs_value_copy_##A = 0;                                          \
 static void my_funcs_value_copy_##A(void* source, void* dest) {                         \
     printf_log(LOG_DEBUG, "Calling fct_funcs_value_copy_" #A " wrapper\n");             \
-    RunFunctionFmt(my_context, fct_funcs_value_copy_##A, "pp", source, dest);           \
+    RunFunctionFmt(fct_funcs_value_copy_##A, "pp", source, dest);           \
 }   \
 static uintptr_t fct_funcs_value_peek_pointer_##A = 0;                                      \
 static void* my_funcs_value_peek_pointer_##A(void* value) {                                 \
     printf_log(LOG_DEBUG, "Calling fct_funcs_value_peek_pointer_" #A " wrapper\n");         \
-    return (void*)RunFunctionFmt(my_context, fct_funcs_value_peek_pointer_##A, "p", value); \
+    return (void*)RunFunctionFmt(fct_funcs_value_peek_pointer_##A, "p", value); \
 }   \
 static uintptr_t fct_funcs_collect_value_##A = 0;                                                           \
 static void* my_funcs_collect_value_##A(void* value, uint32_t n, void* collect, uint32_t flags) {           \
     printf_log(LOG_DEBUG, "Calling fct_funcs_collect_value_" #A " wrapper\n");                              \
-    return (void*)RunFunctionFmt(my_context, fct_funcs_collect_value_##A, "pupu", value, n, collect, flags);\
+    return (void*)RunFunctionFmt(fct_funcs_collect_value_##A, "pupu", value, n, collect, flags);\
 }   \
 static uintptr_t fct_funcs_lcopy_value_##A = 0;                                                             \
 static void* my_funcs_lcopy_value_##A(void* value, uint32_t n, void* collect, uint32_t flags) {             \
     printf_log(LOG_DEBUG, "Calling fct_funcs_lcopy_value_" #A " wrapper\n");                                \
-    return (void*)RunFunctionFmt(my_context, fct_funcs_lcopy_value_##A, "pupu", value, n, collect, flags);  \
+    return (void*)RunFunctionFmt(fct_funcs_lcopy_value_##A, "pupu", value, n, collect, flags);  \
 }
 SUPER()
 #undef GO
@@ -1702,7 +1702,7 @@ my_GTypeValueTable_t* findFreeGTypeValueTable(my_GTypeValueTable_t* fcts)
 static uintptr_t my_signal2_fct_##A = 0;                                        \
 static void* my_signal2_##A(void* a, void* b)                                   \
 {                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_signal2_fct_##A, "pp", a, b);   \
+    return (void*)RunFunctionFmt(my_signal2_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -1724,7 +1724,7 @@ static void* find_signal2_Fct(void* fct)
 static uintptr_t my_signal3_fct_##A = 0;                                            \
 static void* my_signal3_##A(void* a, void* b, void* c)                              \
 {                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_signal3_fct_##A, "ppp", a, b, c);   \
+    return (void*)RunFunctionFmt(my_signal3_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1746,7 +1746,7 @@ static void* find_signal3_Fct(void* fct)
 static uintptr_t my_signal4_fct_##A = 0;                                                \
 static void* my_signal4_##A(void* a, void* b, void* c, void* d)                         \
 {                                                                                       \
-    return (void*)RunFunctionFmt(my_context, my_signal4_fct_##A, "pppp", a, b, c, d);   \
+    return (void*)RunFunctionFmt(my_signal4_fct_##A, "pppp", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -1768,7 +1768,7 @@ static void* find_signal4_Fct(void* fct)
 static uintptr_t my_signal5_fct_##A = 0;                                                    \
 static void* my_signal5_##A(void* a, void* b, void* c, void* d, void* e)                    \
 {                                                                                           \
-    return (void*)RunFunctionFmt(my_context, my_signal5_fct_##A, "ppppp", a, b, c, d, e);   \
+    return (void*)RunFunctionFmt(my_signal5_fct_##A, "ppppp", a, b, c, d, e);   \
 }
 SUPER()
 #undef GO
@@ -1790,7 +1790,7 @@ static void* find_signal5_Fct(void* fct)
 static uintptr_t my_signal6_fct_##A = 0;                                                        \
 static void* my_signal6_##A(void* a, void* b, void* c, void* d, void* e, void* f)               \
 {                                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_signal6_fct_##A, "pppppp", a, b, c, d, e, f);   \
+    return (void*)RunFunctionFmt(my_signal6_fct_##A, "pppppp", a, b, c, d, e, f);   \
 }
 SUPER()
 #undef GO
@@ -1812,7 +1812,7 @@ static void* find_signal6_Fct(void* fct)
 static uintptr_t my_signal7_fct_##A = 0;                                                            \
 static void* my_signal7_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g)          \
 {                                                                                                   \
-    return (void*)RunFunctionFmt(my_context, my_signal7_fct_##A, "ppppppp", a, b, c, d, e, f, g);   \
+    return (void*)RunFunctionFmt(my_signal7_fct_##A, "ppppppp", a, b, c, d, e, f, g);   \
 }
 SUPER()
 #undef GO
@@ -1900,18 +1900,18 @@ static int fct_parent_##A = 0 ;                                                 
 static uintptr_t fct_funcs_base_init_##A = 0;                                           \
 static int my_funcs_base_init_##A(void* g_class) {                                      \
     printf_log(LOG_DEBUG, "Calling fct_funcs_base_init_" #A " wrapper\n");              \
-    return (int)RunFunctionFmt(my_context, fct_funcs_base_init_##A, "p", g_class);      \
+    return (int)RunFunctionFmt(fct_funcs_base_init_##A, "p", g_class);      \
 }   \
 static uintptr_t fct_funcs_base_finalize_##A = 0;                                       \
 static int my_funcs_base_finalize_##A(void* g_class) {                                  \
     printf_log(LOG_DEBUG, "Calling fct_funcs_base_finalize_" #A " wrapper\n");          \
-    return (int)RunFunctionFmt(my_context, fct_funcs_base_finalize_##A, "p", g_class);  \
+    return (int)RunFunctionFmt(fct_funcs_base_finalize_##A, "p", g_class);  \
 }   \
 static uintptr_t fct_funcs_class_init_##A = 0;                                                  \
 static int my_funcs_class_init_##A(void* g_class, void* data) {                                 \
     printf_log(LOG_DEBUG, "Calling fct_funcs_class_init_" #A " wrapper\n");                     \
     /*wrapGTKClass(g_class, fct_parent_##A);*/                                                  \
-    int ret = (int)RunFunctionFmt(my_context, fct_funcs_class_init_##A, "pp", g_class, data);   \
+    int ret = (int)RunFunctionFmt(fct_funcs_class_init_##A, "pp", g_class, data);   \
     unwrapGTKClass(g_class, fct_parent_##A);                                                    \
     bridgeGTKClass(g_class, fct_parent_##A);                                                    \
     my_unwrap_signal_offset(g_class);                                                           \
@@ -1921,7 +1921,7 @@ static uintptr_t fct_funcs_class_finalize_##A = 0;                              
 static int my_funcs_class_finalize_##A(void* g_class, void* data) {                                 \
     printf_log(LOG_DEBUG, "Calling fct_funcs_class_finalize_" #A " wrapper\n");                     \
     wrapGTKClass(g_class, fct_parent_##A);                                                          \
-    int ret = (int)RunFunctionFmt(my_context, fct_funcs_class_finalize_##A, "pp", g_class, data);   \
+    int ret = (int)RunFunctionFmt(fct_funcs_class_finalize_##A, "pp", g_class, data);   \
     unwrapGTKClass(g_class, fct_parent_##A);                                                        \
     bridgeGTKClass(g_class, fct_parent_##A);                                                        \
     my_unwrap_signal_offset(g_class);                                                               \
@@ -1930,7 +1930,7 @@ static int my_funcs_class_finalize_##A(void* g_class, void* data) {             
 static uintptr_t fct_funcs_instance_init_##A = 0;                                               \
 static int my_funcs_instance_init_##A(void* instance, void* data) {                             \
     printf_log(LOG_DEBUG, "Calling fct_funcs_instance_init_" #A " wrapper\n");                  \
-    return (int)RunFunctionFmt(my_context, fct_funcs_instance_init_##A, "pp", instance, data);  \
+    return (int)RunFunctionFmt(fct_funcs_instance_init_##A, "pp", instance, data);  \
 }
 
 SUPER()
@@ -1984,7 +1984,7 @@ static int fct_gtk_parent_##A = 0 ;                     \
 static uintptr_t fct_gtk_class_init_##A = 0;       \
 static int my_gtk_class_init_##A(void* g_class) {  \
     printf_log(LOG_DEBUG, "Calling fct_gtk_class_init_" #A " wrapper\n");           \
-    int ret = (int)RunFunctionFmt(my_context, fct_gtk_class_init_##A, "p", g_class);\
+    int ret = (int)RunFunctionFmt(fct_gtk_class_init_##A, "p", g_class);\
     unwrapGTKClass(g_class, fct_gtk_parent_##A);                                    \
     bridgeGTKClass(g_class, fct_gtk_parent_##A);                                    \
     return ret;                                                                     \
@@ -1992,12 +1992,12 @@ static int my_gtk_class_init_##A(void* g_class) {  \
 static uintptr_t fct_gtk_object_init_##A = 0;                                               \
 static int my_gtk_object_init_##A(void* object, void* data) {                               \
     printf_log(LOG_DEBUG, "Calling fct_gtk_object_init_" #A " wrapper\n");                  \
-    return (int)RunFunctionFmt(my_context, fct_gtk_object_init_##A, "pp", object, data);    \
+    return (int)RunFunctionFmt(fct_gtk_object_init_##A, "pp", object, data);    \
 }   \
 static uintptr_t fct_gtk_base_class_init_##A = 0;                                               \
 static int my_gtk_base_class_init_##A(void* instance, void* data) {                             \
     printf_log(LOG_DEBUG, "Calling fct_gtk_base_class_init_" #A " wrapper\n");                  \
-    return (int)RunFunctionFmt(my_context, fct_gtk_base_class_init_##A, "pp", instance, data);  \
+    return (int)RunFunctionFmt(fct_gtk_base_class_init_##A, "pp", instance, data);  \
 }
 
 SUPER()
@@ -2108,7 +2108,7 @@ void my_signal_delete(my_signal_t* sig)
     }
     uintptr_t d = sig->destroy;
     if(d) {
-        RunFunctionFmt(my_context, d, "p", sig->data);
+        RunFunctionFmt(d, "p", sig->data);
     }
     printf_log(LOG_DEBUG, "gtk Data deleted, sig=%p, data=%p, destroy=%p\n", sig, sig->data, (void*)d);
     box_free(sig);
@@ -2150,10 +2150,10 @@ int my_signal_cb(void* a, void* b, void* c, void* d)
     }
     printf_log(LOG_DEBUG, "gtk Signal called, sig=%p, NArgs=%d\n", sig, i);
     switch(i) {
-        case 1: return (int)RunFunctionFmt(my_context, sig->c_handler, "p", sig->data);
-        case 2: return (int)RunFunctionFmt(my_context, sig->c_handler, "pp", a, sig->data);
-        case 3: return (int)RunFunctionFmt(my_context, sig->c_handler, "ppp", a, b, sig->data);
-        case 4: return (int)RunFunctionFmt(my_context, sig->c_handler, "pppp", a, b, c, sig->data);
+        case 1: return (int)RunFunctionFmt(sig->c_handler, "p", sig->data);
+        case 2: return (int)RunFunctionFmt(sig->c_handler, "pp", a, sig->data);
+        case 3: return (int)RunFunctionFmt(sig->c_handler, "ppp", a, b, sig->data);
+        case 4: return (int)RunFunctionFmt(sig->c_handler, "pppp", a, b, c, sig->data);
     }
     printf_log(LOG_NONE, "Warning, Gtk signal callback but no data found!");
     return 0;

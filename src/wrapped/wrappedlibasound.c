@@ -54,7 +54,7 @@ GO(3)
 static uintptr_t my_async_fct_##A = 0;                                          \
 static void* my_async_##A(void* handler)                                        \
 {                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_async_fct_##A, "p", handler);   \
+    return (void*)RunFunctionFmt(my_async_fct_##A, "p", handler);   \
 }
 SUPER()
 #undef GO

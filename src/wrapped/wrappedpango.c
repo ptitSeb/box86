@@ -46,17 +46,17 @@ static my_PangoAttrClass_t my_PangoAttrClass_struct_##A = {0};  \
 static uintptr_t my_PangoAttrClass_copy_##A = 0;                \
 static void* my_PangoAttrClass_copyfct##A(void* attr)           \
 {                                                               \
-    return (void*)RunFunctionFmt(my_context, my_PangoAttrClass_copy_##A, "p", attr);    \
+    return (void*)RunFunctionFmt(my_PangoAttrClass_copy_##A, "p", attr);    \
 }                                                               \
 static uintptr_t my_PangoAttrClass_del_##A = 0;                 \
 static void my_PangoAttrClass_delfct##A(void* attr)             \
 {                                                               \
-    RunFunctionFmt(my_context, my_PangoAttrClass_del_##A, "p", attr);\
+    RunFunctionFmt(my_PangoAttrClass_del_##A, "p", attr);\
 }                                                               \
 static uintptr_t my_PangoAttrClass_equal_##A = 0;               \
 static int my_PangoAttrClass_equalfct##A(void* a, void* b)      \
 {                                                               \
-    return (int)RunFunctionFmt(my_context, my_PangoAttrClass_equal_##A, "pp", a, b);    \
+    return (int)RunFunctionFmt(my_PangoAttrClass_equal_##A, "pp", a, b);    \
 }
 SUPER()
 #undef GO
@@ -88,7 +88,7 @@ static void* find_PangoAttrClass_Fct(my_PangoAttrClass_t* klass)
 static uintptr_t my_AttrFilter_fct_##A = 0;                                     \
 static int my_AttrFilter_##A(void* a, void* b)                                  \
 {                                                                               \
-    return (int)RunFunctionFmt(my_context, my_AttrFilter_fct_##A, "pp", a, b);  \
+    return (int)RunFunctionFmt(my_AttrFilter_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -110,7 +110,7 @@ static void* find_AttrFilter_Fct(void* fct)
 static uintptr_t my_AttrDataCopy_fct_##A = 0;                                   \
 static void* my_AttrDataCopy_##A(void* a)                                       \
 {                                                                               \
-    return (void*)RunFunctionFmt(my_context, my_AttrDataCopy_fct_##A, "p", a);  \
+    return (void*)RunFunctionFmt(my_AttrDataCopy_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -132,7 +132,7 @@ static void* find_AttrDataCopy_Fct(void* fct)
 static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
 static void my_GDestroyNotify_##A(void* data)                           \
 {                                                                       \
-    RunFunctionFmt(my_context, my_GDestroyNotify_fct_##A, "p", data);   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data);   \
 }
 SUPER()
 #undef GO

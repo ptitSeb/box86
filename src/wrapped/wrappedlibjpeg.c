@@ -295,7 +295,7 @@ static void* is_reset_error_mgrFct(void* fct)
 static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
 static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, "p", cinfo);\
+    RunFunction_helper(my_jpeg_marker_parser_method_fct_##A, "p", cinfo);\
     return (int)ret; \
 }
 SUPER()

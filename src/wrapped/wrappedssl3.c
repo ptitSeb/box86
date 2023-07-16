@@ -37,7 +37,7 @@ GO(4)
 static uintptr_t my_SSLBadCertHandler_fct_##A = 0;                              \
 static int my_SSLBadCertHandler_##A(void* a, void* b)                           \
 {                                                                               \
-    return RunFunctionFmt(my_context, my_SSLBadCertHandler_fct_##A, "pp", a, b);\
+    return RunFunctionFmt(my_SSLBadCertHandler_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -60,7 +60,7 @@ static void* find_SSLBadCertHandler_Fct(void* fct)
 static uintptr_t my_SSLAuthCertificate_fct_##A = 0;                                         \
 static int my_SSLAuthCertificate_##A(void* a, void* b, int c, int d)                        \
 {                                                                                           \
-    return RunFunctionFmt(my_context, my_SSLAuthCertificate_fct_##A, "ppii", a, b, c, d);   \
+    return RunFunctionFmt(my_SSLAuthCertificate_fct_##A, "ppii", a, b, c, d);   \
 }
 SUPER()
 #undef GO

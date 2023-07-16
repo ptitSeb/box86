@@ -57,7 +57,7 @@ GO(4)
 static uintptr_t my_exterrorhandle_fct_##A = 0;                                                     \
 static int my_exterrorhandle_##A(void* display, void* ext_name, void* reason)                       \
 {                                                                                                   \
-    return RunFunctionFmt(my_context, my_exterrorhandle_fct_##A, "ppp", display, ext_name, reason); \
+    return RunFunctionFmt(my_exterrorhandle_fct_##A, "ppp", display, ext_name, reason); \
 }
 SUPER()
 #undef GO
@@ -89,7 +89,7 @@ static void* reverse_exterrorhandleFct(void* fct)
 static uintptr_t my_create_gc_fct_##A = 0;                          \
 static int my_create_gc_##A(void* a, uint32_t b, void* c)           \
 {                                                                   \
-    return RunFunctionFmt(my_context, my_create_gc_fct_##A, "pup", a, b, c);    \
+    return RunFunctionFmt(my_create_gc_fct_##A, "pup", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -111,7 +111,7 @@ static void* find_create_gc_Fct(void* fct)
 static uintptr_t my_copy_gc_fct_##A = 0;                        \
 static int my_copy_gc_##A(void* a, uint32_t b, void* c)         \
 {                                                               \
-    return RunFunctionFmt(my_context, my_copy_gc_fct_##A, "pup", a, b, c);  \
+    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -133,7 +133,7 @@ static void* find_copy_gc_Fct(void* fct)
 static uintptr_t my_flush_gc_fct_##A = 0;                           \
 static int my_flush_gc_##A(void* a, uint32_t b, void* c)            \
 {                                                                   \
-    return RunFunctionFmt(my_context, my_flush_gc_fct_##A, "pup", a, b, c);     \
+    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -155,7 +155,7 @@ static void* find_flush_gc_Fct(void* fct)
 static uintptr_t my_free_gc_fct_##A = 0;                           \
 static int my_free_gc_##A(void* a, uint32_t b, void* c)            \
 {                                                                  \
-    return RunFunctionFmt(my_context, my_free_gc_fct_##A, "pup", a, b, c);     \
+    return RunFunctionFmt(my_free_gc_fct_##A, "pup", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -177,7 +177,7 @@ static void* find_free_gc_Fct(void* fct)
 static uintptr_t my_create_font_fct_##A = 0;                            \
 static int my_create_font_##A(void* a, void* b, void* c)                \
 {                                                                       \
-    return RunFunctionFmt(my_context, my_create_font_fct_##A, "ppp", a, b, c);      \
+    return RunFunctionFmt(my_create_font_fct_##A, "ppp", a, b, c);      \
 }
 SUPER()
 #undef GO
@@ -199,7 +199,7 @@ static void* find_create_font_Fct(void* fct)
 static uintptr_t my_free_font_fct_##A = 0;                            \
 static int my_free_font_##A(void* a, void* b, void* c)                \
 {                                                                     \
-    return RunFunctionFmt(my_context, my_free_font_fct_##A, "ppp", a, b, c);      \
+    return RunFunctionFmt(my_free_font_fct_##A, "ppp", a, b, c);      \
 }
 SUPER()
 #undef GO
@@ -221,7 +221,7 @@ static void* find_free_font_Fct(void* fct)
 static uintptr_t my_close_display_fct_##A = 0;                  \
 static int my_close_display_##A(void* a, void* b)               \
 {                                                               \
-    return RunFunctionFmt(my_context, my_close_display_fct_##A, "pp", a, b);\
+    return RunFunctionFmt(my_close_display_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -243,7 +243,7 @@ static void* find_close_display_Fct(void* fct)
 static uintptr_t my_wire_to_event_fct_##A = 0;                          \
 static int my_wire_to_event_##A(void* a, void* b, void* c)              \
 {                                                                       \
-    return RunFunctionFmt(my_context, my_wire_to_event_fct_##A, "ppp", a, b, c);    \
+    return RunFunctionFmt(my_wire_to_event_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -265,7 +265,7 @@ static void* find_wire_to_event_Fct(void* fct)
 static uintptr_t my_event_to_wire_fct_##A = 0;                          \
 static int my_event_to_wire_##A(void* a, void* b, void* c)              \
 {                                                                       \
-    return RunFunctionFmt(my_context, my_event_to_wire_fct_##A, "ppp", a, b, c);    \
+    return RunFunctionFmt(my_event_to_wire_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -287,7 +287,7 @@ static void* find_event_to_wire_Fct(void* fct)
 static uintptr_t my_error_fct_##A = 0;                              \
 static int my_error_##A(void* a, void* b, void* c, int* d)          \
 {                                                                   \
-    return RunFunctionFmt(my_context, my_error_fct_##A, "pppp", a, b, c, d);    \
+    return RunFunctionFmt(my_error_fct_##A, "pppp", a, b, c, d);    \
 }
 SUPER()
 #undef GO
@@ -309,7 +309,7 @@ static void* find_error_Fct(void* fct)
 static uintptr_t my_error_string_fct_##A = 0;                               \
 static int my_error_string_##A(void* a, int b, void* c, void* d, int e)     \
 {                                                                           \
-    return RunFunctionFmt(my_context, my_error_string_fct_##A, "pippi", a, b, c, d, e); \
+    return RunFunctionFmt(my_error_string_fct_##A, "pippi", a, b, c, d, e); \
 }
 SUPER()
 #undef GO

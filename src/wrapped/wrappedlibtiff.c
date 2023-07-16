@@ -45,7 +45,7 @@ GO(3)   \
 static uintptr_t my_TIFFReadWriteProc_fct_##A = 0;                                          \
 static int my_TIFFReadWriteProc_##A(void* a, void* b, int c)                                \
 {                                                                                           \
-    return (int)RunFunctionFmt(my_context, my_TIFFReadWriteProc_fct_##A, "ppi", a, b, c);   \
+    return (int)RunFunctionFmt(my_TIFFReadWriteProc_fct_##A, "ppi", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -67,7 +67,7 @@ static void* find_TIFFReadWriteProc_Fct(void* fct)
 static uintptr_t my_TIFFSeekProc_fct_##A = 0;                                               \
 static int64_t my_TIFFSeekProc_##A(void* a, int64_t b, int c)                               \
 {                                                                                           \
-    return (int64_t)RunFunctionFmt64(my_context, my_TIFFSeekProc_fct_##A, "pIi", a, b, c);  \
+    return (int64_t)RunFunctionFmt64(my_TIFFSeekProc_fct_##A, "pIi", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -89,7 +89,7 @@ static void* find_TIFFSeekProc_Fct(void* fct)
 static uintptr_t my_TIFFCloseProc_fct_##A = 0;                                  \
 static int my_TIFFCloseProc_##A(void* a)                                        \
 {                                                                               \
-    return (int)RunFunctionFmt(my_context, my_TIFFCloseProc_fct_##A, "p", a);   \
+    return (int)RunFunctionFmt(my_TIFFCloseProc_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO
@@ -111,7 +111,7 @@ static void* find_TIFFCloseProc_Fct(void* fct)
 static uintptr_t my_TIFFSizeProc_fct_##A = 0;                                       \
 static int64_t my_TIFFSizeProc_##A(void* a)                                         \
 {                                                                                   \
-    return (int64_t)RunFunctionFmt64(my_context, my_TIFFSizeProc_fct_##A, "p", a);  \
+    return (int64_t)RunFunctionFmt64(my_TIFFSizeProc_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -133,7 +133,7 @@ static void* find_TIFFSizeProc_Fct(void* fct)
 static uintptr_t my_TIFFMapFileProc_fct_##A = 0;                                        \
 static int my_TIFFMapFileProc_##A(void* a, void* b, void* c)                            \
 {                                                                                       \
-    return (int)RunFunctionFmt(my_context, my_TIFFMapFileProc_fct_##A, "ppp", a, b, c); \
+    return (int)RunFunctionFmt(my_TIFFMapFileProc_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -155,7 +155,7 @@ static void* find_TIFFMapFileProc_Fct(void* fct)
 static uintptr_t my_TIFFUnmapFileProc_fct_##A = 0;                              \
 static void my_TIFFUnmapFileProc_##A(void* a, void* b, int64_t c)               \
 {                                                                               \
-    RunFunctionFmt(my_context, my_TIFFUnmapFileProc_fct_##A, "ppI", a, b, c);   \
+    RunFunctionFmt(my_TIFFUnmapFileProc_fct_##A, "ppI", a, b, c);   \
 }
 SUPER()
 #undef GO

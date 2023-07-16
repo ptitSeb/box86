@@ -326,7 +326,7 @@ typedef enum {
 static uintptr_t my_write_fct_##A = 0;                                                              \
 static size_t my_write_##A(char* ptr, size_t size, size_t nmemb, void* userdata)                    \
 {                                                                                                   \
-    return (size_t)RunFunctionFmt(my_context, my_write_fct_##A, "pLLp", ptr, size, nmemb, userdata);\
+    return (size_t)RunFunctionFmt(my_write_fct_##A, "pLLp", ptr, size, nmemb, userdata);\
 }
 SUPER()
 #undef GO
@@ -349,7 +349,7 @@ static void* find_write_Fct(void* fct)
 static uintptr_t my_read_fct_##A = 0;                                                                   \
 static size_t my_read_##A(char* buffer, size_t size, size_t nitems, void* userdata)                     \
 {                                                                                                       \
-    return (size_t)RunFunctionFmt(my_context, my_read_fct_##A, "pLLp", buffer, size, nitems, userdata); \
+    return (size_t)RunFunctionFmt(my_read_fct_##A, "pLLp", buffer, size, nitems, userdata); \
 }
 SUPER()
 #undef GO
@@ -372,7 +372,7 @@ static void* find_read_Fct(void* fct)
 static uintptr_t my_ioctl_fct_##A = 0;                                                          \
 static size_t my_ioctl_##A(void* handle, int32_t fnc, void* userdata)                           \
 {                                                                                               \
-    return (size_t)RunFunctionFmt(my_context, my_ioctl_fct_##A, "pip", handle, fnc, userdata);  \
+    return (size_t)RunFunctionFmt(my_ioctl_fct_##A, "pip", handle, fnc, userdata);  \
 }
 SUPER()
 #undef GO
@@ -395,7 +395,7 @@ static void* find_ioctl_Fct(void* fct)
 static uintptr_t my_seek_fct_##A = 0;                                                           \
 static int32_t my_seek_##A(void* userdata, int64_t off, int32_t origin)                         \
 {                                                                                               \
-    return (int32_t)RunFunctionFmt(my_context, my_seek_fct_##A, "pIi", userdata, off, origin);  \
+    return (int32_t)RunFunctionFmt(my_seek_fct_##A, "pIi", userdata, off, origin);  \
 }
 SUPER()
 #undef GO
@@ -418,7 +418,7 @@ static void* find_seek_Fct(void* fct)
 static uintptr_t my_header_fct_##A = 0;                                                                     \
 static size_t my_header_##A(char* buffer, size_t size, size_t nitems, void* userdata)                       \
 {                                                                                                           \
-    return (size_t)RunFunctionFmt(my_context, my_header_fct_##A, "pLLp", buffer, size, nitems, userdata);   \
+    return (size_t)RunFunctionFmt(my_header_fct_##A, "pLLp", buffer, size, nitems, userdata);   \
 }
 SUPER()
 #undef GO
@@ -441,7 +441,7 @@ static void* find_header_Fct(void* fct)
 static uintptr_t my_progress_fct_##A = 0;                                                                           \
 static int my_progress_##A(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)               \
 {                                                                                                                   \
-    return (int)RunFunctionFmt(my_context, my_progress_fct_##A, "pdddd", clientp, dltotal, dlnow, ultotal, ulnow);  \
+    return (int)RunFunctionFmt(my_progress_fct_##A, "pdddd", clientp, dltotal, dlnow, ultotal, ulnow);  \
 }
 SUPER()
 #undef GO

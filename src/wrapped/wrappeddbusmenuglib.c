@@ -38,7 +38,7 @@ GO(3)
 static uintptr_t my_DbusmenuClientTypeHandler_fct_##A = 0;                                      \
 static int my_DbusmenuClientTypeHandler_##A(void* a, void* b, void* c, void* d)                 \
 {                                                                                               \
-    return RunFunctionFmt(my_context, my_DbusmenuClientTypeHandler_fct_##A, "pppp", a, b, c, d);\
+    return RunFunctionFmt(my_DbusmenuClientTypeHandler_fct_##A, "pppp", a, b, c, d);\
 }
 SUPER()
 #undef GO
@@ -61,7 +61,7 @@ static void* findDbusmenuClientTypeHandlerFct(void* fct)
 static uintptr_t my_DbusmenuMenuitem_fct_##A = 0;                       \
 static void my_DbusmenuMenuitem_##A(void* a, void* b)                   \
 {                                                                       \
-    RunFunctionFmt(my_context, my_DbusmenuMenuitem_fct_##A, "pp", a, b);\
+    RunFunctionFmt(my_DbusmenuMenuitem_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO

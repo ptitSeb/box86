@@ -44,7 +44,7 @@ GO(4)
 static uintptr_t my_chunkfun_fct_##A = 0;                                   \
 static void* my_chunkfun_##A(size_t a)                                      \
 {                                                                           \
-    return (void*)RunFunctionFmt(my_context, my_chunkfun_fct_##A, "L", a);  \
+    return (void*)RunFunctionFmt(my_chunkfun_fct_##A, "L", a);  \
 }
 SUPER()
 #undef GO
@@ -77,7 +77,7 @@ static void* reverse_chunkfunFct(library_t* lib, void* fct)
 static uintptr_t my_freefun_fct_##A = 0;                    \
 static void my_freefun_##A(void* a)                         \
 {                                                           \
-    RunFunctionFmt(my_context, my_freefun_fct_##A, "p", a); \
+    RunFunctionFmt(my_freefun_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -211,7 +211,7 @@ void actual_obstack_alloc_failed_handler()
 {
     if(ref_obstack_alloc_failed_handler == my_obstack_alloc_failed_handler)
         real_obstack_alloc_failed_handler();
-    RunFunctionFmt(my_context, (uintptr_t)my_obstack_alloc_failed_handler, "");
+    RunFunctionFmt((uintptr_t)my_obstack_alloc_failed_handler, "");
 }
 void obstackSetup()
 {

@@ -1308,13 +1308,13 @@ void RunElfInitPltResolver(elfheader_t* h, x86emu_t *emu)
     }
     printf_log(LOG_DEBUG, "Calling Init for %s %p\n", ElfName(h), (void*)p);
     if(h->initentry)
-        RunSafeFunction(my_context, p, 3, my_context->argc, my_context->argv, my_context->envv);
+        RunSafeFunction(p, 3, my_context->argc, my_context->argv, my_context->envv);
     printf_log(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
     for (int i=0; i<h->initarray_sz; ++i) {
         printf_log(LOG_DEBUG, "Calling Init[%d] for %s %p\n", i, ElfName(h), (void*)addr[i]);
-        RunSafeFunction(my_context, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+        RunSafeFunction((uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
     }
 
     h->fini_done = 0;   // can be fini'd now (in case it was re-inited)
@@ -1678,7 +1678,7 @@ static int my_dl_iterate_phdr_##A(struct dl_phdr_info* a, size_t b, void* c)    
         return 0;                                                                   \
     if(!a->dlpi_name[0]) /*don't send informations about box86 itself*/             \
         return 0;                                                                   \
-    return RunFunctionFmt(my_context, my_dl_iterate_phdr_fct_##A, "pLp", a, b, c);  \
+    return RunFunctionFmt(my_dl_iterate_phdr_fct_##A, "pLp", a, b, c);  \
 }
 SUPER()
 #undef GO

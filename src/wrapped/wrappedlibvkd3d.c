@@ -43,17 +43,17 @@ typedef struct vkd3d_instance_create_info
 static uintptr_t origin_signal_event = 0;
 static int my_signal_event(void *event)
 {
-    return (int)RunFunctionFmt(my_context, origin_signal_event, "p", event);
+    return (int)RunFunctionFmt(origin_signal_event, "p", event);
 }
 static uintptr_t origin_create_thread = 0;
 static void* my_create_thread(PFN_vkd3d_thread thread_main, void *data)
 {
-    return (void*)RunFunctionFmt(my_context, origin_create_thread, "pp", thread_main, data);
+    return (void*)RunFunctionFmt(origin_create_thread, "pp", thread_main, data);
 }
 static uintptr_t origin_join_thread = 0;
 static int my_join_thread(void *thread)
 {
-    return (int)RunFunctionFmt(my_context, origin_join_thread, "p", thread);
+    return (int)RunFunctionFmt(origin_join_thread, "p", thread);
 }
 EXPORT int my_vkd3d_create_instance(x86emu_t* emu, void *create_info, void *instance)
 {

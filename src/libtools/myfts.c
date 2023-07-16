@@ -44,7 +44,7 @@ GO(3)
 static uintptr_t my_compare_fct_##A = 0;                                    \
 static int my_compare_##A(FTSENT* a, FTSENT* b)                             \
 {                                                                           \
-    return (int)RunFunctionFmt(my_context, my_compare_fct_##A, "pp", a, b); \
+    return (int)RunFunctionFmt(my_compare_fct_##A, "pp", a, b); \
 }
 #else
 #define GO(A)   \
@@ -54,7 +54,7 @@ static int my_compare_##A(FTSENT* a, FTSENT* b)                                 
     x86_ftsent_t x86_a, x86_b;                                                      \
     UnalignFTSENT(&x86_a, a);                                                       \
     UnalignFTSENT(&x86_b, b);                                                       \
-    return (int)RunFunctionFmt(my_context, my_compare_fct_##A, "pp", x86_a, x86_b); \
+    return (int)RunFunctionFmt(my_compare_fct_##A, "pp", x86_a, x86_b); \
 }
 #endif
 SUPER()
