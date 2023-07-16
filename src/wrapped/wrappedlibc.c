@@ -2744,12 +2744,6 @@ void ctSetup()
 }
 #endif
 
-EXPORT void* my___libc_stack_end;
-void stSetup(box86context_t* context)
-{
-    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
-}
-
 EXPORT void my___register_frame_info(void* a, void* b)
 {
     (void)a; (void)b;
@@ -3380,7 +3374,6 @@ EXPORT char* my_program_invocation_short_name = NULL;
     my_lib = lib;           \
     InitCpuModel();         \
     ctSetup();              \
-    stSetup(box86);         \
     obstackSetup();         \
     my_environ = my__environ = my___environ = box86->envv;                      \
     my___progname_full = my_program_invocation_name = box86->argv[0];           \

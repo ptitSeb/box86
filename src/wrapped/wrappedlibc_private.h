@@ -2216,8 +2216,6 @@ GOM(__poll_chk, iFpuii)     //%%,noE
 
 GOM(fallocate64, iFiiII)    //%%,noE
 
-DATAM(__libc_stack_end, sizeof(void*))
-
 DATAM(___brk_addr, 4)
 DATA(__libc_enable_secure, 4)
 
