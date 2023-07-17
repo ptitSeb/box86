@@ -4907,12 +4907,10 @@ int isRetX87Wrapper(wrapper_t fun) {
 	if (fun == &dFppu) return 1;
 	if (fun == &dFppp) return 1;
 	if (fun == &dFpppp) return 1;
-
 #if !defined(NOALIGN)
 	if (fun == &dFEp) return 1;
 	if (fun == &dFEpi) return 1;
 #endif
-
 #if defined(HAVE_LD80BITS)
 	if (fun == &DFD) return 1;
 	if (fun == &DFDD) return 1;
@@ -4921,7 +4919,6 @@ int isRetX87Wrapper(wrapper_t fun) {
 	if (fun == &DFppu) return 1;
 	if (fun == &DFppip) return 1;
 #endif
-
 #if !defined(HAVE_LD80BITS)
 	if (fun == &KFK) return 1;
 	if (fun == &KFKK) return 1;
