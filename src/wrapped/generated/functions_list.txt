@@ -818,7 +818,6 @@
 #() iFiuwp
 #() iFiuii
 #() iFiuui
-#() iFiupp
 #() iFipii
 #() iFipip
 #() iFipui
@@ -1195,6 +1194,7 @@
 #() vFppppp
 #() iFEiipp
 #() iFEiipV
+#() iFEiupp
 #() iFEipuu
 #() iFEippi
 #() iFEippL
@@ -3173,6 +3173,8 @@ wrappedlibc:
 - iFiiip:
 - iFiiiN:
 - iFiiII:
+- iFiupp:
+  - ptrace
 - iFipii:
 - iFipuu:
 - iFippi:

@@ -37,6 +37,7 @@
 #include <getopt.h>
 #include <pwd.h>
 #include <sys/prctl.h>
+#include <sys/ptrace.h>
 #include <malloc.h>
 
 #include "wrappedlibs.h"
@@ -3301,6 +3302,15 @@ EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun 
     (void)emu;
   iFiiiV_t f = semctl;
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
+}
+
+EXPORT int my_ptrace(x86emu_t* emu, int request, pid_t pid, void* addr, void* data)
+{
+    if(request == PTRACE_POKEUSER) {
+        // lets just ignore this for now!
+        return 0;
+    }
+    return ptrace(request, pid, addr, data);
 }
 
 #ifndef ANDROID

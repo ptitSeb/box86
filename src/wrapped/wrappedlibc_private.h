@@ -1319,7 +1319,7 @@ DATAM(program_invocation_name, 4)
 DATAM(program_invocation_short_name, 4)
 GOW(pselect, iFippppp)
 // psignal
-GO(ptrace, iFiupp)  // will that work???
+GOM(ptrace, iFEiupp)
 GO(ptsname, pFi)
 GOW(ptsname_r, iFipu)
 // __ptsname_r_chk
