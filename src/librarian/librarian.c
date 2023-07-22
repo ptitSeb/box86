@@ -400,12 +400,14 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     }
     if(go<0)
         go = 0; // not found...
+    if(maplib)
     for(int i=go; i<maplib->libsz; ++i) {
         if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
             if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0, globdefver))
                 if(*start)
                     return 1;
     }
+    if(maplib)
     for(int i=go; i<maplib->libsz; ++i)
         if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
             GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 0, weakdefver);
@@ -422,12 +424,14 @@ int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
                 if(*start)
                     weak = 1;
         }
+        if(maplib)
         for(int i=0; i<go; ++i) {
             if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
                 if(GetLibGlobalSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, globdefver))
                     if(*start)
                         return 1;
         }
+        if(maplib)
         for(int i=0; i<go; ++i) {
             if(GetElfIndex(maplib->libraries[i])==-1 || (GetElf(maplib->libraries[i])!=self))
                 GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, 1, weakdefver);
