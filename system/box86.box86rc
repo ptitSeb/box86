@@ -109,6 +109,9 @@ BOX86_DYNAREC_SAFEFLAGS=0   # this will help perf a bit
 BOX86_DYNAREC_BIGBLOCK=3    # Wine app will need 3 for bigblock to do anything
 BOX86_DYNAREC_FORWARD=512
 
+[TINTIN.exe]
+BOX86_DYNAREC_FORWARD=0
+
 [VARA.exe]
 BOX86_DYNAREC_SAFEFLAGS=2
 
