@@ -196,12 +196,19 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
                 } else if(next && (next-addr)<box86_dynarec_forward && (getProtection(next)&PROT_READ)/*box86_dynarec_bigblock>=stopblock*/) {
                     if(!((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)next))) {
-                        dyn->forward = addr;
-                        dyn->forward_to = next;
-                        dyn->forward_size = dyn->size;
-                        dyn->forward_ninst = ninst;
-                        reset_n = -2;
-                        ok = 1;
+                        if(dyn->forward) {
+                            if(next<dyn->forward_to)
+                                dyn->forward_to = next;
+                            reset_n = -2;
+                            ok = 1;
+                        } else {
+                            dyn->forward = addr;
+                            dyn->forward_to = next;
+                            dyn->forward_size = dyn->size;
+                            dyn->forward_ninst = ninst;
+                            reset_n = -2;
+                            ok = 1;
+                        }
                     }
                 }
             }
@@ -216,6 +223,16 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 }
                 dyn->insts[ninst].x86.need_after |= X_PEND;
                 ++ninst;
+            }
+            if(dyn->forward) {
+                // stopping too soon
+                dyn->size = dyn->forward_size;
+                ninst = dyn->forward_ninst+1;
+                addr = dyn->forward;
+                dyn->forward = 0;
+                dyn->forward_to = 0;
+                dyn->forward_size = 0;
+                dyn->forward_ninst = 0;
             }
             #endif
         }
