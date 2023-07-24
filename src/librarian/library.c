@@ -228,7 +228,7 @@ static void initWrappedLib(library_t *lib, box86context_t* context) {
                 printf_log(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
                 break;
             }
-            struct link_map real_lm = {0};
+            struct link_map real_lm;
             #ifndef ANDROID
             if(dlinfo(lib->w.lib, RTLD_DI_LINKMAP, &real_lm)) {
                 printf_log(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
