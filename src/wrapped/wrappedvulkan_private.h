@@ -646,3 +646,9 @@ GO(vkCmdSetViewportWScalingEnableNV, vFpi)
 
 // VK_EXT_swapchain_maintenance1
 GO(vkReleaseSwapchainImagesEXT, iFpp)
+
+// VK_EXT_depth_bias_control
+GO(vkCmdSetDepthBias2EXT, vFpP)
+
+// VK_KHR_present_wait
+GO(vkWaitForPresentKHR, iFpUUU)
