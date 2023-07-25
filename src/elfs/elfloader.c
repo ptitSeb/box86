@@ -1658,12 +1658,12 @@ void* GetDTatOffset(box86context_t* context, int index, int offset)
 
 int32_t GetTLSBase(elfheader_t* h)
 {
-    return h->tlsbase;
+    return h?h->tlsbase:0;
 }
 
 uint32_t GetTLSSize(elfheader_t* h)
 {
-    return h->tlssize;
+    return h?h->tlssize:0;
 }
 
 void* GetTLSPointer(box86context_t* context, elfheader_t* h)
