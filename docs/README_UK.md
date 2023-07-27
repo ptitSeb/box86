@@ -1,4 +1,4 @@
-![Official logo](docs/img/Box86Logo.png "Official Logo")
+![Official logo](img/Box86Logo.png "Official Logo")
 
 Емулятор простіра користувача x86_64 із родзинкою
 
@@ -64,7 +64,7 @@ Box86 інтегрується з DynaRec (динамічний рекомпіл
 Історія версій/Журнал змін
 ----
 
-Історія змін доступна [тут](docs/CHANGELOG.md).
+Історія версій доступна [тут](docs/CHANGELOG.md).
 
 ----
 
