@@ -2,7 +2,7 @@
 
 Linux用户空间的x86应用模拟器 
 
-[更新历史](https://github.com/ptitSeb/box86/blob/master/docs/CHANGELOG.md) | [English](https://github.com/ptitSeb/box86/blob/master/docs/README.md) | [Українська](https://github.com/ptitSeb/box86/blob/main/README_UK.md) | [报告错误](https://github.com/ptitSeb/box86/issues/new)
+[更新历史](https://github.com/ptitSeb/box86/blob/master/docs/CHANGELOG.md) | [English](https://github.com/ptitSeb/box86/blob/master/docs/README.md) | [Українська](https://github.com/ptitSeb/box86/blob/master/docs/README_UK.md) | [报告错误](https://github.com/ptitSeb/box86/issues/new)
 
 ![build](https://app.travis-ci.com/ptitSeb/box86.svg?branch=master) ![stars](https://img.shields.io/github/stars/ptitSeb/box86) ![forks](https://img.shields.io/github/forks/ptitSeb/box86) ![contributors](https://img.shields.io/github/contributors/ptitSeb/box86) ![prs](https://img.shields.io/github/issues-pr/ptitSeb/box86) ![issues](https://img.shields.io/github/issues/ptitSeb/box86)
 
