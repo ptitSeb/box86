@@ -40,7 +40,7 @@ Box86 інтегрується з DynaRec (динамічний рекомпіл
 
 Ви можете знайти багато інших відео про Box86 у YouTube каналах [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) або [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA).
 
-Список сумісності тут: https://github.com/ptitSeb/box86-compatibility-list/issues
+Список сумісності доступний тут: https://github.com/ptitSeb/box86-compatibility-list/issues
 
 <img src="img/Box86Icon.png" width="96" height="96">
 
@@ -53,7 +53,7 @@ Box86 інтегрується з DynaRec (динамічний рекомпіл
 Використання
 ----
 
-Є кілька змінних середовища для керування поведінкою Box64.
+Є кілька змінних середовища для керування поведінкою Box86.
 
 Дивіться [тут](USAGE.md) для перегляду всіх змінних середовища та того, що вони роблять.
 
