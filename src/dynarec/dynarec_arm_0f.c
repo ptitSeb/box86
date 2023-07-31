@@ -702,8 +702,22 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            q1 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            v0 = fpu_get_scratch_quad(dyn);
+            if(q1==q0 || !box86_dynarec_fastnan)
+                v1 = fpu_get_scratch_quad(dyn);
+            else
+                v1 = q1;
             VRSQRTEQ_F32(v0, q0);
+            VMULQ_F32(v1, v0, q0);
+            VRSQRTSQ_F32(v1, v1, v0);
+            VMULQ_F32(q1, v1, v0);
+            if(!box86_dynarec_fastnan) {
+                VCEQQ_F32(v1, q1, q1);  // 00 is nan
+                VANDQ(q1, q1, v1);  // if nan, remove
+                VBICQ(v0, v0, v1);  // if nan, keep
+                VORRQ(q1, q1, v0);
+            }
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
@@ -711,8 +725,15 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            q1 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if(q0 == q1)
+                v1 = fpu_get_scratch_quad(dyn);
+            else
+                v1 = q1;
+            v0 = fpu_get_scratch_quad(dyn);
             VRECPEQ_F32(v0, q0);
+            VRECPSQ_F32(v1, v0, q0);
+            VMULQ_F32(q1, v0, v1);
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
