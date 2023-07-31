@@ -501,8 +501,9 @@ void ApplyParams(const char* name, path_collection_t* preload)
         uintptr_t no_start = 0, no_end = 0;
         char* p;
         no_start = strtoul(param->box86_nodynarec, &p, 0);
-        if(p!=param->box86_nodynarec) {
+        if(p!=param->box86_nodynarec && p[0]=='-') {
             char* p2;
+            ++p;
             no_end = strtoul(p, &p2, 0);
             if(p2!=p && no_end>no_start) {
                 box86_nodynarec_start = no_start;
