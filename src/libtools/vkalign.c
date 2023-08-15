@@ -1072,6 +1072,7 @@ typedef struct my_vkhead_s {
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT:     \
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT:             \
     case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:                              \
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:  \
 
 #define CH(C, B, A) \
     case C:         \
@@ -1142,6 +1143,7 @@ typedef struct my_vkhead_s {
     CH(VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO, "uPUiiUiiiffff", A)             \
     CH(VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_NV, "uPi", A)         \
     CH(VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT, "uPUup", A)             \
+    CH(VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES, "uPSuuu", A)             \
 
 
 //--------------------------------------------------------------
