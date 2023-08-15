@@ -569,7 +569,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
-                    printf_dump(LOG_NEVER, "Apply R_386_COPY @%p with sym=%s (ver=%d/%s), @%p size=%ld\n", p, symname, version, vername?vername:"(none)", (void*)offs, sym->st_size);
+                    printf_dump(LOG_NEVER, "Apply R_386_COPY @%p with sym=%s (ver=%d/%s), @%p size=%zd\n", p, symname, version, vername?vername:"(none)", (void*)offs, sym->st_size);
                     if(p!=(void*)offs)
                         memmove(p, (void*)offs, sym->st_size);
                 } else {

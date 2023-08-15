@@ -141,7 +141,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
                 ++dl->dllibs[i].count;
                 if(!is_local && isLibLocal(dl->dllibs[i].lib))
                     promoteLocalLibGlobal(dl->dllibs[i].lib);
-                printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%ld (dlopened=%ld, elf_index=%d)\n", rfilename, (void*)(i+1), dl->dllibs[i].count, dl->dllibs[i].dlopened, GetElfIndex(dl->dllibs[i].lib));
+                printf_dlsym(LOG_DEBUG, "dlopen: Recycling %s/%p count=%zd (dlopened=%zd, elf_index=%d)\n", rfilename, (void*)(i+1), dl->dllibs[i].count, dl->dllibs[i].dlopened, GetElfIndex(dl->dllibs[i].lib));
                 return (void*)(i+1);
             }
         }
@@ -164,7 +164,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
                 dl->dllibs[idx].full = 1;
                 IncRefCount(dl->dllibs[idx].lib, emu);
                 SetDlOpenIdx(lib, idx);
-                printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
+                printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%zd\n", (void*)(idx+1), (char*)filename, dlopened);
                 return (void*)(idx+1);
 
             }
@@ -215,7 +215,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
     dl->dllibs[idx].is_self = lib?0:1;
     dl->dllibs[idx].full = 1;
     SetDlOpenIdx(lib, idx);
-    printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
+    printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%zd\n", (void*)(idx+1), (char*)filename, dlopened);
     return (void*)(idx+1);
 }
 void* my_dlmopen(x86emu_t* emu, void* lmid, void *filename, int flag)
