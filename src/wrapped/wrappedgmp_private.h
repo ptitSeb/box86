@@ -414,7 +414,7 @@ GO(__gmpn_zero, vFpL)
 //DATAB(__gmp_rands_initialized, 
 //DATA(__gmp_reallocate_func, 
 //GO(__gmp_scanf, 
-//GO(__gmp_set_memory_functions, 
+GOM(__gmp_set_memory_functions, vFEppp)
 //GO(__gmp_snprintf, 
 //DATA(__gmp_snprintf_funs, 
 //GO(__gmp_sprintf, 

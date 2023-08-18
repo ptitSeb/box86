@@ -2781,6 +2781,7 @@ wrappedgmodule2:
 wrappedgmp:
 - vFppp:
   - __gmp_get_memory_functions
+  - __gmp_set_memory_functions
 wrappedgnutls:
 - vFp:
   - gnutls_global_set_log_function

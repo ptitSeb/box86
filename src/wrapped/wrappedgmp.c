@@ -56,6 +56,16 @@ static void* find_alloc_func_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libgmp.so.10 alloc_func callback\n");
     return NULL;
 }
+static void* reverse_alloc_func_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_alloc_func_##A == fct) return (void*)my_alloc_func_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, pFL, fct, 0, NULL);
+}
 // realloc_func
 #define GO(A)   \
 static uintptr_t my_realloc_func_fct_##A = 0;                           \
@@ -78,6 +88,16 @@ static void* find_realloc_func_Fct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libgmp.so.10 realloc_func callback\n");
     return NULL;
+}
+static void* reverse_realloc_func_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_realloc_func_##A == fct) return (void*)my_realloc_func_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, pFpL, fct, 0, NULL);
 }
 // free_func
 #define GO(A)   \
@@ -102,12 +122,29 @@ static void* find_free_func_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libgmp.so.10 free_func callback\n");
     return NULL;
 }
+static void* reverse_free_func_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_free_func_##A == fct) return (void*)my_free_func_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
+}
 
 #undef SUPER
 
-EXPORT void my___gmp_get_memory_functions(x86emu_t* emu, void* f_alloc, void* f_realloc, void* f_free)
+EXPORT void my___gmp_get_memory_functions(x86emu_t* emu, void** f_alloc, void** f_realloc, void** f_free)
 {
-    my->__gmp_get_memory_functions(find_alloc_func_Fct(f_alloc), find_realloc_func_Fct(f_realloc), find_free_func_Fct(f_free));
+    my->__gmp_get_memory_functions(f_alloc, f_realloc, f_free);
+    *f_alloc = reverse_alloc_func_Fct(*f_alloc);
+    *f_realloc = reverse_realloc_func_Fct(*f_realloc);
+    *f_free = reverse_free_func_Fct(*f_free);
+}
+EXPORT void my___gmp_set_memory_functions(x86emu_t* emu, void* f_alloc, void* f_realloc, void* f_free)
+{
+    my->__gmp_set_memory_functions(find_alloc_func_Fct(f_alloc), find_realloc_func_Fct(f_realloc), find_free_func_Fct(f_free));
 }
 
 #define CUSTOM_INIT \
