@@ -487,10 +487,8 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
 
     for(int i=0; i<maplib->libsz; ++i) {
         if(GetLibWeakSymbolStartEnd(maplib->libraries[i], name, start, end, size, &weak, version, vername, isLocal(self, maplib->libraries[i]), weakdefver))
-            if(*start) {
-printf_log(LOG_INFO, "\t\t found weak one in %s\n", maplib->libraries[i]->name);
+            if(*start)
                 ok = 1;
-            }
     }
     // nope, not found
     return (ok && *start)?1:0;
