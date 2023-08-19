@@ -1,3 +1,16 @@
+v0.3.2
+======
+* Better syscall handling
+* Fixed some wrapped functions, added some others
+* Introduced another wrapper helper
+* Added some more opcodes
+* Added a cosimulation mode (to compare the behaviour of the dynarec against the interpreter)
+* Added support of FASTNAN for some more opcodes
+* Reduced memory footprint
+* Added BOX86_NOSANDBOX (adds an argument to the command line)
+* Added an ukrainian translation
+=> Mostly a stability update with improved elfloader, fixed opcodes and refined profiles
+
 v0.3.0
 ======
 * Added rcfile handling: box86 now read `/etc/box86.box86rc` and `~/.box86rc` and apply per process parameters
