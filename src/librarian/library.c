@@ -484,50 +484,6 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x86emu_t* 
     return 0;
 }
 
-int ReloadLibrary(library_t* lib, x86emu_t* emu)
-{
-    if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = lib->e.elf;
-        // reload image in memory and re-run the mapping
-        char libname[MAX_PATH];
-        strcpy(libname, lib->path);
-        int found = FileExist(libname, IS_FILE);
-        if(!found && !strchr(lib->path, '/'))
-            for(int i=0; i<my_context->box86_ld_lib.size; ++i)
-            {
-                strcpy(libname, my_context->box86_ld_lib.paths[i]);
-                strcat(libname, lib->path);
-                if(FileExist(libname, IS_FILE))
-                    break;
-            }
-        if(!FileExist(libname, IS_FILE)) {
-            printf_log(LOG_NONE, "Error: open file to re-load elf %s\n", libname);
-            return 1;   // failed to reload...
-        }
-        FILE *f = fopen(libname, "rb");
-        if(!f) {
-            printf_log(LOG_NONE, "Error: cannot open file to re-load elf %s (errno=%d/%s)\n", libname, errno, strerror(errno));
-            return 1;   // failed to reload...
-        }
-        if(ReloadElfMemory(f, my_context, elf_header)) {
-            printf_log(LOG_NONE, "Error: re-loading in memory elf %s\n", libname);
-            fclose(f);
-            return 1;
-        }
-        // can close the file now
-        fclose(f);
-        // should bindnow be store in a per/library basis?
-        if(RelocateElf(my_context->maplib, lib->maplib, 0, elf_header)) {
-            printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
-            return 1;
-        }
-        RelocateElfPlt(my_context->maplib, lib->maplib, 0, elf_header);
-        // init (will use PltRelocator... because some other libs are not yet resolved)
-        RunElfInit(elf_header, emu);
-    }
-    return 0;
-}
-
 int FiniLibrary(library_t* lib, x86emu_t* emu)
 {
     switch (lib->type) {
