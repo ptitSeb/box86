@@ -496,7 +496,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
             weakdefver = old_weakdefver;
         } else {
             old_globdefver = globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(maplib, local_maplib, 0, symname);
-            old_weakdefver = weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
+            old_weakdefver = weakdefver = (bind==STB_WEAK || !globdefver)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
         }
         if(bind==STB_LOCAL) {
             if(!symname || !symname[0]) {
@@ -785,7 +785,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
             weakdefver = old_weakdefver;
         } else {
             old_globdefver = globdefver = (bind==STB_WEAK)?NULL:GetMaplibDefaultVersion(maplib, local_maplib, 0, symname);
-            old_weakdefver = weakdefver = (bind==STB_WEAK)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
+            old_weakdefver = weakdefver = (bind==STB_WEAK || !globdefver)?GetMaplibDefaultVersion(maplib, local_maplib, 1, symname):NULL;
         }
         if(bind==STB_LOCAL) {
             if(!symname || !symname[0]) {
