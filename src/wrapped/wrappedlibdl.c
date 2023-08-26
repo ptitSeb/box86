@@ -18,6 +18,7 @@
 #include "box86context.h"
 #include "elfloader.h"
 #include "elfs/elfloader_private.h"
+#include "x86emu.h"
 
 typedef struct dllib_s {
     library_t*  lib;
@@ -100,7 +101,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             if(sys)
                 return sys;
         }
-        printf_dlsym(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
+        printf_dlsym(LOG_DEBUG, "Call to dlopen(\"%s\"/%p, %X) from %p(%s)\n", rfilename, filename, flag, *(void**)(R_ESP), getAddrFunctionName(*(uintptr_t*)(R_ESP)));
         // Transform any ${...} that maight be present
         while(strstr(rfilename, "${ORIGIN}")) {
             char* origin = box_strdup(my_context->fullpath);
