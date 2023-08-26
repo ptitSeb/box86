@@ -3391,11 +3391,21 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #ifdef ANDROID
 #define NEEDED_LIBS   0
+#define NEEDED_LIBS_234 3   \
+    "libpthread.so.0",      \
+    "libdl.so.2" ,          \
+    "libm.so"
 #else
 #define NEEDED_LIBS   3,\
     "ld-linux.so.2",    \
     "libpthread.so.0",  \
     "librt.so.1"
+#define NEEDED_LIBS_234 5,  \
+    "ld-linux.so.2",        \
+    "libpthread.so.0",      \
+    "librt.so.1",           \
+    "libdl.so.2",           \
+    "libm.so.6"
 #endif
 
 #define CUSTOM_INIT         \
@@ -3409,7 +3419,10 @@ EXPORT char* my_program_invocation_short_name = NULL;
     my___progname = my_program_invocation_short_name =                          \
         strrchr(box86->argv[0], '/');                                           \
     getMy(lib);                                                                 \
-    setNeededLibs(lib, NEEDED_LIBS);
+    if(box86_isglibc234)                                                        \
+        setNeededLibs(lib, NEEDED_LIBS_234);                                    \
+    else                                                                        \
+        setNeededLibs(lib, NEEDED_LIBS);
 
 #define CUSTOM_FINI \
     freeMy();
