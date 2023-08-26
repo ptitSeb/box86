@@ -3391,7 +3391,7 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #ifdef ANDROID
 #define NEEDED_LIBS   0
-#define NEEDED_LIBS_234 3   \
+#define NEEDED_LIBS_234 3,  \
     "libpthread.so.0",      \
     "libdl.so.2" ,          \
     "libm.so"
