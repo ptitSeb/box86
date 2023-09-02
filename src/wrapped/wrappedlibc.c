@@ -3186,7 +3186,7 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-#if ANDROID
+#ifdef ANDROID
 void obstackSetup() {
 }
 #else

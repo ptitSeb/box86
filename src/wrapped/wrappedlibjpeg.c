@@ -60,8 +60,14 @@ typedef struct jpeg_common_struct_s {
   int global_state;
 } jpeg_common_struct_t;
 
+#ifdef ANDROID
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 typedef struct jmpbuf_helper {
-    struct __jmp_buf_tag jmpbuf;
+    JUMPBUFF jmpbuf;
     void* client_data;
 }jmpbuf_helper;
 

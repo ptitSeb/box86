@@ -123,8 +123,14 @@ typedef struct jpeg62_destination_mgr_s {
   void (*term_destination) (void* cinfo);
 } jpeg62_destination_mgr_t;
 
+#ifdef ANDROID
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 typedef struct jmpbuf_helper {
-    struct __jmp_buf_tag jmpbuf;
+    JMPBUFF jmpbuf;
     void* client_data;
     void* compress;
 }jmpbuf_helper;
