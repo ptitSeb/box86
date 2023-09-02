@@ -79,6 +79,8 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
 }
+#endif
+
 #ifdef ANDROID
 #define JUMPBUFF sigjmp_buf
 #else

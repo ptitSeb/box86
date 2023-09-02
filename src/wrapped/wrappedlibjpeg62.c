@@ -130,7 +130,7 @@ typedef struct jpeg62_destination_mgr_s {
 #endif
 
 typedef struct jmpbuf_helper {
-    JMPBUFF jmpbuf;
+    JUMPBUFF jmpbuf;
     void* client_data;
     void* compress;
 }jmpbuf_helper;
