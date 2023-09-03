@@ -652,3 +652,6 @@ GO(vkCmdSetDepthBias2EXT, vFpP)
 
 // VK_KHR_present_wait
 GO(vkWaitForPresentKHR, iFpUUU)
+
+// VK_KHR_cooperative_matrix
+GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR, iFppp)    // last arg should be P, but it's an array, with size as second arg *uint32_t and struct looks fine
