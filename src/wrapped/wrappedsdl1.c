@@ -16,6 +16,7 @@
 #include "emu/x86emu_private.h"
 #include "box86context.h"
 #include "sdl1rwops.h"
+#include "gltools.h"
 
 #include "x86trace.h"
 #include "threads.h"
@@ -65,10 +66,10 @@ GO(4)
 
 // AudioCallback ...
 #define GO(A)   \
-static uintptr_t my_AudioCallback_fct_##A = 0;                                      \
-static void my_AudioCallback_##A(void *userdata, uint8_t *stream, int32_t len)      \
-{                                                                                   \
-    RunFunction(my_context, my_AudioCallback_fct_##A, 3, userdata, stream, len);    \
+static uintptr_t my_AudioCallback_fct_##A = 0;                                          \
+static void my_AudioCallback_##A(void *userdata, uint8_t *stream, int32_t len)          \
+{                                                                                       \
+    RunFunctionFmt(my_AudioCallback_fct_##A, "ppi", userdata, stream, len); \
 }
 SUPER()
 #undef GO
@@ -87,10 +88,10 @@ static void* find_AudioCallback_Fct(void* fct)
 }
 // TimerCallback ...
 #define GO(A)   \
-static uintptr_t my_TimerCallback_fct_##A = 0;                                                  \
-static uint32_t my_TimerCallback_##A(uint32_t interval, void *userdata)                         \
-{                                                                                               \
-    return (uint32_t)RunFunction(my_context, my_TimerCallback_fct_##A, 2, interval, userdata);  \
+static uintptr_t my_TimerCallback_fct_##A = 0;                                                      \
+static uint32_t my_TimerCallback_##A(uint32_t interval, void *userdata)                             \
+{                                                                                                   \
+    return (uint32_t)RunFunctionFmt(my_TimerCallback_fct_##A, "up", interval, userdata);\
 }
 SUPER()
 #undef GO
@@ -109,10 +110,10 @@ static void* find_TimerCallback_Fct(void* fct)
 }
 // EvtFilter ...
 #define GO(A)   \
-static uintptr_t my_EvtFilter_fct_##A = 0;                      \
-static int my_EvtFilter_##A(void* p)                            \
-{                                                               \
-    return RunFunction(my_context, my_EvtFilter_fct_##A, 1, p); \
+static uintptr_t my_EvtFilter_fct_##A = 0;                          \
+static int my_EvtFilter_##A(void* p)                                \
+{                                                                   \
+    return RunFunctionFmt(my_EvtFilter_fct_##A, "p", p);\
 }
 SUPER()
 #undef GO
@@ -351,56 +352,11 @@ void EXPORT my_SDL_KillThread(x86emu_t* emu, void* p)
     my->SDL_KillThread(p);
 }
 
-void fillGLProcWrapper(box86context_t* context);
 EXPORT void* my_SDL_GL_GetProcAddress(x86emu_t* emu, void* name) 
 {
     khint_t k;
     const char* rname = (const char*)name;
-    printf_log(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(%s)\n", rname);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    if(!emu->context->glwrappers)
-        fillGLProcWrapper(emu->context);
-    // get proc adress using actual glXGetProcAddress
-    k = kh_get(symbolmap, emu->context->glmymap, rname);
-    int is_my = (k==kh_end(emu->context->glmymap))?0:1;
-    void* symbol;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
-        symbol = dlsym(emu->context->box86lib, tmp);
-    } else 
-        symbol = my->SDL_GL_GetProcAddress(name);
-    if(!symbol)
-        return NULL;    // easy
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret)
-        return (void*)ret; // already bridged
-    // get wrapper    
-    k = kh_get(symbolmap, emu->context->glwrappers, rname);
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
-        // try again, adding ARB at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "ARB");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "EXT")==NULL) {
-        // try again, adding EXT at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "EXT");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers)) {
-        printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
-        return NULL;
-    }
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    const char* constname = kh_key(emu->context->glwrappers, k);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
+    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 // DL functions from wrappedlibdl.c

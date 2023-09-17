@@ -19,6 +19,7 @@
 #include "sdl2rwops.h"
 #include "myalign.h"
 #include "threads.h"
+#include "gltools.h"
 
 #include "generated/wrappedsdl2defs.h"
 
@@ -104,10 +105,10 @@ GO(4)
 
 // Timer
 #define GO(A)   \
-static uintptr_t my_Timer_fct_##A = 0;                                      \
-static uint32_t my_Timer_##A(uint32_t a, void* b)                           \
-{                                                                           \
-    return (uint32_t)RunFunction(my_context, my_Timer_fct_##A, 2, a, b);    \
+static uintptr_t my_Timer_fct_##A = 0;                                          \
+static uint32_t my_Timer_##A(uint32_t a, void* b)                               \
+{                                                                               \
+    return (uint32_t)RunFunctionFmt(my_Timer_fct_##A, "up", a, b);  \
 }
 SUPER()
 #undef GO
@@ -128,10 +129,10 @@ static void* find_Timer_Fct(void* fct)
 }
 // AudioCallback
 #define GO(A)   \
-static uintptr_t my_AudioCallback_fct_##A = 0;                      \
-static void my_AudioCallback_##A(void* a, void* b, int c)           \
-{                                                                   \
-    RunFunction(my_context, my_AudioCallback_fct_##A, 3, a, b, c);  \
+static uintptr_t my_AudioCallback_fct_##A = 0;                              \
+static void my_AudioCallback_##A(void* a, void* b, int c)                   \
+{                                                                           \
+    RunFunctionFmt(my_AudioCallback_fct_##A, "ppi", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -152,10 +153,10 @@ static void* find_AudioCallback_Fct(void* fct)
 }
 // eventfilter
 #define GO(A)   \
-static uintptr_t my_eventfilter_fct_##A = 0;                                \
-static int my_eventfilter_##A(void* userdata, void* event)                  \
-{                                                                           \
-    return (int)RunFunction(my_context, my_eventfilter_fct_##A, 2, userdata, event);    \
+static uintptr_t my_eventfilter_fct_##A = 0;                                                \
+static int my_eventfilter_##A(void* userdata, void* event)                                  \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_eventfilter_fct_##A, "pp", userdata, event);  \
 }
 SUPER()
 #undef GO
@@ -190,7 +191,7 @@ static void* reverse_eventfilter_Fct(void* fct)
 static uintptr_t my_LogOutput_fct_##A = 0;                                  \
 static void my_LogOutput_##A(void* a, int b, int c, void* d)                \
 {                                                                           \
-    RunFunction(my_context, my_LogOutput_fct_##A, 4, a, b, c, d);  \
+    RunFunctionFmt(my_LogOutput_fct_##A, "piip", a, b, c, d);   \
 }
 SUPER()
 #undef GO
@@ -425,6 +426,13 @@ EXPORT int64_t my2_SDL_RWseek(x86emu_t* emu, void* a, int64_t offset, int32_t wh
 {
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     int64_t ret = RWNativeSeek2(rw, offset, whence);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT int64_t my2_SDL_RWsize(x86emu_t* emu, void* a)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = my->SDL_RWsize(rw);
     RWNativeEnd2(rw);
     return ret;
 }
@@ -726,71 +734,19 @@ EXPORT void my2_SDL_Log(x86emu_t* emu, void* fmt, void *b) {
     #endif
 }
 
-void fillGLProcWrapper(box86context_t*);
 EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name) 
 {
     khint_t k;
     const char* rname = (const char*)name;
-    printf_dlsym(LOG_DEBUG, "Calling SDL_GL_GetProcAddress(\"%s\") => ", rname);
-    // check if glxprocaddress is filled, and search for lib and fill it if needed
-    if(!emu->context->glxprocaddress)
-        emu->context->glxprocaddress = (procaddess_t)my->SDL_GL_GetProcAddress;
-    if(!emu->context->glwrappers) {
-        fillGLProcWrapper(emu->context);
-        // check if libGL is loaded, load it if not (helps DeadCells)
-        if(!my_glhandle && !GetLibInternal(box86_libGL?box86_libGL:"libGL.so.1")) {
+    static int lib_checked = 0;
+    if(!lib_checked) {
+        lib_checked = 1;
+            // check if libGL is loaded, load it if not (helps some Haxe games, like DeadCells or Nuclear Blaze)
+        if(!my_glhandle && !GetLibInternal(box86_libGL?box86_libGL:"libGL.so.1"))
             // use a my_dlopen to actually open that lib, like SDL2 is doing...
             my_glhandle = my_dlopen(emu, box86_libGL?box86_libGL:"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
-        }
     }
-    // get proc adress using actual glXGetProcAddress
-    k = kh_get(symbolmap, emu->context->glmymap, rname);
-    int is_my = (k==kh_end(emu->context->glmymap))?0:1;
-    void* symbol;
-    if(is_my) {
-        // try again, by using custom "my_" now...
-        char tmp[200];
-        strcpy(tmp, "my_");
-        strcat(tmp, rname);
-        symbol = dlsym(emu->context->box86lib, tmp);
-    } else 
-        symbol = my->SDL_GL_GetProcAddress(name);
-    if(!symbol) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
-        return NULL;    // easy
-    }
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret) {
-        printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
-        return (void*)ret; // already bridged
-    }
-    // get wrapper    
-    k = kh_get(symbolmap, emu->context->glwrappers, rname);
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "ARB")==NULL) {
-        // try again, adding ARB at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "ARB");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers) && strstr(rname, "EXT")==NULL) {
-        // try again, adding EXT at the end if not present
-        char tmp[200];
-        strcpy(tmp, rname);
-        strcat(tmp, "EXT");
-        k = kh_get(symbolmap, emu->context->glwrappers, tmp);
-    }
-    if(k==kh_end(emu->context->glwrappers)) {
-        printf_dlsym(LOG_DEBUG, "%p\n", NULL);
-        if(dlsym_error && box86_log<LOG_INFO) printf_log(LOG_NONE, "Warning, no wrapper for %s\n", rname);
-        return NULL;
-    }
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    const char* constname = kh_key(emu->context->glwrappers, k);
-    ret  = AddBridge(emu->context->system, kh_value(emu->context->glwrappers, k), symbol, 0, constname);
-    printf_dlsym(LOG_DEBUG, "%p\n", (void*)ret);
-    return (void*)ret;
+    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
 #define nb_once	16
@@ -799,7 +755,7 @@ static uintptr_t dtor_emu[nb_once] = {0};
 static void tls_dtor_callback(int n, void* a)
 {
 	if(dtor_emu[n]) {
-        RunFunction(my_context, dtor_emu[n], 1, a);
+        RunFunctionFmt(dtor_emu[n], "p", a);
 	}
 }
 #define GO(N) \
@@ -987,7 +943,7 @@ void* my_vkGetInstanceProcAddr(x86emu_t* emu, void* device, void* name);
 EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x86emu_t* emu)
 {
     if(!emu->context->vkprocaddress)
-        emu->context->vkprocaddress = (vkprocaddess_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
+        emu->context->vkprocaddress = (vkprocaddress_t)my->SDL_Vulkan_GetVkGetInstanceProcAddr();
 
     if(emu->context->vkprocaddress)
         return (void*)AddCheckBridge(my_lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");

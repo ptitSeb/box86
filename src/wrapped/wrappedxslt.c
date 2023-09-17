@@ -40,10 +40,10 @@ GO(4)
 
 // xmlXPathFunction ...
 #define GO(A)   \
-static uintptr_t my_xmlXPathFunction_fct_##A = 0;                   \
-static void my_xmlXPathFunction_##A(void* a, int b)                 \
-{                                                                   \
-    RunFunction(my_context, my_xmlXPathFunction_fct_##A, 2, a, b);  \
+static uintptr_t my_xmlXPathFunction_fct_##A = 0;                       \
+static void my_xmlXPathFunction_##A(void* a, int b)                     \
+{                                                                       \
+    RunFunctionFmt(my_xmlXPathFunction_fct_##A, "pi", a, b);\
 }
 SUPER()
 #undef GO
@@ -62,10 +62,10 @@ static void* find_xmlXPathFunction_Fct(void* fct)
 }
 // xsltDocLoaderFunc ...
 #define GO(A)   \
-static uintptr_t my_xsltDocLoaderFunc_fct_##A = 0;                                          \
-static void* my_xsltDocLoaderFunc_##A(void* a, void* b, int c, void* d, int e)              \
-{                                                                                           \
-    return (void*)RunFunction(my_context, my_xsltDocLoaderFunc_fct_##A, 5, a, b, c, d, e);  \
+static uintptr_t my_xsltDocLoaderFunc_fct_##A = 0;                                                  \
+static void* my_xsltDocLoaderFunc_##A(void* a, void* b, int c, void* d, int e)                      \
+{                                                                                                   \
+    return (void*)RunFunctionFmt(my_xsltDocLoaderFunc_fct_##A, "ppipi", a, b, c, d, e); \
 }
 SUPER()
 #undef GO

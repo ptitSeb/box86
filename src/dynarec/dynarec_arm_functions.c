@@ -27,6 +27,8 @@
 #include "dynarec_arm_private.h"
 #include "dynarec_arm_functions.h"
 #include "bridge.h"
+#include "arm_printer.h"
+#include "custommem.h"
 
 void arm_fstp(x86emu_t* emu, void* p)
 {
@@ -109,7 +111,7 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
         memcpy(ed, &STll(0).sq, sizeof(int64_t));
     } else {
         int64_t tmp;
-        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, (double)(int64_t)0x8000000000000000LL) || !isfinite(ST0.d))
+        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(ST0.d))
             tmp = 0x8000000000000000LL;
         else
             tmp = fpu_round(emu, ST0.d);
@@ -120,7 +122,7 @@ void arm_fistp64(x86emu_t* emu, int64_t* ed)
 int64_t arm_fist64_0(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = nearbyint(d);
@@ -129,7 +131,7 @@ int64_t arm_fist64_0(double d)
 int64_t arm_fist64_1(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = floor(d);
@@ -138,7 +140,7 @@ int64_t arm_fist64_1(double d)
 int64_t arm_fist64_2(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = ceil(d);
@@ -147,7 +149,7 @@ int64_t arm_fist64_2(double d)
 int64_t arm_fist64_3(double d)
 {
     int64_t tmp;
-    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, (double)(int64_t)0x8000000000000000LL) || !isfinite(d))
+    if(isgreater(d, (double)(int64_t)0x7fffffffffffffffLL) || isless(d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(d))
         tmp = 0x8000000000000000LL;
     else
         tmp = trunc(d);
@@ -170,7 +172,20 @@ void arm_fld(x86emu_t* emu, uint8_t* ed)
 
 void arm_ud(x86emu_t* emu)
 {
+    emu->test.test = 0;
     emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+}
+
+void arm_priv(x86emu_t* emu)
+{
+    emu->test.test = 0;
+    emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+}
+
+void arm_singlestep(x86emu_t* emu)
+{
+    emu->test.test = 0;
+    emit_signal(emu, SIGTRAP, (void*)R_EIP, 1);
 }
 
 void arm_fsave(x86emu_t* emu, uint8_t* ed)
@@ -208,6 +223,10 @@ void arm_fprem1(x86emu_t* emu)
     emu->sw.f.F87_C0 = ((tmp64s>>2)&1);
 }
 
+void arm_clflush(x86emu_t* emu, void* p)
+{
+    cleanDBFromAddressRange((uintptr_t)p, 8, 0);
+}
 
 // Get a FPU single scratch reg
 int fpu_get_scratch_single(dynarec_arm_t* dyn)
@@ -703,13 +722,13 @@ int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int
 #define PK(a)       *(uint8_t*)(addr+a)
 #define PK32(a)     *(uint32_t*)(addr+a)
 
-    if(!addr)
+    if(!addr || !getProtection(addr))
         return 0;
     if(PK(0)==0xff && PK(1)==0x25) {  // absolute jump, maybe the GOT
         uintptr_t a1 = (PK32(2));   // need to add a check to see if the address is from the GOT !
         addr = (uintptr_t)getAlternate(*(void**)a1); 
     }
-    if(addr<0x10000)    // too low, that is suspicious
+    if(addr<0x10000 || !getProtection(addr))    // too low, that is suspicious
         return 0;
     onebridge_t *b = (onebridge_t*)(addr);
     if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {
@@ -736,24 +755,6 @@ const char* getCacheName(int t, int n)
         case NEON_CACHE_NONE: buff[0]='\0'; break;
     }
     return buff;
-}
-
-// is inst clean for a son branch?
-int isInstClean(dynarec_arm_t* dyn, int ninst)
-{
-    // check flags cache
-    if(dyn->insts[ninst].f_entry.dfnone || dyn->insts[ninst].f_entry.pending)
-        return 0;
-    if(dyn->insts[ninst].x86.state_flags)
-        return 0;
-    // check neoncache
-    neoncache_t* n = &dyn->insts[ninst].n;
-    if(n->news || n->stack || n->stack_next)
-        return 0;
-    for(int i=0; i<24; ++i)
-        if(n->neoncache[i].v)
-            return 0;
-    return 1;
 }
 
 static int flagsCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
@@ -796,4 +797,58 @@ int CacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     if (fpuCacheNeedsTransform(dyn, ninst)) ret|=1;
     if (flagsCacheNeedsTransform(dyn, ninst)) ret|=2;
     return ret;
+}
+
+void inst_name_pass3(dynarec_arm_t* dyn, int ninst, const char* name)
+{
+    if(box86_dynarec_dump) {
+        printf_x86_instruction(my_context->dec, &dyn->insts[ninst].x86, name);
+        dynarec_log(LOG_NONE, "%s%p: %d emited opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X sm=%d/%d",
+            (box86_dynarec_dump>1)?"\e[32m":"",
+            (void*)(dyn->arm_start+dyn->insts[ninst].address),
+            dyn->insts[ninst].size/4,
+            ninst,
+            dyn->insts[ninst].x86.barrier,
+            dyn->insts[ninst].x86.state_flags,
+            dyn->f.pending,
+            dyn->f.dfnone,
+            dyn->insts[ninst].x86.may_set?"may":"set",
+            dyn->insts[ninst].x86.set_flags,
+            dyn->insts[ninst].x86.gen_flags,
+            dyn->insts[ninst].x86.use_flags,
+            dyn->insts[ninst].x86.need_before,
+            dyn->insts[ninst].x86.need_after,
+            dyn->smread, dyn->smwrite);
+        if(dyn->insts[ninst].pred_sz) {
+            dynarec_log(LOG_NONE, ", pred=");
+            for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)
+                dynarec_log(LOG_NONE, "%s%d", ii?"/":"", dyn->insts[ninst].pred[ii]);
+        }
+        if(dyn->insts[ninst].x86.jmp && dyn->insts[ninst].x86.jmp_insts>=0)
+            dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x86.jmp_insts);
+        if(dyn->insts[ninst].x86.jmp && dyn->insts[ninst].x86.jmp_insts==-1)
+            dynarec_log(LOG_NONE, ", jmp=out");
+        for(int ii=0; ii<24; ++ii) {
+            switch(dyn->insts[ninst].n.neoncache[ii].t) {
+                case NEON_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii+8, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", (ii+8)*2, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii+8, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:%s", (ii+8)/2, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); ++ii; break;
+                case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:%s", (ii+8)/2, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); ++ii; break;
+                case NEON_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii+8, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_NONE:
+                default:    break;
+            }
+        }
+        if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)
+            dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
+        if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
+            dynarec_log(LOG_NONE, " %s:%d/%d", dyn->insts[ninst].n.swapped?"SWP":"CMB", dyn->insts[ninst].n.combined1, dyn->insts[ninst].n.combined2);
+        dynarec_log(LOG_NONE, "%s\n", (box86_dynarec_dump>1)?"\e[m":"");
+    }
+}
+
+void print_opcode(dynarec_arm_t* dyn, int ninst, uint32_t opcode)
+{
+    dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, arm_print(opcode));
 }

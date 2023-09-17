@@ -390,6 +390,8 @@ Op is 20-27
 #define LDRD_IMM8(reg, addr, imm8) EMIT(c__ | 0b000<<25 | 1<<24  | (((imm8)<0)?0:1)<<23 | 1<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | ((abs(imm8))&0xf0)<<(8-4) | (0b1101<<4) | ((abs(imm8))&0x0f) )
 // ldrd reg, reg+1, [addr, +rm], reg must be even, reg+1 is implicit
 #define LDRD_REG(reg, addr, rm) EMIT(c__ | 0b000<<25 | 1<<24  | 1<<23 | 0<<22 | 0<<21 | 0<<20 | ((reg) << 12) | ((addr) << 16) | 0b1101<<4 | (rm) )
+// ldr reg, [pc+imm]
+#define LDR_literal(reg, imm12) EMIT(c__ | 0b010<<25 | 1<<24 | (((imm12)>=0)?1:0)<<23 | 0<<21 | 1<<20 | 0b1111<<16 | (reg)<<12 | (abs(imm12)))
 
 // str reg, [addr, #+/-imm9]
 #define STR_IMM9(reg, addr, imm9) EMIT(0xe5000000 | (((imm9)<0)?0:1)<<23 | ((reg) << 12) | ((addr) << 16) | brIMM(imm9) )
@@ -600,7 +602,12 @@ Op is 20-27
 
 #define DMB_gen(opt)    (0b1111<<28 | 0b01010111<<20 | 0b1111<<16 | 0b1111<<12 | 0b0000<<8 | 0b0101<<4 | (opt))
 // Data memory barrier Inner Sharable
+#ifdef PANDORA
+// The Pandora is single code, DMB is not usefull here so just emit nothing
+#define DMB_ISH()
+#else
 #define DMB_ISH()   EMIT(DMB_gen(0b1011))
+#endif
 
 #define SWP_gen(cond, B, Rn, Rt, Rt2)   (cond | 0b0001<<24 | (B)<<22 | (Rn)<<16 | (Rt)<<12 | 0b1001<<4 | (Rt2))
 // SWAP (atomic) [Rn]->Rt2 / Rt->[Rn], Rt can be same as Rt2

@@ -33,6 +33,11 @@ EXPORT void* my____tls_get_addr(x86emu_t* emu)
     return GetDTatOffset(emu->context, t->i, t->o);
 }
 
+EXPORT void* my___libc_stack_end;
+void stSetup(box86context_t* context)
+{
+    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
+}
 
 const char* ldlinuxName = "ld-linux.so.3";
 #define LIBNAME ldlinux
@@ -50,6 +55,9 @@ EXPORT void* my__r_debug[5];
     if(1)                                                           \
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
+
+#define CUSTOM_INIT         \
+    stSetup(box86);         \
 
 #include "wrappedlib_init.h"
 

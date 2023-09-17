@@ -4,6 +4,7 @@
     dyn->isize = addr-sav_addr;\
     dyn->insts[ninst].x86.addr = addr;\
     if(ninst) dyn->insts[ninst-1].x86.size = dyn->insts[ninst].x86.addr - dyn->insts[ninst-1].x86.addr
+
 #define MESSAGE(A, ...)  
 #define MAYSETFLAGS()   dyn->insts[ninst].x86.may_set = 1
 #define READFLAGS(A)    \
@@ -15,13 +16,13 @@
         dyn->f.pending=(B)&SF_SET_PENDING;      \
         dyn->f.dfnone=((B)&SF_SET)?1:0;
 #define EMIT(A)     
-#define JUMP(A, C)      if((A)>addr) add_next(dyn, (uintptr_t)(A)); dyn->insts[ninst].x86.jmp = A; dyn->insts[ninst].x86.jmp_cond = C
+#define JUMP(A, C)      add_next(dyn, (uintptr_t)A); dyn->insts[ninst].x86.jmp = A; dyn->insts[ninst].x86.jmp_cond = C
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x86.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
 #define BARRIER_NEXT(A) dyn->insts[ninst+1].x86.barrier = A
 #define NEW_INST \
         ++dyn->size;                            \
         if(dyn->size+3>=dyn->cap) {             \
-                dyn->insts = (instruction_arm_t*)box_realloc(dyn->insts, sizeof(instruction_arm_t)*dyn->cap*2); \
+                dyn->insts = (instruction_arm_t*)dynaRealloc(dyn->insts, sizeof(instruction_arm_t)*dyn->cap*2);\
                 memset(&dyn->insts[dyn->cap], 0, sizeof(instruction_arm_t)*dyn->cap);   \
                 dyn->cap *= 2;                  \
         }                                       \

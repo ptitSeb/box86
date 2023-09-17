@@ -60,8 +60,14 @@ typedef struct jpeg_common_struct_s {
   int global_state;
 } jpeg_common_struct_t;
 
+#ifdef ANDROID
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 typedef struct jmpbuf_helper {
-    struct __jmp_buf_tag jmpbuf;
+    JUMPBUFF jmpbuf;
     void* client_data;
 }jmpbuf_helper;
 
@@ -74,7 +80,7 @@ typedef struct jmpbuf_helper {
 #define RunFunction_helper(...) \
     jmpbuf_helper* helper = ((jpeg_common_struct_t*)cinfo)->client_data; \
     ((jpeg_common_struct_t*)cinfo)->client_data = helper->client_data; \
-    uint32_t ret = RunFunction(__VA_ARGS__); \
+    uint32_t ret = RunFunctionFmt(__VA_ARGS__); \
     ((jpeg_common_struct_t*)cinfo)->client_data = helper;
 
 static jpeg_error_mgr_t native_err_mgr;
@@ -295,7 +301,7 @@ static void* is_reset_error_mgrFct(void* fct)
 static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
 static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_jpeg_marker_parser_method_fct_##A, "p", cinfo);\
     return (int)ret; \
 }
 SUPER()

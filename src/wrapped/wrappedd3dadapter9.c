@@ -225,55 +225,55 @@ static void freeMy()
 #define GOV(ns, ret, fn, args, call) \
     static uintptr_t my_##ns##_##fn##_fct = 0; \
     static ret my_##ns##_##fn(UNPACK args) { \
-        ret r = (ret)RunFunction(my_context, my_##ns##_##fn##_fct, UNPACK call); \
+        ret r = (ret)RunFunctionFmt(my_##ns##_##fn##_fct, UNPACK call); \
 /* no closing brace */
 
-#define GOV_1(ns, ret, fn, t1) \
-    GOV(ns, ret, fn, (t1 a), (1, a)) return r; }
-#define GOV_2(ns, ret, fn, t1, t2) \
-    GOV(ns, ret, fn, (t1 a, t2 b), (2, a, b)) return r; }
-#define GOV_3(ns, ret, fn, t1, t2, t3) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (3, a, b, c)) return r; }
-#define GOV_4(ns, ret, fn, t1, t2, t3, t4) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d), (4, a, b, c, d)) return r; }
-#define GOV_5(ns, ret, fn, t1, t2, t3, t4, t5) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e), (5, a, b, c, d, e)) return r; }
-#define GOV_6(ns, ret, fn, t1, t2, t3, t4, t5, t6) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f), (6, a, b, c, d, e, f)) return r; }
-#define GOV_7(ns, ret, fn, t1, t2, t3, t4, t5, t6, t7) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g), (7, a, b, c, d, e, f, g)) return r; }
-#define GOV_8(ns, ret, fn, t1, t2, t3, t4, t5, t6, t7, t8) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g, t8 h), (8, a, b, c, d, e, f, g, h)) return r; }
+#define GOV_1(ns, ret, fn, fmt, t1) \
+    GOV(ns, ret, fn, (t1 a), (fmt, a)) return r; }
+#define GOV_2(ns, ret, fn, fmt, t1, t2) \
+    GOV(ns, ret, fn, (t1 a, t2 b), (fmt, a, b)) return r; }
+#define GOV_3(ns, ret, fn, fmt, t1, t2, t3) \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (fmt, a, b, c)) return r; }
+#define GOV_4(ns, ret, fn, fmt, t1, t2, t3, t4) \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d), (fmt, a, b, c, d)) return r; }
+#define GOV_5(ns, ret, fn, fmt, t1, t2, t3, t4, t5) \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e), (fmt, a, b, c, d, e)) return r; }
+#define GOV_6(ns, ret, fn, fmt, t1, t2, t3, t4, t5, t6) \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f), (fmt, a, b, c, d, e, f)) return r; }
+#define GOV_7(ns, ret, fn, fmt, t1, t2, t3, t4, t5, t6, t7) \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g), (fmt, a, b, c, d, e, f, g)) return r; }
+#define GOV_8(ns, ret, fn, fmt, t1, t2, t3, t4, t5, t6, t7, t8) \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g, t8 h), (fmt, a, b, c, d, e, f, g, h)) return r; }
 
 #define GOS(ns, ret, fn, ...) \
     my_##ns##_##fn##_fct = (uintptr_t)vtbl->fn; \
     vtbl->fn = my_##ns##_##fn;
 
 #define SUPER(ns, X1, X2, X3, X4, X5, X6, X7, X8) \
-        X3(ns, int, QueryInterface, void*, void*, void**) \
-        X1(ns, unsigned, AddRef, void*) \
-        X1(ns, unsigned, Release, void*) \
-        X3(ns, int, SetPresentParameters, void*, void*, void*) \
-        X8(ns, int, NewD3DWindowBufferFromDmaBuf, void*, int, int, int, int, int, int, void**) \
-        X2(ns, int, DestroyD3DWindowBuffer, void*, void*) \
-        X2(ns, int, WaitBufferReleased, void*, void*) \
-        X2(ns, int, FrontBufferCopy, void*, void*) \
-        X7(ns, int, PresentBuffer, void*, void*, void*, const void*, const void*, const void*, unsigned) \
-        X2(ns, int, GetRasterStatus, void*, void*) \
-        X3(ns, int, GetDisplayMode, void*, void*, void*) \
-        X2(ns, int, GetPresentStats, void*, void*) \
-        X2(ns, int, GetCursorPos, void*, void*) \
-        X2(ns, int, SetCursorPos, void*, void*) \
-        X4(ns, int, SetCursor, void*, void*, void*, int) \
-        X3(ns, int, SetGammaRamp, void*, const void*, void*) \
-        X5(ns, int, GetWindowInfo, void*, void*, void*, void*, void*) \
-        X1(ns, int, GetWindowOccluded, void*) \
-        X1(ns, int, ResolutionMismatch, void*) \
-        X3(ns, void*, CreateThread, void*, void*, void*) \
-        X2(ns, int, WaitForThread, void*, void*) \
-        X2(ns, int, SetPresentParameters2, void*, void*) \
-        X2(ns, int, IsBufferReleased, void*, void*) \
-        X1(ns, int, WaitBufferReleaseEvent, void*) \
+        X3(ns, int, QueryInterface, "ppp", void*, void*, void**) \
+        X1(ns, unsigned, AddRef, "p", void*) \
+        X1(ns, unsigned, Release, "p", void*) \
+        X3(ns, int, SetPresentParameters, "ppp", void*, void*, void*) \
+        X8(ns, int, NewD3DWindowBufferFromDmaBuf, "piiiiiip", void*, int, int, int, int, int, int, void**) \
+        X2(ns, int, DestroyD3DWindowBuffer, "pp", void*, void*) \
+        X2(ns, int, WaitBufferReleased, "pp", void*, void*) \
+        X2(ns, int, FrontBufferCopy, "pp", void*, void*) \
+        X7(ns, int, PresentBuffer, "ppppppu", void*, void*, void*, const void*, const void*, const void*, unsigned) \
+        X2(ns, int, GetRasterStatus, "pp", void*, void*) \
+        X3(ns, int, GetDisplayMode, "ppp", void*, void*, void*) \
+        X2(ns, int, GetPresentStats, "pp", void*, void*) \
+        X2(ns, int, GetCursorPos, "pp", void*, void*) \
+        X2(ns, int, SetCursorPos, "pp", void*, void*) \
+        X4(ns, int, SetCursor, "pppi", void*, void*, void*, int) \
+        X3(ns, int, SetGammaRamp, "ppp", void*, const void*, void*) \
+        X5(ns, int, GetWindowInfo, "pppp", void*, void*, void*, void*, void*) \
+        X1(ns, int, GetWindowOccluded, "p", void*) \
+        X1(ns, int, ResolutionMismatch, "p", void*) \
+        X3(ns, void*, CreateThread, "ppp", void*, void*, void*) \
+        X2(ns, int, WaitForThread, "pp", void*, void*) \
+        X2(ns, int, SetPresentParameters2, "pp", void*, void*) \
+        X2(ns, int, IsBufferReleased, "pp", void*, void*) \
+        X1(ns, int, WaitBufferReleaseEvent, "p", void*) \
 
 SUPER(Present, GOV_1, GOV_2, GOV_3, GOV_4, GOV_5, GOV_6, GOV_7, GOV_8)
 
@@ -285,8 +285,8 @@ static void fixup_PresentVtbl(ID3DPresentVtbl *vtbl)
 
 static int pres_init = 0;
 
-#define GOV_PRES(ns, ret, fn, t1, t2, t3) \
-        GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (3, a, b, c)) \
+#define GOV_PRES(ns, ret, fn, fmt, t1, t2, t3) \
+        GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (fmt, a, b, c)) \
         ID3DPresentVtbl*** vtbl = (void*)c; \
         if (!pres_init) fixup_PresentVtbl(**vtbl); \
         pres_init = 1; \
@@ -294,13 +294,13 @@ static int pres_init = 0;
     }
 
 #define SUPER(ns, X1, X2, X3, XPRES) \
-        X3(ns, int, QueryInterface, void*, void*, void**) \
-        X1(ns, unsigned, AddRef, void*) \
-        X1(ns, unsigned, Release, void*) \
-        X1(ns, unsigned, GetMultiheadCount, void*) \
-        XPRES(ns, int, GetPresent, void*, unsigned, void**) \
-        X3(ns, int, CreateAdditionalPresent, void*, void*, void**) \
-        X3(ns, /*void*/ int, GetVersion, void*, void*, void*) \
+        X3(ns, int, QueryInterface, "ppp", void*, void*, void**) \
+        X1(ns, unsigned, AddRef, "p", void*) \
+        X1(ns, unsigned, Release, "p", void*) \
+        X1(ns, unsigned, GetMultiheadCount, "p", void*) \
+        XPRES(ns, int, GetPresent, "pup", void*, unsigned, void**) \
+        X3(ns, int, CreateAdditionalPresent, "ppp", void*, void*, void**) \
+        X3(ns, /*void*/ int, GetVersion, "ppp", void*, void*, void*) \
 
 SUPER(PresentGroup, GOV_1, GOV_2, GOV_3, GOV_PRES)
 
@@ -319,13 +319,13 @@ typedef struct my_Direct3D9 {
 unsigned my_Direct3D9_AddRef(void *This)
 {
     my_Direct3D9 *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
+    return RunFunctionFmt((uintptr_t)(*my->real)->AddRef, "p", my->real);
 }
 
 unsigned my_Direct3D9_Release(void *This)
 {
     my_Direct3D9 *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
+    return RunFunctionFmt((uintptr_t)(*my->real)->Release, "p", my->real);
 }
 
 IDirect3D9Vtbl my_Direct3D9_vtbl = {
@@ -341,13 +341,13 @@ typedef struct my_Direct3D9Ex {
 unsigned my_Direct3D9Ex_AddRef(void *This)
 {
     my_Direct3D9Ex *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->AddRef, 1, my->real);
+    return RunFunctionFmt((uintptr_t)(*my->real)->AddRef, "p", my->real);
 }
 
 unsigned my_Direct3D9Ex_Release(void *This)
 {
     my_Direct3D9Ex *my = This;
-    return RunFunction(my_context, (uintptr_t)(*my->real)->Release, 1, my->real);
+    return RunFunctionFmt((uintptr_t)(*my->real)->Release, "p", my->real);
 }
 
 IDirect3D9ExVtbl my_Direct3D9Ex_vtbl = {

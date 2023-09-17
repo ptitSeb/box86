@@ -312,7 +312,7 @@ EXPORT int my_pthread_create(x86emu_t *emu, void* t, void* attr, void* start_rou
 	if(box86_dynarec) {
 		// pre-creation of the JIT code for the entry point of the thread
 		dynablock_t *current = NULL;
-		DBGetBlock(emu, (uintptr_t)start_routine, 1, &current);
+		DBGetBlock(emu, (uintptr_t)start_routine, 1);
 	}
 	#endif
 	// create thread
@@ -336,7 +336,7 @@ void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet
 	if(box86_dynarec) {
 		// pre-creation of the JIT code for the entry point of the thread
 		dynablock_t *current = NULL;
-		DBGetBlock(emu, (uintptr_t)f, 1, &current);
+		DBGetBlock(emu, (uintptr_t)f, 1);
 	}
 	#endif
 	*pet =  et;
@@ -440,10 +440,10 @@ GO(29)
 
 // key_destructor
 #define GO(A)   \
-static uintptr_t my_key_destructor_fct_##A = 0;  \
-static void my_key_destructor_##A(void* a)    			\
-{                                       		\
-    RunFunction(my_context, my_key_destructor_fct_##A, 1, a);\
+static uintptr_t my_key_destructor_fct_##A = 0;  					\
+static void my_key_destructor_##A(void* a)    						\
+{                                       							\
+    RunFunctionFmt(my_key_destructor_fct_##A, "p", a);	\
 }
 SUPER()
 #undef GO
@@ -462,10 +462,10 @@ static void* findkey_destructorFct(void* fct)
 }
 // cleanup_routine
 #define GO(A)   \
-static uintptr_t my_cleanup_routine_fct_##A = 0;  \
-static void my_cleanup_routine_##A(void* a)    			\
-{                                       		\
-    RunFunction(my_context, my_cleanup_routine_fct_##A, 1, a);\
+static uintptr_t my_cleanup_routine_fct_##A = 0;  					\
+static void my_cleanup_routine_##A(void* a)    						\
+{                                       							\
+    RunFunctionFmt(my_cleanup_routine_fct_##A, "p", a);	\
 }
 SUPER()
 #undef GO

@@ -41,10 +41,10 @@ GO(4)
 
 // r_read ...
 #define GO(A)   \
-static uintptr_t my_r_read_fct_##A = 0;                                 \
-static ssize_t my_r_read_##A(void* a, void* b, size_t n)             \
-{                                                                                       \
-    return (ssize_t)RunFunction(my_context, my_r_read_fct_##A, 3, a, b, n); \
+static uintptr_t my_r_read_fct_##A = 0;                                             \
+static ssize_t my_r_read_##A(void* a, void* b, size_t n)                            \
+{                                                                                   \
+    return (ssize_t)RunFunctionFmt(my_r_read_fct_##A, "ppL", a, b, n);  \
 }
 SUPER()
 #undef GO
@@ -66,7 +66,7 @@ static void* find_r_read_Fct(void* fct)
 static uintptr_t my_r_lseek_fct_##A = 0;                                                                                            \
 static int64_t my_r_lseek_##A(void* a, int64_t b, int n)                                                                            \
 {                                                                                                                                   \
-    return (int64_t)RunFunction64(my_context, my_r_lseek_fct_##A, 4, a, (uint32_t)(b&0xffffffff), (uint32_t)(b>>32)&0xffffffff, n); \
+    return (int64_t)RunFunctionFmt64(my_r_lseek_fct_##A, "pIi", a, b, n); \
 }
 SUPER()
 #undef GO
@@ -85,10 +85,10 @@ static void* find_r_lseek_Fct(void* fct)
 }
 // cleanup ...
 #define GO(A)   \
-static uintptr_t my_cleanup_fct_##A = 0;                \
-static void my_cleanup_##A(void* a)                     \
-{                                                       \
-    RunFunction(my_context, my_cleanup_fct_##A, 1, a);  \
+static uintptr_t my_cleanup_fct_##A = 0;                    \
+static void my_cleanup_##A(void* a)                         \
+{                                                           \
+    RunFunctionFmt(my_cleanup_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO

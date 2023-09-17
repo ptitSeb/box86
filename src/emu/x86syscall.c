@@ -51,6 +51,7 @@ int32_t my___sendmmsg(x86emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, ui
 #endif
 #endif
 typedef struct x86_sigaction_s x86_sigaction_t;
+typedef struct x86_sigaction_restorer_s x86_sigaction_restorer_t;
 
 
 int32_t my_getrandom(x86emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
@@ -67,6 +68,7 @@ int32_t my_epoll_ctl(x86emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* 
 int32_t my_epoll_wait(x86emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
 #endif
 int my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact);
+int my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_restorer_t *act, x86_sigaction_restorer_t *oldact, int sigsetsize);
 int32_t my_execve(x86emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int offset);
 void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
@@ -139,6 +141,9 @@ scwrap_t syscallwrap[] = {
     { 19, __NR_lseek, 3 },
     { 20, __NR_getpid, 0 },
     { 24, __NR_getuid, 0 },
+#ifdef __NR_alarm
+    { 27, __NR_alarm, 1 },
+#endif
     { 33, __NR_access, 2 },
     { 37, __NR_kill, 2 },
     { 38, __NR_rename, 2 },
@@ -156,12 +161,14 @@ scwrap_t syscallwrap[] = {
     { 63, __NR_dup2, 2 },
     { 64, __NR_getppid, 0 },
     { 66, __NR_setsid, 0 },
+    //{ 67, __NR_sigaction, 3 },
     { 75, __NR_setrlimit, 2 },
 #ifdef __NR_getrlimit
     { 76, __NR_getrlimit, 2 },
 #endif
     { 77, __NR_getrusage, 2 },
     { 78, __NR_gettimeofday, 2 },
+    { 80, __NR_getgroups, 2 },
     { 83, __NR_symlink, 2 },
 #ifdef __NR_select
     { 82, __NR_select, 5 },
@@ -205,6 +212,7 @@ scwrap_t syscallwrap[] = {
     //{ 122, __NR_uname, 1 },
     //{ 123, __NR_modify_ldt },
     //{ 125, __NR_mprotect, 3 },
+    { 126, __NR_sigprocmask, 3 },
     { 136, __NR_personality, 1 },
     { 140, __NR__llseek, 5 },
     { 141, __NR_getdents, 3 },
@@ -481,6 +489,13 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;
 #endif
+#ifndef __NR_alarm
+        case 27:
+            R_EAX = alarm(R_EBX);
+            if(R_EAX==0xffffffff && errno>0)
+                R_EAX = (uint32_t)-errno;
+            break;
+#endif
         case 45:    // sys_brk
             R_EAX = (uintptr_t)ElfSetBrk((void*)R_EBX);
             if(R_EAX==0xffffffff && errno>0)
@@ -493,6 +508,11 @@ void EXPORT x86Syscall(x86emu_t *emu)
             break;
         case 55: // sys_fcntl
             R_EAX = (uint32_t)my_fcntl(emu, (int)R_EBX, (int)R_ECX, R_EDX);
+            if(R_EAX==0xffffffff && errno>0)
+                R_EAX = (uint32_t)-errno;
+            break;
+        case 67: // sys_sigaction
+            R_EAX = (uint32_t)my_syscall_sigaction(emu, R_EBX, (x86_sigaction_restorer_t*)R_ECX, (x86_sigaction_restorer_t*)R_EDX, R_ESI);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;
@@ -803,8 +823,14 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
             return (uint32_t)close(i32(4));
         case 11: // execve
             return (uint32_t)my_execve(emu, p(4), p(8), p(12));
+#ifndef __NR_alarm
+        case 27:
+            return alarm(R_EBX);
+#endif
         case 45: // brk
             return (uintptr_t)ElfSetBrk(p(4));
+        case 67: // sys_sigaction
+            return my_syscall_sigaction(emu, u32(4), (x86_sigaction_restorer_t*)p(8), (x86_sigaction_restorer_t*)p(12), u32(16));
         case 91:   // munmap
             return (uint32_t)my_munmap(emu, p(4), u32(8));
 #ifndef __NR_socketcall

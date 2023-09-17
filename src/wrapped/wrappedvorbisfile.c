@@ -328,10 +328,10 @@ GO(7)
 
 // read
 #define GO(A)   \
-static uintptr_t my_read_fct_##A = 0;   \
-static unsigned long my_read_##A(void* ptr, unsigned long size, unsigned long nmemb, void* datasource)     \
-{                                       \
-    return (unsigned long)RunFunction(my_context, my_read_fct_##A, 4, ptr, size, nmemb, datasource);\
+static uintptr_t my_read_fct_##A = 0;                                                                       \
+static unsigned long my_read_##A(void* ptr, unsigned long size, unsigned long nmemb, void* datasource)      \
+{                                                                                                           \
+    return (unsigned long)RunFunctionFmt(my_read_fct_##A, "pLLp", ptr, size, nmemb, datasource);\
 }
 SUPER()
 #undef GO
@@ -350,10 +350,10 @@ static void* findreadFct(void* fct)
 }
 // seek
 #define GO(A)   \
-static uintptr_t my_seek_fct_##A = 0;   \
-static int my_seek_##A(void* ptr, int64_t offset, int whence)     \
-{                                       \
-    return (int)RunFunction(my_context, my_seek_fct_##A, 4, ptr, (uintptr_t)(offset&0xffffffff), (uintptr_t)(offset>>32), whence);\
+static uintptr_t my_seek_fct_##A = 0;                                                   \
+static int my_seek_##A(void* ptr, int64_t offset, int whence)                           \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_seek_fct_##A, "pIi", ptr, offset, whence);\
 }
 SUPER()
 #undef GO
@@ -372,10 +372,10 @@ static void* findseekFct(void* fct)
 }
 // close
 #define GO(A)   \
-static uintptr_t my_close_fct_##A = 0;   \
-static int my_close_##A(void* ptr)     \
-{                   \
-    return (int)RunFunction(my_context, my_close_fct_##A, 1, ptr);\
+static uintptr_t my_close_fct_##A = 0;                                  \
+static int my_close_##A(void* ptr)                                      \
+{                                                                       \
+    return (int)RunFunctionFmt(my_close_fct_##A, "p", ptr); \
 }
 SUPER()
 #undef GO
@@ -394,10 +394,10 @@ static void* findcloseFct(void* fct)
 }
 // tell
 #define GO(A)   \
-static uintptr_t my_tell_fct_##A = 0;   \
-static long my_tell_##A(void* ptr)     \
-{                                       \
-    return (long)RunFunction(my_context, my_tell_fct_##A, 1, ptr);\
+static uintptr_t my_tell_fct_##A = 0;                                   \
+static long my_tell_##A(void* ptr)                                      \
+{                                                                       \
+    return (long)RunFunctionFmt(my_tell_fct_##A, "p", ptr); \
 }
 SUPER()
 #undef GO

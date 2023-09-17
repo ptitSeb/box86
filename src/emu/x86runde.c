@@ -1,3 +1,37 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x87emu_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "box86context.h"
+
+#include "modrm.h"
+
+#ifdef TEST_INTERPRETER
+uintptr_t TestDE(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t RunDE(x86emu_t *emu, uintptr_t addr)
+#endif
+{
+    uint8_t nextop;
+    int32_t tmp32s;
+    int64_t ll;
+    double d;
+    reg32_t *oped;
+    #ifdef TEST_INTERPRETER
+    x86emu_t*emu = test->emu;
+    #endif
+
     nextop = F8;
     switch (nextop) {
     case 0xC0:  /* FADDP STx, ST0 */
@@ -95,7 +129,7 @@
     case 0xDD:
     case 0xDE:
     case 0xDF:
-        goto _default;
+        return 0;
     
     default:
         switch((nextop>>3)&7) {
@@ -124,6 +158,8 @@
                 ST0.d = (double)EW->sword[0] / ST0.d;
                 break;
         default:
-            goto _default;
+            return 0;
         }
     }
+    return addr;
+}

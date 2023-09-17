@@ -37,10 +37,10 @@ GO(6)   \
 GO(7)
 
 #define GO(A)   \
-static uintptr_t my_Event_fct_##A = 0;   \
-static void my_Event_##A(void* w, void* data, void* event)     \
-{                                       \
-    RunFunction(my_context, my_Event_fct_##A, 3, w, data, event);\
+static uintptr_t my_Event_fct_##A = 0;                                  \
+static void my_Event_##A(void* w, void* data, void* event)              \
+{                                                                       \
+    RunFunctionFmt(my_Event_fct_##A, "ppp", w, data, event);\
 }
 SUPER()
 #undef GO

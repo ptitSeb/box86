@@ -32,10 +32,10 @@ GO(4)
 
 // GAsyncReadyCallback
 #define GO(A)   \
-static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;                    \
-static void my_GAsyncReadyCallback_##A(void* a, void* b, void* c)       \
-{                                                                       \
-    RunFunction(my_context, my_GAsyncReadyCallback_fct_##A, 3, a, b, c);\
+static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;                            \
+static void my_GAsyncReadyCallback_##A(void* a, void* b, void* c)               \
+{                                                                               \
+    RunFunctionFmt(my_GAsyncReadyCallback_fct_##A, "ppp", a, b, c); \
 }
 SUPER()
 #undef GO

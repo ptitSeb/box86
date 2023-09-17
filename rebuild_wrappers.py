@@ -679,12 +679,12 @@ class Clauses:
 		return isinstance(o, Clauses) and (self.clauses == o.clauses)
 
 JumbledFunctions     = CustOrderedDictList[Clause, Function]
-FilesSpecific        = Dict[Filename, FileSpec]
+FileSpecifics        = Dict[Filename, FileSpec]
 
 SortedGlobals        = CustOrderedDictList[Clauses, FunctionType]
 SortedRedirects      = CustOrderedDictList[Clauses, FunctionType]
 
-def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions, FilesSpecific]:
+def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions, FileSpecifics]:
 	"""
 	readFiles
 	
@@ -693,7 +693,7 @@ def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions,
 	
 	gbls:      JumbledFunctions = CustOrderedDictList()
 	redirects: JumbledFunctions = CustOrderedDictList()
-	filespecs: FilesSpecific    = {}
+	filespecs: FileSpecifics    = {}
 	
 	symbols: Dict[str, Filename] = {}
 	need_halt: bool = False
@@ -880,7 +880,7 @@ def readFiles(files: Iterable[str]) -> Tuple[JumbledFunctions, JumbledFunctions,
 	
 	return gbls, redirects, filespecs
 
-def sortArrays(gbl_funcs: JumbledFunctions, red_funcs: JumbledFunctions, filespecs: FilesSpecific) \
+def sortArrays(gbl_funcs: JumbledFunctions, red_funcs: JumbledFunctions, filespecs: FileSpecifics) \
  -> Tuple[SortedGlobals, SortedRedirects]:
 	# First sort file specific stuff
 	for fn in filespecs:
@@ -944,13 +944,13 @@ def sortArrays(gbl_funcs: JumbledFunctions, red_funcs: JumbledFunctions, filespe
 		redirects[red_vals[funtype]].append(funtype)
 	redirects.sort(key=Clauses.splitdef)
 	
-	def fail(): assert(False)
+	def fail(): assert False
 	for clauses in redirects:
 		redirects[clauses].sort(key=lambda v: fail() if v.redirected is None else v.splitchar() + v.redirected.splitchar())
 	
 	return gbls, redirects
 
-def checkRun(root: str, gbls: SortedGlobals, redirects: SortedRedirects, filesspec: FilesSpecific) -> Optional[str]:
+def checkRun(root: str, gbls: SortedGlobals, redirects: SortedRedirects, filespecs: FileSpecifics) -> Optional[str]:
 	# Check if there was any new functions compared to last run
 	functions_list: str = ""
 	for clauses in gbls:
@@ -960,18 +960,18 @@ def checkRun(root: str, gbls: SortedGlobals, redirects: SortedRedirects, filessp
 		for v in redirects[clauses]:
 			assert(v.redirected is not None)
 			functions_list = functions_list + "#" + str(clauses) + " " + v.orig + " -> " + v.redirected.orig + "\n"
-	for filename in sorted(filesspec.keys()):
+	for filename in sorted(filespecs.keys()):
 		functions_list = functions_list + filename + ":\n"
-		for st in filesspec[filename].structs:
-			struct = filesspec[filename].structs[st]
+		for st in filespecs[filename].structs:
+			struct = filespecs[filename].structs[st]
 			functions_list = functions_list + \
 				"% " + st + " " + struct.name + " " + struct.repl + "\n"
-		for _bare in filesspec[filename].typedefs:
+		for _bare in filespecs[filename].typedefs:
 			functions_list = functions_list + "- " + _bare.orig + ":\n"
-			for fn in filesspec[filename].typedefs[_bare]:
+			for fn in filespecs[filename].typedefs[_bare]:
 				if fn.no_dlsym: continue
 				functions_list = functions_list + "  - " + fn.name + "\n"
-		for funtype in filesspec[filename].structsuses:
+		for funtype in filespecs[filename].structsuses:
 			assert(funtype.redirected is not None)
 			functions_list = functions_list + "% " + funtype.orig + " -> " + funtype.redirected.orig + "\n"
 	
@@ -992,7 +992,7 @@ def checkRun(root: str, gbls: SortedGlobals, redirects: SortedRedirects, filessp
 	return functions_list
 
 def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobals, redirects: SortedRedirects, \
- filespecs: FilesSpecific) -> None:
+ filespecs: FileSpecifics) -> None:
 	# Files header and guard
 	files_header = {
 		"wrapper.c": """
@@ -1147,6 +1147,13 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		files_header[fhdr] = banner + trim(files_header[fhdr])
 	for fhdr in files_header:
 		files_guard[fhdr] = trim(files_guard[fhdr])
+	
+	# TODO: put the informations below in a structure (like in box64, where
+	# typedefs & co. are stored in an ABI-specific structure)
+	
+	return_x87: str = "DKdf"
+	if any(c not in FileSpec.values for c in return_x87):
+		raise NotImplementedError("Invalid character")
 	
 	# Typedefs
 	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        2                  P        G        N      M      s
@@ -1309,6 +1316,22 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 			if not clauses.empty():
 				file.write("#endif\n")
 		
+		# Finally, write predicate functions
+		
+		# isRetX87Wrapper
+		file.write("\nint isRetX87Wrapper(wrapper_t fun) {\n")
+		for clauses in gbls:
+			empty = True
+			for funtype in gbls[clauses]:
+				if funtype.orig[0] in return_x87: # TODO: put this in a function (functions would request the ABI for more info)
+					if empty and (not clauses.empty()):
+						file.write("#if " + str(clauses) + "\n")
+						empty = False
+					file.write("\tif (fun == &" + funtype.orig + ") return 1;\n")
+			if not empty:
+				file.write("#endif\n")
+		file.write("\treturn 0;\n}\n")
+		
 		file.write(files_guard["wrapper.c"].format(lbr="{", rbr="}", version=ver))
 	
 	# Rewrite the wrapper.h file:
@@ -1398,6 +1421,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.0.0.10") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.0.0.11") != 0:
 		exit(2)
 	exit(0)

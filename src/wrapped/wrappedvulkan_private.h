@@ -198,7 +198,7 @@ GO(vkGetPhysicalDeviceFormatProperties2, vFpip)
 GOM(vkGetPhysicalDeviceImageFormatProperties2, iFEpPp)
 GO(vkGetPhysicalDeviceMemoryProperties2, vFpp)
 GOM(vkGetPhysicalDeviceProperties2, vFEpp)
-GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)    //VkQueueFamilyProperties2 seems OK
+GO(vkGetPhysicalDeviceQueueFamilyProperties2, iFppp)    //VkQueueFamilyProperties2 seems OK
 GO(vkGetPhysicalDeviceSparseImageFormatProperties2, vFpPpp) //VkSparseImageFormatProperties2 seems OK
 GO(vkGetPhysicalDeviceToolProperties, iFppp)
 GO(vkUpdateDescriptorSetWithTemplate, vFpUUp)
@@ -643,3 +643,15 @@ GO(vkCmdSetShadingRateImageEnableNV, vFpi)
 GO(vkCmdSetTessellationDomainOriginEXT, vFpi)
 GO(vkCmdSetViewportSwizzleNV, vFpuup)
 GO(vkCmdSetViewportWScalingEnableNV, vFpi)
+
+// VK_EXT_swapchain_maintenance1
+GO(vkReleaseSwapchainImagesEXT, iFpp)
+
+// VK_EXT_depth_bias_control
+GO(vkCmdSetDepthBias2EXT, vFpP)
+
+// VK_KHR_present_wait
+GO(vkWaitForPresentKHR, iFpUUU)
+
+// VK_KHR_cooperative_matrix
+GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR, iFppp)    // last arg should be P, but it's an array, with size as second arg *uint32_t and struct looks fine

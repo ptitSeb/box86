@@ -24,6 +24,7 @@
 #include "x86trace.h"
 #endif
 #include "x86tls.h"
+#include "x86emu.h"
 
 #define PARITY(x)   (((emu->x86emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
@@ -882,6 +883,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
                 printFunctionAddr(*(uintptr_t*)(R_ESP), "=> ");
             } else if(peek==0x55) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
+                printFunctionAddr(*(uintptr_t*)(R_ESP), "top:");
                 printFunctionAddr(ip, "here: ");
             } else if(peek==0xE8) { // Call
                 uintptr_t nextaddr = ip + 5 + PK32(1);
@@ -890,7 +892,7 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
                 const uint8_t pk1 = PK(1);
                 if(((pk1>>3)&7)==2 || ((pk1>>3)&7)==4) { // jmp/call near
                     uintptr_t nextaddr = (uintptr_t)getAlternate((void*)evalED(emu, ip+1));
-                    printf_log(LOG_NONE, " => %p", nextaddr);
+                    printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, " / ");
                 }
             }

@@ -27,6 +27,8 @@
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
 
+int isRetX87Wrapper(wrapper_t fun);
+
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
@@ -1245,6 +1247,15 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
             ORR_IMM8(xFlags, xFlags, 2, 0);
             SET_DFNONE(x1);
+            if(box86_wine) {    // should this be done all the time?
+                TSTS_IMM8_ROR(xFlags, 0x1, 12); // 0x100 == F_TF
+                B_NEXT(cEQ);
+                MOV32(x1, addr);
+                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP));
+                STR_IMM9(x1, xEmu, offsetof(x86emu_t, ip));
+                CALL(arm_singlestep, -1, 0);
+                BFC(xFlags, F_TF, 1);   // should not be needed
+            }
             break;
         case 0x9E:
             INST_NAME("SAHF");
@@ -1663,6 +1674,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
                 {
                     addr+=4;
+                    SKIPTEST(x14);
                     MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
                     MOV32(x14, ip+1+2);
                     STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
@@ -1672,6 +1684,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    SKIPTEST(x14);
                     x87_forget(dyn, ninst, x3, x14, 0);
                     if((box86_log<2) && !cycle_log) {   // call the wrapper directly
                         uintptr_t ncall[2]; // to avoid BUSERROR!!!
@@ -1715,10 +1728,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xCD:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            SKIPTEST(x14);
             SMEND();
-            if(PK(0)==0x80) {
+            u8 = F8;
+            if(u8==0x80) {
                 INST_NAME("Syscall");
-                u8 = F8;
                 BARRIER(BARRIER_FLOAT);
                 MOV32(xEIP, ip+2);
                 STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
@@ -1734,7 +1748,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 jump_to_epilog(dyn, 0, xEIP, ninst);
             } else {
                 INST_NAME("INT Ib");
-                DEFAULT;
+                if(box86_wine && u8==0x2D) {
+                    MESSAGE(LOG_DEBUG, "Hack for wine/int 2d\n");
+                } else {
+                    DEFAULT;
+                }
             }
             break;
 
@@ -2158,8 +2176,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 tmp = dyn->insts[ninst].pass2choice = 1;
             else if ((getProtection(u32)&PROT_READ) && (PKa(u32+0)==0x8B) && (((PKa(u32+1))&0xC7)==0x04) && (PKa(u32+2)==0x24) && (PKa(u32+3)==0xC3))
                 tmp = dyn->insts[ninst].pass2choice = 2;
-            /*else if(isNativeCall(dyn, u32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
-                tmp = dyn->insts[ninst].pass2choice = 3;*/
+            else if(isNativeCall(dyn, u32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
             else 
                 tmp = dyn->insts[ninst].pass2choice = 0;
             #else
@@ -2169,18 +2187,19 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call 0\n");
+                    SKIPTEST(x14);
                     MOV32(xEIP, addr);
                     PUSH1(xEIP);
                     break;
                 case 2:
                     //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
+                    SKIPTEST(x14);
                     u8 = PK(i32+1);
                     gd = xEAX+((u8&0x38)>>3);
                     MOV32(gd, addr);
                     break;
-                // disabling this to avoid fetching data outside current block (in case this part changed, this block will not been marck as dirty)
-                /*case 3:
+                case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     BARRIER(BARRIER_FULL);
                     BARRIER_NEXT(BARRIER_FULL);
@@ -2188,7 +2207,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     // calling a native function
-                    x87_forget(dyn, ninst, x3, x14, 0);
+                    if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2))) {
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x14, x1);
+                    }
                     if((box86_log<2) && !cycle_log && dyn->insts[ninst].natcall) {   // call the wrapper directly
                         uintptr_t ncall[2];
                         memcpy(ncall,  (void*)(dyn->insts[ninst].natcall+2), 2*sizeof(void*));   // the wrapper + function
@@ -2219,16 +2241,22 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     B_NEXT(cNE);    // not quitting, so lets continue
                     MARK;
                     jump_to_epilog(dyn, 0, xEIP, ninst);
-                    break;*/
+                    break;
                 default:
                     if((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
-                        //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    BARRIER(BARRIER_FLOAT);
                     //BARRIER_NEXT(BARRIER_FULL);
+                    if(/*box86_dynarec_callret &&*/ box86_dynarec_bigblock>1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
                     *need_epilog = 0;
                     *ok = 0;
                     MOV32(x2, addr);
@@ -2252,11 +2280,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 INST_NAME("JMP Ib");
                 i32 = F8S;
             }
-            JUMP(addr+i32, 0);
+            JUMP((uintptr_t)getAlternate((void*)(addr+i32)), 0);
             if(dyn->insts[ninst].x86.jmp_insts==-1) {
                 // out of the block
                 fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
-                jump_to_next(dyn, addr+i32, 0, ninst);
+                jump_to_next(dyn, (uintptr_t)getAlternate((void*)(addr+i32)), 0, ninst);
             } else {
                 // inside the block
                 CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
@@ -2271,9 +2299,19 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             *ok = 0;
             break;
         
-        case 0xEE:
-            INST_NAME("OUT dx, al");
-            //ignored!
+        case 0xEC:                      /* IN AL, DX */
+        case 0xED:                      /* IN EAX, DX */
+        case 0xEE:                      /* OUT DX, AL */
+        case 0xEF:                      /* OUT DX, EAX */
+            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX? AL":"OUT DX, EAX")));
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+            STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            CALL(arm_priv, -1, 0);
+            LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            jump_to_epilog(dyn, 0, xEIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         case 0xF0:
@@ -2764,13 +2802,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             ORRS_IMM8(xFlags, xFlags, 1, 0);
             break;
         case 0xFA:
-            INST_NAME("CLI");
-            BFC(xFlags, F_IF, 1);
-            break;
         case 0xFB:
-            INST_NAME("STI");
-            MOVW(x1, 1);
-            BFI(xFlags, x1, F_IF, 1);
+            INST_NAME(opcode==0xFA?"STI":"CLI");
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+            STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            CALL(arm_priv, -1, 0);
+            LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+            jump_to_epilog(dyn, 0, xEIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
         case 0xFC:
             INST_NAME("CLD");
@@ -2823,10 +2864,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
-                    PASS2IF((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags), 1) {
+                    PASS2IF((box86_dynarec_safeflags>1) ||
+                        ((ninst && dyn->insts[ninst-1].x86.set_flags)
+                        || ((ninst>1) && dyn->insts[ninst-2].x86.set_flags)), 1)
+                    {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
-                        //SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
                     GETEDH(xEIP);
                     BARRIER(BARRIER_FLOAT);

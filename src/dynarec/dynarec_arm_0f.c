@@ -90,6 +90,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             //CALL(arm_ud, -1, 0);
+            SKIPTEST(x14);
             UDF(0);
             break;
 
@@ -421,6 +422,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x31:
             INST_NAME("RDTSC");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
+            SKIPTEST(x14);
             CALL(ReadTSC, xEAX, 0);   // will return the u64 in x1:xEAX
             MOV_REG(xEDX, x1);
             break;
@@ -656,6 +658,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x51:
             INST_NAME("SQRTPS Gx, Ex");
+            SKIPTEST(x1);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
@@ -695,19 +698,42 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
+            SKIPTEST(x1);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            q1 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            v0 = fpu_get_scratch_quad(dyn);
+            if(q1==q0 || !box86_dynarec_fastnan)
+                v1 = fpu_get_scratch_quad(dyn);
+            else
+                v1 = q1;
             VRSQRTEQ_F32(v0, q0);
+            VMULQ_F32(v1, v0, q0);
+            VRSQRTSQ_F32(v1, v1, v0);
+            VMULQ_F32(q1, v1, v0);
+            if(!box86_dynarec_fastnan) {
+                VCEQQ_F32(v1, q1, q1);  // 00 is nan
+                VANDQ(q1, q1, v1);  // if nan, remove
+                VBICQ(v0, v0, v1);  // if nan, keep
+                VORRQ(q1, q1, v0);
+            }
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
+            SKIPTEST(x1);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
-            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            q1 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if(q0 == q1)
+                v1 = fpu_get_scratch_quad(dyn);
+            else
+                v1 = q1;
+            v0 = fpu_get_scratch_quad(dyn);
             VRECPEQ_F32(v0, q0);
+            VRECPSQ_F32(v1, v0, q0);
+            VMULQ_F32(q1, v0, v1);
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
@@ -791,7 +817,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0);
+            // VMIN/VMAX wll put default NaN if any input is NaN
+            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
+            if(!box86_dynarec_fastnan) {
+                if(v0==v1) {
+                    q1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ(q1, v1);
+                } else
+                    q1 = v1;
+            }
             VMINQ_F32(v0, v0, v1);
+            if(!box86_dynarec_fastnan) {
+                q0 = fpu_get_scratch_quad(dyn);
+                VCEQQ_F32(q0, v0, v0);   // 0 is NaN, -1 is not NaN
+                VANDQ(v0, v0, q0);
+                VBICQ(q0, q1, q0);
+                VORRQ(v0, v0, q0);
+            }
             break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
@@ -815,7 +857,23 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0);
+            // VMIN/VMAX wll put default NaN if any input is NaN
+            // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
+            if(!box86_dynarec_fastnan) {
+                if(v0==v1) {
+                    q1 = fpu_get_scratch_quad(dyn);
+                    VMOVQ(q1, v1);
+                } else
+                    q1 = v1;
+            }
             VMAXQ_F32(v0, v0, v1);
+            if(!box86_dynarec_fastnan) {
+                q0 = fpu_get_scratch_quad(dyn);
+                VCEQQ_F32(q0, v0, v0);   // 0 is NaN, -1 is not NaN
+                VANDQ(v0, v0, q0);
+                VBICQ(q0, q1, q0);
+                VORRQ(v0, v0, q0);
+            }
             break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gm,Em");
@@ -1640,7 +1698,20 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("XRSTOR Ed (not implemented");
                         FAKEED;
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                        STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+                        STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
                         CALL(arm_ud, -1, 0);
+                        LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
+                        jump_to_epilog(dyn, 0, xEIP, ninst);
+                        *need_epilog = 0;
+                        *ok = 0;
+                        break;
+                    case 7:
+                        INST_NAME("CLFLUSH Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization?\n");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
+                        if(ed!=x1) {MOV_REG(x1, ed);}
+                        CALL_(arm_clflush, -1, 0);
                         break;
                     default:
                         DEFAULT;

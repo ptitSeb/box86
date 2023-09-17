@@ -1834,7 +1834,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 			start = (start >> 4) + ((start & 0xF) << 1);
 		}
 		
-		char tmp[6];
+		char tmp[7];
 		for (int cur = start; cur < start + size - 1; ++cur) {
 			sprintf(tmp, "%c%d, ", regChr, cur);
 			strcat(ret, tmp);

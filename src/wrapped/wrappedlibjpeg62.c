@@ -123,8 +123,14 @@ typedef struct jpeg62_destination_mgr_s {
   void (*term_destination) (void* cinfo);
 } jpeg62_destination_mgr_t;
 
+#ifdef ANDROID
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 typedef struct jmpbuf_helper {
-    struct __jmp_buf_tag jmpbuf;
+    JUMPBUFF jmpbuf;
     void* client_data;
     void* compress;
 }jmpbuf_helper;
@@ -138,13 +144,13 @@ typedef struct jmpbuf_helper {
 #define RunFunction_helper(...) \
     jmpbuf_helper* helper = ((jpeg62_common_struct_t*)cinfo)->client_data; \
     ((jpeg62_common_struct_t*)cinfo)->client_data = helper->client_data; \
-    uint32_t ret = RunFunction(__VA_ARGS__); \
+    uint32_t ret = RunFunctionFmt(__VA_ARGS__); \
     ((jpeg62_common_struct_t*)cinfo)->client_data = helper;
 
 #define RunFunction_helper2(...) \
     jmpbuf_helper* helper = ((jpeg62_common_struct_t*)cinfo)->client_data; \
     tmp->client_data = helper->client_data;     \
-    uint32_t ret = RunFunction(__VA_ARGS__);    \
+    uint32_t ret = RunFunctionFmt(__VA_ARGS__);    \
     tmp->client_data = helper;
 
 #define COMPRESS_STRUCT                 \
@@ -497,7 +503,7 @@ static void* reverse_reset_error_mgrFct(void* fct)
 static uintptr_t my_jpeg_marker_parser_method_fct_##A = 0;   \
 static int my_jpeg_marker_parser_method_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_jpeg_marker_parser_method_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_jpeg_marker_parser_method_fct_##A, "p", cinfo);\
     return (int)ret; \
 }
 SUPER()
@@ -531,7 +537,7 @@ static void* findjpeg_marker_parser_methodFct(void* fct)
 static uintptr_t my_alloc_small_fct_##A = 0;   \
 static void* my_alloc_small_##A(void* cinfo, int pool_id, size_t sizeofobject)    \
 {                                       \
-    RunFunction_helper(my_context, my_alloc_small_fct_##A, 3, cinfo, pool_id, sizeofobject);\
+    RunFunction_helper(my_alloc_small_fct_##A, "piL", cinfo, pool_id, sizeofobject);\
     return (void*)ret; \
 }
 SUPER()
@@ -565,7 +571,7 @@ static void* reverse_alloc_smallFct(void* fct)
 static uintptr_t my_alloc_large_fct_##A = 0;   \
 static void* my_alloc_large_##A(void* cinfo, int pool_id, size_t sizeofobject)    \
 {                                       \
-    RunFunction_helper(my_context, my_alloc_large_fct_##A, 3, cinfo, pool_id, sizeofobject);\
+    RunFunction_helper(my_alloc_large_fct_##A, "piL", cinfo, pool_id, sizeofobject);\
     return (void*)ret; \
 }
 SUPER()
@@ -599,7 +605,7 @@ static void* reverse_alloc_largeFct(void* fct)
 static uintptr_t my_alloc_sarray_fct_##A = 0;   \
 static void* my_alloc_sarray_##A(void* cinfo, int pool_id, uint32_t samplesperrow, uint32_t numrows)    \
 {                                       \
-    RunFunction_helper(my_context, my_alloc_sarray_fct_##A, 4, cinfo, pool_id, samplesperrow, numrows);\
+    RunFunction_helper(my_alloc_sarray_fct_##A, "piuu", cinfo, pool_id, samplesperrow, numrows);\
     return (void*)ret; \
 }
 SUPER()
@@ -633,7 +639,7 @@ static void* reverse_alloc_sarrayFct(void* fct)
 static uintptr_t my_alloc_barray_fct_##A = 0;   \
 static void* my_alloc_barray_##A(void* cinfo, int pool_id, uint32_t samplesperrow, uint32_t numrows)    \
 {                                       \
-    RunFunction_helper(my_context, my_alloc_barray_fct_##A, 4, cinfo, pool_id, samplesperrow, numrows);\
+    RunFunction_helper(my_alloc_barray_fct_##A, "piuu", cinfo, pool_id, samplesperrow, numrows);\
     return (void*)ret; \
 }
 SUPER()
@@ -667,7 +673,7 @@ static void* reverse_alloc_barrayFct(void* fct)
 static uintptr_t my_request_virt_sarray_fct_##A = 0;   \
 static void* my_request_virt_sarray_##A(void* cinfo, int pool_id, int pre_zero, uint32_t samplesperrow,uint32_t numrows, uint32_t maxaccess)    \
 {                                       \
-    RunFunction_helper(my_context, my_request_virt_sarray_fct_##A, 6, cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
+    RunFunction_helper(my_request_virt_sarray_fct_##A, "piiuuu", cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
     return (void*)ret; \
 }
 SUPER()
@@ -701,7 +707,7 @@ static void* reverse_request_virt_sarrayFct(void* fct)
 static uintptr_t my_request_virt_barray_fct_##A = 0;   \
 static void* my_request_virt_barray_##A(void* cinfo, int pool_id, int pre_zero, uint32_t samplesperrow,uint32_t numrows, uint32_t maxaccess)    \
 {                                       \
-    RunFunction_helper(my_context, my_request_virt_barray_fct_##A, 6, cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
+    RunFunction_helper(my_request_virt_barray_fct_##A, "piiuuu", cinfo, pool_id, pre_zero, samplesperrow, numrows, maxaccess);\
     return (void*)ret; \
 }
 SUPER()
@@ -735,7 +741,7 @@ static void* reverse_request_virt_barrayFct(void* fct)
 static uintptr_t my_realize_virt_arrays_fct_##A = 0;   \
 static void my_realize_virt_arrays_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_realize_virt_arrays_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_realize_virt_arrays_fct_##A, "p", cinfo);\
 }
 SUPER()
 #undef GO
@@ -768,7 +774,7 @@ static void* reverse_realize_virt_arraysFct(void* fct)
 static uintptr_t my_access_virt_sarray_fct_##A = 0;   \
 static void* my_access_virt_sarray_##A(void* cinfo, void* ptr, uint32_t start_row, uint32_t num_rows, int writable)    \
 {                                       \
-    RunFunction_helper(my_context, my_access_virt_sarray_fct_##A, 5, cinfo, ptr, start_row, num_rows, writable);\
+    RunFunction_helper(my_access_virt_sarray_fct_##A, "ppuui", cinfo, ptr, start_row, num_rows, writable);\
     return (void*)ret; \
 }
 SUPER()
@@ -802,7 +808,7 @@ static void* reverse_access_virt_sarrayFct(void* fct)
 static uintptr_t my_access_virt_barray_fct_##A = 0;   \
 static void* my_access_virt_barray_##A(void* cinfo, void* ptr, uint32_t start_row, uint32_t num_rows, int writable)    \
 {                                       \
-    RunFunction_helper(my_context, my_access_virt_barray_fct_##A, 5, cinfo, ptr, start_row, num_rows, writable);\
+    RunFunction_helper(my_access_virt_barray_fct_##A, "ppuui", cinfo, ptr, start_row, num_rows, writable);\
     return (void*)ret; \
 }
 SUPER()
@@ -836,7 +842,7 @@ static void* reverse_access_virt_barrayFct(void* fct)
 static uintptr_t my_free_pool_fct_##A = 0;   \
 static void my_free_pool_##A(void* cinfo, int pool_id)    \
 {                                       \
-    RunFunction_helper(my_context, my_free_pool_fct_##A, 2, cinfo, pool_id);\
+    RunFunction_helper(my_free_pool_fct_##A, "pi", cinfo, pool_id);\
 }
 SUPER()
 #undef GO
@@ -869,7 +875,7 @@ static void* reverse_free_poolFct(void* fct)
 static uintptr_t my_self_destruct_fct_##A = 0;   \
 static void my_self_destruct_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_self_destruct_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_self_destruct_fct_##A, "p", cinfo);\
 }
 SUPER()
 #undef GO
@@ -902,7 +908,7 @@ static void* reverse_self_destructFct(void* fct)
 static uintptr_t my_init_source_fct_##A = 0;   \
 static void my_init_source_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_init_source_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_init_source_fct_##A, "p", cinfo);\
 }
 SUPER()
 #undef GO
@@ -935,7 +941,7 @@ static void* reverse_init_sourceFct(void* fct)
 static uintptr_t my_fill_input_buffer_fct_##A = 0;   \
 static int my_fill_input_buffer_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_fill_input_buffer_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_fill_input_buffer_fct_##A, "p", cinfo);\
     return (int)ret; \
 }
 SUPER()
@@ -969,7 +975,7 @@ static void* reverse_fill_input_bufferFct(void* fct)
 static uintptr_t my_skip_input_data_fct_##A = 0;   \
 static void my_skip_input_data_##A(void* cinfo, long num_bytes)    \
 {                                       \
-    RunFunction_helper(my_context, my_skip_input_data_fct_##A, 2, cinfo, num_bytes);\
+    RunFunction_helper(my_skip_input_data_fct_##A, "pl", cinfo, num_bytes);\
 }
 SUPER()
 #undef GO
@@ -1002,7 +1008,7 @@ static void* reverse_skip_input_dataFct(void* fct)
 static uintptr_t my_resync_to_restart_fct_##A = 0;   \
 static int my_resync_to_restart_##A(void* cinfo, int desired)    \
 {                                       \
-    RunFunction_helper(my_context, my_resync_to_restart_fct_##A, 2, cinfo, desired);\
+    RunFunction_helper(my_resync_to_restart_fct_##A, "pi", cinfo, desired);\
     return (int)ret; \
 }
 SUPER()
@@ -1036,7 +1042,7 @@ static void* reverse_resync_to_restartFct(void* fct)
 static uintptr_t my_term_source_fct_##A = 0;   \
 static void my_term_source_##A(void* cinfo)    \
 {                                       \
-    RunFunction_helper(my_context, my_term_source_fct_##A, 1, cinfo);\
+    RunFunction_helper(my_term_source_fct_##A, "p", cinfo);\
 }
 SUPER()
 #undef GO
@@ -1071,7 +1077,7 @@ static void my_init_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
     i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
     wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction_helper2(my_context, my_init_destination_fct_##A, 1, tmp);   \
+    RunFunction_helper2(my_init_destination_fct_##A, "p", tmp);             \
     unwrapCompressStruct(cinfo, tmp);                                       \
     tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
@@ -1107,7 +1113,7 @@ static void my_empty_output_buffer_##A(j62_compress_ptr_t* cinfo)               
 {                                                                               \
     i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
     wrapCompressStruct(tmp, cinfo);                                             \
-    RunFunction_helper2(my_context, my_empty_output_buffer_fct_##A, 1, tmp);    \
+    RunFunction_helper2(my_empty_output_buffer_fct_##A, "p", tmp);              \
     unwrapCompressStruct(cinfo, tmp);                                           \
     tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;       \
 }
@@ -1143,7 +1149,7 @@ static void my_term_destination_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
     i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
     wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction_helper2(my_context, my_term_destination_fct_##A, 1, tmp);   \
+    RunFunction_helper2(my_term_destination_fct_##A, "p", tmp);             \
     unwrapCompressStruct(cinfo, tmp);                                       \
     tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
@@ -1180,7 +1186,7 @@ static void my_prepare_for_pass_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
     i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
     wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction_helper2(my_context, my_prepare_for_pass_fct_##A, 1, tmp);   \
+    RunFunction_helper2(my_prepare_for_pass_fct_##A, "p", tmp);             \
     unwrapCompressStruct(cinfo, tmp);                                       \
     tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
@@ -1217,7 +1223,7 @@ static void my_pass_startup_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
     i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress;  \
     wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction_helper2(my_context, my_pass_startup_fct_##A, 1, tmp);       \
+    RunFunction_helper2(my_pass_startup_fct_##A, "p", tmp);                 \
     unwrapCompressStruct(cinfo, tmp);                                       \
     tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }
@@ -1254,7 +1260,7 @@ static void my_finish_pass_##A(j62_compress_ptr_t* cinfo)              \
 {                                                                           \
     i386_compress_ptr_t* tmp = ((jmpbuf_helper*)cinfo->client_data)->compress; \
     wrapCompressStruct(tmp, cinfo);                                         \
-    RunFunction_helper2(my_context, my_finish_pass_fct_##A, 1, tmp);        \
+    RunFunction_helper2(my_finish_pass_fct_##A, "p", tmp);                  \
     unwrapCompressStruct(cinfo, tmp);                                       \
     tmp->client_data = ((jmpbuf_helper*)cinfo->client_data)->client_data;   \
 }

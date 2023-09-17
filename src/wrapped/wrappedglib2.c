@@ -67,7 +67,7 @@ EXPORT void* my_g_build_filename(x86emu_t* emu, void* first, void** b)
 
 static int my_timeout_cb(my_signal_t* sig)
 {
-    return (int)RunFunction(my_context, sig->c_handler, 1, sig->data);
+    return (int)RunFunctionFmt(sig->c_handler, "p", sig->data);
 }
 EXPORT uint32_t my_g_timeout_add(x86emu_t* emu, uint32_t interval, void* func, void* data)
 {
@@ -103,7 +103,7 @@ GO(9)   \
 static uintptr_t my_copy_fct_##A = 0;   \
 static void* my_copy_##A(void* data)     \
 {                                       \
-    return (void*)RunFunction(my_context, my_copy_fct_##A, 1, data);\
+    return (void*)RunFunctionFmt(my_copy_fct_##A, "p", data);\
 }
 SUPER()
 #undef GO
@@ -122,10 +122,10 @@ static void* findCopyFct(void* fct)
 }*/
 // GFreeFct
 #define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;   \
-static void my_free_##A(void* data)     \
-{                                       \
-    RunFunction(my_context, my_free_fct_##A, 1, data);\
+static uintptr_t my_free_fct_##A = 0;                       \
+static void my_free_##A(void* data)                         \
+{                                                           \
+    RunFunctionFmt(my_free_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -144,10 +144,10 @@ static void* findFreeFct(void* fct)
 }
 // GDuplicateFct
 #define GO(A)   \
-static uintptr_t my_duplicate_fct_##A = 0;   \
-static void* my_duplicate_##A(void* data)     \
-{                                       \
-    return (void*)RunFunction(my_context, my_duplicate_fct_##A, 1, data);\
+static uintptr_t my_duplicate_fct_##A = 0;                                      \
+static void* my_duplicate_##A(void* data)                                       \
+{                                                                               \
+    return (void*)RunFunctionFmt(my_duplicate_fct_##A, "p", data);  \
 }
 SUPER()
 #undef GO
@@ -173,28 +173,28 @@ SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
-static uintptr_t fct_funcs_prepare_##A = 0;  \
-static int my_funcs_prepare_##A(void* source, int* timeout_) {   \
-    return (int)RunFunction(my_context, fct_funcs_prepare_##A, 2, source, timeout_);    \
+static uintptr_t fct_funcs_prepare_##A = 0;                                                 \
+static int my_funcs_prepare_##A(void* source, int* timeout_) {                              \
+    return (int)RunFunctionFmt(fct_funcs_prepare_##A, "pp", source, timeout_);  \
 }   \
-static uintptr_t fct_funcs_check_##A = 0;  \
-static int my_funcs_check_##A(void* source) {   \
-    return (int)RunFunction(my_context, fct_funcs_check_##A, 1, source);    \
+static uintptr_t fct_funcs_check_##A = 0;                                       \
+static int my_funcs_check_##A(void* source) {                                   \
+    return (int)RunFunctionFmt(fct_funcs_check_##A, "p", source);   \
 }   \
-static uintptr_t fct_funcs_dispatch_cb_##A = 0; \
-static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {   \
-    return (int)RunFunction(my_context, fct_funcs_dispatch_cb_##A, 4, a, b, c, d);    \
+static uintptr_t fct_funcs_dispatch_cb_##A = 0;                                             \
+static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {                   \
+    return (int)RunFunctionFmt(fct_funcs_dispatch_cb_##A, "pppp", a, b, c, d);  \
 }   \
-static uintptr_t fct_funcs_dispatch_##A = 0;  \
-static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {   \
-    uintptr_t old = fct_funcs_dispatch_cb_##A;  \
-    fct_funcs_dispatch_cb_##A = (uintptr_t)cb;  \
-    return (int)RunFunction(my_context, fct_funcs_dispatch_##A, 3, source, cb?my_funcs_dispatch_cb_##A:NULL, data);    \
+static uintptr_t fct_funcs_dispatch_##A = 0;                                                                                \
+static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {                                                      \
+    uintptr_t old = fct_funcs_dispatch_cb_##A;                                                                              \
+    fct_funcs_dispatch_cb_##A = (uintptr_t)cb;                                                                              \
+    return (int)RunFunctionFmt(fct_funcs_dispatch_##A, "ppp", source, cb?my_funcs_dispatch_cb_##A:NULL, data);  \
     fct_funcs_dispatch_cb_##A = old;    \
 }   \
-static uintptr_t fct_funcs_finalize_##A = 0;  \
-static int my_funcs_finalize_##A(void* source) {   \
-    return (int)RunFunction(my_context, fct_funcs_finalize_##A, 1, source);    \
+static uintptr_t fct_funcs_finalize_##A = 0;                                    \
+static int my_funcs_finalize_##A(void* source) {                                \
+    return (int)RunFunctionFmt(fct_funcs_finalize_##A, "p", source);\
 }
 SUPER()
 #undef GO
@@ -225,10 +225,10 @@ static my_GSourceFuncs_t* findFreeGSourceFuncs(my_GSourceFuncs_t* fcts)
 
 // PollFunc ...
 #define GO(A)   \
-static uintptr_t my_poll_fct_##A = 0;   \
-static int my_poll_##A(void* ufds, uint32_t nfsd, int32_t timeout_)     \
-{                                       \
-    return RunFunction(my_context, my_poll_fct_##A, 3, ufds, nfsd, timeout_);\
+static uintptr_t my_poll_fct_##A = 0;                                               \
+static int my_poll_##A(void* ufds, uint32_t nfsd, int32_t timeout_)                 \
+{                                                                                   \
+    return RunFunctionFmt(my_poll_fct_##A, "pui", ufds, nfsd, timeout_);\
 }
 SUPER()
 #undef GO
@@ -257,10 +257,10 @@ static void* reversePollFct(void* fct)
 
 // GHashFunc ...
 #define GO(A)   \
-static uintptr_t my_hashfunc_fct_##A = 0;   \
-static uint32_t my_hashfunc_##A(void* key)     \
-{                                       \
-    return (uint32_t)RunFunction(my_context, my_hashfunc_fct_##A, 1, key);\
+static uintptr_t my_hashfunc_fct_##A = 0;                                       \
+static uint32_t my_hashfunc_##A(void* key)                                      \
+{                                                                               \
+    return (uint32_t)RunFunctionFmt(my_hashfunc_fct_##A, "p", key); \
 }
 SUPER()
 #undef GO
@@ -279,10 +279,10 @@ static void* findHashFct(void* fct)
 }
 // GEqualFunc ...
 #define GO(A)   \
-static uintptr_t my_equalfunc_fct_##A = 0;   \
-static int my_equalfunc_##A(void* a, void* b)     \
-{                                       \
-    return RunFunction(my_context, my_equalfunc_fct_##A, 2, a, b);\
+static uintptr_t my_equalfunc_fct_##A = 0;                              \
+static int my_equalfunc_##A(void* a, void* b)                           \
+{                                                                       \
+    return RunFunctionFmt(my_equalfunc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -301,10 +301,10 @@ static void* findEqualFct(void* fct)
 }
 // GDestroyFunc ...
 #define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;   \
-static int my_destroyfunc_##A(void* a, void* b)     \
-{                                       \
-    return RunFunction(my_context, my_destroyfunc_fct_##A, 2, a, b);\
+static uintptr_t my_destroyfunc_fct_##A = 0;                                \
+static int my_destroyfunc_##A(void* a, void* b)                             \
+{                                                                           \
+    return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -323,10 +323,10 @@ static void* findDestroyFct(void* fct)
 }
 // GSpawnChildSetupFunc ...
 #define GO(A)   \
-static uintptr_t my_spwnchildsetup_fct_##A = 0;   \
-static void my_spwnchildsetup_##A(void* data)     \
-{                                       \
-    RunFunction(my_context, my_spwnchildsetup_fct_##A, 1, data);\
+static uintptr_t my_spwnchildsetup_fct_##A = 0;                         \
+static void my_spwnchildsetup_##A(void* data)                           \
+{                                                                       \
+    RunFunctionFmt(my_spwnchildsetup_fct_##A, "p", data);   \
 }
 SUPER()
 #undef GO
@@ -345,10 +345,10 @@ static void* findSpawnChildSetupFct(void* fct)
 }
 // GSourceFunc ...
 #define GO(A)   \
-static uintptr_t my_GSourceFunc_fct_##A = 0;   \
-static void my_GSourceFunc_##A(void* a, void* b, void* c, void* d)     \
-{                                       \
-    RunFunction(my_context, my_GSourceFunc_fct_##A, 4, a, b, c, d);\
+static uintptr_t my_GSourceFunc_fct_##A = 0;                                \
+static void my_GSourceFunc_##A(void* a, void* b, void* c, void* d)          \
+{                                                                           \
+    RunFunctionFmt(my_GSourceFunc_fct_##A, "pppp", a, b, c, d); \
 }
 SUPER()
 #undef GO
@@ -367,10 +367,10 @@ static void* findGSourceFuncFct(void* fct)
 }
 // GCompareFunc ...
 #define GO(A)   \
-static uintptr_t my_GCompareFunc_fct_##A = 0;   \
-static int my_GCompareFunc_##A(void* a, void* b)     \
-{                                       \
-    return (int)RunFunction(my_context, my_GCompareFunc_fct_##A, 2, a, b);\
+static uintptr_t my_GCompareFunc_fct_##A = 0;                                   \
+static int my_GCompareFunc_##A(void* a, void* b)                                \
+{                                                                               \
+    return (int)RunFunctionFmt(my_GCompareFunc_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO
@@ -389,10 +389,10 @@ static void* findGCompareFuncFct(void* fct)
 }
 // GCompareDataFunc ...
 #define GO(A)   \
-static uintptr_t my_GCompareDataFunc_fct_##A = 0;                   \
-static int my_GCompareDataFunc_##A(void* a, void* b, void* data)    \
-{                                       \
-    return (int)RunFunction(my_context, my_GCompareDataFunc_fct_##A, 3, a, b, data);\
+static uintptr_t my_GCompareDataFunc_fct_##A = 0;                                           \
+static int my_GCompareDataFunc_##A(void* a, void* b, void* data)                            \
+{                                                                                           \
+    return (int)RunFunctionFmt(my_GCompareDataFunc_fct_##A, "ppp", a, b, data); \
 }
 SUPER()
 #undef GO
@@ -411,10 +411,10 @@ static void* findGCompareDataFuncFct(void* fct)
 }
 // GCompletionFunc ...
 #define GO(A)   \
-static uintptr_t my_GCompletionFunc_fct_##A = 0;                            \
-static void* my_GCompletionFunc_##A(void* a)                                \
-{                                                                           \
-    return (void*)RunFunction(my_context, my_GCompletionFunc_fct_##A, 1, a);\
+static uintptr_t my_GCompletionFunc_fct_##A = 0;                                    \
+static void* my_GCompletionFunc_##A(void* a)                                        \
+{                                                                                   \
+    return (void*)RunFunctionFmt(my_GCompletionFunc_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO
@@ -433,10 +433,10 @@ static void* findGCompletionFct(void* fct)
 }
 // GCompletionStrncmpFunc ...
 #define GO(A)   \
-static uintptr_t my_GCompletionStrncmpFunc_fct_##A = 0;                                 \
-static int my_GCompletionStrncmpFunc_##A(void* a, void* b, unsigned long n)             \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GCompletionStrncmpFunc_fct_##A, 3, a, b, n); \
+static uintptr_t my_GCompletionStrncmpFunc_fct_##A = 0;                                         \
+static int my_GCompletionStrncmpFunc_##A(void* a, void* b, unsigned long n)                     \
+{                                                                                               \
+    return (int)RunFunctionFmt(my_GCompletionStrncmpFunc_fct_##A, "ppL", a, b, n);  \
 }
 SUPER()
 #undef GO
@@ -455,10 +455,10 @@ static void* findGCompletionStrncmpFuncFct(void* fct)
 }
 // GIOFunc ...
 #define GO(A)   \
-static uintptr_t my_GIOFunc_fct_##A = 0;                                 \
-static int my_GIOFunc_##A(void* a, int b, void* c)             \
-{                                                                                       \
-    return (int)RunFunction(my_context, my_GIOFunc_fct_##A, 3, a, b, c); \
+static uintptr_t my_GIOFunc_fct_##A = 0;                                        \
+static int my_GIOFunc_##A(void* a, int b, void* c)                              \
+{                                                                               \
+    return (int)RunFunctionFmt(my_GIOFunc_fct_##A, "pip", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -477,10 +477,10 @@ static void* findGIOFuncFct(void* fct)
 }
 // GDestroyNotify ...
 #define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;                 \
-static void my_GDestroyNotify_##A(void* a)                      \
-{                                                               \
-    RunFunction(my_context, my_GDestroyNotify_fct_##A, 1, a);   \
+static uintptr_t my_GDestroyNotify_fct_##A = 0;                     \
+static void my_GDestroyNotify_##A(void* a)                          \
+{                                                                   \
+    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -499,10 +499,10 @@ static void* findGDestroyNotifyFct(void* fct)
 }
 // GFunc ...
 #define GO(A)   \
-static uintptr_t my_GFunc_fct_##A = 0;                  \
-static void my_GFunc_##A(void* a, void* b)              \
-{                                                       \
-    RunFunction(my_context, my_GFunc_fct_##A, 2, a, b); \
+static uintptr_t my_GFunc_fct_##A = 0;                          \
+static void my_GFunc_##A(void* a, void* b)                      \
+{                                                               \
+    RunFunctionFmt(my_GFunc_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -521,10 +521,10 @@ static void* findGFuncFct(void* fct)
 }
 // GHFunc ...
 #define GO(A)   \
-static uintptr_t my_GHFunc_fct_##A = 0;                     \
-static void my_GHFunc_##A(void* a, void* b, void* c)        \
-{                                                           \
-    RunFunction(my_context, my_GHFunc_fct_##A, 3, a, b, c); \
+static uintptr_t my_GHFunc_fct_##A = 0;                             \
+static void my_GHFunc_##A(void* a, void* b, void* c)                \
+{                                                                   \
+    RunFunctionFmt(my_GHFunc_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -543,10 +543,10 @@ static void* findGHFuncFct(void* fct)
 }
 // GHRFunc ...
 #define GO(A)   \
-static uintptr_t my_GHRFunc_fct_##A = 0;                            \
-static int my_GHRFunc_##A(void* a, void* b, void* c)                \
-{                                                                   \
-    return RunFunction(my_context, my_GHRFunc_fct_##A, 3, a, b, c); \
+static uintptr_t my_GHRFunc_fct_##A = 0;                                    \
+static int my_GHRFunc_##A(void* a, void* b, void* c)                        \
+{                                                                           \
+    return RunFunctionFmt(my_GHRFunc_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -565,10 +565,10 @@ static void* findGHRFuncFct(void* fct)
 }
 // GChildWatchFunc ...
 #define GO(A)   \
-static uintptr_t my_GChildWatchFunc_fct_##A = 0;                        \
-static void my_GChildWatchFunc_##A(int a, int b, void* c)               \
-{                                                                       \
-    RunFunction(my_context, my_GChildWatchFunc_fct_##A, 3, a, b, c);    \
+static uintptr_t my_GChildWatchFunc_fct_##A = 0;                            \
+static void my_GChildWatchFunc_##A(int a, int b, void* c)                   \
+{                                                                           \
+    RunFunctionFmt(my_GChildWatchFunc_fct_##A, "iip", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -587,10 +587,10 @@ static void* findGChildWatchFuncFct(void* fct)
 }
 // GLogFunc ...
 #define GO(A)   \
-static uintptr_t my_GLogFunc_fct_##A = 0;                           \
-static void my_GLogFunc_##A(void* a, int b, void* c, void* d)       \
-{                                                                   \
-    RunFunction(my_context, my_GLogFunc_fct_##A, 4, a, b, c, d);    \
+static uintptr_t my_GLogFunc_fct_##A = 0;                               \
+static void my_GLogFunc_##A(void* a, int b, void* c, void* d)           \
+{                                                                       \
+    RunFunctionFmt(my_GLogFunc_fct_##A, "pipp", a, b, c, d);\
 }
 SUPER()
 #undef GO
@@ -620,7 +620,7 @@ static void* reverseGLogFuncFct(void* fct)
 static uintptr_t my_GPrintFunc_fct_##A = 0;                     \
 static void my_GPrintFunc_##A(void* a)                          \
 {                                                               \
-    RunFunction(my_context, my_GPrintFunc_fct_##A, 1, a);       \
+    RunFunctionFmt(my_GPrintFunc_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -643,15 +643,15 @@ static void* reverseGPrintFuncFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GPrintFunc_fct_##A) return (void*)my_GPrintFunc_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GPrintFunc");
+    return (void*)AddCheckBridge(my_lib->w.bridge, vFp, fct, 0, "GPrintFunc");
 }
 
 // GOptionArg ...
 #define GO(A)   \
-static uintptr_t my_GOptionArg_fct_##A = 0;                                     \
-static int my_GOptionArg_##A(void* a, void* b, void* c, void* d)                \
-{                                                                               \
-    return (int)RunFunction(my_context, my_GOptionArg_fct_##A, 4, a, b, c, d);  \
+static uintptr_t my_GOptionArg_fct_##A = 0;                                             \
+static int my_GOptionArg_##A(void* a, void* b, void* c, void* d)                        \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_GOptionArg_fct_##A, "pppp", a, b, c, d);  \
 }
 SUPER()
 #undef GO
@@ -674,7 +674,7 @@ static void* reverseGOptionArgFct(void* fct)
     #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GOptionFunc");
+    return (void*)AddCheckBridge(my_lib->w.bridge, iFpppp, fct, 0, "GOptionFunc");
 }
 #undef SUPER
 

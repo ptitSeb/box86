@@ -37,6 +37,7 @@
 #include <getopt.h>
 #include <pwd.h>
 #include <sys/prctl.h>
+#include <sys/ptrace.h>
 #include <malloc.h>
 
 #include "wrappedlibs.h"
@@ -201,10 +202,10 @@ GO(15)
 
 // compare
 #define GO(A)   \
-static uintptr_t my_compare_fct_##A = 0;        \
-static int my_compare_##A(void* a, void* b)     \
-{                                               \
-    return (int)RunFunction(my_context, my_compare_fct_##A, 2, a, b);\
+static uintptr_t my_compare_fct_##A = 0;                                    \
+static int my_compare_##A(void* a, void* b)                                 \
+{                                                                           \
+    return (int)RunFunctionFmt(my_compare_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -225,10 +226,10 @@ static void* findcompareFct(void* fct)
 
 // ftw
 #define GO(A)   \
-static uintptr_t my_ftw_fct_##A = 0;                                      \
-static int my_ftw_##A(void* fpath, void* sb, int flag)                       \
-{                                                                               \
-    return (int)RunFunction(my_context, my_ftw_fct_##A, 3, fpath, sb, flag);   \
+static uintptr_t my_ftw_fct_##A = 0;                                                \
+static int my_ftw_##A(void* fpath, void* sb, int flag)                              \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_ftw_fct_##A, "ppi", fpath, sb, flag); \
 }
 SUPER()
 #undef GO
@@ -249,12 +250,12 @@ static void* findftwFct(void* fct)
 
 // ftw64
 #define GO(A)   \
-static uintptr_t my_ftw64_fct_##A = 0;                      \
-static int my_ftw64_##A(void* fpath, void* sb, int flag)    \
-{                                                           \
-    struct i386_stat64 i386st;                              \
-    UnalignStat64(sb, &i386st);                             \
-    return (int)RunFunction(my_context, my_ftw64_fct_##A, 3, fpath, &i386st, flag);  \
+static uintptr_t my_ftw64_fct_##A = 0;                                                      \
+static int my_ftw64_##A(void* fpath, void* sb, int flag)                                    \
+{                                                                                           \
+    struct i386_stat64 i386st;                                                              \
+    UnalignStat64(sb, &i386st);                                                             \
+    return (int)RunFunctionFmt(my_ftw64_fct_##A, "ppi", fpath, &i386st, flag);  \
 }
 SUPER()
 #undef GO
@@ -273,10 +274,10 @@ static void* findftw64Fct(void* fct)
 
 // nftw
 #define GO(A)   \
-static uintptr_t my_nftw_fct_##A = 0;                                   \
-static int my_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)  \
-{                                                                       \
-    return (int)RunFunction(my_context, my_nftw_fct_##A, 4, fpath, sb, flag, ftwbuff);   \
+static uintptr_t my_nftw_fct_##A = 0;                                                           \
+static int my_nftw_##A(void* fpath, void* sb, int flag, void* ftwbuff)                          \
+{                                                                                               \
+    return (int)RunFunctionFmt(my_nftw_fct_##A, "ppip", fpath, sb, flag, ftwbuff);  \
 }
 SUPER()
 #undef GO
@@ -297,12 +298,12 @@ static void* findnftwFct(void* fct)
 
 // nftw64
 #define GO(A)   \
-static uintptr_t my_nftw64_fct_##A = 0;                                     \
-static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)    \
-{                                                                           \
-    struct i386_stat64 i386st;                                              \
-    UnalignStat64(sb, &i386st);                                             \
-    return (int)RunFunction(my_context, my_nftw64_fct_##A, 4, fpath, &i386st, flag, ftwbuff);   \
+static uintptr_t my_nftw64_fct_##A = 0;                                                                 \
+static int my_nftw64_##A(void* fpath, void* sb, int flag, void* ftwbuff)                                \
+{                                                                                                       \
+    struct i386_stat64 i386st;                                                                          \
+    UnalignStat64(sb, &i386st);                                                                         \
+    return (int)RunFunctionFmt(my_nftw64_fct_##A, "ppip", fpath, &i386st, flag, ftwbuff);   \
 }
 SUPER()
 #undef GO
@@ -321,10 +322,10 @@ static void* findnftw64Fct(void* fct)
 
 // globerr
 #define GO(A)   \
-static uintptr_t my_globerr_fct_##A = 0;                                        \
-static int my_globerr_##A(void* epath, int eerrno)                              \
-{                                                                               \
-    return (int)RunFunction(my_context, my_globerr_fct_##A, 2, epath, eerrno);  \
+static uintptr_t my_globerr_fct_##A = 0;                                            \
+static int my_globerr_##A(void* epath, int eerrno)                                  \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_globerr_fct_##A, "pi", epath, eerrno);\
 }
 SUPER()
 #undef GO
@@ -345,10 +346,10 @@ static void* findgloberrFct(void* fct)
 #undef dirent
 // filter_dir
 #define GO(A)   \
-static uintptr_t my_filter_dir_fct_##A = 0;                               \
-static int my_filter_dir_##A(const struct dirent* a)                    \
-{                                                                       \
-    return (int)RunFunction(my_context, my_filter_dir_fct_##A, 1, a);     \
+static uintptr_t my_filter_dir_fct_##A = 0;                                 \
+static int my_filter_dir_##A(const struct dirent* a)                        \
+{                                                                           \
+    return (int)RunFunctionFmt(my_filter_dir_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -368,10 +369,10 @@ static void* findfilter_dirFct(void* fct)
 }
 // compare_dir
 #define GO(A)   \
-static uintptr_t my_compare_dir_fct_##A = 0;                                  \
-static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)    \
-{                                                                           \
-    return (int)RunFunction(my_context, my_compare_dir_fct_##A, 2, a, b);     \
+static uintptr_t my_compare_dir_fct_##A = 0;                                    \
+static int my_compare_dir_##A(const struct dirent* a, const struct dirent* b)   \
+{                                                                               \
+    return (int)RunFunctionFmt(my_compare_dir_fct_##A, "pp", a, b); \
 }
 SUPER()
 #undef GO
@@ -395,7 +396,7 @@ static void* findcompare_dirFct(void* fct)
 static uintptr_t my_filter64_fct_##A = 0;                               \
 static int my_filter64_##A(const struct dirent64* a)                    \
 {                                                                       \
-    return (int)RunFunction(my_context, my_filter64_fct_##A, 1, a);     \
+    return (int)RunFunctionFmt(my_filter64_fct_##A, "p", a);\
 }
 SUPER()
 #undef GO
@@ -418,7 +419,7 @@ static void* findfilter64Fct(void* fct)
 static uintptr_t my_compare64_fct_##A = 0;                                      \
 static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
 {                                                                               \
-    return (int)RunFunction(my_context, my_compare64_fct_##A, 2, a, b);         \
+    return (int)RunFunctionFmt(my_compare64_fct_##A, "pp", a, b);   \
 }
 SUPER()
 #undef GO
@@ -438,10 +439,10 @@ static void* findcompare64Fct(void* fct)
 }
 // on_exit
 #define GO(A)   \
-static uintptr_t my_on_exit_fct_##A = 0;                    \
-static void my_on_exit_##A(int a, const void* b)            \
-{                                                           \
-    RunFunction(my_context, my_on_exit_fct_##A, 2, a, b);   \
+static uintptr_t my_on_exit_fct_##A = 0;                        \
+static void my_on_exit_##A(int a, const void* b)                \
+{                                                               \
+    RunFunctionFmt(my_on_exit_fct_##A, "ip", a, b); \
 }
 SUPER()
 #undef GO
@@ -2212,6 +2213,10 @@ EXPORT int32_t my_nftw64(x86emu_t* emu, void* pathname, void* B, int32_t nopenfd
     return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
+EXPORT char** my_environ = NULL;
+EXPORT char** my__environ = NULL;
+EXPORT char** my___environ = NULL;  // all aliases
+
 EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
 {
     int self = isProcSelf(path, "exe");
@@ -2220,24 +2225,43 @@ EXPORT int32_t my_execv(x86emu_t* emu, const char* path, char* const argv[])
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
     if(script && FileIsX64ELF(my_context->bashpath)) x64 = 1;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", path, argv, x86);
-    if (x86 || x64 || script || self) {
+    #if 1
+    if (x64 || x86 || script || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine-preloader") && strcmp(path+strlen(path)-strlen("wine-preloader"), "wine-preloader")==0)
+            skip_first++;
+        else if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
         int toadd = script?2:1;
-        const char** newargv = (const char**)alloca((n+toadd+1)*sizeof(char*));
-        memset(newargv, 0, (n+toadd+1)*sizeof(char*));
+        const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box86path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
-        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1));
-        if(self) newargv[1] = emu->context->fullpath; else newargv[1] = skip_first?argv[skip_first]:path;
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box86path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
-        int ret = execv(newargv[0], (char* const*)newargv);
+        memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+toadd));
+        if(self)
+            newargv[1] = emu->context->fullpath;
+        else {
+            // TODO check if envp is not environ and add the value on a copy
+            if(strcmp(newargv[toadd], skip_first?argv[skip_first]:path))
+                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            newargv[toadd] = skip_first?argv[skip_first]:path;
+        }
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        char** envv = NULL;
+        if(my_environ!=my_context->envv) envv = my_environ;
+        if(my__environ!=my_context->envv) envv = my__environ;
+        if(my___environ!=my_context->envv) envv = my___environ;
+        int ret;
+        if(envv)
+            ret = execve(newargv[0], (char* const*)newargv, envv);
+        else
+            ret = execv(newargv[0], (char* const*)newargv);
+        box_free(newargv);
         return ret;
     }
+    #endif
     return execv(path, argv);
 }
 
@@ -2744,12 +2768,6 @@ void ctSetup()
 }
 #endif
 
-EXPORT void* my___libc_stack_end;
-void stSetup(box86context_t* context)
-{
-    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
-}
-
 EXPORT void my___register_frame_info(void* a, void* b)
 {
     (void)a; (void)b;
@@ -2916,7 +2934,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     }
     #endif
     if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
+        setProtection_mmap((uintptr_t)ret, length, prot);
     return ret;
 }
 
@@ -2952,6 +2970,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
             ret = mmap64(new_addr, length, prot, flags, fd, offset);
             if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
                 munmap(ret, length);
+                errno = EEXIST;
                 ret = (void*)-1;
             }
         }
@@ -2973,7 +2992,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     }
     #endif
     if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
+        setProtection_mmap((uintptr_t)ret, length, prot);
     return ret;
 }
 
@@ -2988,7 +3007,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
     uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
     if(ret==old_addr) {
         if(old_size && old_size<new_size) {
-            setProtection((uintptr_t)ret+old_size, new_size-old_size, prot);
+            setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
             #ifdef DYNAREC
             if(box86_dynarec)
                 addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
@@ -2997,10 +3016,10 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
             freeProtection((uintptr_t)ret+new_size, old_size-new_size);
             #ifdef DYNAREC
             if(box86_dynarec)
-                cleanDBFromAddressRange((uintptr_t)ret+new_size, new_size-old_size, 1);
+                cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
             #endif
         } else if(!old_size) {
-            setProtection((uintptr_t)ret, new_size, prot);
+            setProtection_mmap((uintptr_t)ret, new_size, prot);
             #ifdef DYNAREC
             if(box86_dynarec)
                 addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -3018,7 +3037,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
                 cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
             #endif
         }
-        setProtection((uintptr_t)ret, new_size, prot); // should copy the protection from old block
+        setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
         #ifdef DYNAREC
         if(box86_dynarec)
             addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -3037,7 +3056,7 @@ EXPORT int my_munmap(x86emu_t* emu, void* addr, unsigned long length)
     }
     #endif
     int ret = munmap(addr, length);
-    if(!ret)
+    if(!ret && length)
         freeProtection((uintptr_t)addr, length);
     return ret;
 }
@@ -3050,15 +3069,22 @@ EXPORT int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     int ret = mprotect(addr, len, prot);
     #ifdef DYNAREC
-    if(box86_dynarec) {
+    if(box86_dynarec && len) {
         if(prot& PROT_EXEC)
             addDBFromAddressRange((uintptr_t)addr, len);
         else
-            cleanDBFromAddressRange((uintptr_t)addr, len, 0);
+            cleanDBFromAddressRange((uintptr_t)addr, len, 1);
     }
     #endif
-    if(!ret)
-        updateProtection((uintptr_t)addr, len, prot);
+    if(!ret && len) {
+        if(prot)
+            updateProtection((uintptr_t)addr, len, prot);
+        else {
+            // avoid allocating detailled protection for a no prot 0
+            freeProtection((uintptr_t)addr, len);
+            setProtection_mmap((uintptr_t)addr, len, prot);
+        }
+    }
     return ret;
 }
 
@@ -3071,24 +3097,24 @@ typedef struct my_cookie_s {
 static ssize_t my_cookie_read(void *p, char *buf, size_t size)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return (ssize_t)RunFunction(my_context, cookie->r, 3, cookie->cookie, buf, size);
+    return (ssize_t)RunFunctionFmt(cookie->r, "ppL", cookie->cookie, buf, size);
 }
 static ssize_t my_cookie_write(void *p, const char *buf, size_t size)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return (ssize_t)RunFunction(my_context, cookie->w, 3, cookie->cookie, buf, size);
+    return (ssize_t)RunFunctionFmt(cookie->w, "ppL", cookie->cookie, buf, size);
 }
 static int my_cookie_seek(void *p, off64_t *offset, int whence)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
-    return RunFunction(my_context, cookie->s, 3, cookie->cookie, offset, whence);
+    return RunFunctionFmt(cookie->s, "ppi", cookie->cookie, offset, whence);
 }
 static int my_cookie_close(void *p)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
     int ret = 0;
     if(cookie->c)
-        ret = RunFunction(my_context, cookie->c, 1, cookie->cookie);
+        ret = RunFunctionFmt(cookie->c, "p", cookie->cookie);
     free(cookie);
     return ret;
 }
@@ -3160,7 +3186,7 @@ EXPORT void* my___libc_dlsym(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-#if ANDROID
+#ifdef ANDROID
 void obstackSetup() {
 }
 #else
@@ -3278,6 +3304,15 @@ EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun 
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
 }
 
+EXPORT int my_ptrace(x86emu_t* emu, int request, pid_t pid, void* addr, void* data)
+{
+    if(request == PTRACE_POKEUSER) {
+        // lets just ignore this for now!
+        return 0;
+    }
+    return ptrace(request, pid, addr, data);
+}
+
 #ifndef ANDROID
 EXPORT int my_on_exit(x86emu_t* emu, void* f, void* args)
 {
@@ -3344,10 +3379,6 @@ EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
     return p;
 }
 
-EXPORT char** my_environ = NULL;
-EXPORT char** my__environ = NULL;
-EXPORT char** my___environ = NULL;  // all aliases
-
 EXPORT char* my___progname = NULL;
 EXPORT char* my___progname_full = NULL;
 EXPORT char* my_program_invocation_name = NULL;
@@ -3360,11 +3391,21 @@ EXPORT char* my_program_invocation_short_name = NULL;
 
 #ifdef ANDROID
 #define NEEDED_LIBS   0
+#define NEEDED_LIBS_234 3,  \
+    "libpthread.so.0",      \
+    "libdl.so.2" ,          \
+    "libm.so"
 #else
 #define NEEDED_LIBS   3,\
     "ld-linux.so.2",    \
     "libpthread.so.0",  \
     "librt.so.1"
+#define NEEDED_LIBS_234 5,  \
+    "ld-linux.so.2",        \
+    "libpthread.so.0",      \
+    "librt.so.1",           \
+    "libdl.so.2",           \
+    "libm.so.6"
 #endif
 
 #define CUSTOM_INIT         \
@@ -3372,14 +3413,16 @@ EXPORT char* my_program_invocation_short_name = NULL;
     my_lib = lib;           \
     InitCpuModel();         \
     ctSetup();              \
-    stSetup(box86);         \
     obstackSetup();         \
     my_environ = my__environ = my___environ = box86->envv;                      \
     my___progname_full = my_program_invocation_name = box86->argv[0];           \
     my___progname = my_program_invocation_short_name =                          \
         strrchr(box86->argv[0], '/');                                           \
     getMy(lib);                                                                 \
-    setNeededLibs(lib, NEEDED_LIBS);
+    if(box86_isglibc234)                                                        \
+        setNeededLibs(lib, NEEDED_LIBS_234);                                    \
+    else                                                                        \
+        setNeededLibs(lib, NEEDED_LIBS);
 
 #define CUSTOM_FINI \
     freeMy();

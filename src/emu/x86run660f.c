@@ -14,19 +14,14 @@
 #include "x86trace.h"
 #include "box86context.h"
 
-#define F8      *(uint8_t*)(ip++)
-#define F8S     *(int8_t*)(ip++)
-#define F16     *(uint16_t*)(ip+=2, ip-2)
-#define F16S    *(int16_t*)(ip+=2, ip-2)
-#define F32     *(uint32_t*)(ip+=4, ip-4)
-#define F32S    *(int32_t*)(ip+=4, ip-4)
-#define PK(a)   *(uint8_t*)(ip+a)
-
 #include "modrm.h"
 
-void Run660F(x86emu_t *emu)
+#ifdef TEST_INTERPRETER
+uintptr_t Test660F(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
+#endif
 {
-    uintptr_t ip = R_EIP+2; //skip 66 0F
     uint8_t opcode;
     uint8_t nextop;
     reg32_t *oped;
@@ -43,6 +38,9 @@ void Run660F(x86emu_t *emu)
     #endif
 
 
+    #ifdef TEST_INTERPRETER
+    x86emu_t* emu = test->emu;
+    #endif
     opcode = F8;
     switch(opcode) {
 
@@ -144,8 +142,7 @@ void Run660F(x86emu_t *emu)
                 EW->word[0] = 0;    // dummy operation. Should be CR0 -> Ew
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x10:                      /* MOVUPD Gx, Ex */
@@ -160,7 +157,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x12:                      /* MOVLPD Gx, Eq */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         if((uintptr_t)ED & 7)
             memcpy(&GX.q[0], ED, 8);
         else
@@ -168,7 +165,7 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x13:                      /* MOVLPD Eq, Gx */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         if((uintptr_t)ED & 7)
             memcpy(ED, &GX.q[0], 8);
         else
@@ -187,18 +184,18 @@ void Run660F(x86emu_t *emu)
         break;
     case 0x16:                      /* MOVHPD Gx, Ed */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         GX.q[1] = *(uint64_t*)ED;
         break;
     case 0x17:                      /* MOVHPD Ed, Gx */
         nextop = F8;
-        GET_ED;
+        GET_ED8;
         *(uint64_t*)ED = GX.q[1];
         break;
 
     case 0x1F:                      /* NOP (multi-byte) */
         nextop = F8;
-        GET_ED;
+        GET_ED_;
         break;
     
     case 0x28:                      /* MOVAPD Gx, Ex */
@@ -219,16 +216,20 @@ void Run660F(x86emu_t *emu)
         GX.d[0] = EM->sd[0];
         GX.d[1] = EM->sd[1];
         break;
-
-
+    case 0x2B:                      /* MOVNTPD Ex, Gx */
+        nextop = F8;
+        GET_EX;
+        EX->q[0] = GX.q[0]; // Address needs to ba aligned for MOVNTPD
+        EX->q[1] = GX.q[1];
+        break;
     case 0x2C:                      /* CVTTPD2PI Gm, Ex */
         nextop = F8;
         GET_EX;
-        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+        if(!isfinite(EX->d[0]) || EX->d[0]>(double)0x7fffffff || EX->d[0]<-(double)0x80000000U)
             GM.ud[0] = 0x80000000;
         else
             GM.sd[0] = EX->d[0];
-        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>0x7fffffff)
+        if(!isfinite(EX->d[1]) || EX->d[1]>(double)0x7fffffff || EX->d[1]<-(double)0x80000000U)
             GM.ud[1] = 0x80000000;
         else
             GM.sd[1] = EX->d[1];
@@ -237,7 +238,7 @@ void Run660F(x86emu_t *emu)
         nextop = F8;
         GET_EX;
         for(int i=0; i<2; ++i)
-            if(isnan(EX->d[i]) || isinf(EX->d[i]) || EX->d[i]>0x7fffffff)
+            if(!isfinite(EX->d[i]) || EX->d[i]>(double)0x7fffffff || EX->d[i]<-(double)0x80000000U)
                 GM.ud[i] = 0x80000000;
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
@@ -347,7 +348,34 @@ void Run660F(x86emu_t *emu)
                         GX.sw[4+i] = EX->sw[i*2+0] - EX->sw[i*2+1];
                 }
                 break;
-                
+            case 0x06:  /* PHSUBD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<2; ++i)
+                    GX.sd[i] = GX.sd[i*2+0] - GX.sd[i*2+1];
+                if(&GX == EX) {
+                    GX.q[1] = GX.q[0];
+                } else {
+                    for (int i=0; i<2; ++i)
+                        GX.sd[2+i] = EX->sd[i*2+0] - EX->sd[i*2+1];
+                }
+                break;
+            case 0x07:  /* PHSUBSW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<4; ++i) {
+                    tmp32s = GX.sw[i*2+0]-GX.sw[i*2+1];
+                    GX.sw[i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                }
+                if(&GX == EX) {
+                    GX.q[1] = GX.q[0];
+                } else {
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = EX->sw[i*2+0] - EX->sw[i*2+1];
+                        GX.sw[4+i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                    }
+                }
+                break;
             case 0x08:  /* PSIGNB Gx, Ex */
                 nextop = F8;
                 GET_EX;
@@ -513,8 +541,7 @@ void Run660F(x86emu_t *emu)
                 break;
 
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
 
@@ -528,28 +555,28 @@ void Run660F(x86emu_t *emu)
                 switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
-                        GX.f[0] = nearbyint(EX->f[0]);
-                        GX.f[1] = nearbyint(EX->f[1]);
-                        GX.f[2] = nearbyint(EX->f[2]);
-                        GX.f[3] = nearbyint(EX->f[3]);
+                        GX.f[0] = nearbyintf(EX->f[0]);
+                        GX.f[1] = nearbyintf(EX->f[1]);
+                        GX.f[2] = nearbyintf(EX->f[2]);
+                        GX.f[3] = nearbyintf(EX->f[3]);
                         break;
                     case ROUND_Down:
-                        GX.f[0] = floor(EX->f[0]);
-                        GX.f[1] = floor(EX->f[1]);
-                        GX.f[2] = floor(EX->f[2]);
-                        GX.f[3] = floor(EX->f[3]);
+                        GX.f[0] = floorf(EX->f[0]);
+                        GX.f[1] = floorf(EX->f[1]);
+                        GX.f[2] = floorf(EX->f[2]);
+                        GX.f[3] = floorf(EX->f[3]);
                         break;
                     case ROUND_Up:
-                        GX.f[0] = ceil(EX->f[0]);
-                        GX.f[1] = ceil(EX->f[1]);
-                        GX.f[2] = ceil(EX->f[2]);
-                        GX.f[3] = ceil(EX->f[3]);
+                        GX.f[0] = ceilf(EX->f[0]);
+                        GX.f[1] = ceilf(EX->f[1]);
+                        GX.f[2] = ceilf(EX->f[2]);
+                        GX.f[3] = ceilf(EX->f[3]);
                         break;
                     case ROUND_Chop:
-                        GX.f[0] = trunc(EX->f[0]);
-                        GX.f[1] = trunc(EX->f[1]);
-                        GX.f[2] = trunc(EX->f[2]);
-                        GX.f[3] = trunc(EX->f[3]);
+                        GX.f[0] = truncf(EX->f[0]);
+                        GX.f[1] = truncf(EX->f[1]);
+                        GX.f[2] = truncf(EX->f[2]);
+                        GX.f[3] = truncf(EX->f[3]);
                         break;
                 }
                 break;
@@ -584,16 +611,16 @@ void Run660F(x86emu_t *emu)
                 switch((tmp8u & 4) ? (emu->mxcsr.f.MXCSR_RC) : (tmp8u & 3))
                 {
                     case ROUND_Nearest:
-                        GX.f[0] = nearbyint(EX->f[0]);
+                        GX.f[0] = nearbyintf(EX->f[0]);
                         break;
                     case ROUND_Down:
-                        GX.f[0] = floor(EX->f[0]);
+                        GX.f[0] = floorf(EX->f[0]);
                         break;
                     case ROUND_Up:
-                        GX.f[0] = ceil(EX->f[0]);
+                        GX.f[0] = ceilf(EX->f[0]);
                         break;
                     case ROUND_Chop:
-                        GX.f[0] = trunc(EX->f[0]);
+                        GX.f[0] = truncf(EX->f[0]);
                         break;
                 }
                 break;
@@ -634,35 +661,12 @@ void Run660F(x86emu_t *emu)
                 if(tmp8u>31)
                     {GX.q[0] = GX.q[1] = 0;}
                 else
-                #if 0
-                    if(tmp8u>15) {
-                    tmp8u=(tmp8u-16)*8;
-                    if (tmp8u < 64) {
-                        GX.q[0] = (GX.q[0] >> tmp8u) | (GX.q[1] << (64 - tmp8u));
-                        GX.q[1] = (GX.q[1] >> tmp8u);
-                    } else {
-                        GX.q[0] = GX.q[1] >> (tmp8u - 64);
-                        GX.q[1] = 0;
-                    }                    
-                } else {
-                    tmp8u*=8;
-                    if (tmp8u < 64) {
-                        GX.q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
-                        GX.q[1] = (EX->q[1] >> tmp8u) | (GX.q[0] << (64-tmp8u));
-                    } else {
-                        tmp8u -= 64;
-                        GX.q[0] = (EX->q[1] >> tmp8u) | (GX.q[0] << (64 - tmp8u));
-                        GX.q[1] = (GX.q[0] >> tmp8u) | (GX.q[1] >> (64 - tmp8u));
-                    }                    
-                }
-                #else
                 {
                     for (int i=0; i<16; ++i, ++tmp8u)
                         eax1.ub[i] = (tmp8u>15)?((tmp8u>31)?0:GX.ub[tmp8u-16]):EX->ub[tmp8u];
                     GX.q[0] = eax1.q[0];
                     GX.q[1] = eax1.q[1];
                 }
-                #endif
                 break;
 
             case 0x16:      // PEXTRD ED, GX, u8
@@ -696,8 +700,7 @@ void Run660F(x86emu_t *emu)
                 break;
 
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
 
@@ -782,23 +785,24 @@ void Run660F(x86emu_t *emu)
         nextop = F8;
         GET_EX;
         for(int i=0; i<4; ++i)
-            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+            // note, converting 0x7fffffff to float gives 0x80000000 basicaly, because of the loss or precision in the mantice. So uing >= here...
+            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>=(float)0x80000000U || EX->f[i]<-(float)0x80000000U)
                 GX.sd[i] = 0x80000000;
-        else
-            switch(emu->mxcsr.f.MXCSR_RC) {
-                case ROUND_Nearest:
-                    GX.sd[i] = nearbyintf(EX->f[i]);
-                    break;
-                case ROUND_Down:
-                    GX.sd[i] = floorf(EX->f[i]);
-                    break;
-                case ROUND_Up:
-                    GX.sd[i] = ceilf(EX->f[i]);
-                    break;
-                case ROUND_Chop:
-                    GX.sd[i] = EX->f[i];
-                    break;
-            }
+            else
+                switch(emu->mxcsr.f.MXCSR_RC) {
+                    case ROUND_Nearest:
+                        GX.sd[i] = nearbyintf(EX->f[i]);
+                        break;
+                    case ROUND_Down:
+                        GX.sd[i] = floorf(EX->f[i]);
+                        break;
+                    case ROUND_Up:
+                        GX.sd[i] = ceilf(EX->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        GX.sd[i] = EX->f[i];
+                        break;
+                }
         break;
     case 0x5C:                      /* SUBPD Gx, Ex */
         nextop = F8;
@@ -1016,8 +1020,7 @@ void Run660F(x86emu_t *emu)
                     for (int i=0; i<8; ++i) EX->uw[i] <<= tmp8u;
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x72:  /* GRP */
@@ -1043,8 +1046,7 @@ void Run660F(x86emu_t *emu)
                     for (int i=0; i<4; ++i) EX->ud[i] <<= tmp8u;
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x73:  /* GRP */
@@ -1096,8 +1098,7 @@ void Run660F(x86emu_t *emu)
                 }
                 break;
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0x74:  /* PCMPEQB Gx,Ex */
@@ -1190,7 +1191,12 @@ void Run660F(x86emu_t *emu)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
@@ -1217,7 +1223,12 @@ void Run660F(x86emu_t *emu)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
@@ -1263,7 +1274,12 @@ void Run660F(x86emu_t *emu)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u)) {
             SET_FLAG(F_CF);
@@ -1332,8 +1348,7 @@ void Run660F(x86emu_t *emu)
                 break;
 
             default:
-                ip = R_EIP;
-                UnimpOpcode(emu);
+                return 0;
         }
         break;
     case 0xBB:                      /* BTC Ew,Gw */
@@ -1345,7 +1360,12 @@ void Run660F(x86emu_t *emu)
         GET_EW;
         if((nextop&0xC0)!=0xC0)
         {
+            #ifdef TEST_INTERPRETER
+            test->memaddr=((test->memaddr)+tmp32s*2);
+            *(uint16_t*)test->mem = *(uint16_t*)test->memaddr;
+            #else
             EW=(reg32_t*)(((uintptr_t)(EW))+(tmp32s*2));
+            #endif
         }
         if(EW->word[0] & (1<<tmp8u))
             SET_FLAG(F_CF);
@@ -1512,8 +1532,7 @@ void Run660F(x86emu_t *emu)
                 if(EX->ub[i]&0x80)
                     GD.dword[0] |= (1<<i);
         } else {
-            ip = R_EIP;
-            UnimpOpcode(emu);
+            return 0;
         }
         break;
     case 0xD8:  /* PSUBUSB Gx,Ex */
@@ -1617,11 +1636,11 @@ void Run660F(x86emu_t *emu)
     case 0xE6:  /* CVTTPD2DQ Gx, Ex */
         nextop = F8;
         GET_EX;
-        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff || EX->d[0]<-(double)0x80000000U)
             GX.sd[0] = 0x80000000;
         else
             GX.sd[0] = EX->d[0];
-        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>0x7fffffff)
+        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>(double)0x7fffffff || EX->d[1]<-(double)0x80000000U)
             GX.sd[1] = 0x80000000;
         else
             GX.sd[1] = EX->d[1];
@@ -1799,10 +1818,8 @@ void Run660F(x86emu_t *emu)
         break;
  
     default:
-        ip = R_EIP;
-        UnimpOpcode(emu);
+        return 0;
     }
 
-    R_EIP = ip;
-    return;
+    return addr;
 }

@@ -49,6 +49,9 @@ ENTRYSTRING_(BOX86_BASH, bash)                          \
 ENTRYINT(BOX86_JITGDB, jit_gdb, 0, 2, 2)                \
 ENTRYSTRING_(BOX86_BOX64, box64)                        \
 ENTRYSTRING_(BOX86_LD_PRELOAD, ld_preload)              \
+ENTRYBOOL(BOX86_NOSANDBOX, box86_nosandbox)             \
+ENTRYBOOL(BOX86_LIBCEF, box86_libcef)                   \
+ENTRYINT(BOX86_MALLOC_HACK, box86_malloc_hack, 0, 2, 2) \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -81,8 +84,12 @@ ENTRYBOOL(BOX86_DYNAREC_FASTNAN, box86_dynarec_fastnan)             \
 ENTRYBOOL(BOX86_DYNAREC_FASTROUND, box86_dynarec_fastround)         \
 ENTRYINT(BOX86_DYNAREC_SAFEFLAGS, box86_dynarec_safeflags, 0, 2, 2) \
 ENTRYINT(BOX86_DYNAREC_HOTPAGE, box86_dynarec_hotpage, 0, 255, 8)   \
+ENTRYBOOL(BOX86_DYNAREC_FASTPAGE, box86_dynarec_fastpage)           \
+ENTRYBOOL(BOX86_DYNAREC_WAIT, box86_dynarec_wait)                   \
 ENTRYBOOL(BOX86_DYNAREC_BLEEDING_EDGE, box86_dynarec_bleeding_edge) \
+ENTRYBOOL(BOX86_DYNAREC_JVM, box86_dynarec_jvm)                     \
 ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
+ENTRYBOOL(BOX86_DYNAREC_TEST, box86_dynarec_test)                   \
 
 #else
 #define SUPER3()                                                    \
@@ -90,15 +97,19 @@ IGNORE(BOX86_DYNAREC)                                               \
 IGNORE(BOX86_DYNAREC_DUMP)                                          \
 IGNORE(BOX86_DYNAREC_LOG)                                           \
 IGNORE(BOX86_DYNAREC_BIGBLOCK)                                      \
-IGNORE(BOX64_DYNAREC_FORWARD)                                       \
+IGNORE(BOX86_DYNAREC_FORWARD)                                       \
 IGNORE(BOX86_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX86_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX86_DYNAREC_FASTNAN)                                       \
 IGNORE(BOX86_DYNAREC_FASTROUND)                                     \
 IGNORE(BOX86_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
+IGNORE(BOX86_DYNAREC_FASTPAGE)                                      \
+IGNORE(BOX86_DYNAREC_WAIT)                                          \
 IGNORE(BOX86_DYNAREC_BLEEDING_EDGE)                                 \
+IGNORE(BOX86_DYNAREC_JVM)                                           \
 IGNORE(BOX86_NODYNAREC)                                             \
+IGNORE(BOX86_DYNAREC_TEST)                                          \
 
 #endif
 
@@ -490,8 +501,9 @@ void ApplyParams(const char* name, path_collection_t* preload)
         uintptr_t no_start = 0, no_end = 0;
         char* p;
         no_start = strtoul(param->box86_nodynarec, &p, 0);
-        if(p!=param->box86_nodynarec) {
+        if(p!=param->box86_nodynarec && p[0]=='-') {
             char* p2;
+            ++p;
             no_end = strtoul(p, &p2, 0);
             if(p2!=p && no_end>no_start) {
                 box86_nodynarec_start = no_start;

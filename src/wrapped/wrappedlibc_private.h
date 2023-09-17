@@ -1121,6 +1121,7 @@ GO(memchr, pFpiL)
 GO(memcmp, iFppL)
 GO(memcpy, pFppL)
 GO(__memcpy_chk, pFppuL)
+GO(memfd_create, iFpu)
 // memfrob
 GO(memmem, pFpupu)
 GO(memmove, pFppL)
@@ -1318,7 +1319,7 @@ DATAM(program_invocation_name, 4)
 DATAM(program_invocation_short_name, 4)
 GOW(pselect, iFippppp)
 // psignal
-GO(ptrace, iFiupp)  // will that work???
+GOM(ptrace, iFEiupp)
 GO(ptsname, pFi)
 GOW(ptsname_r, iFipu)
 // __ptsname_r_chk
@@ -2215,8 +2216,6 @@ GOM(__poll_chk, iFpuii)     //%%,noE
 
 GOM(fallocate64, iFiiII)    //%%,noE
 
-DATAM(__libc_stack_end, sizeof(void*))
-
 DATAM(___brk_addr, 4)
 DATA(__libc_enable_secure, 4)
 
@@ -2253,6 +2252,7 @@ GOM(fstat64, iFip)  //%%,noE
 
 GOWM(_Unwind_Find_FDE, pFEpp)    // this is a libgcc_s function, I think. Create a dummy weak one, just in case
 GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
+GO(dummy_safer_scalable_aligned_realloc, pFpLLp)    // for mallochook.c
 
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)

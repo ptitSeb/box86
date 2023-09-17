@@ -260,17 +260,19 @@
 // CALL_1RD will use S as scratch. Return value in D0, 1 ARG in R
 #define CALL_1RD(F, R, S, M) call_rd(dyn, ninst, F, R, S, M, 0);
 
-#define MARK    if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
-#define GETMARK ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
-#define MARK2   if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
-#define GETMARK2 ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
-#define MARK3   if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
-#define GETMARK3 ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
-#define MARKF   if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
-#define GETMARKF ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
-#define MARKSEG if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
-#define GETMARKSEG ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
-#define MARKLOCK if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
+#define MARK        if(dyn->insts) {dyn->insts[ninst].mark = (uintptr_t)dyn->arm_size;}
+#define GETMARK     ((dyn->insts)?dyn->insts[ninst].mark:(dyn->arm_size+4))
+#define MARK2       if(dyn->insts) {dyn->insts[ninst].mark2 = (uintptr_t)dyn->arm_size;}
+#define GETMARK2    ((dyn->insts)?dyn->insts[ninst].mark2:(dyn->arm_size+4))
+#define MARK3       if(dyn->insts) {dyn->insts[ninst].mark3 = (uintptr_t)dyn->arm_size;}
+#define GETMARK3    ((dyn->insts)?dyn->insts[ninst].mark3:(dyn->arm_size+4))
+#define MARKF       if(dyn->insts) {dyn->insts[ninst].markf = (uintptr_t)dyn->arm_size;}
+#define GETMARKF    ((dyn->insts)?dyn->insts[ninst].markf:(dyn->arm_size+4))
+#define MARKF2      if(dyn->insts) {dyn->insts[ninst].markf2 = (uintptr_t)dyn->arm_size;}
+#define GETMARKF2   ((dyn->insts)?dyn->insts[ninst].markf2:(dyn->arm_size+4))
+#define MARKSEG     if(dyn->insts) {dyn->insts[ninst].markseg = (uintptr_t)dyn->arm_size;}
+#define GETMARKSEG  ((dyn->insts)?dyn->insts[ninst].markseg:(dyn->arm_size+4))
+#define MARKLOCK    if(dyn->insts) {dyn->insts[ninst].marklock = (uintptr_t)dyn->arm_size;}
 #define GETMARKLOCK ((dyn->insts)?dyn->insts[ninst].marklock:(dyn->arm_size+4))
 
 // Branch to MARK if cond (use j32)
@@ -547,12 +549,13 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
 #define fpu_reset       STEPNAME(fpu_reset)
+#define fpu_reset_cache STEPNAME(fpu_reset_cache)
+#define fpu_propagate_stack STEPNAME(fpu_propagate_stack)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
 #define x87_purgecache  STEPNAME(x87_purgecache)
 #define mmx_purgecache  STEPNAME(mmx_purgecache)
-#ifdef HAVE_TRACE
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
-#endif
+#define fpu_unreflectcache STEPNAME(fpu_unreflectcache)
 
 // get the single reg that from the double "reg" (so Dx[idx])
 #define fpu_get_single_reg      STEPNAME(fpu_get_single_reg)
@@ -741,13 +744,16 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
 // common coproc helpers
 // reset the cache
 void fpu_reset(dynarec_arm_t* dyn);
+// reset the cache with n
+void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n);
+// propagate stack state
+void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst);
 // purge the FPU cache (needs 3 scratch registers) next=1 if for a conditionnal branch jumping out of block (no tracking updated)
 void fpu_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3);
 void mmx_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1);
-#ifdef HAVE_TRACE
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
-#endif
+void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1);
 void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1);
 
@@ -793,5 +799,22 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 #else
 #define MAYUSE(A)   
 #endif
+
+#define NOTEST(s1)                                          \
+    if(box86_dynarec_test) {                                \
+        MOVW(s1, 0);                                        \
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, test.test));  \
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, test.clean)); \
+    }
+#define SKIPTEST(s1)                                        \
+    if(box86_dynarec_test) {                                \
+        MOVW(s1, 0);                                        \
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, test.clean)); \
+    }
+#define GOTEST(s1, s2)                                      \
+    if(box86_dynarec_test) {                                \
+        MOVW(s2, 1);                                        \
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, test.test));  \
+    }
 
 #endif //__DYNAREC_ARM_HELPER_H__

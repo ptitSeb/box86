@@ -127,6 +127,11 @@ Enables/Disables trace for generated code.
 Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpretor)
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
 
+#### BOX86_DYNAREC_TEST *
+Dynarec will compare it's execution with the interpreter (super slow, only for testing)
+ * 0 : No comparison
+ * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different
+
 #### BOX86_DYNAREC_BIGBLOCK *
 Enables/Disables Box86's Dynarec building BigBlock.
  * 0 : Don't try to build block as big as possible (can help program using lots of thread and a JIT, like C#/Unity) (Default when libmonobdwgc-2.0.so is loaded)
@@ -170,10 +175,25 @@ Handling of HotPage (Page beeing both executed and writen)
 * 0 : Don't track hotpage
 * 1-255 : Trak HotPage, and disable execution of a page beeing writen for N attempts (default is 16)
 
+#### BOX86_DYNAREC_FASTPAGE *
+Will use a faster handling of HotPage (Page being both executed and written)
+* 0 : use regular hotpage (Default)
+* 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
+
 #### BOX86_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+
+#### BOX86_DYNAREC_JVM *
+Detect libjvm and apply conservative settings
+* 0 : Don't detect libjvm
+* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+
+#### BOX86_DYNAREC_WAIT *
+Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+* 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
+* 1 : Dynarec will wait for FillBlock to be ready (Default)
 
 #### BOX86_SSE_FLUSHTO0 *
 Handling of SSE Flush to 0 flags
@@ -184,6 +204,11 @@ Handling of SSE Flush to 0 flags
 Handling of x87 80bits long double
 * 0 : Try to handle 80bits long double as precise as possible (Default)
 * 1 : Handle them as double
+
+#### BOX86_LIBCEF *
+Detect libcef and apply malloc_hack settings
+* 0 : Don't detect libcef
+* 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
 
 #### BOX86_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
@@ -281,3 +306,8 @@ Will use yyyy as x86_64 interpretor, to launch x64_64 binaries
 
 #### BOX86_NORCFILES
 If the env var exist, no rc files (like /etc/box86.box86rc and ~/.box86rc) will be loaded
+
+#### BOX86_NOSANDBOX
+ * 0 : Nothing special
+ * 1 : Added "--no-sandbox" to command line arguments (usefull for chrome based programs)
+

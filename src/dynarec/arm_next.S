@@ -9,6 +9,7 @@
 .extern LinkNext
 
 .global arm_next
+    .4byte  0   // NULL pointer before arm64_next, for getDB
 arm_next:
     // emu is r0
     //stm     r0, {r4-r12,r14}   // don't put put back reg value in emu, faster but more tricky to debug

@@ -20,6 +20,7 @@
 #include "dynablock.h"
 #include "dynablock_private.h"
 #include "bridge.h"
+void x86test_check(x86emu_t* ref, uintptr_t ip);
 #endif
 
 #ifdef ARM
@@ -44,26 +45,27 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
         printf_log(LOG_NONE, "Warning, jumping to NULL address from %p (db=%p, x86addr=%p/%s)\n", x2, db, x86addr, pcname);
     }
     #endif
-    dynablock_t* current = NULL;
     void * jblock;
-    dynablock_t* block = DBGetBlock(emu, addr, 1, &current);
+    dynablock_t* block = NULL;
+    if(hasAlternate((void*)addr)) {
+        printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
+        addr = (uintptr_t)getAlternate((void*)addr);
+        R_EIP = addr;
+        printf_log(LOG_INFO, " -> %p\n", (void*)addr);
+        block = DBGetBlock(emu, addr, 1);
+    } else
+        block = DBGetBlock(emu, addr, 1);
     if(!block) {
         // no block, let link table as is...
-        if(hasAlternate((void*)addr)) {
-            printf_log(LOG_INFO, "Jmp address has alternate: %p", (void*)addr);
-            addr = (uintptr_t)getAlternate((void*)addr);
-            R_EIP = addr;
-            printf_log(LOG_INFO, " -> %p\n", (void*)addr);
-            block = DBGetBlock(emu, addr, 1, &current);
-        }
-        if(!block) {
-            #ifdef HAVE_TRACE
+        #ifdef HAVE_TRACE
+        if(LOG_INFO<=box86_dynarec_log) {
             dynablock_t* db = FindDynablockFromNativeAddress(x2);
-            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x86addr=%p)\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2):NULL);
-            #endif
-            //tableupdate(arm_epilog, addr, table);
-            return arm_epilog;
+            elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2);
+            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s))\n", (void*)addr, x2, db, db?(void*)getX86Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)");
         }
+        #endif
+        //tableupdate(arm_epilog, addr, table);
+        return arm_epilog;
     }
     if(!block->done) {
         // not finished yet... leave linker
@@ -79,23 +81,36 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
 }
 #endif
 
+#ifdef ANDROID
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
     int jmpbuf_reset = 0;
+    int skip = 0;
     if(emu->type == EMUTYPE_MAIN) {
         ejb = GetJmpBuf();
         if(!ejb->jmpbuf_ok) {
             ejb->emu = emu;
             ejb->jmpbuf_ok = 1;
             jmpbuf_reset = 1;
-            int a;
-            if((a=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
-                printf_log(LOG_DEBUG, "Setjmp DynaCall %d, fs=0x%x\n", a, ejb->emu->segs[_FS]);
+            if((skip=sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1))) {
+                printf_log(LOG_DEBUG, "Setjmp DynaCall %d, fs=0x%x\n", skip, ejb->emu->segs[_FS]);
                 addr = R_EIP;   // not sure if it should still be inside DynaCall!
-                if(a==2)
-                    Run(emu, 1);    // "single step" next instruction that is doing auto-smc
+                #ifdef DYNAREC
+                if(box86_dynarec_test) {
+                    if(emu->test.clean)
+                        x86test_check(emu, R_EIP);
+                    emu->test.clean = 0;
+                }
+                #endif
+                if(skip!=2)
+                    skip = 0;
             }
         }
     }
@@ -117,15 +132,18 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
         dynablock_t* block = NULL;
         dynablock_t* current = NULL;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_EIP, 1, &current);
+            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1);
             current = block;
             if(!block || !block->block || !block->done) {
+                skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
+                if(box86_dynarec_test)
+                    emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,emu);
                 CHECK_FLAGS(emu);
                 // block is here, let's run it!
                 #ifdef ARM
@@ -142,7 +160,7 @@ void DynaCall(x86emu_t* emu, uintptr_t addr)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1)) {
+                    if(sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1)) {
                         printf_log(LOG_DEBUG, "Setjmp inner DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
                         addr = R_EIP;
                     }
@@ -173,6 +191,7 @@ int DynaRun(x86emu_t* emu)
 {
     // prepare setjump for signal handling
     emu_jmpbuf_t *ejb = NULL;
+    int skip = 0;
 #ifdef DYNAREC
     int jmpbuf_reset = 1;
 #endif
@@ -185,11 +204,17 @@ int DynaRun(x86emu_t* emu)
 #ifdef DYNAREC
             jmpbuf_reset = 1;
 #endif
-            if((a=sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))) {
-                printf_log(LOG_DEBUG, "Setjmp DynaRun %d, fs=0x%x\n", a, ejb->emu->segs[_FS]);
-                if(a==2)
-                    Run(emu, 1);    // "single step" next instruction that is doing auto-smc
-
+            if((skip=sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1))) {
+                printf_log(LOG_DEBUG, "Setjmp DynaRun %d, fs=0x%x\n", skip, ejb->emu->segs[_FS]);
+                #ifdef DYNAREC
+                if(box86_dynarec_test) {
+                    if(emu->test.clean)
+                        x86test_check(emu, R_EIP);
+                    emu->test.clean = 0;
+                }
+                #endif
+                if(skip!=2)
+                    skip = 0;
             }
         }
     }
@@ -202,15 +227,18 @@ int DynaRun(x86emu_t* emu)
         dynablock_t* block = NULL;
         dynablock_t* current = NULL;
         while(!emu->quit) {
-            block = DBGetBlock(emu, R_EIP, 1, &current);
+            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1);
             current = block;
             if(!block || !block->block || !block->done) {
+                skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
                 dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
+                if(box86_dynarec_test)
+                    emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts (father=%p) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, block->father, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, emu);
                 // block is here, let's run it!
                 #ifdef ARM
                 arm_prolog(emu, block->block);
@@ -226,7 +254,7 @@ int DynaRun(x86emu_t* emu)
                     ejb->emu = emu;
                     ejb->jmpbuf_ok = 1;
                     jmpbuf_reset = 1;
-                    if(sigsetjmp((struct __jmp_buf_tag*)ejb->jmpbuf, 1))
+                    if(sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1))
                         printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
                 }
             }

@@ -230,7 +230,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
-                VLD1Q_32(v0, ed);
+                VLD1Q_64(v0, ed);
                 SMWRITE2();
             }
             break;
@@ -244,7 +244,23 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 VMOVQ(v1, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
-                VST1Q_32(v0, ed);
+                VST1Q_64(v0, ed);
+                SMWRITE2();
+            }
+            break;
+
+
+        case 0x2B:
+            INST_NAME("MOVNTPD Ex, Gx");
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if((nextop&0xC0)==0xC0) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
+                VMOVQ(v1, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
+                VST1Q_64(v0, ed);
                 SMWRITE2();
             }
             break;
@@ -2295,7 +2311,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             VPADDLQ_U32(q0, q0);
             break;
         case 0xF7:
-            INST_NAME("MASKMOVDQU Gx, Ex")
+            INST_NAME("MASKMOVDQU Gx, Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0);

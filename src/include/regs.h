@@ -7,7 +7,7 @@ enum {
 };
 
 enum {
-    _CS, _DS, _SS, _ES, _FS, _GS
+    _ES, _CS, _SS, _DS, _FS, _GS
 };
 
 

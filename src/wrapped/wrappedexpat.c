@@ -34,10 +34,10 @@ GO(4)
 
 // Start ...
 #define GO(A)   \
-static uintptr_t my_Start_fct_##A = 0;                                              \
-static void* my_Start_##A(void* data, void* name, void* attr)                       \
-{                                                                                   \
-    return (void*)RunFunction(my_context, my_Start_fct_##A, 3, data, name, attr);   \
+static uintptr_t my_Start_fct_##A = 0;                                                  \
+static void* my_Start_##A(void* data, void* name, void* attr)                           \
+{                                                                                       \
+    return (void*)RunFunctionFmt(my_Start_fct_##A, "ppp", data, name, attr);\
 }
 SUPER()
 #undef GO
@@ -56,10 +56,10 @@ static void* find_Start_Fct(void* fct)
 }
 // End ...
 #define GO(A)   \
-static uintptr_t my_End_fct_##A = 0;                       \
-static void my_End_##A(void* data, void* name)             \
-{                                                          \
-    RunFunction(my_context, my_End_fct_##A, 2, data, name);\
+static uintptr_t my_End_fct_##A = 0;                                \
+static void my_End_##A(void* data, void* name)                      \
+{                                                                   \
+    RunFunctionFmt(my_End_fct_##A, "pp", data, name);   \
 }
 SUPER()
 #undef GO
@@ -78,10 +78,10 @@ static void* find_End_Fct(void* fct)
 }
 // CharData ...
 #define GO(A)   \
-static uintptr_t my_CharData_fct_##A = 0;                       \
-static void my_CharData_##A(void* data, void* s, int l)         \
-{                                                               \
-    RunFunction(my_context, my_CharData_fct_##A, 3, data, s, l);\
+static uintptr_t my_CharData_fct_##A = 0;                               \
+static void my_CharData_##A(void* data, void* s, int l)                 \
+{                                                                       \
+    RunFunctionFmt(my_CharData_fct_##A, "ppi", data, s, l); \
 }
 SUPER()
 #undef GO

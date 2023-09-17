@@ -29,6 +29,9 @@ option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box86" ${NO_LOADAADR})
 option(NOGETCLOCK "Set to ON to avoid using clock_gettime with CLOCK_MONOTONIC_COARSE for RDTSC opcode (use gltimeofday instead)" ${NOGETCLOCK})
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
+option(NO_LIB_INSTALL "Set ON to not install a few x86 libs that are used by many program" ${NO_LIB_INSTALL})
+option(NO_CONF_INSTALL "Set ON to not install config files" ${NO_CONF_INSTALL})
+
 if(PANDORA OR PYRA OR RPI2 OR RPI3 OR RPI4 OR GAMESHELL OR ODROID OR GOA_CLONE OR RK3288 OR RK3399 OR ODROIDN2 OR TEGRAX1 OR TEGRAX1ARM32 OR RPI3ARM64 OR RPI4ARM64 OR PHYTIUM OR SD845 OR A64 OR LX2160A OR ARM64 OR RK3588)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
@@ -39,6 +42,7 @@ if(PANDORA OR PYRA OR RPI2 OR RPI3 OR RPI4 OR GAMESHELL OR ODROID OR GOA_CLONE O
 endif()
 if(ANDROID)
     set(NOLOADADDR ON CACHE BOOL "")
+    set(BAD_SIGNAL ON CACHE BOOL "")
 endif()
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
@@ -175,13 +179,15 @@ elseif(LX2160A)
     add_definitions(-DLX2160A)
     add_definitions(-pipe -march=armv8-a+crypto+crc -mcpu=cortex-a72+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crypto+crc -mcpu=cortex-a72+crypto -mfpu=neon-fp-armv8 -mfloat-abi=hard")
-elseif(ANDROID)
-    add_definitions(-DANDROID)
 elseif(ARM_DYNAREC)
     #if DYNAREC is selected alone, without any arch
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv7-a+simd -mfpu=neon")
+    if(NOT ANDROID)
+        set(CMAKE_ASM_FLAGS  "-pipe -march=armv7-a+simd -mfpu=neon")
+    endif()
 endif()
-
+if(ANDROID)
+    add_definitions(-DANDROID)
+endif()
 if(BAD_SIGNAL)
     add_definitions(-DBAD_SIGNAL)
 endif()
@@ -297,9 +303,6 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/librarian/symbols.c"
     "${BOX86_ROOT}/src/librarian/globalsymbols.c"
     "${BOX86_ROOT}/src/emu/x86emu.c"
-    "${BOX86_ROOT}/src/emu/x86run.c"
-    "${BOX86_ROOT}/src/emu/x86run66.c"
-    "${BOX86_ROOT}/src/emu/x86run660f.c"
     "${BOX86_ROOT}/src/emu/x86run_private.c"
     "${BOX86_ROOT}/src/emu/x86syscall.c"
     "${BOX86_ROOT}/src/emu/x86primop.c"
@@ -307,7 +310,6 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/emu/x86int3.c"
     "${BOX86_ROOT}/src/emu/x86tls.c"
     "${BOX86_ROOT}/src/emu/x87emu_private.c"
-    "${BOX86_ROOT}/src/emu/x87run.c"
     "${BOX86_ROOT}/src/libtools/auxval.c"
     "${BOX86_ROOT}/src/libtools/myalign.c"
     "${BOX86_ROOT}/src/libtools/myalign64.c"
@@ -323,6 +325,33 @@ set(ELFLOADER_SRC
 if(NOT ANDROID)
     list(APPEND ELFLOADER_SRC "${BOX86_ROOT}/src/libtools/obstack.c")
 endif()
+
+set(INTERPRETER
+    "${BOX86_ROOT}/src/emu/x86run.c"
+    "${BOX86_ROOT}/src/emu/x86run0f.c"
+    "${BOX86_ROOT}/src/emu/x86run64.c"
+    "${BOX86_ROOT}/src/emu/x86run640f.c"
+    "${BOX86_ROOT}/src/emu/x86run6466.c"
+    "${BOX86_ROOT}/src/emu/x86run6467.c"
+    "${BOX86_ROOT}/src/emu/x86run66.c"
+    "${BOX86_ROOT}/src/emu/x86run660f.c"
+    "${BOX86_ROOT}/src/emu/x86run66d9.c"
+    "${BOX86_ROOT}/src/emu/x86run66dd.c"
+    "${BOX86_ROOT}/src/emu/x86run67.c"
+    "${BOX86_ROOT}/src/emu/x86run6766.c"
+    "${BOX86_ROOT}/src/emu/x86rund8.c"
+    "${BOX86_ROOT}/src/emu/x86rund9.c"
+    "${BOX86_ROOT}/src/emu/x86runda.c"
+    "${BOX86_ROOT}/src/emu/x86rundb.c"
+    "${BOX86_ROOT}/src/emu/x86rundc.c"
+    "${BOX86_ROOT}/src/emu/x86rundd.c"
+    "${BOX86_ROOT}/src/emu/x86runde.c"
+    "${BOX86_ROOT}/src/emu/x86rundf.c"
+    "${BOX86_ROOT}/src/emu/x86runf0.c"
+    "${BOX86_ROOT}/src/emu/x86runf066.c"
+    "${BOX86_ROOT}/src/emu/x86runf20f.c"
+    "${BOX86_ROOT}/src/emu/x86runf30f.c"
+)
 
 set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibc.c"
@@ -492,6 +521,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedpcap.c"
     "${BOX86_ROOT}/src/wrapped/wrappedfaudio.c"
     "${BOX86_ROOT}/src/wrapped/wrappedtbbmallocproxy.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibfuse.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS
@@ -545,7 +575,9 @@ if(ARM_DYNAREC)
 
         "${BOX86_ROOT}/src/dynarec/dynarec_arm.c"
         "${BOX86_ROOT}/src/dynarec/dynarec_arm_functions.c"
+        "${BOX86_ROOT}/src/dynarec/dynarec_arm_jmpnext.c"
         "${BOX86_ROOT}/src/dynarec/arm_printer.c"
+        "${BOX86_ROOT}/src/emu/x86test.c"
 
         "${BOX86_ROOT}/src/dynarec/arm_prolog.S"
         "${BOX86_ROOT}/src/dynarec/arm_epilog.S"
@@ -593,6 +625,8 @@ if(ARM_DYNAREC)
     set_target_properties(arm_pass2 PROPERTIES COMPILE_FLAGS "-DSTEP=2")
     add_library(arm_pass3 OBJECT ${DYNAREC_PASS})
     set_target_properties(arm_pass3 PROPERTIES COMPILE_FLAGS "-DSTEP=3")
+    add_library(test_interpreter OBJECT ${INTERPRETER})
+    set_target_properties(test_interpreter PROPERTIES COMPILE_FLAGS "-DTEST_INTERPRETER")
     add_dependencies(arm_pass0 WRAPPERS)
     add_dependencies(arm_pass1 WRAPPERS)
     add_dependencies(arm_pass2 WRAPPERS)
@@ -604,6 +638,7 @@ if(ARM_DYNAREC)
         $<TARGET_OBJECTS:arm_pass1>
         $<TARGET_OBJECTS:arm_pass2>
         $<TARGET_OBJECTS:arm_pass3>
+        $<TARGET_OBJECTS:test_interpreter>
     )
 
 endif()
@@ -613,15 +648,17 @@ if(ARM_DYNAREC)
     add_custom_command(
         OUTPUT "${BOX86_ROOT}/src/git_head.h"
         COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX86_ROOT}/src/git_head.h\""
-        DEPENDS dynarec ${ELFLOADER_SRC} ${WRAPPEDS}
+        DEPENDS dynarec ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
         VERBATIM)
 else()
     add_custom_command(
         OUTPUT "${BOX86_ROOT}/src/git_head.h"
         COMMAND bash -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX86_ROOT}/src/git_head.h\""
-        DEPENDS ${ELFLOADER_SRC} ${WRAPPEDS}
+        DEPENDS ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
         VERBATIM)
 endif()
+
+add_library(interpreter OBJECT ${INTERPRETER})
 
 if(BOX86LIB)
 #build a static or dynamic lib...
@@ -632,9 +669,9 @@ else()
 endif()
 if(ARM_DYNAREC)
     if(ANDROID)
-        target_link_libraries(${BOX86} dynarec m dl)
+        target_link_libraries(${BOX86} dynarec interpreter m dl)
     else()
-        target_link_libraries(${BOX86} dynarec m dl rt pthread resolv)
+        target_link_libraries(${BOX86} dynarec interpreter m dl rt pthread resolv)
     endif()
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
@@ -660,7 +697,9 @@ else()
     set_target_properties(${BOX86} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -Wl,--as-needed -pthread")
 endif()
 if(ARM_DYNAREC)
-    target_link_libraries(${BOX86} dynarec)
+    target_link_libraries(${BOX86} dynarec interpreter)
+else()
+    target_link_libraries(${BOX86} interpreter)
 endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
@@ -679,13 +718,17 @@ endif()
 if(NOT _x86 AND NOT _x86_64)
   install(TARGETS ${BOX86}
     RUNTIME DESTINATION bin)
-  configure_file(system/box86.conf.cmake system/box86.conf)
-  install(FILES ${CMAKE_BINARY_DIR}/system/box86.conf DESTINATION /etc/binfmt.d/)
-  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION /usr/lib/i386-linux-gnu/)
-  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION /usr/lib/i386-linux-gnu/)
-  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
-  install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libpng12.so.0 DESTINATION /usr/lib/i386-linux-gnu/)
-  install(FILES ${CMAKE_SOURCE_DIR}/system/box86.box86rc DESTINATION /etc/)
+  if(NOT NO_CONF_INSTALL)
+    configure_file(system/box86.conf.cmake system/box86.conf)
+    install(FILES ${CMAKE_BINARY_DIR}/system/box86.conf DESTINATION /etc/binfmt.d/)
+    install(FILES ${CMAKE_SOURCE_DIR}/system/box86.box86rc DESTINATION /etc/)
+  endif()
+  if(NOT NO_LIB_INSTALL)
+    install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION /usr/lib/i386-linux-gnu/)
+    install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION /usr/lib/i386-linux-gnu/)
+    install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION /usr/lib/i386-linux-gnu/)
+    install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libpng12.so.0 DESTINATION /usr/lib/i386-linux-gnu/)
+  endif()
 endif()
 
 if(NOT TARGET uninstall)
@@ -832,20 +875,25 @@ add_test(NAME idiv COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref20.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
+add_test(NAME multiple_dlopen COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test21 -D TEST_OUTPUT=tmpfile21.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref21.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")    
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
     add_test(NAME "${testname}" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/extensions/${testname} -D TEST_OUTPUT=tmpfile-${testname}.txt
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/extensions/${testname}.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
-endforeach()
+endforeach()        
 
 add_test(NAME sse_optimized COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17_o2 -D TEST_OUTPUT=tmpfile17_o2.txt 
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17_o2.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-set_tests_properties(sse_optimized PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTNAN=0;BOX86_DYNAREC_FASTROUND=0")
+set_tests_properties(sse_optimized PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTNAN=0;BOX86_DYNAREC_FASTROUND=0")    
 
 endif(BOX86LIB)

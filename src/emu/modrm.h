@@ -1,3 +1,25 @@
+#include <string.h>
+
+#define F8      *(uint8_t*)(addr++)
+#define F8S     *(int8_t*)(addr++)
+#define F16     *(uint16_t*)(addr+=2, addr-2)
+#define F16S    *(int16_t*)(addr+=2, addr-2)
+#define F32     *(uint32_t*)(addr+=4, addr-4)
+#define F32S    *(int32_t*)(addr+=4, addr-4)
+#define F32S64  (uint64_t)(int64_t)F32S
+#define F64     *(uint64_t*)(addr+=8, addr-8)
+#define F64S    *(int64_t*)(addr+=8, addr-8)
+#define PK(a)   *(uint8_t*)(addr+a)
+#ifdef DYNAREC
+#define STEP if(step) return 0;
+#define STEP2 if(step) {R_EIP = addr; return 0;}
+#define STEP3 if(*step) (*step)++;
+#else
+#define STEP
+#define STEP2
+#define STEP3
+#endif
+
 // ModRM utilities macros
 #define getecommon(A, T) \
     if(!(nextop&0xC0)) { \
@@ -85,7 +107,7 @@
             case 7: base =      R_BX; break;    \
         }                                       \
         switch((m>>6)&3) {                      \
-            case 0: if(m==6) base = F16; break; \
+            case 0: if(m&7==6) base = F16S; break; \
             case 1: base += F8S; break;         \
             case 2: base += F16S; break;        \
         }                                       \
@@ -97,6 +119,17 @@
     if((nextop&0xC0)==0xC0) { \
         A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
     } else getecommon(A, reg32_t)
+#define testeb(A, O) \
+    if((nextop&0xC0)==0xC0) { \
+        A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
+    } else { \
+        reg32_t* ret; \
+        getecommono(ret, reg32_t, O);\
+        test->memsize = 1; \
+        test->memaddr = (uintptr_t)ret;\
+        test->mem[0] = ret->byte[0];\
+        A = (reg32_t*)test->mem;\
+    }
 #define getebo(A, O)          \
     if((nextop&0xC0)==0xC0) { \
         A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
@@ -109,14 +142,47 @@
     if((nextop&0xC0)==0xC0) { \
         A = &emu->regs[(nextop&7)]; \
     } else getecommono(A, reg32_t, O)
+#define tested(A, SZ, O) \
+    if((nextop&0xC0)==0xC0) { \
+        A = &emu->regs[(nextop&7)]; \
+    } else {\
+        reg32_t* ret; \
+        getecommono(ret, reg32_t, O);\
+        test->memsize = SZ; \
+        test->memaddr = (uintptr_t)ret;\
+        memcpy(test->mem, ret->dword, SZ);\
+        A = (reg32_t*)test->mem;\
+    }
 #define getem(A) \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->mmx[(nextop&7)]; \
     } else getecommon(A, mmx87_regs_t)
+#define testem(A) \
+    if((nextop&0xC0)==0xC0) { \
+        A = &emu->mmx[(nextop&7)]; \
+    } else {\
+        mmx87_regs_t* ret; \
+        getecommon(ret, mmx87_regs_t) \
+        test->memsize = 8; \
+        test->memaddr = (uintptr_t)ret;\
+        memcpy(test->mem, ret->ub, 8);\
+        A = (mmx87_regs_t*)test->mem;\
+    }
 #define getex(A) \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->xmm[(nextop&7)]; \
     } else getecommon(A, sse_regs_t)
+#define testex(A) \
+    if((nextop&0xC0)==0xC0) { \
+        A = &emu->xmm[(nextop&7)]; \
+    } else {\
+        sse_regs_t* ret; \
+        getecommon(ret, sse_regs_t);\
+        test->memsize = 16; \
+        test->memaddr = (uintptr_t)ret;\
+        memcpy(test->mem, ret->ub, 16);\
+        A = (sse_regs_t*)test->mem;\
+    }
 #define getew16(A)  \
     if((nextop&0xC0)==0xC0) { \
         A = &emu->regs[(nextop&7)]; \
@@ -125,16 +191,44 @@
     if((nextop&0xC0)==0xC0) {       \
         A = &emu->regs[(nextop&7)]; \
     } else getecommon16o(A, reg32_t, O)
+#define testtew16(A, O)                 \
+    if((nextop&0xC0)==0xC0) {           \
+        A = &emu->regs[(nextop&7)];     \
+    } else {                            \
+        reg32_t* ret;                   \
+        getecommon16o(A, reg32_t, O);   \
+        test->memsize = 2;              \
+        test->memaddr = (uintptr_t)ret; \
+        *(uint16_t*)test->mem = ret->word[0];\
+        A = (reg32_t*)test->mem;        \
+    }
 
 // Macros for ModR/M gets
+#ifdef TEST_INTERPRETER
+#define GET_EB      testeb(oped, 0)
+#define GET_ED      tested(oped, 4, 0)
+#define GET_ED8     tested(oped, 8, 0)
+#define GET_EDT     tested(oped, 10, 0)
+#define GET_ED_OFFS(o) tested(oped, 4, o)
+#define GET_EB_OFFS(o) testeb(oped, o)
+#define GET_EM      testem(opem)
+#define GET_EX      testex(opex)
+#define GET_EW16    testew16(oped, 0)
+#define GET_EW16_OFFS(o)    testtew16(oped, o)
+#else
 #define GET_EB      geteb(oped)
 #define GET_ED      geted(oped)
+#define GET_ED8     geted(oped)
+#define GET_EDT     geted(oped)
 #define GET_ED_OFFS(o) getedo(oped, o)
 #define GET_EB_OFFS(o) getebo(oped, o)
 #define GET_EM      getem(opem)
 #define GET_EX      getex(opex)
 #define GET_EW16    getew16(oped)
 #define GET_EW16_OFFS(o)    getew16o(oped, o)
+#endif
+#define GET_ED_     geted(oped)
+#define GET_EW16_   getew16(oped)
 #define EB          oped
 #define ED          oped
 #define EM          opem

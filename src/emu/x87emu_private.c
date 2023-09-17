@@ -304,6 +304,8 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
+    p->MxCsr = emu->mxcsr.x32;
+    p->MxCsr_Mask = 0;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
         tags |= (emu->p_regs[i].tag==0b11)?0:(1<<(i*2));
@@ -313,8 +315,6 @@ void fpu_fxsave(x86emu_t* emu, void* ed)
     p->ErrorSelector = 0;
     p->DataOffset = 0;
     p->DataSelector = 0;
-    p->MxCsr = 0;
-    p->MxCsr_Mask = 0;
     // copy MMX regs...
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
@@ -327,6 +327,7 @@ void fpu_fxrstor(x86emu_t* emu, void* ed)
     xsave_t *p = (xsave_t*)ed;
     emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
+    emu->mxcsr.x32 = p->MxCsr;
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
     for(int i=0; i<8; ++i)

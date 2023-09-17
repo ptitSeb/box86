@@ -54,17 +54,6 @@ uint32_t* GetParityTab()
     return x86emu_parity_tab;
 }
 
-void PushExit(x86emu_t* emu)
-{
-    uintptr_t endMarker = AddCheckBridge(my_context->system, NULL, NULL, 0, "(ExitEmulation)");
-    Push(emu, endMarker);
-}
-
-void* GetExit()
-{
-    return (void*)AddCheckBridge(my_context->system, NULL, NULL, 0, "(ExitEmulation)");
-}
-
 static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
     emu->context = context;
@@ -198,6 +187,11 @@ void FreeX86Emu(x86emu_t **emu)
         return;
     printf_log(LOG_DEBUG, "%04d|Free a X86 Emu (%p)\n", GetTID(), *emu);
 
+    if((*emu)->test.emu) {
+        internalFreeX86((*emu)->test.emu);
+        box_free((*emu)->test.emu);
+        (*emu)->test.emu = NULL;
+    }
     internalFreeX86(*emu);
 
     box_free(*emu);
@@ -231,6 +225,10 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
 	newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
+    newemu->df = emu->df;
+    newemu->op1 = emu->op1;
+    newemu->op2 = emu->op2;
+    newemu->res = emu->res;
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
@@ -238,6 +236,34 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     uintptr_t oldst = (uintptr_t)((emu->init_stack)?emu->init_stack:emu->context->stack);
     uintptr_t newst = (uintptr_t)((newemu->init_stack)?newemu->init_stack:newemu->context->stack);
     newemu->regs[_SP].dword[0] = emu->regs[_SP].dword[0] + (intptr_t)(newst - oldst);
+}
+
+void CopyEmu(x86emu_t *newemu, const x86emu_t* emu)
+{
+	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
+    memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
+	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
+    newemu->old_ip = emu->old_ip;
+    memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
+    memcpy(newemu->segs_serial, emu->segs_serial, sizeof(emu->segs_serial));
+    memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
+	memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
+	memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
+    memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
+    memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
+    memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
+	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
+	newemu->cw = emu->cw;
+	newemu->sw = emu->sw;
+	newemu->top = emu->top;
+    newemu->fpu_stack = emu->fpu_stack;
+    newemu->df = emu->df;
+    newemu->op1 = emu->op1;
+    newemu->op2 = emu->op2;
+    newemu->res = emu->res;
+    newemu->mxcsr = emu->mxcsr;
+    newemu->quit = emu->quit;
+    newemu->error = emu->error;
 }
 
 box86context_t* GetEmuContext(x86emu_t* emu)
@@ -311,7 +337,7 @@ void ResetFlags(x86emu_t *emu)
 const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
 {
     static char buff[800];
-    char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
+    static const char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
     char tmp[80];
     buff[0] = '\0';
     if(trace_emm) {
@@ -475,8 +501,8 @@ uint64_t ReadTSC(x86emu_t* emu)
     uint64_t ret;
     __asm__ volatile("rdtsc" : "=A"(ret));
     return ret;
-#if 0
 #elif defined(__ARM_ARCH)
+#if 0
 #if (__ARM_ARCH >= 6)
     static int init = 1;
     if(init) {

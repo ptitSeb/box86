@@ -1,3 +1,37 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x87emu_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "box86context.h"
+
+#include "modrm.h"
+
+#ifdef TEST_INTERPRETER
+uintptr_t TestDD(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t RunDD(x86emu_t *emu, uintptr_t addr)
+#endif
+{
+    uint8_t nextop;
+    int32_t tmp32s;
+    int64_t ll;
+    double d;
+    reg32_t *oped;
+    #ifdef TEST_INTERPRETER
+    x86emu_t*emu = test->emu;
+    #endif
+
     nextop = F8;
     switch(nextop) {
     
@@ -79,12 +113,12 @@
     case 0xFD:
     case 0xFE:
     case 0xFF:
-        goto _default;
+        return 0;
 
     default:
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
-                GET_ED;
+                GET_ED8;
                 fpu_do_push(emu);
                 if(!(((uintptr_t)ED)&7))
                     ST0.d = *(double*)ED;
@@ -93,17 +127,32 @@
                 }
                 break;
             case 1: /* FISTTP ED qword */
-                GET_ED;
-                if(!(((uintptr_t)ED)&7))
-                    *(int64_t*)ED = ST0.d;
-                else {
-                    int64_t i64 = ST0.d;
+                GET_ED8;
+                if(!(((uintptr_t)ED)&7)) {
+                    if(STll(0).sref==ST(0).sq)
+                        *(int64_t*)ED = STll(0).sq;
+                    else {
+                        if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d))
+                            *(uint64_t*)ED = 0x8000000000000000LL;
+                        else
+                            *(int64_t*)ED = ST0.d;
+                    }
+                } else {
+                    int64_t i64;
+                    if(STll(0).sref==ST(0).sq)
+                        i64 = STll(0).sq;
+                    else {
+                        if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d))
+                            i64 = 0x8000000000000000LL;
+                        else
+                            i64 = ST0.d;
+                    }
                     memcpy(ED, &i64, sizeof(int64_t));
                 }
                 fpu_do_pop(emu);
                 break;
             case 2: /* FST double */
-                GET_ED;
+                GET_ED8;
                 if(!(((uintptr_t)ED)&7))
                     *(double*)ED = ST0.d;
                 else {
@@ -111,7 +160,7 @@
                 }
                 break;
             case 3: /* FSTP double */
-                GET_ED;
+                GET_ED8;
                 if(!(((uintptr_t)ED)&7))
                     *(double*)ED = ST0.d;
                 else {
@@ -120,8 +169,10 @@
                 fpu_do_pop(emu);
                 break;
             case 4: /* FRSTOR m108byte */
-                GET_ED;
+                GET_ED_;
+                #ifndef TEST_INTERPRETER
                 fpu_loadenv(emu, (char*)ED, 0);
+                #endif
                 // get the STx
                 {
                     char* p =(char*)ED;
@@ -133,9 +184,10 @@
                 }
                 break;
             case 6: /* FNSAVE m108byte */
-                GET_ED;
+                GET_ED_;
                 // ENV first...
                 // warning, incomplete
+                #ifndef TEST_INTERPRETER
                 fpu_savenv(emu, (char*)ED, 0);
                 // save the STx
                 {
@@ -146,6 +198,7 @@
                         p+=10;
                     }
                 }
+                #endif
                 reset_fpu(emu);
                 break;
             case 7: /* FNSTSW m2byte */
@@ -154,6 +207,8 @@
                 *(uint16_t*)ED = emu->sw.x16;
                 break;
             default:
-                goto _default;
+                return 0;
         }
     }
+    return addr;
+}

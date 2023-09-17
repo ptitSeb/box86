@@ -41,20 +41,20 @@ GO(3)
 // compare
 #ifdef NOALIGN
 #define GO(A)   \
-static uintptr_t my_compare_fct_##A = 0;   \
-static int my_compare_##A(FTSENT* a, FTSENT* b)     \
-{                                                   \
-    return (int)RunFunction(my_context, my_compare_fct_##A, 2, a, b);\
+static uintptr_t my_compare_fct_##A = 0;                                    \
+static int my_compare_##A(FTSENT* a, FTSENT* b)                             \
+{                                                                           \
+    return (int)RunFunctionFmt(my_compare_fct_##A, "pp", a, b); \
 }
 #else
 #define GO(A)   \
 static uintptr_t my_compare_fct_##A = 0;   \
-static int my_compare_##A(FTSENT* a, FTSENT* b)     \
-{                                                   \
-    x86_ftsent_t x86_a, x86_b;                      \
-    UnalignFTSENT(&x86_a, a);                       \
-    UnalignFTSENT(&x86_b, b);                       \
-    return (int)RunFunction(my_context, my_compare_fct_##A, 2, x86_a, x86_b);\
+static int my_compare_##A(FTSENT* a, FTSENT* b)                                     \
+{                                                                                   \
+    x86_ftsent_t x86_a, x86_b;                                                      \
+    UnalignFTSENT(&x86_a, a);                                                       \
+    UnalignFTSENT(&x86_b, b);                                                       \
+    return (int)RunFunctionFmt(my_compare_fct_##A, "pp", x86_a, x86_b); \
 }
 #endif
 SUPER()

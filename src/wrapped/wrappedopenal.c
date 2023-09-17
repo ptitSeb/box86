@@ -36,10 +36,10 @@ GO(4)
 
 // Request ...
 #define GO(A)   \
-static uintptr_t my_Request_fct_##A = 0;                    \
-static void my_Request_##A(int32_t a, int32_t b)            \
-{                                                           \
-    RunFunction(my_context, my_Request_fct_##A, 2, a, b);   \
+static uintptr_t my_Request_fct_##A = 0;                        \
+static void my_Request_##A(int32_t a, int32_t b)                \
+{                                                               \
+    RunFunctionFmt(my_Request_fct_##A, "ii", a, b); \
 }
 SUPER()
 #undef GO
@@ -82,19 +82,19 @@ EXPORT void* my_alGetProcAddress(x86emu_t* emu, void* name)
         symbol = my->alGetProcAddress(name);
     if(!symbol)
         return NULL;    // easy
-    // check if alread bridged
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret)
-        return (void*)ret; // already bridged
     // get wrapper    
     k = kh_get(symbolmap, emu->context->alwrappers, rname);
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    const char* constname = kh_key(emu->context->alwrappers, k);
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0, constname);
+    symbol1_t *s = &kh_value(emu->context->alwrappers, k);
+    if(!s->resolved) {
+        const char* constname = kh_key(emu->context->alwrappers, k);
+        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->resolved = 1;
+    }
+    return (void*)s->addr;
 }
 
 EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
@@ -118,18 +118,19 @@ EXPORT void* my_alcGetProcAddress(x86emu_t* emu, void* device, void* name)
         symbol = my->alcGetProcAddress(device, name);
     if(!symbol)
         return NULL;    // easy
-    uintptr_t ret = CheckBridged(emu->context->system, symbol);
-    if(ret)
-        return (void*)ret; // already bridged
     // get wrapper    
     k = kh_get(symbolmap, emu->context->alwrappers, rname);
     if(k==kh_end(emu->context->alwrappers)) {
         printf_log(LOG_INFO, "Warning, no wrapper for %s\n", rname);
         return NULL;
     }
-    const char* constname = kh_key(emu->context->alwrappers, k);
-    AddOffsetSymbol(emu->context->maplib, symbol, rname);
-    return (void*)AddBridge(emu->context->system, kh_value(emu->context->alwrappers, k), symbol, 0, constname);
+    symbol1_t *s = &kh_value(emu->context->alwrappers, k);
+    if(!s->resolved) {
+        const char* constname = kh_key(emu->context->alwrappers, k);
+        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->resolved = 1;
+    }
+    return (void*)s->addr;
 }
 
 EXPORT void my_alRequestFoldbackStart(x86emu_t *emu, int32_t mode, int32_t count, int32_t length, void* mem, void* cb)
@@ -162,13 +163,15 @@ void fillALProcWrapper()
     cnt = sizeof(openalsymbolmap)/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, symbolmap, openalsymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = openalsymbolmap[i].w;
+        kh_value(symbolmap, k).w = openalsymbolmap[i].w;
+        kh_value(symbolmap, k).resolved = 0;
     }
     // and the my_ symbols map
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
+        kh_value(symbolmap, k).w = openalmysymbolmap[i].w;
+        kh_value(symbolmap, k).resolved = 0;
     }
     my_context->alwrappers = symbolmap;
     // fill my_* map
@@ -176,7 +179,8 @@ void fillALProcWrapper()
     cnt = sizeof(MAPNAME(mysymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbolmap, symbolmap, openalmysymbolmap[i].name, &ret);
-        kh_value(symbolmap, k) = openalmysymbolmap[i].w;
+        kh_value(symbolmap, k).w = openalmysymbolmap[i].w;
+        kh_value(symbolmap, k).resolved = 0;
     }
     my_context->almymap = symbolmap;
 }

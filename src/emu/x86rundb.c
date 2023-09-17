@@ -1,3 +1,37 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x87emu_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "box86context.h"
+
+#include "modrm.h"
+
+#ifdef TEST_INTERPRETER
+uintptr_t TestDB(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t RunDB(x86emu_t *emu, uintptr_t addr)
+#endif
+{
+    uint8_t nextop;
+    int32_t tmp32s;
+    int64_t ll;
+    float f;
+    reg32_t *oped;
+    #ifdef TEST_INTERPRETER
+    x86emu_t*emu = test->emu;
+    #endif
+
     nextop = F8;
     switch(nextop) {
     case 0xC0:      /* FCMOVNB ST(0), ST(i) */
@@ -93,7 +127,7 @@
     case 0xE5:
     case 0xE6:
     case 0xE7:
-        goto _default;
+        return 0;
     default:
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Ed */
@@ -103,15 +137,16 @@
                 break;
             case 1: /* FISTTP Ed, ST0 */
                 GET_ED;
-                tmp32s = ST0.d; // TODO: Handling of FPU Exception
-                if(tmp32s==0x7fffffff && isgreater(ST0.d, (double)(int32_t)0x7fffffff))
+                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d))
                     tmp32s = 0x80000000;
+                else
+                    tmp32s = ST0.d; // TODO: Handling of FPU Exception
                 fpu_do_pop(emu);
                 ED->sdword[0] = tmp32s;
                 break;
             case 2: /* FIST Ed, ST0 */
                 GET_ED;
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
@@ -120,7 +155,7 @@
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GET_ED;
-                if(isgreater(ST0.d, (double)(int32_t)0x7fffffff) || isless(ST0.d, -(double)(int32_t)0x7fffffff) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d))
                     ED->sdword[0] = 0x80000000;
                 else {
                     volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
@@ -129,14 +164,14 @@
                 fpu_do_pop(emu);
                 break;
             case 5: /* FLD ST0, Et */
-                GET_ED;
+                GET_EDT;
                 fpu_do_push(emu);
                 memcpy(&STld(0).ld, ED, 10);
                 LD2D(&STld(0).ld, &ST(0).d);
                 STld(0).uref = ST0.q;
                 break;
             case 7: /* FSTP tbyte */
-                GET_ED;
+                GET_EDT;
                 if(ST0.q!=STld(0).uref)
                     D2LD(&ST0.d, ED);
                 else
@@ -144,6 +179,8 @@
                 fpu_do_pop(emu);
                 break;
             default:
-                goto _default;
+                return 0;
         }
     }
+    return addr;
+}

@@ -21,8 +21,6 @@ typedef struct lib_s {
     int                   ownlibs;
     library_t             *owner;       // in case that maplib is owned by a lib
 
-    box86context_t*       context;
-    
     bridge_t              *bridge;        // all x86 -> arm bridge
 } lib_t;
 

@@ -180,10 +180,10 @@ GO(3)   \
 
 // return_socket
 #define GO(A)   \
-static uintptr_t my_return_socket_fct_##A = 0;                  \
-static void my_return_socket_##A(void* a)                       \
-{                                                               \
-    RunFunction(my_context, my_return_socket_fct_##A, 1, a);    \
+static uintptr_t my_return_socket_fct_##A = 0;                      \
+static void my_return_socket_##A(void* a)                           \
+{                                                                   \
+    RunFunctionFmt(my_return_socket_fct_##A, "p", a);   \
 }
 SUPER()
 #undef GO

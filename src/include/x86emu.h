@@ -10,6 +10,7 @@ void SetupX86Emu(x86emu_t *emu);
 void FreeX86Emu(x86emu_t **x86emu);
 void FreeX86EmuFromStack(x86emu_t **emu);
 void CloneEmu(x86emu_t *newemu, const x86emu_t* emu);
+void CopyEmu(x86emu_t *newemu, const x86emu_t* emu);
 void SetTraceEmu(uintptr_t trace_start, uintptr_t trace_end);
 
 box86context_t* GetEmuContext(x86emu_t* emu);
@@ -34,8 +35,6 @@ void ResetSegmentsCache(x86emu_t *emu);
 const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip);
 
 void StopEmu(x86emu_t* emu, const char* reason);
-void PushExit(x86emu_t* emu);
-void* GetExit();
 void EmuCall(x86emu_t* emu, uintptr_t addr);
 void AddCleanup(x86emu_t *emu, void *p);
 void AddCleanup1Arg(x86emu_t *emu, void *p, void* a);

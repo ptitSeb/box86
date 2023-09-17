@@ -1,4 +1,49 @@
+#define _GNU_SOURCE
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "debug.h"
+#include "box86stack.h"
+#include "x86emu.h"
+#include "x86run.h"
+#include "x86emu_private.h"
+#include "x86run_private.h"
+#include "x86primop.h"
+#include "x86trace.h"
+#include "x87emu_private.h"
+#include "box86context.h"
+#include "bridge.h"
+
+#include "modrm.h"
+
+#ifdef TEST_INTERPRETER
+uintptr_t TestF30F(x86test_t *test, uintptr_t addr)
+#else
+uintptr_t RunF30F(x86emu_t *emu, uintptr_t addr)
+#endif
+{
+    uint8_t opcode;
+    uint8_t nextop;
+    int8_t tmp8s;
+    uint8_t tmp8u;
+    uint32_t tmp32u;
+    int64_t tmp64s;
+    uint64_t tmp64u;
+    reg32_t *oped, *opgd;
+    sse_regs_t *opex, *opgx, eax1;
+    mmx87_regs_t *opem;
+    #ifdef TEST_INTERPRETER
+    x86emu_t*emu = test->emu;
+    #endif
+
     opcode = F8;
+
     switch(opcode) {
 
     case 0x10:  /* MOVSS Gx Ex */
@@ -47,7 +92,7 @@
     case 0x2C:  /* CVTTSS2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+        if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x80000000U || EX->f[0]<-(float)0x80000000U)
             GD.dword[0] = 0x80000000;
         else
             GD.sdword[0] = EX->f[0];
@@ -55,7 +100,7 @@
     case 0x2D:  /* CVTSS2SI Gd, Ex */
         nextop = F8;
         GET_EX;
-        if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+        if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x80000000U || EX->f[0]<-(float)0x80000000U)
             GD.dword[0] = 0x80000000;
         else
             switch(emu->mxcsr.f.MXCSR_RC) {
@@ -109,7 +154,7 @@
         nextop = F8;
         GET_EX;
         for(int i=0; i<4; ++i)
-            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>0x7fffffff)
+            if(isnanf(EX->f[i]) || isinff(EX->f[i]) || EX->f[i]>=(float)0x80000000U || EX->f[i]<-(float)0x80000000U)
                 GX.ud[i] = 0x80000000;
             else
                 GX.sd[i] = EX->f[i];
@@ -123,7 +168,7 @@
     case 0x5D:  /* MINSS Gx, Ex */
         nextop = F8;
         GET_EX;
-        if(isnan(GX.f[0]) || isnan(EX->f[0]) || islessequal(EX->f[0], GX.f[0]))
+        if(isnanf(GX.f[0]) || isnanf(EX->f[0]) || islessequal(EX->f[0], GX.f[0]))
             GX.f[0] = EX->f[0];
         break;
     case 0x5E:  /* DIVSS Gx, Ex */
@@ -134,7 +179,7 @@
     case 0x5F:  /* MAXSS Gx, Ex */
         nextop = F8;
         GET_EX;
-        if (isnan(GX.f[0]) || isnan(EX->f[0]) || isgreaterequal(EX->f[0], GX.f[0]))
+        if (isnanf(GX.f[0]) || isnanf(EX->f[0]) || isgreaterequal(EX->f[0], GX.f[0]))
             GX.f[0] = EX->f[0];
         break;
 
@@ -240,5 +285,7 @@
         break;
 
     default:
-        goto _default;
+        return 0;
     }
+    return addr;
+}

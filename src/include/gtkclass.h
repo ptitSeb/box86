@@ -457,6 +457,19 @@ typedef struct my_GDBusObjectManagerClientClass_s
   void* padding[8];
 } my_GDBusObjectManagerClientClass_t;
 
+typedef struct my_GstObjectClass_s {
+  my_GInitiallyUnownedClass_t parent;
+  const char*   path_string_separator;
+  void          (*deep_notify)      (void* object, void* orig, void* pspec);
+  void*        _gst_reserved[4];
+} my_GstObjectClass_t;
+
+typedef struct my_GstAllocatorClass_s {
+  my_GstObjectClass_t parent;
+  void*     (*alloc)      (void *allocator, size_t size, void *params);
+  void      (*free)       (void *allocator, void *memory);
+  void*    _gst_reserved[4];
+} my_GstAllocatorClass_t;
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -540,6 +553,8 @@ GTKCLASS(GtkMenuShell2)             \
 GTKCLASS(GtkMenuBar2)               \
 GTKCLASS(MetaFrames2)               \
 GTKCLASS(GDBusObjectManagerClient)  \
+GTKCLASS(GstObject)                 \
+GTKCLASS(GstAllocator)              \
 
 #define GTKCLASS(A) void Set##A##ID(int id);
 GTKCLASSES()

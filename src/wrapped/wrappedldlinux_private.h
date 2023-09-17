@@ -12,7 +12,7 @@
 // _dl_rtld_di_serinfo
 // _dl_tls_setup
 DATA(__libc_enable_secure, 4)
-DATA(__libc_stack_end, 4)
+DATAM(__libc_stack_end, sizeof(void*))
 DATA(__pointer_chk_guard, 4)
 DATAM(_r_debug, 20) //type B
 DATA(_rtld_global, 4)

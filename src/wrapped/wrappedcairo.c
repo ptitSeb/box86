@@ -29,10 +29,10 @@ GO(4)
 
 // cairo_destroy
 #define GO(A)   \
-static uintptr_t my_cairo_destroy_fct_##A = 0;                  \
-static void my_cairo_destroy_##A(void* data)                    \
-{                                                               \
-    RunFunction(my_context, my_cairo_destroy_fct_##A, 1, data); \
+static uintptr_t my_cairo_destroy_fct_##A = 0;                          \
+static void my_cairo_destroy_##A(void* data)                            \
+{                                                                       \
+    RunFunctionFmt(my_cairo_destroy_fct_##A, "p", data);    \
 }
 SUPER()
 #undef GO
