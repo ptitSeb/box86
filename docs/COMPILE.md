@@ -100,11 +100,13 @@ As most Allwinner A64 devices run an AARCH64 OS, you'll need an `armhf` multiarc
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
-#### for Snapdragon 845
+#### for Snapdragon
 
 `mkdir build; cd build; cmake .. -DSD845=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
+or
+`mkdir build; cd build; cmake .. -DSD888=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j4`
 
-As most Snapdragon 845 devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On mobian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
+Depending how old/recent you SD is. As most Snapdragon devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On mobian, install it with `sudo apt install gcc-arm-linux-gnueabihf`.
 
 #### for Phytium
 
@@ -114,6 +116,12 @@ As most Phytium (D2000 or FT2000/4) devices run an AARCH64 OS, you'll need an `a
 
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
+
+#### for ADLink AmpereAltra
+
+`mkdir build; cd build; cmake .. -DADLINK=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j`
+
+As ADLINK AmpereAltra computers run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
 
 #### for Other ARM64 64bits Linux platform
 

@@ -135,7 +135,7 @@ Box86 вже використовує Vulkan. Якщо у вашій систе�
 Отже, без особливого порядку, я хочу подякувати:
  * За основний внесок у код: rajdakin, icecream95, M-HT
  * За великий фінансовий внесок: FlyingFathead, stormchaser3000, dennis1248, sll00, [libre-computer-project](https://libre.computer/)
- * За внесок у апаратне забезпечення: [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [DragonBox](https://pyra-handheld.com/), [Novaspirit](https://www.youtube.com/channel/UCrjKdwxaQMSV_NDywgKXVmw), [HardKernel](https://www.hardkernel.com/), [Команда TwisterOS](https://twisteros.com/)
+ * За внесок у апаратне забезпечення: [ADLink](https://www.adlinktech.com/Products/Computer_on_Modules/COM-HPC-Server-Carrier-and-Starter-Kit/Ampere_Altra_Developer_Platform?lang=en), [Radxa](https://rockpi.org/), [Pine64](https://www.pine64.org/), [DragonBox](https://pyra-handheld.com/), [Novaspirit](https://www.youtube.com/channel/UCrjKdwxaQMSV_NDywgKXVmw), [HardKernel](https://www.hardkernel.com/), [Команда TwisterOS](https://twisteros.com/)
  * За постійну рекламу Box86: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[Команда TwisterOS](https://twisteros.com/), [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg)
 
 І я також дякую багатьом іншим людям, які хоч раз брали участь у проекті.

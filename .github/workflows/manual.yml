@@ -23,6 +23,9 @@ on:
         - RPI4
         - RPI4ARM64
         - SD845
+        - SD888
+        - ADLINK
+        - PHYTIUM
       build_type:
         description: 'Build type'
         required: true
