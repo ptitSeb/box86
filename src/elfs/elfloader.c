@@ -700,8 +700,8 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     }
                     if(h_tls) {
                         delta = *(int32_t*)p;
-                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType(t), symname, p, delta, -h_tls->tlsbase, -(int32_t)offs, end-offs);
-                        *p = (uintptr_t)(-(int32_t)offs + h_tls->tlsbase);
+                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType(t), symname, p, delta, -h_tls->tlsbase, (int32_t)offs, end-offs);
+                        *p = (uintptr_t)((int32_t)offs - h_tls->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType(t), symname, p, (int32_t)offs);
                     }
@@ -986,8 +986,8 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     }
                     if(h_tls) {
                         delta = *(int32_t*)p;
-                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType(t), symname, p, delta, -h_tls->tlsbase, -(int32_t)offs, end-offs);
-                        *p = (uintptr_t)(-(int32_t)offs + rela[i].r_addend + h_tls->tlsbase);
+                        printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType(t), symname, p, delta, -h_tls->tlsbase, (int32_t)offs, end-offs);
+                        *p = (uintptr_t)((int32_t)offs + rela[i].r_addend - h_tls->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType(t), symname, p, (int32_t)offs);
                     }
