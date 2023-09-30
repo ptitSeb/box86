@@ -19,7 +19,12 @@
 #include "myalign.h"
 #include "gtkclass.h"
 
-const char* gstreamerName = "libgstreamer-1.0.so.0";
+#ifdef ANDROID
+    const char* gstreamerName = "libgstreamer-1.0.so";
+#else
+    const char* gstreamerName = "libgstreamer-1.0.so.0";
+#endif
+
 #define LIBNAME gstreamer
 
 typedef size_t  (*LFv_t)();
@@ -346,11 +351,19 @@ EXPORT int my_gst_caps_foreach(x86emu_t* emu, void* caps, void* f, void* data)
     if(box86_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);     \
-    SetGstObjectID(my->gst_object_get_type());                 \
-    SetGstAllocatorID(my->gst_allocator_get_type());           \
-    setNeededLibs(lib, 1, "libgtk-3.so.0");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstObjectID(my->gst_object_get_type());                 \
+        SetGstAllocatorID(my->gst_allocator_get_type());           \
+        setNeededLibs(lib, 1, "libgtk-3.so");
+#else
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstObjectID(my->gst_object_get_type());                 \
+        SetGstAllocatorID(my->gst_allocator_get_type());           \
+        setNeededLibs(lib, 1, "libgtk-3.so.0");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();

@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libx11Name = "libX11.so.6";
+#ifdef ANDROID
+    const char* libx11Name = "libX11.so";
+#else
+    const char* libx11Name = "libX11.so.6";
+#endif
+
 #define LIBNAME libx11
 
 typedef int (*XErrorHandler)(void *, void *);
@@ -1337,10 +1342,17 @@ EXPORT void my_XFreeEventData(x86emu_t* emu, void* dpy, my_XGenericEventCookie_t
     my->XFreeEventData(dpy, cookie);
 }
 
-#define CUSTOM_INIT                 \
-    getMy(lib);                     \
-    setNeededLibs(lib, 1, "libdl.so.2"); \
-    if(box86_x11threads) my->XInitThreads();
+#ifdef ANDROID
+    #define CUSTOM_INIT                 \
+        getMy(lib);                     \
+        setNeededLibs(lib, 1, "libdl.so"); \
+        if(box86_x11threads) my->XInitThreads();
+#else
+    #define CUSTOM_INIT                 \
+        getMy(lib);                     \
+        setNeededLibs(lib, 1, "libdl.so.2"); \
+        if(box86_x11threads) my->XInitThreads();
+#endif
 
 #define CUSTOM_FINI \
     freeMy();

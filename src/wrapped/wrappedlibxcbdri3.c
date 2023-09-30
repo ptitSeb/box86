@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbdri3Name = "libxcb-dri3.so.0";
+#ifdef ANDROID
+    const char* libxcbdri3Name = "libxcb-dri3.so";
+#else
+    const char* libxcbdri3Name = "libxcb-dri3.so.0";
+#endif
+
 #define LIBNAME libxcbdri3
 
 typedef struct my_xcb_cookie_s {

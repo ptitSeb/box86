@@ -99,6 +99,8 @@ void init_malloc_hook();
 #define box_calloc      calloc
 #define box_free        free
 #define box_memalign    memalign 
+#define box_strdup      strdup
+#define box_realpath    realpath
 #else
 extern size_t(*box_malloc_usable_size)(const void*);
 extern void* __libc_malloc(size_t);
@@ -111,8 +113,8 @@ extern void* __libc_memalign(size_t, size_t);
 #define box_calloc      __libc_calloc
 #define box_free        __libc_free
 #define box_memalign    __libc_memalign 
-#endif
 extern char* box_strdup(const char* s);
 extern char* box_realpath(const char* path, char* ret);
+#endif
 
 #endif //__DEBUG_H_

@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbkeysymsName = "libxcb-keysyms.so.1";
+#ifdef ANDROID
+	const char* libxcbkeysymsName = "libxcb-keysyms.so";
+#else
+	const char* libxcbkeysymsName = "libxcb-keysyms.so.1";
+#endif
+
 #define LIBNAME libxcbkeysyms
 
 #include "wrappedlib_init.h"

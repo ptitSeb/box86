@@ -12,7 +12,12 @@
 #include "librarian/library_private.h"
 #include "x86emu.h"
 
-const char* gstbaseName = "libgstbase-1.0.so.0";
+#ifdef ANDROID
+    const char* gstbaseName = "libgstbase-1.0.so";
+#else
+    const char* gstbaseName = "libgstbase-1.0.so.0";
+#endif
+
 #define LIBNAME gstbase
 
 #define PRE_INIT    \

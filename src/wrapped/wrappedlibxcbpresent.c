@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbpresentName = "libxcb-present.so.0";
+#ifdef ANDROID
+    const char* libxcbpresentName = "libxcb-present.so";
+#else
+    const char* libxcbpresentName = "libxcb-present.so.0";
+#endif
+
 #define LIBNAME libxcbpresent
 
 typedef struct my_xcb_cookie_s {

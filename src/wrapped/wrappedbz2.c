@@ -18,7 +18,12 @@
 #include "emu/x86emu_private.h"
 #include "myalign.h"
 
-const char* bz2Name = "libbz2.so.1";
+#ifdef ANDROID
+    const char* bz2Name = "libbz2.so";
+#else
+    const char* bz2Name = "libbz2.so.1";
+#endif
+
 #define LIBNAME bz2
 
 #include "generated/wrappedbz2types.h"
