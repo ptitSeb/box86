@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -732,8 +733,18 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
 }
 
 extern void* current_helper;
-#ifdef DYNAREC
+#define USE_SIGNAL_MUTEX
+#ifdef USE_SIGNAL_MUTEX
+#ifdef USE_CUSTOM_MUTEX
 static uint32_t mutex_dynarec_prot = 0;
+#else
+static pthread_mutex_t mutex_dynarec_prot = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+#endif
+#define lock_signal()     mutex_lock(&mutex_dynarec_prot)
+#define unlock_signal()   mutex_unlock(&mutex_dynarec_prot)
+#else   // USE_SIGNAL_MUTEX
+#define lock_signal()     
+#define unlock_signal()   
 #endif
 
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
@@ -773,7 +784,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     dynablock_t* db = NULL;
     int db_searched = 0;
     if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_CUSTOM)) {
-        mutex_lock(&mutex_dynarec_prot);
+        lock_signal();
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
         // check if SMC inside block
@@ -818,7 +829,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     dynarec_log(LOG_INFO, "Dynablock %p(%p) unprotected, getting out (arm pc=%p, x86_pc=%p, special=%d)!\n", db, db->x86_addr, pc, (void*)ejb->emu->ip.dword[0], special);
                 }
                 //relockMutex(Locks);   // do not relock because of he siglongjmp
-                mutex_unlock(&mutex_dynarec_prot);
+                unlock_signal();
                 if(Locks & is_dyndump_locked)
                     CancelBlock(1);
                 ejb->emu->test.clean = 0;
@@ -828,17 +839,17 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         }
         // done
         if(prot&PROT_WRITE) {
-            mutex_unlock(&mutex_dynarec_prot);
+            unlock_signal();
             // if there is no write permission, don't return and continue to program signal handling
             relockMutex(Locks);
             return;
         }
-        mutex_unlock(&mutex_dynarec_prot);
+        unlock_signal();
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&PROT_DYNAREC_R)) {
         // unprotect and continue to signal handler, because Write is not there on purpose
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
     } else if ((sig==SIGSEGV) && (addr) && (info->si_code == SEGV_ACCERR) && (prot&(PROT_READ|PROT_WRITE))) {
-        mutex_lock(&mutex_dynarec_prot);
+        lock_signal();
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
         if(db && db->x86_addr>= addr && (db->x86_addr+db->x86_size)<addr) {
@@ -857,7 +868,7 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 glitch_addr = addr;
                 glitch_prot = prot;
                 relockMutex(Locks);
-                mutex_unlock(&mutex_dynarec_prot);
+                unlock_signal();
                 return; // try again
             }
 dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x\n", pc, addr, db, prot);
@@ -879,14 +890,14 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 refreshProtection((uintptr_t)addr);
                 relockMutex(Locks);
                 sched_yield();  // give time to the other process
-                mutex_unlock(&mutex_dynarec_prot);
+                unlock_signal();
                 return; // try again
             }
             glitch2_pc = NULL;
             glitch2_addr = NULL;
             glitch2_prot = 0;
         }
-        mutex_unlock(&mutex_dynarec_prot);
+        unlock_signal();
     }
     if(!db_searched)
         db = FindDynablockFromNativeAddress(pc);
@@ -1356,10 +1367,15 @@ EXPORT int my_swapcontext(x86emu_t* emu, void* ucp1, void* ucp2)
     my_setcontext(emu, ucp2);
     return 0;
 }
-#ifdef DYNAREC
+#ifdef USE_SIGNAL_MUTEX
 static void atfork_child_dynarec_prot(void)
 {
-    arm_lock_stored(&mutex_dynarec_prot, 0);
+    #ifdef USE_CUSTOM_MUTEX
+    native_lock_store(&mutex_dynarec_prot, 0);
+    #else
+    pthread_mutex_t tmp = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP; 
+    memcpy(&mutex_dynarec_prot, &tmp, sizeof(mutex_dynarec_prot));
+    #endif
 }
 #endif
 void init_signal_helper(box86context_t* context)
@@ -1380,7 +1396,7 @@ void init_signal_helper(box86context_t* context)
     sigaction(SIGILL, &action, NULL);
 
 	pthread_once(&sigstack_key_once, sigstack_key_alloc);
-#ifdef DYNAREC
+#ifdef USE_SIGNAL_MUTEX
     atfork_child_dynarec_prot();
     pthread_atfork(NULL, NULL, atfork_child_dynarec_prot);
 #endif

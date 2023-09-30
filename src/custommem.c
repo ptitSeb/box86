@@ -44,6 +44,8 @@ static uintptr_t           box86_jmptbl_default[1<<JMPTABL_SHIFT];
 // lock addresses
 KHASH_SET_INIT_INT(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
+#endif
+#ifdef USE_CUSTOM_MUTEX
 static uint32_t            mutex_prot;
 static uint32_t            mutex_blocks;
 #else
@@ -1141,7 +1143,7 @@ int unlockCustommemMutex()
 {
     int ret = 0;
     int i = 0;
-    #ifdef DYNAREC
+    #ifdef USE_CUSTOM_MUTEX
     void* tid = (void*)GetTID();
     #define GO(A, B)                    \
         i = (arm_lock_storeifref2(&A, NULL, (void*)tid)==tid);  \
@@ -1174,7 +1176,7 @@ void relockCustommemMutex(int locks)
 
 static void init_mutexes(void)
 {
-    #ifdef DYNAREC
+    #ifdef USE_CUSTOM_MUTEX
     arm_lock_stored(&mutex_blocks, 0);
     arm_lock_stored(&mutex_prot, 0);
     #else
@@ -1182,6 +1184,7 @@ static void init_mutexes(void)
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&mutex_blocks, &attr);
+    pthread_mutex_init(&mutex_prot, &attr);
 
     pthread_mutexattr_destroy(&attr);
     #endif
@@ -1276,8 +1279,9 @@ void fini_custommem_helper(box86context_t *ctx)
         box_free(p_blocks[i].block);
         #endif
     box_free(p_blocks);
-    #ifndef DYNAREC
+    #ifndef USE_CUSTOM_MUTEX
     pthread_mutex_destroy(&mutex_blocks);
+    pthread_mutex_destroy(&mutex_prot);
     #endif
     while(mapmem) {
         mapmem_t *tmp = mapmem;

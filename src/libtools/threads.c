@@ -802,7 +802,7 @@ typedef struct mutexes_block_s {
 } mutexes_block_t;
 
 static mutexes_block_t *mutexes = NULL;
-#ifndef DYNAREC
+#ifndef USE_CUSTOM_MUTEX
 static pthread_mutex_t mutex_mutexes = PTHREAD_MUTEX_INITIALIZER;
 #else
 static uint32_t mutex_mutexes = 0;
@@ -1054,7 +1054,7 @@ void fini_pthread_helper(box86context_t* context)
 		emuthread_destroy(et);
 	}
 }
-#ifndef DYNAREC
+
 int checkUnlockMutex(void* m)
 {
 	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
@@ -1064,15 +1064,3 @@ int checkUnlockMutex(void* m)
 	}
 	return 0;
 }
-int checkLockMutex(void* m)
-{
-	pthread_mutex_t* mutex = (pthread_mutex_t*)m;
-	int ret = pthread_mutex_unlock(mutex);
-	if(ret==0) {
-		pthread_mutex_lock(mutex);	// how to check the lock without unlock?
-		return 1;
-	}
-	return 0;
-}
-
-#endif

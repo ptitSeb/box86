@@ -7,6 +7,10 @@
 #ifdef DYNAREC
 #include "dynarec/arm_lock_helper.h"
 #endif
+#ifdef DYNAREC
+// disabling for now, seems to have a negative impact on performances
+//#define USE_CUSTOM_MUTEX
+#endif
 
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
@@ -141,6 +145,7 @@ typedef struct box86context_s {
     pthread_mutex_t     mutex_bridge;
     pthread_mutex_t     mutex_lock;
     #else
+    #ifdef USE_CUSTOM_MUTEX
     uint32_t            mutex_once;
     uint32_t            mutex_once2;
     uint32_t            mutex_trace;
@@ -148,6 +153,15 @@ typedef struct box86context_s {
     uint32_t            mutex_thread;
     uint32_t            mutex_bridge;
     uint32_t            mutex_dyndump;
+    #else
+    pthread_mutex_t     mutex_once;
+    pthread_mutex_t     mutex_once2;
+    pthread_mutex_t     mutex_trace;
+    pthread_mutex_t     mutex_tls;
+    pthread_mutex_t     mutex_thread;
+    pthread_mutex_t     mutex_bridge;
+    pthread_mutex_t     mutex_dyndump;
+    #endif
     uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
@@ -209,7 +223,7 @@ typedef struct box86context_s {
     int                 current_line;
 } box86context_t;
 
-#ifndef DYNAREC
+#ifndef USE_CUSTOM_MUTEX
 #define mutex_lock(A)       pthread_mutex_lock(A)
 #define mutex_trylock(A)    pthread_mutex_trylock(A)
 #define mutex_unlock(A)     pthread_mutex_unlock(A)
