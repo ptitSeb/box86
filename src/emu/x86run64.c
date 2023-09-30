@@ -75,7 +75,12 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
             GD.dword[0] = adc32(emu, GD.dword[0], ED->dword[0]);
             break;
 
-        case 0x21:              /* AND Ed,Gd */
+        case 0x20:              /* AND Seg:Eb,Gb */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            EB->byte[0] = and8(emu, EB->byte[0], GB);
+            break;
+        case 0x21:              /* AND Seg:Ed,Gd */
             nextop = F8;
             GET_ED_OFFS(tlsdata);
             ED->dword[0] = and32(emu, ED->dword[0], GD.dword[0]);
@@ -277,7 +282,11 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
                 pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;
-            
+        case 0x88:              /* MOV Seg:Eb,Gb */
+            nextop = F8;
+            GET_EB_OFFS(tlsdata);
+            EB->byte[0] = GB;
+            break;
         case 0x89:              /* MOV Ed,Gd */
             nextop = F8;
             GET_ED_OFFS(tlsdata);

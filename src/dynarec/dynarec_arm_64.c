@@ -29,7 +29,8 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int32_t i32, j32;
     uint32_t u32;
     uint8_t gd, ed;
-    uint8_t wback, u8;
+    uint8_t wback, u8, wb1, wb2;
+    uint8_t gb1, gb2, eb1, eb2;
     int fixedaddress;
 
     MAYUSE(j32);
@@ -44,6 +45,17 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETGD;
             GETEDO(x14);
             emit_add32(dyn, ninst, gd, ed, x3, x14);
+            break;
+
+        case 0x20:
+            INST_NAME("AND Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_fsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            GETGB(x2);
+            GETEBO(x14);
+            emit_and8(dyn, ninst, x1, x2, x14, x2);
+            EBBACK;
             break;
 
         case 0x2B:
@@ -182,7 +194,30 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     DEFAULT;
             }
             break;
-
+        case 0x88:
+            INST_NAME("MOV Eb, Gb");
+            grab_fsdata(dyn, addr, ninst, x14);
+            nextop = F8;
+            gd = (nextop&0x38)>>3;
+            gb2 = ((gd&4)>>2);
+            gb1 = xEAX+(gd&3);
+            if(gb2) {
+                gd = x3;
+                UXTB(gd, gb1, gb2);
+            } else {
+                gd = gb1;   // no need to extract
+            }
+            if((nextop&0xC0)==0xC0) {
+                ed = (nextop&7);
+                eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
+                eb2 = ((ed&4)<<1);    // L or H
+                BFI(eb1, gd, eb2, 8);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
+                STRB_REG_LSL_IMM5(gd, ed, x14, 0);
+                SMWRITE2();
+            }
+            break;
         case 0x89:
             INST_NAME("MOV FS:Ed, Gd");
             grab_fsdata(dyn, addr, ninst, x14);
