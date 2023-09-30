@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbshapeName = "libxcb-shape.so.0";
+#ifdef ANDROID
+    const char* libxcbshapeName = "libxcb-shape.so";
+#else
+    const char* libxcbshapeName = "libxcb-shape.so.0";
+#endif
+
 #define LIBNAME libxcbshape
 
 typedef struct my_xcb_cookie_s {
