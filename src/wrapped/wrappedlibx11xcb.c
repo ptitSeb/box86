@@ -12,7 +12,12 @@
 #include "x86emu.h"
 #include "debug.h"
 
-const char* libx11xcbName = "libX11-xcb.so.1";
+#ifdef ANDROID
+	const char* libx11xcbName = "libX11-xcb.so";
+#else
+	const char* libx11xcbName = "libX11-xcb.so.1";
+#endif
+
 #define LIBNAME libx11xcb
 
 #include "wrappedlib_init.h"

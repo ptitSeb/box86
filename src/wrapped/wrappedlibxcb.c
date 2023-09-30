@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbName = "libxcb.so.1";
+#ifdef ANDROID
+    const char* libxcbName = "libxcb.so";
+#else
+    const char* libxcbName = "libxcb.so.1";
+#endif
+
 #define LIBNAME libxcb
 
 typedef struct my_xcb_XXX_iterator_s {

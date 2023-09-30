@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbshmName = "libxcb-shm.so.0";
+#ifdef ANDROID
+    const char* libxcbshmName = "libxcb-shm.so";
+#else
+    const char* libxcbshmName = "libxcb-shm.so.0";
+#endif
+
 #define LIBNAME libxcbshm
 
 typedef struct my_xcb_cookie_s {

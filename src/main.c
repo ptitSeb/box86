@@ -1363,7 +1363,11 @@ int main(int argc, const char **argv, char **env)
     else
         ++prgname;
     if(box86_wine) {
-        AddPath("libdl.so.2", &ld_preload, 0);
+        #ifdef ANDROID
+            AddPath("libdl.so", &ld_preload, 0);
+        #else
+            AddPath("libdl.so.2", &ld_preload, 0);
+        #endif
     }
     // special case for steam that somehow seems to alter libudev opaque pointer (udev_monitor)
     if(strstr(prgname, "steam")==prgname) {

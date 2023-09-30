@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxcbimageName = "libxcb-image.so.0";
+#ifdef ANDROID
+    const char* libxcbimageName = "libxcb-image.so";
+#else
+    const char* libxcbimageName = "libxcb-image.so.0";
+#endif
+
 #define LIBNAME libxcbimage
 
 typedef struct my_xcb_cookie_s {

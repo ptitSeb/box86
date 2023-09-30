@@ -17,7 +17,12 @@
 #include "box86context.h"
 #include "emu/x86emu_private.h"
 
-const char* libxextName = "libXext.so.6";
+#ifdef ANDROID
+    const char* libxextName = "libXext.so";
+#else
+    const char* libxextName = "libXext.so.6";
+#endif
+
 #define LIBNAME libxext
 
 typedef struct _XImage XImage;
@@ -386,14 +391,25 @@ EXPORT void* my_XextAddDisplay(x86emu_t* emu, void* extinfo, void* dpy, void* ex
     return ret;
 }
 
-#define CUSTOM_INIT                 \
-    getMy(lib);                     \
-    setNeededLibs(lib, 5,           \
-        "libX11.so.6",              \
-        "libxcb.so.1",              \
-        "libXau.so.6",              \
-        "libdl.so.2",               \
-        "libXdmcp.so.6");
+#ifdef ANDROID
+    #define CUSTOM_INIT                 \
+        getMy(lib);                     \
+        setNeededLibs(lib, 5,           \
+            "libX11.so",              \
+            "libxcb.so",              \
+            "libXau.so",              \
+            "libdl.so",               \
+            "libXdmcp.so");
+#else
+    #define CUSTOM_INIT                 \
+        getMy(lib);                     \
+        setNeededLibs(lib, 5,           \
+            "libX11.so.6",              \
+            "libxcb.so.1",              \
+            "libXau.so.6",              \
+            "libdl.so.2",               \
+            "libXdmcp.so.6");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();
