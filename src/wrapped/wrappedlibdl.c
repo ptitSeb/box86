@@ -583,8 +583,13 @@ EXPORT int my__dl_find_object(x86emu_t* emu, void* addr, my_dl_find_object_t* re
     return -1;
 }
 
-#define CUSTOM_INIT\
-    if(!box86_isglibc234) setNeededLibs(lib, 1, "libc.so.6");
+#ifdef ANDROID
+    #define CUSTOM_INIT\
+        setNeededLibs(lib, 1, "libc.so");
+#else
+    #define CUSTOM_INIT\
+        if(!box86_isglibc234) setNeededLibs(lib, 1, "libc.so.6");
+#endif
 
 
 // define all standard library functions
