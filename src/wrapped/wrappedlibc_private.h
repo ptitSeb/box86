@@ -2249,6 +2249,7 @@ GO(__utimensat_time64, iFippi)
 
 GOM(fstatat64, iFippi)  //%%,noE
 GOM(fstat64, iFip)  //%%,noE
+GOM(fstatat, iFippi)  //%%,noE
 
 GOWM(_Unwind_Find_FDE, pFEpp)    // this is a libgcc_s function, I think. Create a dummy weak one, just in case
 GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
