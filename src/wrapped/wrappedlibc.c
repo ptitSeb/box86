@@ -3327,7 +3327,7 @@ EXPORT void my___cxa_pure_virtual(x86emu_t* emu)
     emu->quit = 1;
     abort();
 }
-
+#ifdef ANDROID
 EXPORT int my_fstatat(int dirfd, const char* pathname, struct i386_stat64 *buf, int flags)
 {
     struct stat64 buf_ = {0};
@@ -3336,6 +3336,16 @@ EXPORT int my_fstatat(int dirfd, const char* pathname, struct i386_stat64 *buf, 
         UnalignStat64(&buf_, buf);
     return ret;
 }
+#else
+EXPORT int my_fstatat(int dirfd, const char* pathname, void* buf, int flags)
+{
+    struct stat64 st;
+    int r = fstatat64(dirfd, pathname, &st, flags);
+    if (r) return r;
+    r = FillStatFromStat64(3, &st, buf);
+    return r;
+}
+#endif
 
 EXPORT int my_fstatat64(int dirfd, const char* pathname, struct i386_stat64 *buf, int flags)
 {
