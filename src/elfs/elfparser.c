@@ -242,7 +242,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     printf_dump(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %d\n", h->initarray_sz);
                     break;
                 case DT_PREINIT_ARRAYSZ:
-                    #ifdef ANDROID
+                    #ifndef ANDROID
                         if(val)
                             printf_dump(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
                     #endif
