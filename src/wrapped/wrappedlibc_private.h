@@ -1585,10 +1585,10 @@ GO(sigdelset, iFpi)
 GO(sigemptyset, iFp)
 GO(sigfillset, iFp)
 GO(siggetmask, iFv)
-// sighold
-// sigignore
+GO(sighold, iFi)
+GO(sigignore, iFi)
 GO(siginterrupt, iFii)  // no need to wrap this one?
-// sigisemptyset
+GO(sigisemptyset, iFp)
 GO(sigismember, iFpi)
 // __sigismember
 GOM(siglongjmp, vFEip) //%%
@@ -1596,7 +1596,7 @@ GOWM(signal, pFEip)     //%%
 // signalfd
 GO(__signbit, iFd)
 GO(__signbitf, iFf)
-// sigorset
+GO(sigorset, iFppp)
 // sigpause // Weak
 // __sigpause
 GO(sigpending, iFp)
