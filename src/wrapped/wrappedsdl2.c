@@ -63,6 +63,7 @@ typedef struct {
 typedef union {
     SDL_JoystickGUID guid;
     uint32_t         u[4];
+    uint16_t         u16[8];
 } SDL_JoystickGUID_Helper;
 
 typedef struct
@@ -864,21 +865,28 @@ EXPORT void* my2_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
     return my_dlsym(emu, handle, name);
 }
 
-EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint16_t* vendor, uint16_t* product, uint16_t* version)
+EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint16_t* vendor, uint16_t* product, uint16_t* version, uint16_t* crc16)
 {
     (void)emu;
+    SDL_JoystickGUID_Helper guid;
+    guid.u[0] = a;
+    guid.u[1] = b;
+    guid.u[2] = c;
+    guid.u[3] = d;
     if(my->SDL_GetJoystickGUIDInfo) {
-        SDL_JoystickGUID_Helper guid;
-        guid.u[0] = a;
-        guid.u[1] = b;
-        guid.u[2] = c;
-        guid.u[3] = d;
-        my->SDL_GetJoystickGUIDInfo(guid.guid, vendor, product, version);
+        my->SDL_GetJoystickGUIDInfo(guid.guid, vendor, product, version, crc16);
     } else {
         // dummy, set everything to "unknown"
-        if(vendor)  *vendor = 0;
-        if(product) *product = 0;
-        if(version) *version = 0;
+        if (guid.u16[1]==0x0000 && guid.u16[3]==0x0000 && guid.u16[5]==0x0000)
+            {
+            if(vendor) *vendor = guid.u16[2];
+            if(product) *product = guid.u16[4];
+            if(version)  *version  = guid.u16[6];
+        } else {
+            if(vendor)  *vendor = 0;
+            if(product) *product = 0;
+            if(version) *version = 0;
+        }
     }
 }
 

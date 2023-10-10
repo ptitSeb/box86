@@ -9,6 +9,6 @@
 #define JFEi pFEpi
 #define JFEp pFEpp
 #define gFEpi pFEppi
-#define vFEJppp vFEuuuuppp
+#define vFEJpppp vFEuuuupppp
 
 #endif // __wrappedsdl2DEFS_H_

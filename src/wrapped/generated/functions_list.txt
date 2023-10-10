@@ -1911,7 +1911,6 @@
 #() vFEiippppV
 #() vFEiupippp
 #() vFEippippp
-#() vFEuuuuppp
 #() vFEppipppp
 #() vFEpppippp
 #() vFEpppuipV
@@ -2038,6 +2037,7 @@
 #() pFppiiiiii
 #() pFpppuuuuu
 #() pFpppppupp
+#() vFEuuuupppp
 #() vFEpiiiiipp
 #() vFEpuuuippp
 #() vFEppiipppp
@@ -4446,8 +4446,6 @@ wrappedsdl2:
   - SDL_LogMessage
 - vFpuup:
   - SDL_qsort
-- vFJppp:
-  - SDL_GetJoystickGUIDInfo
 - iFpupp:
   - SDL_vsnprintf
 - iFpupV:
@@ -4455,6 +4453,8 @@ wrappedsdl2:
 - uFppuu:
   - SDL_RWread
   - SDL_RWwrite
+- vFJpppp:
+  - SDL_GetJoystickGUIDInfo
 - iFpippi:
   - SDL_OpenAudioDevice
 - pFpippp:
@@ -4466,7 +4466,7 @@ wrappedsdl2:
 % JFEi -> pFEpi
 % JFEp -> pFEpp
 % gFEpi -> pFEppi
-% vFEJppp -> vFEuuuuppp
+% vFEJpppp -> vFEuuuupppp
 wrappedsdl2image:
 - pFp:
   - IMG_LoadBMP_RW

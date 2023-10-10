@@ -9,6 +9,6 @@
 #undef JFEi
 #undef JFEp
 #undef gFEpi
-#undef vFEJppp
+#undef vFEJpppp
 
 #endif // __wrappedsdl2UNDEFS_H_
