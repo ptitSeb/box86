@@ -36,6 +36,7 @@ extern int arm_div;
 #endif
 #endif
 extern int box86_libcef;
+extern int box86_sdl2_jguid;
 extern int dlsym_error;  // log dlsym error
 extern int cycle_log;    // if using rolling logs
 extern int trace_xmm;    // include XMM reg in trace?

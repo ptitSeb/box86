@@ -84,6 +84,7 @@ int arm_v8 = 0;
 int box86_dynarec = 0;
 #endif
 int box86_libcef = 1;
+int box86_sdl2_jguid = 0;
 int dlsym_error = 0;
 int cycle_log = 0;
 int trace_xmm = 0;
@@ -538,6 +539,15 @@ void LoadLogEnv()
         }
         if(!box86_libcef)
             printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
+    }
+    p = getenv("BOX86_SDL2_JGUID");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_sdl2_jguid = p[0]-'0';
+        }
+        if(!box86_sdl2_jguid)
+            printf_log(LOG_INFO, "BOX86 will workaround the use of  SDL_GetJoystickGUIDInfo with 4 args instead of 5\n");
     }
     p = getenv("BOX86_LOAD_ADDR");
     if(p) {

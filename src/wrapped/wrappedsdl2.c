@@ -868,13 +868,14 @@ EXPORT void* my2_SDL_LoadFunction(x86emu_t* emu, void* handle, void* name)
 EXPORT void my2_SDL_GetJoystickGUIDInfo(x86emu_t* emu, uint32_t a, uint32_t b, uint32_t c, uint32_t d, uint16_t* vendor, uint16_t* product, uint16_t* version, uint16_t* crc16)
 {
     (void)emu;
+    uint16_t dummy = 0;
     SDL_JoystickGUID_Helper guid;
     guid.u[0] = a;
     guid.u[1] = b;
     guid.u[2] = c;
     guid.u[3] = d;
     if(my->SDL_GetJoystickGUIDInfo) {
-        my->SDL_GetJoystickGUIDInfo(guid.guid, vendor, product, version, crc16);
+        my->SDL_GetJoystickGUIDInfo(guid.guid, vendor, product, version, box86_sdl2_jguid?(&dummy):crc16);
     } else {
         // dummy, set everything to "unknown"
         if (guid.u16[1]==0x0000 && guid.u16[3]==0x0000 && guid.u16[5]==0x0000)
