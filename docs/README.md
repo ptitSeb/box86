@@ -28,8 +28,8 @@ Some x86 internal opcodes use parts of "Realmode X86 Emulator Library", see [x86
 ----
 Compiling/Installation
 ----
-> Compilation instructions can be found [here](https://github.com/ptitSeb/box86/blob/main/docs/COMPILE.md)  
-> Instructions for installing Wine for Box86 can be found [here](https://github.com/ptitSeb/box86/blob/main/docs/X86WINE.md)  
+> Compilation instructions can be found [here](https://github.com/ptitSeb/box86/blob/maaster/docs/COMPILE.md)  
+> Instructions for installing Wine for Box86 can be found [here](https://github.com/ptitSeb/box86/blob/master/docs/X86WINE.md)  
 
 ----
 
