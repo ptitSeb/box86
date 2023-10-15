@@ -54,6 +54,7 @@ int box86_showbt = 0;
 int box86_isglibc234 = 0;
 int box86_nosandbox = 0;
 int box86_malloc_hack = 0;
+int box86_mutex_aligned = 0;
 int box86_quit = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
@@ -637,6 +638,19 @@ void LoadLogEnv()
                 printf_log(LOG_INFO, "Malloc hook will not be redirected\n");
             } else
                 printf_log(LOG_INFO, "Malloc hook will check for mmap/free occurrences\n");
+        }
+    }
+    p = getenv("BOX86_MUTEX_ALIGNED");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box86_mutex_aligned = p[0]-'0';
+        }
+        if(!box86_mutex_aligned) {
+            if(box86_mutex_aligned==1) {
+                printf_log(LOG_INFO, "BOX86 will not aligned mutexes\n");
+            } else
+                printf_log(LOG_INFO, "BOX86 will wrap mutex to for them aligned\n");
         }
     }
     p = getenv("BOX86_NOPULSE");

@@ -528,10 +528,10 @@ static pthread_cond_t* get_cond(void* cond)
 			ret = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
 			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
 			kh_value(mapcond, k) = ret;
-			*(void**)cond = cond;
-			pthread_cond_init(ret, NULL);
 		} else
 			ret = kh_value(mapcond, k);
+		*(void**)cond = cond;
+		pthread_cond_init(ret, NULL);
 	} else
 		ret = kh_value(mapcond, k);
 	mutex_unlock(&my_context->mutex_thread);
@@ -549,7 +549,7 @@ static void del_cond(void* cond)
 	}
 	mutex_unlock(&my_context->mutex_thread);
 }
-pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
+static pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 EXPORT int my_pthread_cond_broadcast_old(x86emu_t* emu, void* cond)
 {
@@ -858,8 +858,10 @@ typedef struct aligned_mutex_s {
 } aligned_mutex_t;
 #define SIGNMTX *(uint32_t*)"MUTX"
 
-pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
+static pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 {
+	if(box86_mutex_aligned)
+		return m;
 	if(!m)
 		return NULL;
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
@@ -891,15 +893,15 @@ pthread_mutex_t* getAlignedMutexWithInit(pthread_mutex_t* m, int init)
 	am->m = ret;
 	return ret;
 }
-pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
+static pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 {
 	return getAlignedMutexWithInit(m, 1);
 }
 
 EXPORT int my_pthread_mutex_destroy(pthread_mutex_t *m)
 {
-	/*if(!(((uintptr_t)m)&3))
-		return pthread_mutex_destroy(m);*/	// alignent to check...
+	if(box86_mutex_aligned)
+		return pthread_mutex_destroy(m);
 	aligned_mutex_t* am = (aligned_mutex_t*)m;
 	if(am->sign!=SIGNMTX) {
 		return 1;	//???

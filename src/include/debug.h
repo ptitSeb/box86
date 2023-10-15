@@ -56,6 +56,7 @@ extern int box86_nogtk; // disabling the use of wrapped gtk
 extern int box86_novulkan;  // disabling the use of wrapped vulkan
 extern int box86_mapclean;
 extern int box86_showsegv;
+extern int box86_mutex_aligned;
 extern int allow_missing_symbols;
 extern uintptr_t   trace_start, trace_end;
 extern char* trace_func;

@@ -215,6 +215,11 @@ Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2
 * 0 : Don't use any workaround
 * 1 : Use a workaround for program that use the private SDL_GetJoystickGUIDInfo function with 1 missing argument
 
+#### BOX86_MUTEX_ALIGNED *
+Will mutex are used as-is or wrapped to handle unaligned used
+* 0 : Mutex will be wrapped in case unaligned mutexes are used (Default)
+* 1 : Do no wrap mutex and use them as-is (faster, but might crash with SEGBUS error)
+
 #### BOX86_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL
