@@ -54,6 +54,7 @@ int box86_showbt = 0;
 int box86_isglibc234 = 0;
 int box86_nosandbox = 0;
 int box86_malloc_hack = 0;
+int box86_quit = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
@@ -1052,8 +1053,10 @@ void setupTrace()
 
 void endBox86()
 {
-    if(!my_context)
+    if(!my_context || box86_quit)
         return;
+
+    box86_quit = 1;
     x86emu_t* emu = thread_get_emu();
     //atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
@@ -1748,6 +1751,7 @@ int main(int argc, const char **argv, char **env)
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
+    endBox86();
 
     if(trace_func)  {
         box_free(trace_func);

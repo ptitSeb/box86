@@ -79,6 +79,8 @@ void free_tlsdatasize(void* p)
     tlsdatasize_t *data = (tlsdatasize_t*)p;
     box_free(data->ptr);
     box_free(p);
+    if(my_context)
+        pthread_setspecific(my_context->tlskey, NULL);
 }
 
 int unlockMutex()
@@ -256,7 +258,7 @@ box86context_t *NewBox86Context(int argc)
     init_mutexes(context);
     pthread_atfork(NULL, NULL, atfork_child_box64context);
 
-    pthread_key_create(&context->tlskey, free_tlsdatasize);
+    pthread_key_create(&context->tlskey, NULL/*free_tlsdatasize*/);
 
     InitFTSMap(context);
 
@@ -286,6 +288,7 @@ void FreeBox86Context(box86context_t** context)
 
     box86context_t* ctx = *context;   // local copy to do the cleanning
 
+    //clean_current_emuthread();    // cleaning main thread seems a bad idea
     if(ctx->local_maplib)
         FreeLibrarian(&ctx->local_maplib, NULL);
     if(ctx->maplib)
@@ -356,7 +359,6 @@ void FreeBox86Context(box86context_t** context)
     void* ptr;
     if ((ptr = pthread_getspecific(ctx->tlskey)) != NULL) {
         free_tlsdatasize(ptr);
-        pthread_setspecific(ctx->tlskey, NULL);
     }
     pthread_key_delete(ctx->tlskey);
 

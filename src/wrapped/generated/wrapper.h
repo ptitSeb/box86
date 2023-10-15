@@ -199,6 +199,7 @@ void vFGp(x86emu_t *emu, uintptr_t fnc);
 void vFGG(x86emu_t *emu, uintptr_t fnc);
 void cFpp(x86emu_t *emu, uintptr_t fnc);
 void iFEv(x86emu_t *emu, uintptr_t fnc);
+void iFEu(x86emu_t *emu, uintptr_t fnc);
 void iFEL(x86emu_t *emu, uintptr_t fnc);
 void iFEp(x86emu_t *emu, uintptr_t fnc);
 void iFwp(x86emu_t *emu, uintptr_t fnc);

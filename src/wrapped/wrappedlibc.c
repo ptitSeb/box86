@@ -2781,22 +2781,6 @@ EXPORT void* my___deregister_frame_info(void* a)
 
 EXPORT void* my____brk_addr = NULL;
 
-// longjmp / setjmp
-typedef struct jump_buff_i386_s {
- uint32_t save_ebx;
- uint32_t save_esi;
- uint32_t save_edi;
- uint32_t save_ebp;
- uint32_t save_esp;
- uint32_t save_eip;
-} jump_buff_i386_t;
-
-typedef struct __jmp_buf_tag_s {
-    jump_buff_i386_t __jmpbuf;
-    int              __mask_was_saved;
-    sigset_t         __saved_mask;
-} __jmp_buf_tag_t;
-
 void EXPORT my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
 {
     jump_buff_i386_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;

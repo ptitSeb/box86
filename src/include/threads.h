@@ -16,6 +16,7 @@ emu_jmpbuf_t* GetJmpBuf();
 
 void init_pthread_helper();
 void fini_pthread_helper(box86context_t* context);
+void clean_current_emuthread(void);
 
 // prepare an "emuthread structure" in pet and return address of function pointer for a "thread creation routine"
 void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet);

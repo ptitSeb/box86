@@ -25,6 +25,7 @@
 #include "x86trace.h"
 #include "dynarec.h"
 #include "bridge.h"
+#include "myalign.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/arm_lock_helper.h"
@@ -49,22 +50,6 @@ typedef struct threadstack_s {
 	size_t 	stacksize;
 } threadstack_t;
 
-// longjmp / setjmp
-typedef struct jump_buff_i386_s {
- uint32_t save_ebx;
- uint32_t save_esi;
- uint32_t save_edi;
- uint32_t save_ebp;
- uint32_t save_esp;
- uint32_t save_eip;
-} jump_buff_i386_t;
-
-typedef struct __jmp_buf_tag_s {
-    jump_buff_i386_t __jmpbuf;
-    int              __mask_was_saved;
-    sigset_t         __saved_mask;
-} __jmp_buf_tag_t;
-
 typedef struct x86_unwind_buff_s {
 	struct {
 		jump_buff_i386_t	__cancel_jmp_buf;	
@@ -72,6 +57,16 @@ typedef struct x86_unwind_buff_s {
 	} __cancel_jmp_buf[1];
 	void *__pad[4];
 } x86_unwind_buff_t __attribute__((__aligned__));
+
+
+typedef struct my_tls_keys_s {
+	pthread_key_t	key;
+	uintptr_t		f;
+} my_tls_keys_t;
+
+static int keys_cap = 0;
+static int keys_size = 0;
+static my_tls_keys_t *keys = NULL;
 
 typedef void(*vFv_t)();
 
@@ -136,50 +131,59 @@ int GetStackSize(x86emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 	return 0;
 }
 
-static void InitCancelThread()
-{
-}
-
-static void FreeCancelThread(box86context_t* context)
-{
-	if(!context)
-		return;
-}
-
-#ifndef ANDROID
-static __pthread_unwind_buf_t* AddCancelThread(x86_unwind_buff_t* buff)
-{
-	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)box_calloc(1, sizeof(__pthread_unwind_buf_t));
-	buff->__pad[3] = r;
-	return r;
-}
-
-static __pthread_unwind_buf_t* GetCancelThread(x86_unwind_buff_t* buff)
-{
-	return (__pthread_unwind_buf_t*)buff->__pad[3];
-}
-
-static void DelCancelThread(x86_unwind_buff_t* buff)
-{
-	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)buff->__pad[3];
-	box_free(r);
-	buff->__pad[3] = NULL;
-}
-#endif
+void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
 typedef struct emuthread_s {
 	uintptr_t 	fnc;
 	void*		arg;
 	x86emu_t*	emu;
+	int			cancel_cap, cancel_size;
+	x86_unwind_buff_t **cancels;
 } emuthread_t;
 
 static void emuthread_destroy(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
+	if(!et)
+		return;
+	void* ptr;
+	// check all tls keys
+	int end = 4;
+	while(end) {
+		int still = 0;
+		for(int i=0; i<keys_size; ++i) {
+			ptr = pthread_getspecific(keys[i].key);
+			if(ptr) {
+				still = 1;
+				RunFunctionWithEmu(et->emu, 0, keys[i].f, 1, ptr);
+			}
+		}
+		/*if(still) --end; else*/ end=0;
+	}
+	// check tlsdata
+	if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
+        free_tlsdatasize(ptr);
+	// free x86emu
 	if(et) {
 		FreeX86Emu(&et->emu);
 		box_free(et);
 	}
+}
+
+static void emuthread_cancel(void* p)
+{
+	emuthread_t *et = (emuthread_t*)p;
+	if(!et)
+		return;
+	// check cancels threads
+	for(int i=et->cancel_size-1; i>=0; --i) {
+		et->emu->quitonlongjmp = 0;
+		my_longjmp(et->emu, et->cancels[i]->__cancel_jmp_buf, 1);
+		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
+	}
+	box_free(et->cancels);
+	et->cancels=NULL;
+	et->cancel_size = et->cancel_cap = 0;
 }
 
 static pthread_key_t thread_key;
@@ -243,7 +247,9 @@ static void* pthread_routine(void* p)
 	Push32(emu, (uintptr_t)et->arg);
 	PushExit(emu);
 	R_EIP = et->fnc;
+	pthread_cleanup_push(emuthread_cancel, p);
 	DynaRun(et->emu);
+	pthread_cleanup_pop(0);
 	void* ret = (void*)R_EAX;
 	//void* ret = (void*)RunFunctionWithEmu(et->emu, 0, et->fnc, 1, et->arg);
 	return ret;
@@ -343,66 +349,35 @@ void* my_prepare_thread(x86emu_t *emu, void* f, void* arg, int ssize, void** pet
 	return pthread_routine;
 }
 
-void my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
-
-#ifndef ANDROID
-#define CANCEL_MAX 8
-static __thread x86emu_t* cancel_emu[CANCEL_MAX] = {0};
-static __thread x86_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
-static __thread int cancel_deep = 0;
-EXPORT void my___pthread_register_cancel(x86emu_t* emu, void* B)
+EXPORT void my___pthread_register_cancel(x86emu_t* emu, void* buff)
 {
-    (void)B;
-	// get a stack local copy of the args, as may be live in some register depending the architecture (like ARM)
-	if(cancel_deep<0) {
-		printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, inconsistant value in __pthread_register_cancel (%d)\n", cancel_deep);
-		cancel_deep = 0;
-	}
-	if(cancel_deep!=CANCEL_MAX-1) 
-		++cancel_deep;
-	else
-		{printf_log(LOG_NONE/*LOG_INFO*/, "BOX86: Warning, calling __pthread_register_cancel(...) too many time\n");}
-		
-	cancel_emu[cancel_deep] = emu;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-	x86_unwind_buff_t* buff = cancel_buff[cancel_deep] = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t * pbuff = AddCancelThread(buff);
-	if(__sigsetjmp((struct __jmp_buf_tag*)(void*)pbuff->__cancel_jmp_buf, 0)) {
-		//DelCancelThread(cancel_buff);	// no del here, it will be delete by unwind_next...
-		int i = cancel_deep--;
-		emu = cancel_emu[i];
-		my_longjmp(emu, cancel_buff[i]->__cancel_jmp_buf, 1);
-		DynaRun(emu);	// resume execution
-		return;
+	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	if(et->cancel_cap == et->cancel_size) {
+		et->cancel_cap+=8;
+		et->cancels = box_realloc(et->cancels, sizeof(x86_unwind_buff_t*)*et->cancel_cap);
 	}
-
-	__pthread_register_cancel(pbuff);
+	et->cancels[et->cancel_size++] = (void*)R_EAX;
 }
 
 EXPORT void my___pthread_unregister_cancel(x86emu_t* emu, x86_unwind_buff_t* buff)
 {
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-	buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t * pbuff = GetCancelThread(buff);
-	__pthread_unregister_cancel(pbuff);
-
-	--cancel_deep;
-	DelCancelThread(buff);
+	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	for (int i=et->cancel_size-1; i>=0; --i) {
+		if(et->cancels[i] == (x86_unwind_buff_t*)R_EAX) {
+			if(i!=et->cancel_size-1)
+				memmove(et->cancels+i, et->cancels+i+1, sizeof(x86_unwind_buff_t*)*(et->cancel_size-i-1));
+			et->cancel_size--;
+		}
+	}
 }
 
 EXPORT void my___pthread_unwind_next(x86emu_t* emu, void* p)
 {
-    (void)p;
 	// on i386, the function as __cleanup_fct_attribute attribute: so 1st parameter is in register
-	x86_unwind_buff_t* buff = (x86_unwind_buff_t*)R_EAX;
-	__pthread_unwind_buf_t pbuff = *GetCancelThread(buff);
-	DelCancelThread(buff);
-	// function is noreturn, putting stuff on the stack to have it auto-free (is that correct?)
-	__pthread_unwind_next(&pbuff);
-	// just in case it does return
 	emu->quit = 1;
 }
-#endif
 
 KHASH_MAP_INIT_INT(once, int)
 
@@ -438,28 +413,6 @@ GO(27)			\
 GO(28)			\
 GO(29)			
 
-// key_destructor
-#define GO(A)   \
-static uintptr_t my_key_destructor_fct_##A = 0;  					\
-static void my_key_destructor_##A(void* a)    						\
-{                                       							\
-    RunFunctionFmt(my_key_destructor_fct_##A, "p", a);	\
-}
-SUPER()
-#undef GO
-static void* findkey_destructorFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_key_destructor_fct_##A == (uintptr_t)fct) return my_key_destructor_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_key_destructor_fct_##A == 0) {my_key_destructor_fct_##A = (uintptr_t)fct; return my_key_destructor_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for pthread key_destructor callback\n");
-    return NULL;
-}
 // cleanup_routine
 #define GO(A)   \
 static uintptr_t my_cleanup_routine_fct_##A = 0;  					\
@@ -509,13 +462,34 @@ int EXPORT my_pthread_once(x86emu_t* emu, int* once, void* cb)
 }
 EXPORT int my___pthread_once(x86emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));
 
-EXPORT int my_pthread_key_create(x86emu_t* emu, void* key, void* dtor)
+EXPORT int my_pthread_key_create(x86emu_t* emu, pthread_key_t* key, void* dtor)
 {
-    (void)emu;
-	return pthread_key_create(key, findkey_destructorFct(dtor));
+	int ret = pthread_key_create(key, NULL/*findkey_destructorFct(dtor)*/);
+	if(!ret && dtor) {
+		if(keys_cap==keys_size) {
+			keys_cap += 8;
+			keys = box_realloc(keys, sizeof(my_tls_keys_t)*keys_cap);
+		}
+		keys[keys_size].f = (uintptr_t)dtor;
+		keys[keys_size++].key = *key;
+	}
+	return ret;
 }
-EXPORT int my___pthread_key_create(x86emu_t* emu, void* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
+EXPORT int my___pthread_key_create(x86emu_t* emu, pthread_key_t* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
 
+EXPORT int my_pthread_key_delete(x86emu_t* emu, pthread_key_t key)
+{
+	int ret = pthread_key_delete(key);
+	if(ret) {
+		for(int i=keys_size-1; i>=0; --i)
+			if(keys[i].key == key) {
+				if(i!=keys_size-1)
+					memmove(keys+i, keys+i+1, sizeof(my_tls_keys_t)*(keys_size-(i+1)));
+				--keys_size;
+			}
+	}
+	return ret;
+}
 // phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it's 48 bytes on ARM. 
 // Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
 // What about cond that are statically initialized? 
@@ -1009,7 +983,6 @@ void init_pthread_helper()
 		real_phtread_kill_old = (iFli_t)pthread_kill;
 	}
 
-	InitCancelThread();
 	mapcond = kh_init(mapcond);
 	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
 	pthread_setspecific(jmpbuf_key, NULL);
@@ -1020,9 +993,19 @@ void init_pthread_helper()
 #endif
 }
 
+void clean_current_emuthread()
+{
+	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	if(et) {
+		pthread_setspecific(thread_key, NULL);
+		emuthread_destroy(et);
+	}
+}
+
 void fini_pthread_helper(box86context_t* context)
 {
-	FreeCancelThread(context);
+	box_free(keys);
+	keys_size = keys_cap = 0;
 	CleanStackSize(context);
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
