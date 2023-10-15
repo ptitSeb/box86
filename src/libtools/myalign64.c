@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <asm/stat.h>
 #include <sys/vfs.h>
+#include <setjmp.h>
 
 #include "x86emu.h"
 #include "emu/x86emu_private.h"
