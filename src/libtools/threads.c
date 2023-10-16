@@ -58,16 +58,6 @@ typedef struct x86_unwind_buff_s {
 	void *__pad[4];
 } x86_unwind_buff_t __attribute__((__aligned__));
 
-
-typedef struct my_tls_keys_s {
-	pthread_key_t	key;
-	uintptr_t		f;
-} my_tls_keys_t;
-
-static int keys_cap = 0;
-static int keys_size = 0;
-static my_tls_keys_t *keys = NULL;
-
 typedef void(*vFv_t)();
 
 KHASH_MAP_INIT_INT(threadstack, threadstack_t*)
@@ -141,33 +131,20 @@ typedef struct emuthread_s {
 	x86_unwind_buff_t **cancels;
 } emuthread_t;
 
+static pthread_key_t thread_key;
+
 static void emuthread_destroy(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
 	if(!et)
 		return;
 	void* ptr;
-	// check all tls keys
-	int end = 4;
-	while(end) {
-		int still = 0;
-		for(int i=0; i<keys_size; ++i) {
-			ptr = pthread_getspecific(keys[i].key);
-			if(ptr) {
-				still = 1;
-				RunFunctionWithEmu(et->emu, 0, keys[i].f, 1, ptr);
-			}
-		}
-		/*if(still) --end; else*/ end=0;
-	}
-	// check tlsdata
-	if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
-        free_tlsdatasize(ptr);
 	// free x86emu
 	if(et) {
 		FreeX86Emu(&et->emu);
 		box_free(et);
 	}
+	pthread_setspecific(thread_key, NULL);
 }
 
 static void emuthread_cancel(void* p)
@@ -185,8 +162,6 @@ static void emuthread_cancel(void* p)
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
 }
-
-static pthread_key_t thread_key;
 
 void thread_set_emu(x86emu_t* emu)
 {
@@ -436,6 +411,28 @@ static void* findcleanup_routineFct(void* fct)
     return NULL;
 }
 
+// key_dtor
+#define GO(A)   \
+static uintptr_t my_key_dtor_fct_##A = 0;  					\
+static void my_key_dtor_##A(void* a)    						\
+{                                       							\
+    RunFunctionFmt(my_key_dtor_fct_##A, "p", a);	\
+}
+SUPER()
+#undef GO
+static void* findkey_dtorFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_key_dtor_fct_##A == (uintptr_t)fct) return my_key_dtor_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_key_dtor_fct_##A == 0) {my_key_dtor_fct_##A = (uintptr_t)fct; return my_key_dtor_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pthread key_dtor callback\n");
+    return NULL;
+}
 #undef SUPER
 
 
@@ -464,15 +461,7 @@ EXPORT int my___pthread_once(x86emu_t* emu, void* once, void* cb) __attribute__(
 
 EXPORT int my_pthread_key_create(x86emu_t* emu, pthread_key_t* key, void* dtor)
 {
-	int ret = pthread_key_create(key, NULL/*findkey_destructorFct(dtor)*/);
-	if(!ret && dtor) {
-		if(keys_cap==keys_size) {
-			keys_cap += 8;
-			keys = box_realloc(keys, sizeof(my_tls_keys_t)*keys_cap);
-		}
-		keys[keys_size].f = (uintptr_t)dtor;
-		keys[keys_size++].key = *key;
-	}
+	int ret = pthread_key_create(key, findkey_dtorFct(dtor));
 	return ret;
 }
 EXPORT int my___pthread_key_create(x86emu_t* emu, pthread_key_t* key, void* dtor) __attribute__((alias("my_pthread_key_create")));
@@ -480,14 +469,6 @@ EXPORT int my___pthread_key_create(x86emu_t* emu, pthread_key_t* key, void* dtor
 EXPORT int my_pthread_key_delete(x86emu_t* emu, pthread_key_t key)
 {
 	int ret = pthread_key_delete(key);
-	if(ret) {
-		for(int i=keys_size-1; i>=0; --i)
-			if(keys[i].key == key) {
-				if(i!=keys_size-1)
-					memmove(keys+i, keys+i+1, sizeof(my_tls_keys_t)*(keys_size-(i+1)));
-				--keys_size;
-			}
-	}
 	return ret;
 }
 // phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it's 48 bytes on ARM. 
@@ -1006,8 +987,6 @@ void clean_current_emuthread()
 
 void fini_pthread_helper(box86context_t* context)
 {
-	box_free(keys);
-	keys_size = keys_cap = 0;
 	CleanStackSize(context);
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
