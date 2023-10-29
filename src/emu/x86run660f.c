@@ -868,12 +868,11 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                     int g = (tmp8u&1)?1:0;
                     int e = (tmp8u&0b10000)?1:0;
                     uint64_t result[2] = { 0 };
-                    uint64_t op2[2] = { 0 };
-                    op2[0] = EX->q[e];
                     for (int i=0; i<64; ++i)
                         if(GX.q[g]&(1LL<<i)) {
-                            result[0] ^= (op2[0]<<i);
-                            result[1] ^= ((op2[1]<<i)|(op2[0]>>(64-i)));
+                            result[0] ^= (EX->q[e]<<i);
+                            if(i)
+                                result[1] ^= (EX->q[e]>>(64-i));
                         }
 
                     GX.q[0] = result[0];
