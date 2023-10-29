@@ -131,6 +131,7 @@ arm_lock_storeifref_loop:
     beq     arm_lock_storeifref_loop
     mov     r0, r1
 arm_lock_storeifref_exit:
+    dmb     ish
     bx      lr
 
 arm_lock_decifnot0b:
@@ -174,13 +175,11 @@ arm_lock_incif0b_0:
     bx      lr
 
 arm_lock_stored:
-    dmb     ish
     str     r1, [r0]
     dmb     ish
     bx      lr
 
 arm_lock_storeb:
-    dmb     ish
     strb    r1, [r0]
     dmb     ish
     bx      lr

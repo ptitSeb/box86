@@ -1694,7 +1694,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "bogomips\t: %g\n", getBogoMips());
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 rdtscp ssse3 fma fxsr cx16 movbe pni\n");
+        sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 rdtscp ssse3 fma cpuid pclmulqdq cx16 aes movbe pni\n");
         P;
         sprintf(buff, "\n");
         P;

@@ -81,6 +81,7 @@ int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
 int arm_div = 0;
 int arm_v8 = 0;
+int arm_aes = 0;
 #endif
 #else   //DYNAREC
 int box86_dynarec = 0;
@@ -235,6 +236,8 @@ void GatherDynarecExtensions()
         arm_div = 1;
     #ifdef AT_HWCAP2
     unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
+    if(hwcap2&HWCAP2_AES)
+        arm_aes = 1;
     if((hwcap2&HWCAP2_AES) || (hwcap2&HWCAP2_CRC32))
         arm_v8 = 1;
     #endif
@@ -243,6 +246,8 @@ void GatherDynarecExtensions()
         printf_log(LOG_INFO, " SWP");
     if(arm_div)
         printf_log(LOG_INFO, " IDIVA");
+    if(arm_aes)
+        printf_log(LOG_INFO, " AES");
 
     printf_log(LOG_INFO, " PageSize:%zd ", box86_pagesize);
 #endif

@@ -206,10 +206,12 @@ void my_cpuid(x86emu_t* emu, uint32_t tmp32u)
                     | 1<<28     // HT / Multi-core
                     ;
             R_ECX =   1<<0      // SSE3
+                    | 1<<1      // PCLMULQDQ
                     | 1<<9      // SSSE3
                     | 1<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<22     // MOVBE
+                    | 1<<25     // aesni
                     ; 
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...

@@ -23,6 +23,13 @@ void arm_fsave(x86emu_t* emu, uint8_t* ed);
 void arm_frstor(x86emu_t* emu, uint8_t* ed);
 void arm_fprem1(x86emu_t* emu);
 
+void arm_aesd(x86emu_t* emu, int xmm);
+void arm_aese(x86emu_t* emu, int xmm);
+void arm_aesdlast(x86emu_t* emu, int xmm);
+void arm_aeselast(x86emu_t* emu, int xmm);
+void arm_aesimc(x86emu_t* emu, int xmm);
+void arm_aeskeygenassist(x86emu_t* emu, int gx, int ex, void* p, uint32_t u8);
+
 void arm_clflush(x86emu_t* emu, void* p);
 
 int64_t arm_fist64_0(double d);

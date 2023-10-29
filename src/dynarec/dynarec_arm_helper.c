@@ -1341,6 +1341,26 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
     dyn->n.ssecache[a].write = 1; // it will be write...
     return dyn->n.ssecache[a].reg;
 }
+// forget neon register for a SSE reg
+void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a, int s1)
+{
+    if(dyn->n.ssecache[a].v==-1)
+        return;
+    if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
+        int offs = offsetof(x86emu_t, xmm[a]);
+        if(!(offs&3) && (offs>>2)<256) {
+            ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+        } else {
+            MOV32(s1, offs);
+            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+        }
+        VST1Q_64(dyn->n.ssecache[a].reg, s1);
+    }
+    fpu_free_reg_quad(dyn, dyn->n.ssecache[a].reg);
+    dyn->n.ssecache[a].v = -1;
+    return;
+}
+
 // purge the SSE cache only(needs 1 scratch registers)
 static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
 {

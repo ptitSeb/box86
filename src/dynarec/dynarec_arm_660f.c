@@ -35,6 +35,11 @@
 #define GETGX(a, w)         \
     gd = (nextop&0x38)>>3;  \
     a = sse_get_reg(dyn, ninst, x1, gd, w)
+#define GETGX_empty(a)      \
+    gd = (nextop&0x38)>>3;  \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
+#define GETG    gd = (nextop&0x38)>>3
 
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -460,6 +465,108 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                     VABSQ_S32(q0, q1);
                     break;
+
+                case 0xDB:
+                    INST_NAME("AESIMC Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    if(arm_aes) {
+                        GETEX(q1, 0);
+                        GETGX_empty(q0);
+                        AESIMC(q0, q1);
+                    } else {
+                        GETEX(q1, 0);
+                        GETGX_empty(q0);
+                        if(q0!=q1) {
+                            VMOVQ(q0, q1);
+                        }
+                        sse_forget_reg(dyn, ninst, gd, x1);
+                        MOV32(x1, gd);
+                        CALL(arm_aesimc, -1, 0);
+                    }
+                    break;
+                case 0xDC:
+                    INST_NAME("AESENC Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    if(arm_aes) {
+                        GETEX(q1, 0);
+                        GETGX(q0, 1);
+                        v0 = fpu_get_scratch_quad(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        VEORQ(v0, q0, q1);
+                        AESE(v0, q1);
+                        AESMC(v0, v0);
+                        VEORQ(q0, v0, q1);
+                    } else {
+                        GETG;
+                        sse_forget_reg(dyn, ninst, gd, x1);
+                        MOV32(x1, gd);
+                        CALL(arm_aese, -1, 0);
+                        GETGX(q0, 1);
+                        GETEX(q1, 0);
+                        VEORQ(q0, q0, q1);
+                    }
+                    break;
+                case 0xDD:
+                    INST_NAME("AESENCLAST Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    if(arm_aes) {
+                        GETEX(q1, 0);
+                        GETGX(q0, 1);
+                        v0 = fpu_get_scratch_quad(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        VEORQ(v0, q0, q1);
+                        AESE(v0, q1);
+                        VEORQ(q0, v0, q1);
+                    } else {
+                        GETG;
+                        sse_forget_reg(dyn, ninst, gd, x1);
+                        MOV32(x1, gd);
+                        CALL(arm_aeselast, -1, 0);
+                        GETGX(q0, 1);
+                        GETEX(q1, 0);
+                        VEORQ(q0, q0, q1);
+                    }
+                    break;
+                case 0xDE:
+                    INST_NAME("AESDEC Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    if(arm_aes) {
+                        GETEX(q1, 0);
+                        GETGX(q0, 1);
+                        v0 = fpu_get_scratch_quad(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        VEORQ(v0, q0, q1);
+                        AESD(v0, q1);
+                        AESIMC(v0, v0);
+                        VEORQ(q0, v0, q1);
+                    } else {
+                        GETG;
+                        sse_forget_reg(dyn, ninst, gd, x1);
+                        MOV32(x1, gd);
+                        CALL(arm_aesd, -1, 0);
+                        GETGX(q0, 1);
+                        GETEX(q1, 0);
+                        VEORQ(q0, q0, q1);
+                    }
+                    break;
+                case 0xDF:
+                    INST_NAME("AESDECLAST Gx, Ex");  // AES-NI
+                    nextop = F8;
+                    if(arm_aes) {
+                        GETEX(q1, 0);
+                        GETGX(q0, 1);
+                        v0 = fpu_get_scratch_quad(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        VEORQ(v0, q0, q1);
+                        AESD(v0, q1);
+                        VEORQ(q0, v0, q1);
+                    } else {
+                        GETG;
+                        sse_forget_reg(dyn, ninst, gd, x1);
+                        MOV32(x1, gd);
+                        CALL(arm_aesdlast, -1, 0);
+                        GETGX(q0, 1);
+                        GETEX(q1, 0);
+                        VEORQ(q0, q0, q1);
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }
@@ -484,6 +591,29 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VEXTQ_8(q0, q1, q0, u8);
                     }
                     break;
+                
+                case 0x44:
+                    INST_NAME("PCLMULQDQ Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0);
+                    u8 = F8;
+                    switch (u8&0b00010001) {
+                        case 0b00000000:
+                            VMULL_P64(q0, q0, q1);
+                            break;
+                        case 0b00010001:
+                            VMULL_P64(q0, q0+1, q1+1);
+                            break;
+                        case 0b00000001:
+                            VMULL_P64(q0, q0+1, q1);
+                            break;
+                        case 0b00010000:
+                            VMULL_P64(q0, q0, q1+1);
+                            break;
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }

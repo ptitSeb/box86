@@ -33,6 +33,7 @@ extern int box86_dynarec_jvm;
 extern int arm_vfp;     // vfp version (3 or 4), with 32 registers is mendatory
 extern int arm_swap;
 extern int arm_div;
+extern int arm_aes;
 #endif
 #endif
 extern int box86_libcef;

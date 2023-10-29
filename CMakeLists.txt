@@ -898,6 +898,11 @@ add_test(NAME multiple_dlopen COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_B
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref21.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
+add_test(NAME aes COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86} 
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test22 -D TEST_OUTPUT=tmpfile22.txt 
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref22.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")    
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)

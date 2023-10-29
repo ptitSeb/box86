@@ -545,6 +545,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
+#define sse_forget_reg  STEPNAME(sse_forget_reg)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -740,6 +741,8 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
+// forget an SSE reg
+void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a, int s1);
 
 // common coproc helpers
 // reset the cache

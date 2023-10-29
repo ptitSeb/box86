@@ -1100,6 +1100,7 @@ Op is 20-27
 #define VMULL_U32_U16(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 1, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_S64_S32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 #define VMULL_U64_U32(Dd, Dn, Dm)   EMIT(VMULL_NEON_gen(1, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 0, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
+#define VMULL_P64(Dd, Dn, Dm)       EMIT(VMULL_NEON_gen(0, ((Dd)>>4)&1, 2, (Dn)&15, (Dd)&15, 1, ((Dn)>>4)&1, ((Dm)>>4)&1, (Dm)&15))
 
 #define VMUL_NEON_gen(op, D, size, Vn, Vd, N, Q, M, Vm)    (0b1111<<28 | 0b001<<25 | (op)<<24 | 0<<23 | (D)<<22 | (size)<<20 | (Vn)<<16 | (Vd)<<12 | 0b1001<<8 | (N)<<7 | (Q)<<6 | (M)<<5 | 1<<4 | (Vm))
 #define VMULQ_32(Dd, Dn, Dm)     EMIT(VMUL_NEON_gen(0, ((Dd)>>4)&1, 0b10, (Dn)&15, (Dd)&15, ((Dn)>>4)&1, 1, ((Dm)>>4)&1, (Dm)&15))
@@ -1396,5 +1397,18 @@ Op is 20-27
 #define VABSQ_S16(Dd, Dm)       EMIT(VABS_vgen(((Dd)>>4)&1, 1, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VABSQ_S8(Dd, Dm)        EMIT(VABS_vgen(((Dd)>>4)&1, 0, (Dd)&15, 0, 1, ((Dm)>>4)&1, (Dm)&15))
 #define VABSQ_F(Dd, Dm)         EMIT(VABS_vgen(((Dd)>>4)&1, 2, (Dd)&15, 1, 1, ((Dm)>>4)&1, (Dm)&15))
+
+// AES
+#define AESD_gen(D, size, Vd, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b0110<<7 | 1<<6 | (M)<<5 | (Vm))
+#define AESD(Dd, Dm)            EMIT(AESD_gen(((Dd)>>4)&1, 0, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+
+#define AESE_gen(D, size, Vd, M, Vm)    (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b0110<<7 | 0<<6 | (M)<<5 | (Vm))
+#define AESE(Dd, Dm)            EMIT(AESE_gen(((Dd)>>4)&1, 0, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+
+#define AESIMC_gen(D, size, Vd, M, Vm)  (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b0111<<7 | 1<<6 | (M)<<5 | (Vm))
+#define AESIMC(Dd, Dm)          EMIT(AESIMC_gen(((Dd)>>4)&1, 0, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
+
+#define AESMC_gen(D, size, Vd, M, Vm)   (0b1111<<28 | 0b0011<<24 | 1<<23 | (D)<<22 | 0b11<<20 | (size)<<18 | (Vd)<<12 | 0b0111<<7 | 0<<6 | (M)<<5 | (Vm))
+#define AESMC(Dd, Dm)           EMIT(AESMC_gen(((Dd)>>4)&1, 0, (Dd)&15, ((Dm)>>4)&1, (Dm)&15))
 
 #endif  //__ARM_EMITTER_H__
