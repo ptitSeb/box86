@@ -82,6 +82,7 @@ int arm_swap = 0;
 int arm_div = 0;
 int arm_v8 = 0;
 int arm_aes = 0;
+int arm_pmull = 0;
 #endif
 #else   //DYNAREC
 int box86_dynarec = 0;
@@ -238,6 +239,8 @@ void GatherDynarecExtensions()
     unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
     if(hwcap2&HWCAP2_AES)
         arm_aes = 1;
+    if(hwcap2&HWCAP2_PMULL)
+        arm_pmull = 1;
     if((hwcap2&HWCAP2_AES) || (hwcap2&HWCAP2_CRC32))
         arm_v8 = 1;
     #endif
@@ -248,6 +251,8 @@ void GatherDynarecExtensions()
         printf_log(LOG_INFO, " IDIVA");
     if(arm_aes)
         printf_log(LOG_INFO, " AES");
+    if(arm_pmull)
+        printf_log(LOG_INFO, " PMULL");
 
     printf_log(LOG_INFO, " PageSize:%zd ", box86_pagesize);
 #endif

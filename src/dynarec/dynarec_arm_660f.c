@@ -595,22 +595,42 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
-                    GETGX(q0, 1);
-                    GETEX(q1, 0);
-                    u8 = F8;
-                    switch (u8&0b00010001) {
-                        case 0b00000000:
-                            VMULL_P64(q0, q0, q1);
-                            break;
-                        case 0b00010001:
-                            VMULL_P64(q0, q0+1, q1+1);
-                            break;
-                        case 0b00000001:
-                            VMULL_P64(q0, q0+1, q1);
-                            break;
-                        case 0b00010000:
-                            VMULL_P64(q0, q0, q1+1);
-                            break;
+                    if(arm_pmull) {
+                        GETGX(q0, 1);
+                        GETEX(q1, 0);
+                        u8 = F8;
+                        switch (u8&0b00010001) {
+                            case 0b00000000:
+                                VMULL_P64(q0, q0, q1);
+                                break;
+                            case 0b00010001:
+                                VMULL_P64(q0, q0+1, q1+1);
+                                break;
+                            case 0b00000001:
+                                VMULL_P64(q0, q0+1, q1);
+                                break;
+                            case 0b00010000:
+                                VMULL_P64(q0, q0, q1+1);
+                                break;
+                        }
+                    } else {
+                        GETG;
+                        sse_forget_reg(dyn, ninst, gd, x1);
+                        if((nextop&0xC0)==0xC0) {
+                            ed = nextop&7;
+                            sse_forget_reg(dyn, ninst, ed, x1);
+                            MOV32(x2, ed);
+                        } else {
+                            MOV32(x2, 0);
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
+                            if(ed!=x2) {
+                                MOV_REG(x2, ed);
+                            }
+                        }
+                        MOV32(x1, gd); // gx
+                        u8 = F8;
+                        MOV32(x3, u8);
+                        CALL(arm_pclmul, -1, 0);
                     }
                     break;
 
