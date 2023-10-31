@@ -261,25 +261,14 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
         if(CalcLoadAddr(elf_header)) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
             FreeElfHeader(&elf_header);
-            fclose(f);
             return 0;
         }
-        // allocate memory
-        if(AllocElfMemory(context, elf_header, 0)) {
-            printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
+        // allocate and load elf
+        if(AllocLoadElfMemory(context, elf_header, 0)) {
+            printf_log(LOG_NONE, "Error: locading elf %s\n", libname);
             FreeElfHeader(&elf_header);
-            fclose(f);
             return 0;
         }
-        // Load elf into memory
-        if(LoadElfMemory(f, context, elf_header)) {
-            printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
-            FreeElfHeader(&elf_header);
-            fclose(f);
-            return 0;
-        }
-        // can close the file now
-        fclose(f);
         if(verneeded && !isElfHasNeededVer(elf_header, lib->name, verneeded)) {
             // incompatible, discard and continue the search
             FreeElfHeader(&elf_header);
