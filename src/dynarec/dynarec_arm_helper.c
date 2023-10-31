@@ -1346,7 +1346,7 @@ void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a, int s1)
 {
     if(dyn->n.ssecache[a].v==-1)
         return;
-    if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
+    if(dyn->n.neoncache[dyn->n.ssecache[a].reg+0-FPUFIRST].t == NEON_CACHE_XMMW) {
         int offs = offsetof(x86emu_t, xmm[a]);
         if(!(offs&3) && (offs>>2)<256) {
             ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
