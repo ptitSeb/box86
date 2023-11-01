@@ -176,22 +176,28 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
     loadProtectionFromMap();
+    int log_level = box86_load_addr?LOG_INFO:LOG_DEBUG;
+
+    head->multiblock_n = 0; // count PHEntrie with LOAD
+    uintptr_t max_align = (box86_pagesize-1);
+    for (size_t i=0; i<head->numPHEntries; ++i) 
+        if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
+            if(max_align < head->PHEntries[i].p_align-1)
+                max_align = head->PHEntries[i].p_align-1;
+            ++head->multiblock_n;
+        }
+
     if(!head->vaddr && box86_load_addr) {
-        offs = (uintptr_t)findBlockNearHint((void*)box86_load_addr, head->memsz);
+        offs = (uintptr_t)findBlockNearHint((void*)box86_load_addr, head->memsz, max_align);
         box86_load_addr += head->memsz;
         box86_load_addr = (box86_load_addr+0x10ffffff)&~0xffffff;
     }
-    int log_level = box86_load_addr?LOG_INFO:LOG_DEBUG;
     if(!offs && !head->vaddr)
-        offs = (uintptr_t)find32bitBlockElf(head->memsz, mainbin);
+        offs = (uintptr_t)find32bitBlockElf(head->memsz, mainbin, max_align);
 
     head->delta = offs;
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\" (0x%zx bytes)\n", (void*)offs, (void*)head->vaddr, head->name, head->memsz);
 
-    head->multiblock_n = 0; // count PHEntrie with LOAD
-    for (size_t i=0; i<head->numPHEntries; ++i) 
-        if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
-            ++head->multiblock_n;
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
     // and now, create all individual blocks

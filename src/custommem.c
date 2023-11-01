@@ -1109,10 +1109,11 @@ int getMmapped(uintptr_t addr)
 
 #define LOWEST (void*)0x10000
 #define MEDIAN (void*)0x40000000
-static void* findBlockHinted(void* hint, size_t size)
+static void* findBlockHinted(void* hint, size_t size, uintptr_t mask)
 {
     mapmem_t* m = mapmem;
     uintptr_t h = (uintptr_t)hint;
+    if(!mask) mask = 0xffff;
     while(m) {
         // granularity 0x10000
         uintptr_t addr = m->end+1;
@@ -1120,7 +1121,7 @@ static void* findBlockHinted(void* hint, size_t size)
         // check hint and available size
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
-        uintptr_t aaddr = (addr+0xffff)&~0xffff;
+        uintptr_t aaddr = (addr+mask)&~mask;
         if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
             return (void*)aaddr;
         if(end>=0xc0000000 && h<0xc0000000)
@@ -1129,23 +1130,23 @@ static void* findBlockHinted(void* hint, size_t size)
     }
     return NULL;
 }
-void* findBlockNearHint(void* hint, size_t size)
-{   void* ret = findBlockHinted(hint, size);
+void* findBlockNearHint(void* hint, size_t size, uintptr_t mask)
+{   void* ret = findBlockHinted(hint, size, mask);
     return ret?ret:hint;
 }
 void* find32bitBlock(size_t size)
 {
-    void* ret = findBlockHinted(MEDIAN, size);
-    if(!ret) ret = findBlockHinted(LOWEST, size);
+    void* ret = findBlockHinted(MEDIAN, size, 0);
+    if(!ret) ret = findBlockHinted(LOWEST, size, 0);
     return ret;
 }
 
-void* find32bitBlockElf(size_t size, int mainbin)
+void* find32bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 {
     static void* startingpoint = (void*)0x60000000;
     void* mainaddr = (void*)0x600000;
-    void* ret = findBlockHinted(mainbin?mainaddr:startingpoint, size);
-    if(!ret) ret = findBlockHinted(LOWEST, size);
+    void* ret = findBlockHinted(mainbin?mainaddr:startingpoint, size, mask);
+    if(!ret) ret = findBlockHinted(LOWEST, size, mask);
     if(!mainbin)
         startingpoint = (void*)(((uintptr_t)startingpoint+size+0x200000)&~0xfffff);
     return ret;

@@ -2765,26 +2765,26 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     #ifdef NOALIGN
     void* new_addr = addr;
     #else
-    void* new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length):find32bitBlock(length));
+    void* new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length, 0):find32bitBlock(length));
     #endif
     void* ret = mmap(new_addr, length, prot, flags, fd, offset);
     #ifndef NOALIGN
     if(!addr && ret!=new_addr && ret!=(void*)-1) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = findBlockNearHint(addr, length);
+        new_addr = findBlockNearHint(addr, length, 0);
         ret = mmap(new_addr, length, prot, flags, fd, offset);
     } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
       ((uintptr_t)ret&0xffff) && !(flags&MAP_FIXED) && box86_wine) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = findBlockNearHint(addr, length);
+        new_addr = findBlockNearHint(addr, length, 0);
         ret = mmap(new_addr, length, prot, flags, fd, offset);
         if(ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&0xffff) && box86_wine) {
             // addr is probably too high, start again with a low address
             munmap(ret, length);
             loadProtectionFromMap();    // reload map, because something went wrong previously
-            new_addr = findBlockNearHint(NULL, length); // is this the best way?
+            new_addr = findBlockNearHint(NULL, length, 0); // is this the best way?
             ret = mmap(new_addr, length, prot, flags, fd, offset);
             if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
                 munmap(ret, length);
@@ -2822,26 +2822,26 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     #ifdef NOALIGN
     void* new_addr = addr;
     #else
-    void* new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length):find32bitBlock(length));
+    void* new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length, 0):find32bitBlock(length));
     #endif
     void* ret = mmap64(new_addr, length, prot, flags, fd, offset);
     #ifndef NOALIGN
     if(!addr && ret!=new_addr && ret!=(void*)-1) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length):find32bitBlock(length));
+        new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length, 0):find32bitBlock(length));
         ret = mmap64(new_addr, length, prot, flags, fd, offset);
     } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
       ((uintptr_t)ret&0xffff) && !(flags&MAP_FIXED) && box86_wine) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = findBlockNearHint(addr, length);
+        new_addr = findBlockNearHint(addr, length, 0);
         ret = mmap64(new_addr, length, prot, flags, fd, offset);
         if(ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&0xffff) && box86_wine) {
             // addr is probably too high, start again with a low address
             munmap(ret, length);
             loadProtectionFromMap();    // reload map, because something went wrong previously
-            new_addr = findBlockNearHint(NULL, length); // is this the best way?
+            new_addr = findBlockNearHint(NULL, length, 0); // is this the best way?
             ret = mmap64(new_addr, length, prot, flags, fd, offset);
             if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
                 munmap(ret, length);
