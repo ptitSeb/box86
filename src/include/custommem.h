@@ -63,6 +63,7 @@ void AddHotPage(uintptr_t addr);
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size);
 void* find32bitBlockElf(size_t size, int mainbin);
+int isBlockFree(void* hint, size_t size);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
 int unlockCustommemMutex();

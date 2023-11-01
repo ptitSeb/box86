@@ -186,7 +186,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         offs = (uintptr_t)find32bitBlockElf(head->memsz, mainbin);
 
     head->delta = offs;
-    printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
+    printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\" (0x%zx bytes)\n", (void*)offs, (void*)head->vaddr, head->name, head->memsz);
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
     for (size_t i=0; i<head->numPHEntries; ++i) 
@@ -195,7 +195,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
     // and now, create all individual blocks
-    head->memory = (char*)0xffffffffffffffff;
+    head->memory = (char*)0xffffffff;
     int n = 0;
     for (size_t i=0; i<head->numPHEntries; ++i) {
         if(head->PHEntries[i].p_type == PT_LOAD) {
@@ -220,10 +220,17 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             if(!e->p_flags || !e->p_filesz)
                 try_mmap = 0;
             uint8_t prot = e->p_flags?(PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0)):0;
+            uintptr_t paddr = head->multiblocks[n].paddr&~balign;
+            if(!isBlockFree((void*)paddr, head->multiblocks[n].asize)) {
+                printf_log(LOG_NONE, "Box86: ELF address %p-%p not free\n", (void*)paddr, (void*)(paddr+head->multiblocks[n].asize));
+                void printMapMem();
+                printMapMem();
+                return 1;
+            }
             if(try_mmap) {
                 printf_log(log_level, "Mmaping 0x%zx memory @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
-                    (void*)head->multiblocks[n].paddr, 
+                    (void*)paddr, 
                     head->multiblocks[n].asize, 
                     prot,
                     MAP_PRIVATE,
@@ -233,6 +240,11 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 if(p==MAP_FAILED || p!=(void*)head->multiblocks[n].paddr) {
                     try_mmap = 0;
                     printf_log(log_level, "Mapping failed, using regular mmap+read");
+                    if(p==MAP_FAILED) {
+                        printf_log(log_level, " err=%d/%s\n", errno, strerror(errno));
+                    } else {
+                        printf_log(log_level, " got %p instead\n", p);
+                    }
                 } else {
                     setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
                     head->multiblocks[n].p = p;
@@ -240,7 +252,6 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 }
             }
             if(!try_mmap) {
-                uintptr_t paddr = head->multiblocks[n].paddr&~balign;
                 printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->multiblocks[n].asize, (void*)paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr,
@@ -251,7 +262,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                     0
                 );
                 if(p==MAP_FAILED || p!=(void*)paddr) {
-                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
+                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)paddr, head->multiblocks[n].asize, balign, head->name);
                     return 1;
                 }
                 setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);

@@ -1141,13 +1141,29 @@ void* find32bitBlock(size_t size)
 
 void* find32bitBlockElf(size_t size, int mainbin)
 {
-    static void* startingpoint = (void*)0x70000000;
-    void* mainaddr = (void*)0x400000;
+    static void* startingpoint = (void*)0x60000000;
+    void* mainaddr = (void*)0x600000;
     void* ret = findBlockHinted(mainbin?mainaddr:startingpoint, size);
     if(!ret) ret = findBlockHinted(LOWEST, size);
     if(!mainbin)
-        startingpoint = (void*)(((uintptr_t)startingpoint+size+0x100000)&~0xfffff);
+        startingpoint = (void*)(((uintptr_t)startingpoint+size+0x200000)&~0xfffff);
     return ret;
+}
+
+int isBlockFree(void* hint, size_t size)
+{
+    mapmem_t* m = mapmem;
+    uintptr_t h = (uintptr_t)hint;
+    while(m) {
+        uintptr_t addr = m->end+1;
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
+        if(addr<=h && end>=h && end-h+1>=size)
+            return 1;
+        if(addr>h)
+            return 0;
+        m = m->next;
+    }
+    return 0;
 }
 
 int unlockCustommemMutex()
