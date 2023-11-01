@@ -1292,7 +1292,7 @@ GO(posix_spawn, iFpppppp)
 // posix_spawnattr_setschedpolicy
 // posix_spawnattr_setsigdefault
 // posix_spawnattr_setsigmask
-// posix_spawn_file_actions_addclose
+GO(posix_spawn_file_actions_addclose, iFpipii)
 GO(posix_spawn_file_actions_adddup2, iFpii)
 GO(posix_spawn_file_actions_addopen, iFpipii)
 GO(posix_spawn_file_actions_destroy, iFp)
