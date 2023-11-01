@@ -1121,7 +1121,7 @@ static void* findBlockHinted(void* hint, size_t size)
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
         uintptr_t aaddr = (addr+0xffff)&~0xffff;
-        if(addr<=aaddr && end>aaddr && end-aaddr+1>=size)
+        if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
             return (void*)aaddr;
         if(end>=0xc0000000 && h<0xc0000000)
             return NULL;
