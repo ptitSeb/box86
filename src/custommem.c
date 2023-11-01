@@ -1115,13 +1115,14 @@ static void* findBlockHinted(void* hint, size_t size)
     uintptr_t h = (uintptr_t)hint;
     while(m) {
         // granularity 0x10000
-        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t addr = m->end+1;
         uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
         // check hint and available size
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
-        if(addr>=h && end-addr+1>=size)
-            return (void*)addr;
+        uintptr_t aaddr = (addr+0xffff)&~0xffff;
+        if(addr<=aaddr && end>aaddr && end-aaddr+1>=size)
+            return (void*)aaddr;
         if(end>=0xc0000000 && h<0xc0000000)
             return NULL;
         m = m->next;
