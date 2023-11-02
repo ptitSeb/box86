@@ -22,7 +22,7 @@ const char* ElfPath(elfheader_t* head);
 void ElfAttachLib(elfheader_t* head, library_t* lib);
 
 int CalcLoadAddr(elfheader_t* head);
-int AllocReadElfMemory(box86context_t* context, elfheader_t* head, int mainbin);
+int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded);
 int RelocateElf(lib_t *maplib, lib_t* local_maplib, int bindnow, elfheader_t* head);
