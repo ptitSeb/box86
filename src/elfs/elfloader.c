@@ -195,8 +195,27 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     if(!offs && !head->vaddr)
         offs = (uintptr_t)find32bitBlockElf(head->memsz, mainbin, max_align);
 
+    // prereserve the whole elf image, without populating
+    void* image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
+        offs = (uintptr_t)image;
+        printf_log(LOG_INFO, "Mamp64 for (@%p 0x%zx) for elf \"%s\" returned %p instead", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
+    }
+    if(image==MAP_FAILED || image!=(void*)(head->vaddr?head->vaddr:offs)) {
+        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx) for elf \"%s\"", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name);
+        if(image==MAP_FAILED) {
+            printf_log(LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
+        } else {
+            printf_log(LOG_NONE, " got %p\n", image);
+        }
+        return 1;
+    }
+
     head->delta = offs;
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\" (0x%zx bytes)\n", (void*)offs, (void*)head->vaddr, head->name, head->memsz);
+
+    head->image = image;
+    setProtection_mmap((uintptr_t)image, head->memsz, 0);
 
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
@@ -204,7 +223,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     head->memory = (char*)0xffffffff;
     int n = 0;
     for (size_t i=0; i<head->numPHEntries; ++i) {
-        if(head->PHEntries[i].p_type == PT_LOAD) {
+        if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
             Elf32_Phdr * e = &head->PHEntries[i];
 
             head->multiblocks[n].flags = e->p_flags;
@@ -223,23 +242,17 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 try_mmap = 0;
             if(head->multiblocks[n].asize != head->multiblocks[n].size)
                 try_mmap = 0;
-            if(!e->p_flags || !e->p_filesz)
+            if(!e->p_filesz)
                 try_mmap = 0;
-            uint8_t prot = e->p_flags?(PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0)):0;
+            uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
             uintptr_t paddr = head->multiblocks[n].paddr&~balign;
-            if(!isBlockFree((void*)paddr, head->multiblocks[n].asize)) {
-                printf_log(LOG_NONE, "Box86: ELF address %p-%p not free\n", (void*)paddr, (void*)(paddr+head->multiblocks[n].asize));
-                void printMapMem();
-                printMapMem();
-                return 1;
-            }
             if(try_mmap) {
                 printf_log(log_level, "Mmaping 0x%zx memory @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr, 
                     head->multiblocks[n].asize, 
                     prot,
-                    MAP_PRIVATE,
+                    MAP_PRIVATE|MAP_FIXED,
                     head->fileno,
                     e->p_offset
                 );
@@ -263,7 +276,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                     (void*)paddr,
                     head->multiblocks[n].asize,
                     prot,
-                    MAP_PRIVATE|MAP_ANONYMOUS|(e->p_flags?MAP_NORESERVE:0),
+                    MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
                     -1,
                     0
                 );
@@ -319,17 +332,20 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 void FreeElfMemory(elfheader_t* head)
 {
     if(head->multiblock_n) {
-        for(int i=0; i<head->multiblock_n; ++i) {
 #ifdef DYNAREC
+        for(int i=0; i<head->multiblock_n; ++i) {
             dynarec_log(LOG_INFO, "Free DynaBlocks for %s\n", head->path);
             if(box86_dynarec)
                 cleanDBFromAddressRange((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].size, 1);
-#endif
-            munmap(head->multiblocks[i].p, head->multiblocks[i].asize);
             freeProtection((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].asize);
         }
+#endif
         box_free(head->multiblocks);
     }
+    // we only need to free the overall mmap, no need to free individual part as they are inside the big one
+    if(head->image && head->memsz)
+        munmap(head->image, head->memsz);
+    freeProtection((uintptr_t)head->image, head->memsz);
 }
 
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded)
