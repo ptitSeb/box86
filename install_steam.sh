@@ -22,7 +22,7 @@ echo "#!/bin/bash
 export STEAMOS=1
 export STEAM_RUNTIME=1
 export DBUS_FATAL_WARNINGS=0
-~/steam/bin/steam steam://open/minigameslist $@" > steam
+~/steam/bin/steam $@" > steam
 
 # make script executable and move
 chmod +x steam
@@ -35,7 +35,9 @@ if [ ${MACHINE_TYPE} == 'aarch64' ] && [ -f '/etc/debian_version' ]; then
  sudo dpkg --add-architecture armhf # enable installation of armhf libraries
  sudo apt update # update package lists with the newly added arch
  # install the libraries that Steam requires
- sudo apt install libc6:armhf libncurses5:armhf libsdl2-2.0-0:armhf libsdl2-image-2.0-0:armhf libsdl2-mixer-2.0-0:armhf libsdl2-ttf-2.0-0:armhf libopenal1:armhf libpng16-16:armhf libfontconfig1:armhf libxcomposite1:armhf libbz2-1.0:armhf libxtst6:armhf libsm6:armhf libice6:armhf libgl1:armhf libxinerama1:armhf libxdamage1:armhf
+ sudo apt install libc6:armhf libsdl2-2.0-0:armhf libsdl2-image-2.0-0:armhf libsdl2-mixer-2.0-0:armhf libsdl2-ttf-2.0-0:armhf libopenal1:armhf libpng16-16:armhf libfontconfig1:armhf libxcomposite1:armhf libbz2-1.0:armhf libxtst6:armhf libsm6:armhf libice6:armhf libgl1:armhf libxinerama1:armhf libxdamage1:armhf
+ # this one is not there all the time, so just try it...
+ sudo apt install libncurses5:armhf 
 
  # install mesa for armhf if already installed
  if dpkg-query -W libgl1-mesa-dri 2>/dev/null; then
