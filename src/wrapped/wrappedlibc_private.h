@@ -2041,8 +2041,8 @@ GO(wcstoll, IFppi)
 // __wcstoll_internal
 // __wcstoll_l
 // wcstoll_l    // Weak
-GO(wcstombs, uFppu)
-// __wcstombs_chk
+GO(wcstombs, LFppL)
+GO(__wcstombs_chk, LFppLL)
 // wcstoq   // Weak
 GO(wcstoul, iFppi)
 GO(__wcstoul_internal, LFppii)
