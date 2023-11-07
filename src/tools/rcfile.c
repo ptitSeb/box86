@@ -92,6 +92,7 @@ ENTRYBOOL(BOX86_DYNAREC_BLEEDING_EDGE, box86_dynarec_bleeding_edge) \
 ENTRYBOOL(BOX86_DYNAREC_JVM, box86_dynarec_jvm)                     \
 ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
 ENTRYBOOL(BOX86_DYNAREC_TEST, box86_dynarec_test)                   \
+ENTRYBOOL(BOX86_DYNAREC_MISSING, box86_dynarec_missing)             \
 
 #else
 #define SUPER3()                                                    \
@@ -112,6 +113,7 @@ IGNORE(BOX86_DYNAREC_BLEEDING_EDGE)                                 \
 IGNORE(BOX86_DYNAREC_JVM)                                           \
 IGNORE(BOX86_NODYNAREC)                                             \
 IGNORE(BOX86_DYNAREC_TEST)                                          \
+IGNORE(BOX86_DYNAREC_MISSING)                                       \
 
 #endif
 

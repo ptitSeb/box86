@@ -27,6 +27,7 @@ extern int box86_dynarec_hotpage;
 extern int box86_dynarec_wait;
 extern int box86_dynarec_fastpage;
 extern int box86_dynarec_bleeding_edge;
+extern int box86_dynarec_missing;
 extern int box86_dynarec_test;
 extern int box86_dynarec_jvm;
 #ifdef ARM

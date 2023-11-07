@@ -195,6 +195,11 @@ Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is n
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
 * 1 : Dynarec will wait for FillBlock to be ready (Default)
 
+#### BOX86_DYNAREC_MISSING *
+Dynarec print the missing opcodes
+* 0 : not print the missing opcode (Default, unless DYNAREC_LOG>=1 or DYNAREC_DUMP>=1 is used)
+* 1 : Will print the missing opcodes
+
 #### BOX86_SSE_FLUSHTO0 *
 Handling of SSE Flush to 0 flags
 * 0 : Just track the flag (Default)

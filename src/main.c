@@ -76,6 +76,7 @@ int box86_dynarec_fastpage = 0;
 uintptr_t box86_nodynarec_start = 0;
 uintptr_t box86_nodynarec_end = 0;
 int box86_dynarec_test = 0;
+int box86_dynarec_missing = 0;
 #ifdef ARM
 int arm_vfp = 0;     // vfp version (3 or 4), with 32 registers is mendatory
 int arm_swap = 0;
@@ -484,6 +485,15 @@ void LoadLogEnv()
         }
         if(!box86_dynarec_jvm)
             printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
+    }
+    p = getenv("BOX86_DYNAREC_MISSING");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_missing = p[0]-'0';
+        }
+        if(box86_dynarec_missing)
+            printf_log(LOG_INFO, "Dynarec will print missing opcodes\n");
     }
     p = getenv("BOX86_NODYNAREC");
     if(p) {

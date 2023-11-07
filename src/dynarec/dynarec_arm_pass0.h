@@ -40,7 +40,7 @@
 #define DEFAULT                         \
         --dyn->size;                    \
         *ok = -1;                       \
-        if(box86_dynarec_log>=LOG_INFO || box86_dynarec_dump) {\
+        if(box86_dynarec_log>=LOG_INFO || box86_dynarec_dump || box86_dynarec_missing) {\
         dynarec_log(LOG_NONE, "%p: Dynarec stopped @ %s (%s:%u) because of Opcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
         (void*)ip, __FUNCTION__, __FILE__, __LINE__, PKip(0), \
         PKip(1), PKip(2), PKip(3),      \
