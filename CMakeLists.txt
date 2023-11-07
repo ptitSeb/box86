@@ -312,6 +312,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/librarian/dictionnary.c"
     "${BOX86_ROOT}/src/librarian/symbols.c"
     "${BOX86_ROOT}/src/librarian/globalsymbols.c"
+    "${BOX86_ROOT}/src/emu/x86compstrings.c"
     "${BOX86_ROOT}/src/emu/x86emu.c"
     "${BOX86_ROOT}/src/emu/x86run_private.c"
     "${BOX86_ROOT}/src/emu/x86syscall.c"
@@ -347,6 +348,7 @@ set(INTERPRETER
     "${BOX86_ROOT}/src/emu/x86run660f.c"
     "${BOX86_ROOT}/src/emu/x86run66d9.c"
     "${BOX86_ROOT}/src/emu/x86run66dd.c"
+    "${BOX86_ROOT}/src/emu/x86run66f20f.c"
     "${BOX86_ROOT}/src/emu/x86run67.c"
     "${BOX86_ROOT}/src/emu/x86run6766.c"
     "${BOX86_ROOT}/src/emu/x86rund8.c"
@@ -919,5 +921,20 @@ add_test(NAME sse_optimized COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BIN
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 set_tests_properties(sse_optimized PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTNAN=0;BOX86_DYNAREC_FASTROUND=0")    
+    
+add_test(bswap ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test23 -D TEST_OUTPUT=tmpfile23.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref23.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    
+#add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
+#        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test24 -D TEST_OUTPUT=tmpfile24.txt
+#        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref24.txt
+#        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
+add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref25.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    
 endif(BOX86LIB)

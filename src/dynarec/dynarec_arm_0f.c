@@ -484,7 +484,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {                    // mem <= reg
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, 0, NULL);
                         REV(x1, gd);
-                        STR_IMM9(gd, ed, fixedaddress);
+                        STR_IMM9(x1, ed, fixedaddress);
                         SMWRITE();
                     }
                     break;

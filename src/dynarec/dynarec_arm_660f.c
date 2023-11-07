@@ -877,11 +877,21 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 q1 = v1;
             // need rounding!
             //VCVTQ_S32_F32(v0, v1);
-            u8 = sse_setround(dyn, ninst, x1, x2, x14);
-            VCVTR_S32_F32(q0*2+0, q1*2+0);
-            VCVTR_S32_F32(q0*2+1, q1*2+1);
-            VCVTR_S32_F32(q0*2+2, q1*2+2);
-            VCVTR_S32_F32(q0*2+3, q1*2+3);
+            if(!box86_dynarec_fastround)
+                u8 = sse_setround_reset(dyn, ninst, x1, x2, x14);
+            else
+                u8 = sse_setround(dyn, ninst, x1, x2, x14);
+            for(int i=0; i<4; ++i) {
+                VCVTR_S32_F32(q0*2+i, q1*2+i);
+                if(!box86_dynarec_fastround) {
+                    VMRS(x3);   // get the FPCSR reg and test FPU exception (IO only)
+                    TSTS_IMM8_ROR(x3, 0b00000001, 0);
+                    MOV_IMM_COND(cNE, x1, 0b10, 1);   // 0x80000000
+                    VMOVtoVcond(cNE, q0*2+i, x1);
+                    BIC_IMM8_COND(cNE, x3, x3, 1, 0);    // reset FPU
+                    VMSR_cond(cNE, x3);
+                }
+        }
             if(q0!=v0) {
                 VMOVQ(v0, q0);
             }

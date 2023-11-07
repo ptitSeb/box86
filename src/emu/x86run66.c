@@ -99,11 +99,21 @@ uintptr_t Run66(x86emu_t *emu, int rep, uintptr_t addr)
             break;
 
         case 0x0F:                      /* 66 0f prefix */
-            #ifdef TEST_INTERPRETER
-            return Test660F(test, addr);
-            #else
-            return Run660F(emu, addr);
-            #endif
+            switch(rep) {
+                case 2: return 0;
+                case 1:
+                    #ifdef TEST_INTERPRETER
+                    return Test66F20F(test, addr);
+                    #else
+                    return Run66F20F(emu, addr);
+                    #endif
+                default:
+                    #ifdef TEST_INTERPRETER
+                    return Test660F(test, addr);
+                    #else
+                    return Run660F(emu, addr);
+                    #endif
+            }
 
         case 0x1E:                      /* PUSH DS */
             Push16(emu, emu->segs[_DS]);

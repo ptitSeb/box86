@@ -15,6 +15,7 @@
 #include "box86context.h"
 
 #include "modrm.h"
+#include "x86compstrings.h"
 
 static uint8_t ff_mult(uint8_t a, uint8_t b)
 {
@@ -37,6 +38,8 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	return retval;
 }
 
+#define MODREG  ((nextop&0xC0)==0xC0)
+
 #ifdef TEST_INTERPRETER
 uintptr_t Test660F(x86test_t *test, uintptr_t addr)
 #else
@@ -54,6 +57,8 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
     int32_t tmp32s;
     sse_regs_t *opex, eax1, *opx2;
     mmx87_regs_t *opem;
+    float tmpf;
+    double tmpd;
     #ifndef NOALIGN
     int is_nan;
     #endif
@@ -467,12 +472,29 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 }
             break;
 
+            case 0x10:  /* PBLENDVB Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<16; ++i) {
+                    if(emu->xmm[0].ub[i]&0x80)
+                        GX.ub[i] = EX->ub[i];
+                }
+                break;
+
             case 0x14:  /* BLENDVPS Gx, Ex */
                 nextop = F8;
                 GET_EX;
                 for (int i=0; i<4; ++i) {
                     if(emu->xmm[0].ud[i]&0x80000000)
                         GX.ud[i] = EX->ud[i];
+                }
+                break;
+            case 0x15:  /* BLENDVPD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for (int i=0; i<2; ++i) {
+                    if(emu->xmm[0].q[i]&0x8000000000000000LL)
+                        GX.q[i] = EX->q[i];
                 }
                 break;
 
@@ -482,6 +504,10 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 CHECK_FLAGS(emu);
                 CONDITIONAL_SET_FLAG(!((GX.q[0]&EX->q[0])|(GX.q[1]&EX->q[1])), F_ZF);
                 CONDITIONAL_SET_FLAG(!(((~GX.q[0])&EX->q[0])|((~GX.q[1])&EX->q[1])), F_CF);
+                CLEAR_FLAG(F_AF);
+                CLEAR_FLAG(F_OF);
+                CLEAR_FLAG(F_SF);
+                CLEAR_FLAG(F_PF);
                 break;
 
             case 0x1C:  /* PABSB Gx, Ex */
@@ -543,6 +569,36 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                     GX.sq[i] = EX->sd[i];
                 break;
 
+            case 0x28:  /* PMULDQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                GX.sq[1] = ((int64_t)GX.sd[2])*(int64_t)EX->sd[2];
+                GX.sq[0] = ((int64_t)GX.sd[0])*(int64_t)EX->sd[0];
+                break;
+            case 0x29:  /* PCMPEQQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.sq[i] = (GX.sq[i]==EX->sq[i])?-1LL:0LL;
+                break;
+            case 0x2A:  /* MOVNTDQA Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                GX.q[0] = EX->q[0];
+                GX.q[1] = EX->q[1];
+                break;
+            case 0x2B:  /* PACKUSDW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    GX.uw[i] = (GX.sd[i]<0)?0:((GX.sd[i]>65535)?65535:GX.sd[i]);
+                if(&GX==EX)
+                    GX.q[1] = GX.q[0];
+                else
+                    for(int i=0; i<4; ++i)
+                        GX.uw[i+4] = (EX->sd[i]<0)?0:((EX->sd[i]>65535)?65535:EX->sd[i]);
+                break;
+
             case 0x30: /* PMOVZXBW Gx, Ex */
                 nextop = F8;
                 GET_EX;
@@ -580,6 +636,19 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                     GX.q[i] = EX->ud[i];
                 break;
 
+            case 0x37: /* PCMPGTQ Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=1; i>=0; --i)
+                    GX.sq[i] = (GX.sq[i]>EX->sq[i])?-1LL:0LL;
+                break;
+            case 0x38:  /* PMINSB Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<16; ++i)
+                    if(GX.sb[i]>EX->sb[i])
+                        GX.sb[i] = EX->sb[i];
+                break;
             case 0x39:  /* PMINSD Gx, Ex */
                 nextop = F8;
                 GET_EX;
@@ -587,7 +656,27 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                     if(GX.sd[i]>EX->sd[i])
                         GX.sd[i] = EX->sd[i];
                 break;
-
+            case 0x3A:  /* PMINUW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<8; ++i)
+                    if(GX.uw[i]>EX->uw[i])
+                        GX.uw[i] = EX->uw[i];
+                break;
+            case 0x3B:  /* PMINUD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    if(GX.ud[i]>EX->ud[i])
+                        GX.ud[i] = EX->ud[i];
+                break;
+            case 0x3C:  /* PMAXSB Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<16; ++i)
+                    if(GX.sb[i]<EX->sb[i])
+                        GX.sb[i] = EX->sb[i];
+                break;
             case 0x3D:  /* PMAXSD Gx, Ex */
                 nextop = F8;
                 GET_EX;
@@ -595,13 +684,42 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                     if(GX.sd[i]<EX->sd[i])
                         GX.sd[i] = EX->sd[i];
                 break;
-
+            case 0x3E:  /* PMAXUW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<8; ++i)
+                    if(GX.uw[i]<EX->uw[i])
+                        GX.uw[i] = EX->uw[i];
+                break;
+            case 0x3F:  /* PMAXUD Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                for(int i=0; i<4; ++i)
+                    if(GX.ud[i]<EX->ud[i])
+                        GX.ud[i] = EX->ud[i];
+                break;
             case 0x40:  /* PMULLD Gx, Ex */
                 nextop = F8;
                 GET_EX;
                 for (int i=0; i<4; ++i) {
                     GX.sd[i] *= EX->sd[i];
                 }
+                break;
+            case 0x41:  /* PHMINPOSUW Gx, Ex */
+                nextop = F8;
+                GET_EX;
+                tmp16u = EX->uw[0];
+                tmp16s = 0;
+                for(int i=1; i<8; ++i) {
+                    if(EX->uw[i]<tmp16u) {
+                        tmp16u = EX->uw[i];
+                        tmp16s = i;
+                    }
+                }
+                GX.q[1] = 0;
+                GX.uw[0] = tmp16u;
+                GX.uw[1] = tmp16s;
+                GX.ud[1] = 0;
                 break;
 
             case 0xDB:  /* AESIMC Gx, Ex */
@@ -701,12 +819,22 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 GX.q[1] ^= EX->q[1];
                 break;
                 
+            case 0xF0: /* MOVBE Gw, Ew */
+                nextop = F8;
+                GET_ED;
+                GD.word[0] = __builtin_bswap16(ED->word[0]);
+                break;
+            case 0xF1: /* MOVBE Ew, Gw */
+                nextop = F8;
+                GET_ED;
+                ED->word[0] = __builtin_bswap16(GD.word[0]);
+                break;
             default:
                 return 0;
         }
         break;
 
-    case 0x3A:  // these are some SSE3 opcodes
+    case 0x3A:  // these are some SSE3 & SSE4.x opcodes
         opcode = F8;
         switch(opcode) {
             case 0x08:          // roundps GX, EX, u8
@@ -805,7 +933,24 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                         break;
                 }
                 break;
-
+            case 0x0C:  /* PBLENDPS Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                for (int i=0; i<4; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX.ud[i] = EX->ud[i];
+                }
+                break;
+            case 0x0D:  /* PBLENDPD Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                for (int i=0; i<2; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX.q[i] = EX->q[i];
+                }
+                break;
             case 0x0E:  /* PBLENDW Gx, Ex, Ib */
                 nextop = F8;
                 GET_EX;
@@ -830,7 +975,31 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 }
                 break;
 
+            case 0x14:      // PEXTRB ED, GX, u8
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                if(MODREG)
+                    ED->dword[0] = GX.ub[tmp8u&0x0f];
+                else
+                    ED->byte[0] = GX.ub[tmp8u&0x0f];
+                break;
+            case 0x15:      // PEXTRW Ew,Gx,Ib
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                if(MODREG)
+                    ED->dword[0] = GX.uw[tmp8u&7];  // 16bits extract, 0 extended
+                else
+                    ED->word[0] = GX.uw[tmp8u&7];
+                break;
             case 0x16:      // PEXTRD ED, GX, u8
+                nextop = F8;
+                GET_ED;
+                tmp8u = F8;
+                ED->dword[0] = GX.ud[tmp8u&3];
+                break;
+            case 0x17:      // EXTRACTPS ED, GX, u8
                 nextop = F8;
                 GET_ED;
                 tmp8u = F8;
@@ -860,6 +1029,49 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 GX.ud[tmp8u&0x3] = ED->dword[0];
                 break;
 
+            case 0x40:  /* DPPS Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                tmpf = 0.0f;
+                for(int i=0; i<4; ++i)
+                    if(tmp8u&(1<<(i+4)))
+                        tmpf += GX.f[i]*EX->f[i];
+                for(int i=0; i<4; ++i)
+                    GX.f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
+                break;
+            case 0x41:  /* DPPD Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                tmpd = 0.0;
+                if(tmp8u&(1<<(4+0)))
+                    tmpd += GX.d[0]*EX->d[0];
+                if(tmp8u&(1<<(4+1)))
+                    tmpd += GX.d[1]*EX->d[1];
+                GX.d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
+                GX.d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
+                break;
+            case 0x42:  /* MPSADBW Gx, Ex, Ib */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                {
+                    int src = tmp8u&3;
+                    int dst = (tmp8u>>2)&1;
+                    int b[11];
+                    for (int i=0; i<11; ++i)
+                        b[i] = GX.ub[dst*4+i];
+                    for(int i=0; i<8; ++i) {
+                        int tmp = abs(b[i+0]-EX->ub[src*4+0]);
+                        tmp += abs(b[i+1]-EX->ub[src*4+1]);
+                        tmp += abs(b[i+2]-EX->ub[src*4+2]);
+                        tmp += abs(b[i+3]-EX->ub[src*4+3]);
+                        GX.uw[i] = tmp;
+                    }
+                }
+                break;
+                
             case 0x44:  /* PCLMULQDQ Gx, Ex, Ib */
                 nextop = F8;
                 GET_EX;
@@ -880,6 +1092,61 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 }
                 break;
 
+            case 0x60:  /* PCMPESTRM */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, &GX, R_EAX, tmp8u);
+                if(tmp8u&0b1000000) {
+                    switch(tmp8u&1) {
+                        case 0: for(int i=0; i<16; ++i) GX.ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                        case 1: for(int i=0; i<8; ++i) GX.uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                    }
+                } else {
+                    GX.q[1] = GX.q[0] = 0;
+                    GX.uw[0] = tmp32u;
+                }
+                break;
+            case 0x61:  /* PCMPESTRI */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, &GX, R_EAX, tmp8u);
+                if(!tmp32u)
+                    R_ECX = (tmp8u&1)?8:16;
+                else if(tmp8u&0b1000000)
+                    R_ECX = 31-__builtin_clz(tmp32u);
+                else
+                    R_ECX = __builtin_ffs(tmp32u) - 1;
+                break;
+            case 0x62:  /* PCMPISTRM */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_implicit_len(emu, EX, &GX, tmp8u);
+                if(tmp8u&0b1000000) {
+                    switch(tmp8u&1) {
+                        case 0: for(int i=0; i<16; ++i) GX.ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                        case 1: for(int i=0; i<8; ++i) GX.uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                    }
+                } else {
+                    GX.q[1] = GX.q[0] = 0;
+                    GX.uw[0] = tmp32u;
+                }
+                break;
+            case 0x63:  /* PCMPISTRI */
+                nextop = F8;
+                GET_EX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_implicit_len(emu, EX, &GX, tmp8u);
+                if(!tmp32u)
+                    R_ECX = (tmp8u&1)?8:16;
+                else if(tmp8u&0b1000000)
+                    R_ECX = 31-__builtin_clz(tmp32u);
+                else
+                    R_ECX = __builtin_ffs(tmp32u) - 1;
+                break;
+                
             case 0xDF:      // AESKEYGENASSIST Gx, Ex, u8
                 nextop = F8;
                 GET_EX;

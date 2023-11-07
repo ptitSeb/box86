@@ -189,6 +189,9 @@ Op is 20-27
 // and dst, src, #(imm8)
 #define AND_IMM8(dst, src, imm8) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
+// and dst, src, #(imm8) with cond
+#define AND_IMM8_cond(cond, dst, src, imm8) \
+    EMIT((cond) | 0x02000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // and dst, src1, #imm ror rot*2
 #define AND_IMM8_ROR(dst, src, imm8, rot) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
@@ -633,11 +636,15 @@ Op is 20-27
 #define VMRS(Rt)    EMIT(c__ | (0b1110<<24) | (0b1111<<20) | (0b0001<<16) | ((Rt)<<12) | (0b1010<<8) | (0b0001<<4) | (0b0000))
 // Move to FPSCR from Arm register
 #define VMSR(Rt)    EMIT(c__ | (0b1110<<24) | (0b1110<<20) | (0b0001<<16) | ((Rt)<<12) | (0b1010<<8) | (0b0001<<4) | (0b0000))
+// Move to FPSCR from Arm register with cond
+#define VMSR_cond(cond, Rt)    EMIT(cond | (0b1110<<24) | (0b1110<<20) | (0b0001<<16) | ((Rt)<<12) | (0b1010<<8) | (0b0001<<4) | (0b0000))
 // Move to FPSCR from Arm flags APSR
 #define VMRS_APSR()    VMRS(15)
 
 // Move between Rt to Sm
 #define VMOVtoV(Sm, Rt) EMIT(c__ | (0b1110<<24) | (0b000<<21) | (0<<20) | ((((Sm)&0b11110)>>1)<<16) | ((Rt)<<12) | (0b1010<<8) | (((Sm)&1)<<7) |(0b00<<6) | (1<<4))
+// Move between Rt to Sm with condition
+#define VMOVtoVcond(cond, Sm, Rt) EMIT(cond | (0b1110<<24) | (0b000<<21) | (0<<20) | ((((Sm)&0b11110)>>1)<<16) | ((Rt)<<12) | (0b1010<<8) | (((Sm)&1)<<7) |(0b00<<6) | (1<<4))
 // Move between Sm to Rt
 #define VMOVfrV(Rt, Sm) EMIT(c__ | (0b1110<<24) | (0b000<<21) | (1<<20) | ((((Sm)&0b11110)>>1)<<16) | ((Rt)<<12) | (0b1010<<8) | (((Sm)&1)<<7) |(0b00<<6) | (1<<4))
 
