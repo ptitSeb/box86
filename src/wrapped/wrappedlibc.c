@@ -3179,11 +3179,29 @@ EXPORT int my_semctl(x86emu_t* emu, int semid, int semnum, int cmd, union semun 
   return  ((iFiiiV_t)f)(semid, semnum, cmd, b);
 }
 
-EXPORT int my_ptrace(x86emu_t* emu, int request, pid_t pid, void* addr, void* data)
+EXPORT uint32_t userdata_sign = 0x12345987;
+EXPORT uint32_t userdata[1024]; 
+
+EXPORT long my_ptrace(x86emu_t* emu, int request, pid_t pid, void* addr, uint32_t* data)
 {
     if(request == PTRACE_POKEUSER) {
+        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
+            ptrace(PTRACE_POKEDATA, pid, addr+(uintptr_t)userdata, data);
+            return 0;
+        }
+        // fallback to a generic local faking
+        if((uintptr_t)addr < sizeof(userdata))
+            *(uintptr_t*)(addr+(uintptr_t)userdata) = (uintptr_t)data;
         // lets just ignore this for now!
         return 0;
+    }
+    if(request == PTRACE_PEEKUSER) {
+        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
+            return ptrace(PTRACE_PEEKDATA, pid, addr+(uintptr_t)userdata, data);
+        }
+        // fallback to a generic local faking
+        if((uintptr_t)addr < sizeof(userdata))
+            return *(uintptr_t*)(addr+(uintptr_t)userdata);
     }
     return ptrace(request, pid, addr, data);
 }
