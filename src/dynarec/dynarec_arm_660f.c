@@ -41,6 +41,8 @@
 
 #define GETG    gd = (nextop&0x38)>>3
 
+#define MODREG  ((nextop&0xC0)==0xC0)
+
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
     uint8_t opcode = F8;
@@ -591,7 +593,39 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         VEXTQ_8(q0, q1, q0, u8);
                     }
                     break;
-                
+
+                case 0x16:
+                    INST_NAME("PEXTRD Ed, Gx, Ib");
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    if(MODREG) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                        VMOVfrDx_32(ed, q0+((u8&2)>>1), u8&1);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL);
+                        u8 = F8;
+                        VST1LANE_32(q0+((u8&2)>>1), wback, u8&1);
+                        SMWRITE2();
+                    }
+                    break;
+
+                case 0x22:
+                    INST_NAME("PINSRD Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    if(MODREG) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                        VMOVtoDx_32(q0+((u8&2)>>1), u8&1, ed);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL);
+                        u8 = F8;
+                        VLD1LANE_32(q0+((u8&2)>>1), wback, u8&1);
+                        SMWRITE2();
+                    }
+                    break;
+
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
