@@ -634,6 +634,27 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     break;
 
+                case 0xDF:
+                    INST_NAME("AESKEYGENASSIST Gx, Ex, Ib");  // AES-NI
+                    nextop = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd, x1);
+                    MOV32(x1, gd); // gx
+                    if((nextop&0xC0)==0xC0) {
+                        ed = nextop&7;
+                        sse_forget_reg(dyn, ninst, ed, x2);
+                        MOV32(x2, ed);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
+                        if(ed!=x2) {
+                            MOV_REG(x2, ed);
+                        }
+                    }
+                    u8 = F8;
+                    MOV32(x3, u8);
+                    CALL(arm_aeskeygenassist, -1, 0);
+                    break;
+
                 default:
                     DEFAULT;
             }

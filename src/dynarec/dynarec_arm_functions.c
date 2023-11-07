@@ -361,9 +361,9 @@ void arm_aese(x86emu_t* emu, int xmm)
     arm_aeselast(emu, xmm);
     arm_aesmc(emu, xmm);
 }
-void arm_aeskeygenassist(x86emu_t* emu, int gx, int ex, void* p, uint32_t u8)
+void arm_aeskeygenassist(x86emu_t* emu, int gx, void* p, uint32_t u8)
 {
-    sse_regs_t *EX = p?((sse_regs_t*)p):&emu->xmm[ex];
+    sse_regs_t *EX = ((uintptr_t)p>8)?((sse_regs_t*)p):&emu->xmm[(uintptr_t)p];
     sse_regs_t *GX = &emu->xmm[gx];
     for (int i = 4; i < 8; ++i)
         GX->ub[i] = subbytes[EX->ub[i]];
