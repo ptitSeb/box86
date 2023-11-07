@@ -189,9 +189,6 @@ Op is 20-27
 // and dst, src, #(imm8)
 #define AND_IMM8(dst, src, imm8) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
-// and dst, src, #(imm8) with cond
-#define AND_IMM8_cond(cond, dst, src, imm8) \
-    EMIT((cond) | 0x02000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // and dst, src1, #imm ror rot*2
 #define AND_IMM8_ROR(dst, src, imm8, rot) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
@@ -594,8 +591,12 @@ Op is 20-27
 
 // Count leading 0 bit of Rm, store result in Rd
 #define CLZ(Rd, Rm)  EMIT(c__ | 0b00010110<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0001<<4 | (Rm))
+// Count leading 0 bit of Rm, store result in Rd with cond
+#define CLZ_COND(cond, Rd, Rm)  EMIT(cond | 0b00010110<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0001<<4 | (Rm))
 // Reverse bits of Rm, store result in Rd
 #define RBIT(Rd, Rm) EMIT(c__ | 0b01101111<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0011<<4 | (Rm))
+// Reverse bits of Rm, store result in Rd with cond
+#define RBIT_COND(cond, Rd, Rm) EMIT(cond | 0b01101111<<20 | 0b1111<<16 | (Rd)<<12 | 0b1111<<8 | 0b0011<<4 | (Rm))
 
 #define PLD_gen(U, R, Rn, Imm5, type, Rm) (0b1111<<28 | 0b0111<<24 | (U)<<23 | (R)<<22 | 0b01<<20 | (Rn)<<16 | 0b1111<<12 | (Imm5)<<7 | (type)<<5 | (Rm))
 // Preload Cache Rn+Rm

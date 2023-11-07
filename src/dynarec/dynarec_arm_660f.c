@@ -21,6 +21,7 @@
 
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
+#include "emu/x86compstrings.h"
 
 // Get EX as a quad
 #define GETEX(a, w)             \
@@ -48,6 +49,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     int32_t i32, j32;
+    uint32_t u32;
     uint8_t gd, ed;
     uint8_t wback, wb1;
     uint8_t eb1, eb2;
@@ -668,6 +670,51 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     break;
 
+                case 0x63:
+                    INST_NAME("PCMPISTRI Gx, Ex, Ib");
+                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    if(!sse_reflect_reg(dyn, ninst, gd, x2)) {
+                        u32 = offsetof(x86emu_t, xmm[gd]);
+                        if(!(u32&3) && (u32>>2)<256) {
+                            ADD_IMM8_ROR(x2, xEmu, u32>>2, 15);
+                        } else {
+                            MOV32(x2, u32);
+                            ADD_REG_LSL_IMM5(x2, xEmu, x2, 0);
+                        }
+                    }
+                    if(MODREG) {
+                        ed = (nextop&7);
+                        if(!sse_reflect_reg(dyn, ninst, ed, x1)) {
+                            u32 = offsetof(x86emu_t, xmm[ed]);
+                            if(!(u32&3) && (u32>>2)<256) {
+                                ADD_IMM8_ROR(x1, xEmu, u32>>2, 15);
+                            } else {
+                                MOV32(x1, u32);
+                                ADD_REG_LSL_IMM5(x1, xEmu, x1, 0);
+                            }
+                        }
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
+                        if(ed!=x1) {
+                            MOV_REG(x1, ed);
+                        }
+                    }
+                    u8 = F8;
+                    MOV32(x3, u8);
+                    CALL(sse42_compare_string_implicit_len, x1, 0);
+                    CMPS_IMM8(x1, 0);
+                    MOVW_COND(cEQ, xECX, (u8&1)?8:16);
+                    if(u8&0b1000000) {
+                        CLZ_COND(cNE, xECX, x1);
+                        RSB_COND_IMM8(cNE, xECX, xECX, 31);
+                    } else {
+                        RBIT_COND(cNE, xECX, x1);
+                        CLZ_COND(cNE, xECX, xECX);
+                    }
+                    break;
+                    
                 case 0xDF:
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib");  // AES-NI
                     nextop = F8;

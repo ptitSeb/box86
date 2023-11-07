@@ -1419,6 +1419,24 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
         }
 }
 
+int sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a, int s1)
+{
+    if(dyn->n.ssecache[a].v==-1)
+        return 0;
+    if(dyn->n.ssecache[a].write) {
+        int offs = offsetof(x86emu_t, xmm[a]);
+        if(!(offs&3) && (offs>>2)<256) {
+            ADD_IMM8_ROR(s1, xEmu, offs>>2, 15);
+        } else {
+            MOV32(s1, offs);
+            ADD_REG_LSL_IMM5(s1, xEmu, s1, 0);
+        }
+        VST1Q_32(dyn->n.ssecache[a].reg, s1);
+        return 1;
+    }
+    return 0;
+}
+
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     // only need to push 16-31...
