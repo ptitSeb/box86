@@ -215,6 +215,20 @@ uintptr_t RunF30F(x86emu_t *emu, uintptr_t addr)
         memcpy(EX, &GX, 16);    // unaligned...
         break;
 
+    case 0xB8:  /* POPCNT Gd,Ed */
+        nextop = F8;
+        GET_ED;
+        GD.dword[0] = __builtin_popcount(ED->dword[0]);
+        RESET_FLAGS(emu);
+        CLEAR_FLAG(F_OF);
+        CLEAR_FLAG(F_SF);
+        CLEAR_FLAG(F_ZF);
+        CLEAR_FLAG(F_AF);
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CONDITIONAL_SET_FLAG(GD.dword[0]==0, F_ZF);
+        break;
+
     case 0xBC:  /* TZCNT Ed,Gd */
         CHECK_FLAGS(emu);
         nextop = F8;
