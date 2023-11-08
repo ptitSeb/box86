@@ -612,6 +612,22 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     }
                     break;
 
+                case 0x20:
+                    INST_NAME("PINSRB Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    if(MODREG) {
+                        ed = xEAX+(nextop&7);
+                        u8 = F8;
+                        VMOVtoDx_8(q0+((u8&8)>>3), u8&7, ed);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL);
+                        u8 = F8;
+                        VLD1LANE_8(q0+((u8&8)>>3), wback, u8&7);
+                        SMWRITE2();
+                    }
+                    break;
+
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
                     nextop = F8;
