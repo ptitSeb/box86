@@ -1144,7 +1144,7 @@ void* find32bitBlock(size_t size)
 void* find32bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 {
     static void* startingpoint = (void*)0x60000000;
-    void* mainaddr = (void*)0x600000;
+    void* mainaddr = (void*)0x30000000;
     void* ret = findBlockHinted(mainbin?mainaddr:startingpoint, size, mask);
     if(!ret) ret = findBlockHinted(LOWEST, size, mask);
     if(!mainbin)

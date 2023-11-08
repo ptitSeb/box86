@@ -189,7 +189,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 
     if(!head->vaddr && box86_load_addr) {
         offs = (uintptr_t)findBlockNearHint((void*)box86_load_addr, head->memsz, max_align);
-        box86_load_addr += head->memsz;
+        box86_load_addr = offs + head->memsz;
         box86_load_addr = (box86_load_addr+0x10ffffff)&~0xffffff;
     }
     if(!offs && !head->vaddr)
@@ -231,26 +231,25 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             head->multiblocks[n].paddr = e->p_paddr + offs;
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
+            uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if(balign<(box86_pagesize-1)) balign = (box86_pagesize-1);
-            head->multiblocks[n].asize = e->p_memsz+(head->multiblocks[n].paddr&balign);
+            head->multiblocks[n].asize = (e->p_memsz+(e->p_paddr&balign)+box86_pagesize-1)&~(box86_pagesize-1);
             int try_mmap = 1;
-            if(e->p_offset&balign)
+            if(e->p_paddr&(box86_pagesize-1))
                 try_mmap = 0;
-            if(e->p_memsz-e->p_filesz>balign)
+            if(e->p_offset&(box86_pagesize-1))
                 try_mmap = 0;
-            if(head->multiblocks[n].asize != head->multiblocks[n].size)
+            if(e->p_memsz-e->p_filesz>(box86_pagesize-1))
                 try_mmap = 0;
             if(!e->p_filesz)
                 try_mmap = 0;
-            uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
-            uintptr_t paddr = head->multiblocks[n].paddr&~balign;
             if(try_mmap) {
                 printf_log(log_level, "Mmaping 0x%zx memory @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
-                    (void*)paddr, 
-                    head->multiblocks[n].asize, 
+                    (void*)head->multiblocks[n].paddr, 
+                    head->multiblocks[n].size, 
                     prot,
                     MAP_PRIVATE|MAP_FIXED,
                     head->fileno,
@@ -271,20 +270,22 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                 }
             }
             if(!try_mmap) {
-                printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->multiblocks[n].asize, (void*)paddr, head->name);
+                uintptr_t paddr = head->multiblocks[n].paddr&~balign;
+                size_t asize = head->multiblocks[n].asize;
+                printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", asize, (void*)paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr,
-                    head->multiblocks[n].asize,
+                    asize,
                     prot,
                     MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
                     -1,
                     0
                 );
                 if(p==MAP_FAILED || p!=(void*)paddr) {
-                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)paddr, head->multiblocks[n].asize, balign, head->name);
+                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)paddr, asize, balign, head->name);
                     return 1;
                 }
-                setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
+                setProtection_mmap((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
                 if(e->p_filesz) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
