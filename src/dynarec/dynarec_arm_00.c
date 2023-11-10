@@ -2635,12 +2635,12 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                     INST_NAME("MUL AL, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, d_mul8);
                     GETEB(x1);
                     UBFX(x2, xEAX, 0, 8);
                     MUL(x1, x1, x2);
                     BFI(xEAX, x1, 0, 16);
                     UFLAG_RES(x1);
+                    UFLAG_DF(x2, d_mul8);
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
@@ -2699,20 +2699,20 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                     INST_NAME("MUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, d_mul32);
                     GETED;
                     UMULL(xEDX, xEAX, xEAX, ed);
                     UFLAG_RES(xEAX);
                     UFLAG_OP1(xEDX);
+                    UFLAG_DF(x2, d_mul32);
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, d_imul32);
                     GETED;
                     SMULL(xEDX, xEAX, xEAX, ed);
                     UFLAG_RES(xEAX);
                     UFLAG_OP1(xEDX);
+                    UFLAG_DF(x2, d_imul32);
                     break;
                 case 6:
                     INST_NAME("DIV Ed");

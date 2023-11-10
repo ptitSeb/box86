@@ -1789,7 +1789,6 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             if((nextop&0xC0)==0xC0) {
                 ed = xEAX+(nextop&7);
             } else {
@@ -1801,6 +1800,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SMULBB(x2, gd, ed);
             UFLAG_RES(x2);
             BFI((xEAX+((nextop&0x38)>>3)), x2, 0, 16);
+            UFLAG_DF(x1, d_imul16);
             break;
 
         case 0xB3:

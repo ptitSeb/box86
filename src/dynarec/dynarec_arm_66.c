@@ -388,13 +388,13 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("IMUL Gw,Ew,Iw");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             GETEW(x1);
             i16 = F16S;
             MOVW(x2, i16);
             SMULBB(x2, ed, x2);
             UFLAG_RES(x2);
             BFI(xEAX+((nextop&0x38)>>3), x2, 0, 16);
+            UFLAG_DF(x1, d_imul16);
             break;
         case 0x6A:
             INST_NAME("PUSH Ib");
@@ -406,13 +406,13 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("IMUL Gw,Ew,Ib");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             GETEW(x1);
             i16 = F8S;
             MOVW(x2, i16);
             SMULBB(x2, ed, x2);
             UFLAG_RES(x2);
             BFI(xEAX+((nextop&0x38)>>3), x2, 0, 16);
+            UFLAG_DF(x1, d_imul16);
             break;
 
         case 0x81:
@@ -1058,13 +1058,13 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 5:
                     INST_NAME("IMUL AX, Ew");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x1, d_imul16);
                     GETEW(x1);
                     SMULBB(x2, xEAX, ed);
                     UFLAG_RES(x2);
                     BFI(xEAX, x2, 0, 16);
                     MOV_REG_LSR_IMM5(x2, x2, 16);
                     BFI(xEDX, x2, 0, 16);
+                    UFLAG_DF(x1, d_imul16);
                     break;
                 case 6:
                     INST_NAME("DIV Ew");

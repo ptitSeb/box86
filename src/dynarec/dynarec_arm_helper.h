@@ -335,7 +335,17 @@
 
 
 #define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOVW(S, d_none); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->f.dfnone=1;}
-#define SET_DF(S, N)     if(N) {MOVW(S, N); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_DF(S, N)     \
+    if(N) {             \
+        MOVW(S, N);\
+        STR_IMM9(S, xEmu, offsetof(x86emu_t, df));  \
+        if(dyn->f.pending==SF_PENDING && dyn->insts[ninst].x86.need_after && !(dyn->insts[ninst].x86.need_after&X_PEND)) {  \
+            CALL_(UpdateFlags, -1, 0);              \
+            dyn->f.pending = SF_SET;                \
+            SET_NODF();     \
+        }                   \
+        dyn->f.dfnone=0;\
+    } else SET_DFNONE(S)
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
