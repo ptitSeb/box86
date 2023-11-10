@@ -723,20 +723,18 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1);
                     u8 = F8;
-                    MOVW(x2, u8);
-                    CALL_(rol16, x1, (1<<x3));
+                    emit_rol16c(dyn, ninst, x1, u8&0x1f, x2, x14);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1);
                     u8 = F8;
-                    MOVW(x2, u8);
-                    CALL_(ror16, x1, (1<<x3));
+                    emit_ror16c(dyn, ninst, x1, u8&0x1f, x2, x14);
                     EWBACK;
                     break;
                 case 2:
