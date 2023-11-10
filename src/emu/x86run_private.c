@@ -457,6 +457,8 @@ void UpdateFlags(x86emu_t *emu)
                     CONDITIONAL_SET_FLAG((emu->res & 0xff) == 0, F_ZF);
                     CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
                     CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
+                    if(emu->op2==1)
+                        CLEAR_FLAG(F_OF);
                 }
             } else {
                 if (emu->op1&0x80) {
@@ -480,6 +482,8 @@ void UpdateFlags(x86emu_t *emu)
                     CONDITIONAL_SET_FLAG((emu->res & 0xffff) == 0, F_ZF);
                     CONDITIONAL_SET_FLAG(emu->res & 0x8000, F_SF);
                     CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+                    if(emu->op2==1)
+                        CLEAR_FLAG(F_OF);
                 }
             } else {
                 if (emu->op1&0x8000) {
@@ -502,6 +506,8 @@ void UpdateFlags(x86emu_t *emu)
                 CONDITIONAL_SET_FLAG(emu->res == 0, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res & 0x80000000, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+                if(emu->op2==1)
+                    CLEAR_FLAG(F_OF);
             }
             break;
         case d_shr8:
@@ -515,7 +521,7 @@ void UpdateFlags(x86emu_t *emu)
                     CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
                 }
                 if (cnt == 1) {
-                    CONDITIONAL_SET_FLAG(XOR2(emu->res >> 6), F_OF);
+                    CONDITIONAL_SET_FLAG(emu->op1 & 0x80, F_OF);
                 }
             } else {
                 CONDITIONAL_SET_FLAG((emu->op1 >> (emu->op2-1)) & 0x1, F_CF);
@@ -535,7 +541,7 @@ void UpdateFlags(x86emu_t *emu)
                     CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
                 }
                 if (cnt == 1) {
-                    CONDITIONAL_SET_FLAG(XOR2(emu->res >> 14), F_OF);
+                    CONDITIONAL_SET_FLAG(emu->op1 & 0x8000, F_OF);
                 }
             } else {
                 CLEAR_FLAG(F_CF);
@@ -554,7 +560,7 @@ void UpdateFlags(x86emu_t *emu)
                 CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
             }
             if (cnt == 1) {
-                CONDITIONAL_SET_FLAG(XOR2(emu->res >> 30), F_OF);
+                CONDITIONAL_SET_FLAG(emu->op1 & 0x80000000, F_OF);
             }
             break;
         case d_sub8:
