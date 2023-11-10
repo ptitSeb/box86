@@ -29,8 +29,8 @@ uintptr_t Run66DD(x86emu_t *emu, uintptr_t addr)
     x86emu_t* emu = test->emu;
     #endif
 
-    uint8_t opcode = F8;
-    switch(opcode) {
+    nextop = F8;
+    switch(nextop) {
 
         case 0xC0:
         case 0xC1:
