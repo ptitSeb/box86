@@ -44,6 +44,7 @@ ENTRYBOOL(BOX86_PREFER_EMULATED, box86_prefer_emulated) \
 ENTRYBOOL(BOX86_NOPULSE, box86_nopulse)                 \
 ENTRYBOOL(BOX86_NOGTK, box86_nogtk)                     \
 ENTRYBOOL(BOX86_NOVULKAN, box86_novulkan)               \
+ENTRYBOOL(BOX86_FUTEX_WAITV, box86_futex_waitv)         \
 ENTRYBOOL(BOX86_FIX_64BIT_INODES, fix_64bit_inodes)     \
 ENTRYSTRING_(BOX86_BASH, bash)                          \
 ENTRYINT(BOX86_JITGDB, jit_gdb, 0, 2, 2)                \

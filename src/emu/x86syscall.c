@@ -296,9 +296,7 @@ scwrap_t syscallwrap[] = {
 #ifdef __NR_memfd_create
     { 356, __NR_memfd_create, 2},
 #endif
-#ifdef __NR_futex_waitv
-    { 449, __NR_futex_waitv, 5},
-#endif
+    //{ 449, __NR_futex_waitv, 5},
 };
 
 struct mmap_arg_struct {
@@ -771,6 +769,14 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 R_EAX = (uint32_t)-errno;
             break;
 #endif
+        case 449:
+            #ifdef __NR_futex_waitv
+            if(box86_futex_waitv)
+                R_EAX = (uint32_t)syscall(R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+            else
+            #endif
+                R_EAX = (uint32_t)-ENOSYS;
+            break;
         default:
             printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             R_EAX = (uint32_t)-ENOSYS;
@@ -924,13 +930,24 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
         case 356:  // memfd_create
             return (uint32_t)my_memfd_create(emu, (void*)R_EBX, R_ECX);
 #endif
+        case 449:
+            #ifdef __NR_futex_waitv
+            if(box86_futex_waitv)
+                return (uint32_t)syscall(__NR_futex_waitv, u32(4), u32(8), u32(12), u32(16), u32(20));
+            else
+            #endif
+                {
+                    errno = ENOSYS;
+                    return 0xffffffff;
+                }
+            break;
         default:
             if(!(warned&(1<<s))) {
                 printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
                 warned|=(1<<s);
             }
             errno = ENOSYS;
-            return -1;
+            return 0xffffffff;
     }
     return 0;
 }

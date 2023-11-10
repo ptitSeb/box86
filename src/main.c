@@ -126,6 +126,11 @@ int box86_musl = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
+#ifdef BAD_SIGNAL
+int box86_futex_waitv = 0;
+#else
+int box86_futex_waitv = 1;
+#endif
 int box86_showsegv = 0;
 char* box86_libGL = NULL;
 uintptr_t   trace_start = 0, trace_end = 0;
@@ -699,6 +704,20 @@ void LoadLogEnv()
         }
         if(box86_novulkan)
             printf_log(LOG_INFO, "Disable the use of wrapped vulkan libs\n");
+    }
+    p = getenv("BOX86_FUTEX_WAITV");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box86_futex_waitv = p[0]-'0';
+        }
+        #ifdef BAD_SIGNAL
+        if(box86_futex_waitv)
+            printf_log(LOG_INFO, "Enable the use of futex waitv syscall (if available on the system\n");
+        #else
+        if(!box86_futex_waitv)
+            printf_log(LOG_INFO, "Disable the use of futex waitv syscall\n");
+        #endif
     }
     p = getenv("BOX86_FIX_64BIT_INODES");
         if(p) {
