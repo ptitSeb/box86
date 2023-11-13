@@ -172,6 +172,7 @@ const char* ElfPath(elfheader_t* head)
         return NULL;
     return head->path;
 }
+#define ALIGN(p) (((p)+box86_pagesize-1)&~(box86_pagesize-1))
 int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
@@ -210,7 +211,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
         }
         return 1;
     }
-
+    printf_log(log_level, "Pre-allocated 0x%zx byte at %p for %s\n", head->memsz, image, head->name);
     head->delta = offs;
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\" (0x%zx bytes)\n", (void*)offs, (void*)head->vaddr, head->name, head->memsz);
 
@@ -235,9 +236,9 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if(balign<(box86_pagesize-1)) balign = (box86_pagesize-1);
-            head->multiblocks[n].asize = (e->p_memsz+(e->p_paddr&balign)+box86_pagesize-1)&~(box86_pagesize-1);
+            head->multiblocks[n].asize = ALIGN(e->p_memsz+(e->p_paddr&balign));
             int try_mmap = 1;
-            if(e->p_paddr&(box86_pagesize-1))
+            if(e->p_paddr&balign)
                 try_mmap = 0;
             if(e->p_offset&(box86_pagesize-1))
                 try_mmap = 0;
@@ -272,7 +273,7 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             if(!try_mmap) {
                 uintptr_t paddr = head->multiblocks[n].paddr&~balign;
                 size_t asize = head->multiblocks[n].asize;
-                printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", asize, (void*)paddr, head->name);
+                printf_log(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr,
                     asize,
@@ -282,7 +283,12 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                     0
                 );
                 if(p==MAP_FAILED || p!=(void*)paddr) {
-                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)paddr, asize, balign, head->name);
+                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"", (void*)paddr, asize, balign, head->name);
+                    if(p==MAP_FAILED) {
+                        printf_log(LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
+                    } else {
+                        printf_log(LOG_NONE, " got %p\n", p);
+                    }
                     return 1;
                 }
                 setProtection_mmap((uintptr_t)p, asize, prot);
