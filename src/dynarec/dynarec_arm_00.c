@@ -1924,12 +1924,27 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, CL");
-                    AND_IMM8(x2, xECX, 0x1f);
-                    MESSAGE(LOG_DUMP, "Need Optimization ROL 8b\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        TSTS_IMM8(xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    }
+                    AND_IMM8(x2, xECX, 0x7);
+                    RSB_IMM8(x2, x2, 8);
                     GETEB(x1);
-                    CALL_(rol8, x1, (1<<x3));
+                    BFI(ed, ed, 8, 8);
+                    MOV_REG_LSR_REG(ed, ed, x2);
                     EBBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPS_IMM8(x2, 7);
+                            MOV_REG_LSR_IMM5_COND(cEQ, x3, ed, 7);
+                            ADD_REG_LSL_IMM5_COND(cEQ, x3, x3, ed, 0);
+                            BFI_COND(cEQ, xFlags, x3, F_OF, 1);
+                        BFI(xFlags, ed, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Eb, CL");
