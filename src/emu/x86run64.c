@@ -170,13 +170,18 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
             return addr-1;
 
         case 0x64:              /* FS: */
-            // so just ignore that GS: prefix then
             #ifdef TEST_INTERPRETER
             return Test64(test, _FS, addr-1); // put FS back
             #else
             return Run64(emu, _FS, addr-1); // put FS back
             #endif
-
+        case 0x65:                      /* GS: */
+            #ifdef TEST_INTERPRETER
+            return Test64(test, _GS, addr);
+            #else
+            return Run64(emu, _GS, addr);
+            #endif
+            break;
         case 0x66:
             #ifdef TEST_INTERPRETER
             return Test6466(test, tlsdata, addr);
@@ -317,6 +322,8 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
             nextop = F8;
             GET_ED_OFFS(tlsdata);
             ED->dword[0] = Pop(emu);
+            break;
+        case 0x90:              /* NOP */
             break;
 
         case 0x9C:              /* PUSHFD */

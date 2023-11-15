@@ -98,6 +98,13 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             emit_cmp32(dyn, ninst, gd, ed, x3, x14);
             break;
 
+        case 0x64:
+            addr = dynarecFS(dyn, addr, ip, ninst, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarecGS(dyn, addr, ip, ninst, ok, need_epilog);
+            break;
+
         case 0x67:
             // reduced EA size...
             opcode = F8;
@@ -258,6 +265,9 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 STR_REG_LSL_IMM5(x2, ed, x14, 0);
                 SMWRITE2();
             }
+            break;
+        case 0x90:
+            INST_NAME("NOP");
             break;
 
         case 0xA0:
