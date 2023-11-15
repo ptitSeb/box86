@@ -527,6 +527,7 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 #define emit_shr8       STEPNAME(emit_shr8)
 #define emit_shr8c      STEPNAME(emit_shr8c)
 #define emit_sar8       STEPNAME(emit_sar8)
+#define emit_sar8c      STEPNAME(emit_sar8c)
 #define emit_rol32c     STEPNAME(emit_rol32c)
 #define emit_rol8c      STEPNAME(emit_rol8c)
 #define emit_ror32c     STEPNAME(emit_ror32c)
@@ -672,6 +673,7 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
 void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
 void emit_ror32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
