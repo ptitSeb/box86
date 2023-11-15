@@ -1455,17 +1455,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETEB(x1);
-                    u8 = (F8)&0x1f;
-                    UFLAG_IF{
-                        MOV32(x14, u8); UFLAG_OP2(x14)
-                    };
-                    UFLAG_OP1(ed);
-                    MOV_REG_LSL_IMM5(ed, ed, u8);
-                    EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl8);
+                    if(geted_ib(dyn, addr, ninst, nextop)&0x1f) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                        GETEB(x1);
+                        u8 = (F8)&0x1f;
+                        emit_shl8c(dyn, ninst, ed, u8, x2, x14);
+                        EBBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 5:
                     INST_NAME("SHR Eb, Ib");
@@ -1805,14 +1804,10 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, 1");
-                    MOVW(x2, 1);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETEB(x1);
-                    UFLAG_OP12(ed, x2)
-                    MOV_REG_LSL_REG(ed, ed, x2);
+                    emit_shl8c(dyn, ninst, ed, 1, x2, x14);
                     EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl8);
                     break;
                 case 5:
                     INST_NAME("SHR Eb, 1");

@@ -331,6 +331,77 @@ void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 }
 
+// emit SHL8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
+{
+    if(!c)
+        return;
+    IFX(X_PEND) {
+        MOV32(s3, c);
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
+        SET_DF(s4, d_shl8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    if(c<8) {
+        IFX(X_CF|X_OF) {
+            MOV_REG_LSR_IMM5(s3, s1, 8-c);
+            BFI(xFlags, s3, F_CF, 1);
+        }
+        MOV_REG_LSL_IMM5(s1, s1, c);
+
+        IFX(X_PEND) {
+            AND_IMM8(s1, s1, 0xff);
+            STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+        }
+        IFX(X_ZF) {
+            TSTS_IMM8(s1, 0xff);
+            MOVW_COND(cNE, s4, 0);
+            MOVW_COND(cEQ, s4, 1);
+            BFI(xFlags, s4, F_ZF, 1);
+        }
+        IFX(X_SF) {
+            MOV_REG_LSR_IMM5(s4, s1, 7);
+            BFI(xFlags, s4, F_SF, 1);
+        }
+        IFX(X_OF) {
+            if(c==1) {
+                IFX(X_SF) {} else {MOV_REG_LSR_IMM5(s4, s1, 7);}
+                XOR_REG_LSL_IMM5(s4, s4, xFlags, 0);  // CF is set if OF is asked
+                BFI(xFlags, s4, F_OF, 1);
+            } else {
+                BFC(xFlags, F_OF, 1);
+            }
+        }
+        IFX(X_PF) {
+            emit_pf(dyn, ninst, s1, s3, s4);
+        }
+    } else {
+        IFX(X_CF) {
+            MOV_REG_LSL_IMM5(s3, s1, c-1);
+            MOV_REG_LSR_IMM5(s4, s3, 7);
+            BFI(xFlags, s4, F_CF, 1);
+        }
+        MOVW(s1, 0);
+        IFX(X_OF) {
+            BFC(xFlags, F_OF, 1);
+        }
+        IFX(X_SF) {
+            BFC(xFlags, F_SF, 1);
+        }
+        IFX(X_PF | X_ZF) {
+            MOVW(s3, 1);
+            IFX(X_ZF) {
+                BFI(xFlags, s3, F_ZF, 1);
+            }
+            IFX(X_PF) {
+                BFI(xFlags, s3, F_PF, 1);
+            }
+        }
+    }
+}
+
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {

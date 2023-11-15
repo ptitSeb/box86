@@ -91,6 +91,7 @@ int getNominalPred(dynarec_arm_t* dyn, int ninst);
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity);
 // Do the GETED, but don't emit anything...
 uintptr_t fakeed(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
+uint8_t geted_ib(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
 // Is what pointed at addr a native call? And if yes, to what function?
 int isNativeCall(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
