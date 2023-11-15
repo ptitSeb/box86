@@ -69,7 +69,8 @@ typedef struct mapmem_s {
     struct mapmem_s *next;
 } mapmem_t;
 
-static mapmem_t *mapmem = NULL;
+static mapmem_t *mapallmem = NULL;
+static mapmem_t *mmapmem = NULL;
 
 typedef struct blocklist_s {
     void*               block;
@@ -799,16 +800,15 @@ void protectDB(uintptr_t addr, uintptr_t size)
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t prot = memprot[i];
         uint32_t dyn = prot&PROT_DYN;
-        uint32_t mapped = prot&PROT_MMAP;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
         prot&=~PROT_CUSTOM;
         if(!(dyn&PROT_NOPROT)) {
             if(prot&PROT_WRITE) {
                 if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-                    memprot[i] = prot|mapped|PROT_DYNAREC;   // need to use atomic exchange?
+                    memprot[i] = prot|PROT_DYNAREC;   // need to use atomic exchange?
                 } else 
-                    memprot[i] = prot|mapped|PROT_DYNAREC_R;
+                    memprot[i] = prot|PROT_DYNAREC_R;
         }
     }
     mutex_unlock(&mutex_prot);
@@ -829,7 +829,7 @@ void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
                 prot&=~PROT_DYN;
                 if(mark)
                     cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_MMAP);
+                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
                 memprot[i] = prot;  // need to use atomic exchange?
             } else if(prot&PROT_DYNAREC_R)
                 memprot[i] = prot&~PROT_CUSTOM;
@@ -856,7 +856,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
 
 #endif
 
-void printMapMem()
+void printMapMem(mapmem_t* mapmem)
 {
     mapmem_t* m = mapmem;
     while(m) {
@@ -865,10 +865,12 @@ void printMapMem()
     }
 }
 
-void addMapMem(uintptr_t begin, uintptr_t end)
+void addMapMem(mapmem_t* mapmem, uintptr_t begin, uintptr_t end)
 {
     if(!mapmem)
         return;
+   if(begin<box86_pagesize)
+        begin = box86_pagesize;
     begin &=~(box86_pagesize-1);
     end = (end&~(box86_pagesize-1))+(box86_pagesize-1); // full page
     // sanitize values
@@ -904,10 +906,12 @@ void addMapMem(uintptr_t begin, uintptr_t end)
     }
     // all done!
 }
-void removeMapMem(uintptr_t begin, uintptr_t end)
+void removeMapMem(mapmem_t* mapmem, uintptr_t begin, uintptr_t end)
 {
     if(!mapmem)
         return;
+   if(begin<box86_pagesize)
+        begin = box86_pagesize;
     begin &=~(box86_pagesize-1);
     end = (end&~(box86_pagesize-1))+(box86_pagesize-1); // full page
     // sanitize values
@@ -954,13 +958,12 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     //dynarec_log(LOG_DEBUG, "updateProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
     mutex_lock(&mutex_prot);
-    addMapMem(addr, addr+size-1);
+    addMapMem(mapallmem, addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
         uint32_t old_prot = memprot[i];
         uint32_t dyn=(old_prot&PROT_DYN);
-        uint32_t mapped=(old_prot&PROT_MMAP);
         if(!(dyn&PROT_NOPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
@@ -969,7 +972,7 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
                 dyn = PROT_DYNAREC_R;
             }
         }
-        memprot[i] = prot|dyn|mapped;
+        memprot[i] = prot|dyn;
     }
     mutex_unlock(&mutex_prot);
 }
@@ -978,7 +981,7 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     //dynarec_log(LOG_DEBUG, "setProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
     mutex_lock(&mutex_prot);
-    addMapMem(addr, addr+size-1);
+    addMapMem(mapallmem, addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -989,11 +992,25 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
+    mutex_lock(&mutex_prot);
+    addMapMem(mmapmem, addr, addr+size-1);
+    mutex_unlock(&mutex_prot);
     if(prot)
-        setProtection(addr, size, prot|PROT_MMAP);
+        setProtection(addr, size, prot);
     else {
         mutex_lock(&mutex_prot);
-        addMapMem(addr, addr+size-1);
+        addMapMem(mapallmem, addr, addr+size-1);
+        mutex_unlock(&mutex_prot);
+    }
+}
+
+void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
+{
+    if(prot)
+        setProtection(addr, size, prot);
+    else {
+        mutex_lock(&mutex_prot);
+        addMapMem(mapallmem, addr, addr+size-1);
         mutex_unlock(&mutex_prot);
     }
 }
@@ -1016,7 +1033,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
     mutex_lock(&mutex_prot);
-    addMapMem(addr, addr+size-1);
+    addMapMem(mapallmem, addr, addr+size-1);
     mutex_unlock(&mutex_prot);
 }
 
@@ -1079,7 +1096,8 @@ void loadProtectionFromMap()
 void freeProtection(uintptr_t addr, uintptr_t size)
 {
     mutex_lock(&mutex_prot);
-    removeMapMem(addr, addr+size-1);
+    removeMapMem(mmapmem, addr, addr+size-1);
+    removeMapMem(mapallmem, addr, addr+size-1);
     const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -1094,16 +1112,23 @@ uint32_t getProtection(uintptr_t addr)
     mutex_lock(&mutex_prot);
     uint32_t ret = memprot[idx];
     mutex_unlock(&mutex_prot);
-    return ret&~PROT_MMAP;
+    return ret;
 }
 
 int getMmapped(uintptr_t addr)
 {
-    mutex_lock(&mutex_prot);
-    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uint32_t ret = memprot[idx];
-    mutex_unlock(&mutex_prot);
-    return (ret&PROT_MMAP)?1:0;
+    mapmem_t* m = mmapmem;
+    if(addr<box86_pagesize) return 0;
+    while(m) {
+        uintptr_t begin = m->begin;
+        uintptr_t end = m->end;
+        if(addr>=begin && addr<=end)
+            return 1;
+        if(addr<begin)
+            return 0;
+        m = m->next;
+    }
+    return 0;
 }
 
 
@@ -1111,7 +1136,7 @@ int getMmapped(uintptr_t addr)
 #define MEDIAN (void*)0x40000000
 static void* findBlockHinted(void* hint, size_t size, uintptr_t mask)
 {
-    mapmem_t* m = mapmem;
+    mapmem_t* m = mapallmem;
     uintptr_t h = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
     while(m) {
@@ -1154,7 +1179,7 @@ void* find32bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 
 int isBlockFree(void* hint, size_t size)
 {
-    mapmem_t* m = mapmem;
+    mapmem_t* m = mapallmem;
     uintptr_t h = (uintptr_t)hint;
     while(m) {
         uintptr_t addr = m->end+1;
@@ -1244,10 +1269,14 @@ void init_custommem_helper(box86context_t* ctx)
     lockaddress = kh_init(lockaddress);
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
-    // init mapmem list
-    mapmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
-    mapmem->begin = 0x0;
-    mapmem->end = (uintptr_t)LOWEST - 1;
+    // init mapallmem list
+    mapallmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
+    mapallmem->begin = 0x0;
+    mapallmem->end = (uintptr_t)LOWEST - 1;
+    // init mmapmem list
+    mmapmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
+    mmapmem->begin = 0x0;
+    mmapmem->end = (uintptr_t)box86_pagesize - 1;
     loadProtectionFromMap();
 }
 
@@ -1312,9 +1341,14 @@ void fini_custommem_helper(box86context_t *ctx)
     pthread_mutex_destroy(&mutex_blocks);
     pthread_mutex_destroy(&mutex_prot);
     #endif
-    while(mapmem) {
-        mapmem_t *tmp = mapmem;
-        mapmem = mapmem->next;
+    while(mapallmem) {
+        mapmem_t *tmp = mapallmem;
+        mapallmem = mapallmem->next;
+        box_free(tmp);
+    }
+    while(mmapmem) {
+        mapmem_t *tmp = mmapmem;
+        mmapmem = mmapmem->next;
         box_free(tmp);
     }
 }
