@@ -1765,73 +1765,47 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             *ok = 0;
             break;
         case 0xD0:
-        case 0xD2:
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0:
-                    if(opcode==0xD0) {
-                        INST_NAME("ROL Eb, 1");
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
-                        GETEB(x1);
-                        emit_rol8c(dyn, ninst, ed, 1, x2, x14);
-                        EBBACK;
-                    } else {
-                        INST_NAME("ROL Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                        MESSAGE(LOG_DUMP, "Need Optimization ROL 8b\n");
-                        SETFLAGS(X_OF|X_CF, SF_SET);
-                        GETEB(x1);
-                        CALL_(rol8, x1, (1<<x3));
-                        EBBACK;
-                    }
+                    INST_NAME("ROL Eb, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    GETEB(x1);
+                    emit_rol8c(dyn, ninst, ed, 1, x2, x14);
+                    EBBACK;
                     break;
                 case 1:
-                    if(opcode==0xD0) {
-                        INST_NAME("ROR Eb, 1");
-                        MOVW(x2, 1);
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
-                        GETEB(x1);
-                        emit_ror8c(dyn, ninst, ed, 1, x2, x14);
-                        EBBACK;
-                    } else {
-                        INST_NAME("ROR Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                        SETFLAGS(X_OF|X_CF, SF_SET);
-                        MESSAGE(LOG_DUMP, "Need Optimization ROR 8b\n");
-                        GETEB(x1);
-                        CALL_(ror8, x1, (1<<x3));
-                        EBBACK;
-                    }
+                    INST_NAME("ROR Eb, 1");
+                    MOVW(x2, 1);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    GETEB(x1);
+                    emit_ror8c(dyn, ninst, ed, 1, x2, x14);
+                    EBBACK;
                     break;
                 case 2:
-                    if(opcode==0xD0) {INST_NAME("RCL Eb, 1");} else {INST_NAME("RCL Eb, CL");}
+                    INST_NAME("RCL Eb, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL 8b\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    if(opcode==0xD0) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
+                    MOVW(x2, 1);
                     GETEB(x1);
                     CALL_(rcl8, x1, (1<<x3));
                     EBBACK;
                     break;
                 case 3:
-                    if(opcode==0xD0) {INST_NAME("RCR Eb, 1");} else {INST_NAME("RCR Eb, CL");}
+                    INST_NAME("RCR Eb, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization RCR 8b\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    if(opcode==0xD0) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
+                    MOVW(x2, 1);
                     GETEB(x1);
                     CALL_(rcr8, x1, (1<<x3));
                     EBBACK;
                     break;
                 case 4:
                 case 6:
-                    if(opcode==0xD0) {
-                        INST_NAME("SHL Eb, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("SHL Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    INST_NAME("SHL Eb, 1");
+                    MOVW(x2, 1);
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1);
                     UFLAG_OP12(ed, x2)
@@ -1841,13 +1815,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAG_DF(x3, d_shl8);
                     break;
                 case 5:
-                    if(opcode==0xD0) {
-                        INST_NAME("SHR Eb, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("SHR Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    INST_NAME("SHR Eb, 1");
+                    MOVW(x2, 1);
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEB(x1);
                     UFLAG_OP12(ed, x2)
@@ -1857,13 +1826,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAG_DF(x3, d_shr8);
                     break;
                 case 7:
-                    if(opcode==0xD0) {
-                        INST_NAME("SAR Eb, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("SAR Eb, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
+                    INST_NAME("SAR Eb, 1");
+                    MOVW(x2, 1);
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETSEB(x1);
                     UFLAG_OP12(ed, x2)
@@ -1874,6 +1838,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
             }
             break;
+
         case 0xD1:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -1951,6 +1916,87 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     GETED;
                     emit_sar32c(dyn, ninst, ed, 1, x3, x14);
                     WBACK;
+                    break;
+            }
+            break;
+        case 0xD2:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Eb, CL");
+                    AND_IMM8(x2, xECX, 0x1f);
+                    MESSAGE(LOG_DUMP, "Need Optimization ROL 8b\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEB(x1);
+                    CALL_(rol8, x1, (1<<x3));
+                    EBBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Eb, CL");
+                    AND_IMM8(x2, xECX, 0x1f);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MESSAGE(LOG_DUMP, "Need Optimization ROR 8b\n");
+                    GETEB(x1);
+                    CALL_(ror8, x1, (1<<x3));
+                    EBBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Eb, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization RCL 8b\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    AND_IMM8(x2, xECX, 0x1f);
+                    GETEB(x1);
+                    CALL_(rcl8, x1, (1<<x3));
+                    EBBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization RCR 8b\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    AND_IMM8(x2, xECX, 0x1f);
+                    GETEB(x1);
+                    CALL_(rcr8, x1, (1<<x3));
+                    EBBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        ANDS_IMM8(x2, xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    } else {
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
+                    GETEB(x1);
+                    emit_shl8(dyn, ninst, ed, x2, x2, x14);
+                    EBBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, CL");
+                    AND_IMM8(x2, xECX, 0x1f);
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEB(x1);
+                    UFLAG_OP12(ed, x2)
+                    MOV_REG_LSR_REG(ed, ed, x2);
+                    EBBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr8);
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, CL");
+                    AND_IMM8(x2, xECX, 0x1f);
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEB(x1);
+                    UFLAG_OP12(ed, x2)
+                    MOV_REG_ASR_REG(ed, ed, x2);
+                    EBBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar8);
                     break;
             }
             break;
