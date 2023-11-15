@@ -814,62 +814,44 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xD1:
-        case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
                 case 0:
-                    if(opcode==0xD1) {
-                        INST_NAME("ROL Ew, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("ROL Ew, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    INST_NAME("ROL Ew, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1);
-                    CALL_(rol16, x1, (1<<x3));
+                    emit_rol16c(dyn, ninst, x1, 1, x2, x14);
                     EWBACK;
                     break;
                 case 1:
-                    if(opcode==0xD1) {
-                        INST_NAME("ROR Ew, 1");
-                        MOVW(x2, 1);
-                    } else {
-                        INST_NAME("ROR Ew, CL");
-                        AND_IMM8(x2, xECX, 0x1f);
-                    }
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    INST_NAME("ROR Ew, 1");
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1);
-                    CALL_(ror16, x1, (1<<x3));
+                    emit_ror16c(dyn, ninst, x1, 1, x2, x14);
                     EWBACK;
                     break;
                 case 2:
-                    if(opcode==0xD1) {INST_NAME("RCL Ew, 1"); } else { INST_NAME("RCL Ew, CL");}
+                    INST_NAME("RCL Ew, 1");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    if(opcode==0xD1) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
+                    MOVW(x2, 1);
                     GETEW(x1);
                     CALL_(rcl16, x1, (1<<x3));
                     EWBACK;
                     break;
                 case 3:
-                    if(opcode==0xD1) {INST_NAME("RCR Ew, 1");} else {INST_NAME("RCR Ew, CL");}
+                    INST_NAME("RCR Ew, 1");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
-                    if(opcode==0xD1) {MOVW(x2, 1);} else {AND_IMM8(x2, xECX, 0x1f);}
+                    MOVW(x2, 1);
                     GETEW(x1);
                     CALL_(rcr16, x1, (1<<x3));
                     EWBACK;
                     break;
                 case 4:
                 case 6:
-                    if(opcode==0xD1) {
-                        INST_NAME("SHL Ew, 1");
-                        MOVW(x14, 1);
-                    } else {
-                        INST_NAME("SHL Ew, CL");
-                        AND_IMM8(x14, xECX, 0x1f);
-                    }
+                    INST_NAME("SHL Ew, 1");
+                    MOVW(x14, 1);
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1);
                     UFLAG_OP12(ed, x14)
@@ -879,13 +861,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAG_DF(x3, d_shl16);
                     break;
                 case 5:
-                    if(opcode==0xD1) {
-                        INST_NAME("SHR Ew, 1");
-                        MOVW(x14, 1);
-                    } else {
-                        INST_NAME("SHR Ew, CL");
-                        AND_IMM8(x14, xECX, 0x1f);
-                    }
+                    INST_NAME("SHR Ew, 1");
+                    MOVW(x14, 1);
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1);
                     UFLAG_OP12(ed, x14)
@@ -895,13 +872,82 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     UFLAG_DF(x3, d_shr16);
                     break;
                 case 7:
-                    if(opcode==0xD1) {
-                        INST_NAME("SAR Ew, 1");
-                        MOVW(x14, 1);
-                    } else {
-                        INST_NAME("SAR Ew, CL");
-                        AND_IMM8(x14, xECX, 0x1f);
-                    }
+                    INST_NAME("SAR Ew, 1");
+                    MOVW(x14, 1);
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEW(x1);
+                    UFLAG_OP12(ed, x14)
+                    MOV_REG_ASR_REG(ed, ed, x14);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
+                    break;
+            }
+            break;
+            
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ew, CL");
+                    AND_IMM8(x2, xECX, 0x1f);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1);
+                    CALL_(rol16, x1, (1<<x3));
+                    EWBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ew, CL");
+                    AND_IMM8(x2, xECX, 0x1f);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1);
+                    CALL_(ror16, x1, (1<<x3));
+                    EWBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ew, CL");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    AND_IMM8(x2, xECX, 0x1f);
+                    GETEW(x1);
+                    CALL_(rcl16, x1, (1<<x3));
+                    EWBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ew, CL");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    AND_IMM8(x2, xECX, 0x1f);
+                    GETEW(x1);
+                    CALL_(rcr16, x1, (1<<x3));
+                    EWBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ew, CL");
+                    AND_IMM8(x14, xECX, 0x1f);
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1);
+                    UFLAG_OP12(ed, x14)
+                    MOV_REG_LSL_REG(ed, ed, x14);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shl16);
+                    break;
+                case 5:
+                    INST_NAME("SHR Ew, CL");
+                    AND_IMM8(x14, xECX, 0x1f);
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1);
+                    UFLAG_OP12(ed, x14)
+                    MOV_REG_LSR_REG(ed, ed, x14);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ew, CL");
+                    AND_IMM8(x14, xECX, 0x1f);
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETSEW(x1);
                     UFLAG_OP12(ed, x14)
