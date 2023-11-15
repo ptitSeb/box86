@@ -222,6 +222,8 @@ Op is 20-27
 // add dst, src1, src2, lsr #imm
 #define ADD_REG_LSR_IMM5(dst, src1, src2, imm5) \
     EMIT(0xe0800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
+#define ADD_REG_LSR_IMM5_COND(cond, dst, src1, src2, imm5) \
+    EMIT((cond) | 0x00800000 | ((dst) << 12) | ((src1) << 16) | brLSR(imm5, src2) )
 #define ADC_IMM8(dst, src, imm8) \
     EMIT(0xe2a00000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // add.s dst, src, #(imm8)

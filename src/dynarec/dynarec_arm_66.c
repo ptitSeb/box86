@@ -723,19 +723,29 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
-                    GETEW(x1);
-                    u8 = F8;
-                    emit_rol16c(dyn, ninst, x1, u8&0x1f, x2, x14);
-                    EWBACK;
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETEW(x1);
+                        u8 = F8;
+                        emit_rol16c(dyn, ninst, x1, u8&15, x2, x14);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
-                    GETEW(x1);
-                    u8 = F8;
-                    emit_ror16c(dyn, ninst, x1, u8&0x1f, x2, x14);
-                    EWBACK;
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETEW(x1);
+                        u8 = F8;
+                        emit_ror16c(dyn, ninst, x1, u8&15, x2, x14);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 2:
                     INST_NAME("RCL Ew, Ib");
@@ -760,39 +770,42 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ew, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETEW(x1);
-                    u8 = F8;
-                    MOVW(x2, (u8&0x1f));
-                    UFLAG_OP12(ed, x2)
-                    MOV_REG_LSL_REG(ed, ed, x2);
-                    EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl16);
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETEW(x1);
+                        u8 = F8;
+                        emit_shl16c(dyn, ninst, x1, u8&15, x2, x14);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 5:
                     INST_NAME("SHR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETEW(x1);
-                    u8 = F8;
-                    MOVW(x2, (u8&0x1f));
-                    UFLAG_OP12(ed, x2)
-                    MOV_REG_LSR_REG(ed, ed, x2);
-                    EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr16);
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETEW(x1);
+                        u8 = F8;
+                        emit_shr16c(dyn, ninst, x1, u8&15, x2, x14);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETSEW(x1);
-                    u8 = F8;
-                    MOVW(x2, (u8&0x1f));
-                    UFLAG_OP12(ed, x2)
-                    MOV_REG_ASR_REG(ed, ed, x2);
-                    EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar16);
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETSEW(x1);
+                        u8 = F8;
+                        emit_sar16c(dyn, ninst, x1, u8&15, x2, x14);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
                     break;
             }
             break;
@@ -851,36 +864,24 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ew, 1");
-                    MOVW(x14, 1);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETEW(x1);
-                    UFLAG_OP12(ed, x14)
-                    MOV_REG_LSL_REG(ed, ed, x14);
+                    emit_shl16c(dyn, ninst, x1, 1, x2, x14);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl16);
                     break;
                 case 5:
                     INST_NAME("SHR Ew, 1");
-                    MOVW(x14, 1);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETEW(x1);
-                    UFLAG_OP12(ed, x14)
-                    MOV_REG_LSR_REG(ed, ed, x14);
+                    emit_shr16c(dyn, ninst, x1, 1, x2, x14);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr16);
                     break;
                 case 7:
                     INST_NAME("SAR Ew, 1");
-                    MOVW(x14, 1);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETSEW(x1);
-                    UFLAG_OP12(ed, x14)
-                    MOV_REG_ASR_REG(ed, ed, x14);
+                    emit_sar16c(dyn, ninst, x1, 1, x2, x14);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar16);
                     break;
             }
             break;
@@ -890,19 +891,50 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, CL");
-                    AND_IMM8(x2, xECX, 0x1f);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        TSTS_IMM8(xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    }
+                    AND_IMM8(x2, xECX, 0x0f);
+                    RSB_IMM8(x2, x2, 16);
                     GETEW(x1);
-                    CALL_(rol16, x1, (1<<x3));
+                    ORR_REG_LSL_IMM5(ed, ed, ed, 16);
+                    MOV_REG_LSR_REG(ed, ed, x2);
                     EWBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPS_IMM8(x2, 15);
+                            ADD_REG_LSR_IMM5_COND(cEQ, x3, ed, ed, 15);
+                            BFI_COND(cEQ, xFlags, x3, F_OF, 1);
+                        BFI(xFlags, ed, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Ew, CL");
-                    AND_IMM8(x2, xECX, 0x1f);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        TSTS_IMM8(xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    }
+                    AND_IMM8(x2, xECX, 0x0f);
                     GETEW(x1);
-                    CALL_(ror16, x1, (1<<x3));
+                    ORR_REG_LSL_IMM5(ed, ed, ed, 16);
+                    MOV_REG_LSR_REG(ed, ed, x2);
                     EWBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPS_IMM8(x2, 1);
+                            MOV_REG_LSR_IMM5_COND(cEQ, x2, ed, 14); // x2 = d>>14
+                            XOR_REG_LSR_IMM8_COND(cEQ, x2, x2, x2, 1); // x2 = ((d>>14) ^ ((d>>14)>>1))
+                            BFI_COND(cEQ, xFlags, x2, F_OF, 1);
+                        MOV_REG_LSR_IMM5(x2, ed, 15);
+                        BFI(xFlags, x2, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
                     break;
                 case 2:
                     INST_NAME("RCL Ew, CL");
@@ -925,36 +957,48 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4:
                 case 6:
                     INST_NAME("SHL Ew, CL");
-                    AND_IMM8(x14, xECX, 0x1f);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        ANDS_IMM8(x2, xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    } else {
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
                     GETEW(x1);
-                    UFLAG_OP12(ed, x14)
-                    MOV_REG_LSL_REG(ed, ed, x14);
+                    emit_shl16(dyn, ninst, x1, x2, x2, x14);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl16);
                     break;
                 case 5:
                     INST_NAME("SHR Ew, CL");
-                    AND_IMM8(x14, xECX, 0x1f);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        ANDS_IMM8(x2, xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    } else {
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
                     GETEW(x1);
-                    UFLAG_OP12(ed, x14)
-                    MOV_REG_LSR_REG(ed, ed, x14);
+                    emit_shr16(dyn, ninst, x1, x2, x2, x14);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr16);
                     break;
                 case 7:
                     INST_NAME("SAR Ew, CL");
-                    AND_IMM8(x14, xECX, 0x1f);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        ANDS_IMM8(x2, xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    } else {
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
                     GETSEW(x1);
-                    UFLAG_OP12(ed, x14)
-                    MOV_REG_ASR_REG(ed, ed, x14);
+                    emit_sar16(dyn, ninst, x1, x2, x2, x14);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar16);
                     break;
             }
             break;
