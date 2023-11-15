@@ -335,9 +335,8 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
         need = dyn->insts[ninst].x86.need_after&~dyn->insts[ninst].x86.gen_flags;
         if(dyn->insts[ninst].x86.may_set)
             need |= dyn->insts[ninst].x86.gen_flags;    // forward the flags
-        // Consume X_PEND if relevant
-        if((need&X_PEND) && (dyn->insts[ninst].x86.set_flags&SF_PENDING))
-            need &=~X_PEND;
+        else if((need&X_PEND) && (dyn->insts[ninst].x86.set_flags&SF_PENDING))
+            need &=~X_PEND;     // Consume X_PEND if relevant
         need |= dyn->insts[ninst].x86.use_flags;
         if(dyn->insts[ninst].x86.need_before == need)
             return ninst - 1;
