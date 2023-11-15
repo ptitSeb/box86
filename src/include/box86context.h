@@ -207,10 +207,10 @@ typedef struct box86context_s {
 
     uint8_t             canary[4];
 
-    uintptr_t           signals[MAX_SIGNAL];
-    uintptr_t           restorer[MAX_SIGNAL];
-    int                 onstack[MAX_SIGNAL];
-    int                 is_sigaction[MAX_SIGNAL];
+    uintptr_t           signals[MAX_SIGNAL+1];
+    uintptr_t           restorer[MAX_SIGNAL+1];
+    int                 onstack[MAX_SIGNAL+1];
+    int                 is_sigaction[MAX_SIGNAL+1];
     x86emu_t            *emu_sig;       // the emu with stack used for signal handling (must be separated from main ones)
     int                 no_sigsegv;
     int                 no_sigill;

@@ -1066,7 +1066,7 @@ void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)
 {
-    if(signum<0 || signum>=MAX_SIGNAL) {
+    if(signum<0 || signum>MAX_SIGNAL) {
         errno = EINVAL;
         return SIG_ERR;
     }
@@ -1096,7 +1096,7 @@ EXPORT sighandler_t my_sysv_signal(x86emu_t* emu, int signum, sighandler_t handl
 
 int EXPORT my_sigaction(x86emu_t* emu, int signum, const x86_sigaction_t *act, x86_sigaction_t *oldact)
 {
-    if(signum<0 || signum>=MAX_SIGNAL) {
+    if(signum<0 || signum>MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
     }
@@ -1150,7 +1150,7 @@ __attribute__((alias("my_sigaction")));
 int EXPORT my_syscall_sigaction(x86emu_t* emu, int signum, const x86_sigaction_restorer_t *act, x86_sigaction_restorer_t *oldact, int sigsetsize)
 {
     printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
-    if(signum<0 || signum>=MAX_SIGNAL) {
+    if(signum<0 || signum>MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
     }
@@ -1383,7 +1383,7 @@ static void atfork_child_dynarec_prot(void)
 void init_signal_helper(box86context_t* context)
 {
     // setup signal handling
-    for(int i=0; i<MAX_SIGNAL; ++i) {
+    for(int i=0; i<=MAX_SIGNAL; ++i) {
         context->signals[i] = 1;    // SIG_DFL
     }
 	struct sigaction action = {0};
