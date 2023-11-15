@@ -2003,14 +2003,18 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 5:
                     INST_NAME("SHR Eb, CL");
-                    AND_IMM8(x2, xECX, 0x1f);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box86_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        ANDS_IMM8(x2, xECX, 0x1f);
+                        B_NEXT(cEQ);
+                    } else {
+                        AND_IMM8(x2, xECX, 0x1f);
+                    }
                     GETEB(x1);
-                    UFLAG_OP12(ed, x2)
-                    MOV_REG_LSR_REG(ed, ed, x2);
+                    emit_shr8(dyn, ninst, ed, x2, x2, x14);
                     EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr8);
                     break;
                 case 7:
                     INST_NAME("SAR Eb, CL");

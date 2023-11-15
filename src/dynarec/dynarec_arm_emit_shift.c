@@ -287,10 +287,6 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 // emit SHL8 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch. s3 can be same as s2
 void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    MAYUSE(s2);
-    int64_t j64;
-    MAYUSE(j64);
-
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
@@ -399,6 +395,45 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
                 BFI(xFlags, s3, F_PF, 1);
             }
         }
+    }
+}
+
+// emit SHR8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s2 can be same as s3
+void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
+        STR_IMM9(s2, xEmu, offsetof(x86emu_t, op2));
+        SET_DF(s4, d_shr8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_CF) {
+        SUB_IMM8(s4, s2, 1);
+        MOV_REG_LSR_REG(s4, s1, s4);
+        BFI(xFlags, s4, 0, 1);
+    }
+    IFX(X_OF) {
+        CMPS_IMM8(s2, 1);   // if s2==1
+            MOV_REG_LSR_IMM5_COND(cEQ, s4, s1, 7);
+            BFI_COND(cEQ, xFlags, s4, F_OF, 1);
+    }
+    MOV_REG_LSR_REG(s1, s1, s2);
+    IFX(X_PEND) {
+        STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTS_IMM8(s1, 0xff);
+        MOVW_COND(cNE, s4, 0);
+        MOVW_COND(cEQ, s4, 1);
+        BFI(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        MOV_REG_LSR_IMM5(s4, s1, 7);
+        BFI(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
