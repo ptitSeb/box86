@@ -107,6 +107,7 @@ int my_socketcall(x86emu_t* emu, int n, unsigned long *args) {
             printf_log(LOG_DEBUG, "BOX86 Error on Syscall 102: Unknown Soket command %d\n", n);
             ret = -EINVAL;
     }
+    return ret;
 };
 #endif
 
@@ -415,20 +416,20 @@ void EXPORT x86Syscall(x86emu_t *emu)
         if(syscallwrap[i].x86s == s) {
             int sc = syscallwrap[i].nats;
             switch(syscallwrap[i].nbpars) {
-                case 0: *(int32_t*)&R_EAX = syscall(sc); break;
-                case 1: *(int32_t*)&R_EAX = syscall(sc, R_EBX); break;
-                case 2: if(s==33) {printf_log(LOG_DEBUG, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); break;
-                case 3: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); break;
-                case 4: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); break;
-                case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
-                case 6: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
+                case 0: S_EAX = syscall(sc); break;
+                case 1: S_EAX = syscall(sc, R_EBX); break;
+                case 2: if(s==33) {printf_log(LOG_DEBUG, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; S_EAX = syscall(sc, R_EBX, R_ECX); break;
+                case 3: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); break;
+                case 4: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); break;
+                case 5: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
+                case 6: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
                    return;
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
             return;
         }
@@ -441,32 +442,32 @@ void EXPORT x86Syscall(x86emu_t *emu)
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the thread now
             break;
         case 3:  // sys_read
-            R_EAX = (uint32_t)read((int)R_EBX, (void*)R_ECX, (size_t)R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = read(S_EBX, (void*)R_ECX, (size_t)R_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 4:  // sys_write
-            R_EAX = (uint32_t)write((int)R_EBX, (void*)R_ECX, (size_t)R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = write(S_EBX, (void*)R_ECX, (size_t)R_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 5: // sys_open
             if(s==5) {printf_log(LOG_DEBUG, " => sys_open(\"%s\", %d, %d)", (char*)R_EBX, of_convert(R_ECX), R_EDX);}; 
-            //R_EAX = (uint32_t)open((void*)R_EBX, of_convert(R_ECX), R_EDX);
-            R_EAX = (uint32_t)my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            //S_EAX = open((void*)R_EBX, of_convert(R_ECX), R_EDX);
+            S_EAX = my_open(emu, (void*)R_EBX, of_convert(R_ECX), R_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 6:  // sys_close
-            R_EAX = (uint32_t)close((int)R_EBX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = close(S_EBX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #ifndef __NR_waitpid
         case 7: //sys_waitpid
-            R_EAX = waitpid((pid_t)R_EBX, (int*)R_ECX, (int)R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            R_EAX = waitpid((pid_t)R_EBX, (int*)R_ECX, S_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
         case 11: // sys_execve
@@ -477,55 +478,55 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 printf_log(LOG_DEBUG, " => sys_execve(\"%s\", %p(\"%s\", \"%s\", \"%s\"...), %p)\n", prog, argv, (argv && argv[0])?argv[0]:"nil", (argv && argv[0] && argv[1])?argv[1]:"nil", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"nil", envv);
                 R_EAX = my_execve(emu, (const char*)R_EBX, (void*)R_ECX, (void*)R_EDX);
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #ifndef __NR_time
         case 13:    // sys_time (it's deprecated and remove on ARM EABI it seems)
             R_EAX = time(NULL);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
 #ifndef __NR_alarm
         case 27:
             R_EAX = alarm(R_EBX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
         case 45:    // sys_brk
             R_EAX = (uintptr_t)ElfSetBrk((void*)R_EBX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 54: // sys_ioctl
-            R_EAX = (uint32_t)ioctl((int)R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = ioctl(S_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 55: // sys_fcntl
-            R_EAX = (uint32_t)my_fcntl(emu, (int)R_EBX, (int)R_ECX, R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = my_fcntl(emu, S_EBX, S_ECX, R_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 67: // sys_sigaction
-            R_EAX = (uint32_t)my_syscall_sigaction(emu, R_EBX, (x86_sigaction_restorer_t*)R_ECX, (x86_sigaction_restorer_t*)R_EDX, R_ESI);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = my_syscall_sigaction(emu, R_EBX, (x86_sigaction_restorer_t*)R_ECX, (x86_sigaction_restorer_t*)R_EDX, R_ESI);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #ifndef __NR_getrlimit
         case 76:    // sys_getrlimit... this is the old version, using the new one. Maybe some tranform is needed?
             R_EAX = getrlimit(R_EBX, (void*)R_ECX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
 #ifndef __NR_select
         case 82:   // select
             R_EAX = select(R_EBX, (fd_set*)R_ECX, (fd_set*)R_EDX, (fd_set*)R_ESI, (struct timeval*)R_EDI);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
         case 90:    // old_mmap
@@ -533,19 +534,19 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 struct mmap_arg_struct *st = (struct mmap_arg_struct*)R_EBX;
                 R_EAX = (uintptr_t)my_mmap(emu, (void*)st->addr, st->len, st->prot, st->flags, st->fd, st->offset);
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 91:   // munmap
             R_EAX = my_munmap(emu, (void*)R_EBX, (unsigned long)R_ECX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #ifndef __NR_socketcall
         case 102:
             R_EAX = my_socketcall(emu, R_EBX, (unsigned long *)R_ECX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
 #ifndef __NR_olduname
@@ -561,8 +562,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     memcpy(old->version, un.version, 9);
                     strcpy(old->machine, "i686");
                 }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             }
             break;
 #endif
@@ -573,9 +574,9 @@ void EXPORT x86Syscall(x86emu_t *emu)
 #endif
 #ifndef __NR_ipc
         case 117:   // ipc
-            R_EAX = (uint32_t)my_ipc(R_EBX, (int)R_ECX, (int)R_EDX, (int)R_ESI, (void*)R_EDI, (long)R_EBP);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = my_ipc(R_EBX, S_ECX, S_EDX, S_ESI, (void*)R_EDI, (long)R_EBP);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
         case 119: // sys_sigreturn
@@ -587,8 +588,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
             if((R_EBX&~0xff)==0x4100) {
                 // this is a case of vfork...
                 R_EAX = my_vfork(emu);
-                if(R_EAX==0xffffffff)
-                    R_EAX = (uint32_t)-errno;
+                if(S_EAX==-1)
+                    S_EAX = -errno;
             } else {
                 if(R_ECX)
                 {
@@ -624,12 +625,12 @@ void EXPORT x86Syscall(x86emu_t *emu)
                         my_context->stack_clone_used = 1;
                     }
                     long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_EBX, newemu, R_EDX, R_ESI, R_EDI);
-                    R_EAX = (uint32_t)ret;
+                    S_EAX = ret;
                 }
                 else
-                    R_EAX = (uint32_t)syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
-                if(R_EAX==0xffffffff && errno>0)
-                    R_EAX = (uint32_t)-errno;
+                    S_EAX = syscall(__NR_clone, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+                if(S_EAX==-1 && errno>0)
+                    S_EAX = -errno;
             }
             break;
         case 122:   // uname
@@ -645,23 +646,23 @@ void EXPORT x86Syscall(x86emu_t *emu)
                     strcpy(old->machine, "i686");
                 }
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 123:   // SYS_modify_ldt
             R_EAX = my_modify_ldt(emu, R_EBX, (thread_area_t*)R_ECX, R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 125:   // mprotect
             R_EAX = my_mprotect(emu, (void*)R_EBX, (unsigned long)R_ECX, R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 168: // sys_poll
-            R_EAX = (uint32_t)poll((void*)R_EBX, R_ECX, (int)R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = poll((void*)R_EBX, R_ECX, S_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 173: // sys_rt_sigreturn
             emu->quit = 1;  // we should be inside a DynaCall in a sigaction callback....
@@ -669,19 +670,19 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 174: // sys_rt_sigaction
             //printf_log(LOG_NONE, "Warning, Ignoring sys_rt_sigaction(0x%02X, %p, %p)\n", R_EBX, (void*)R_ECX, (void*)R_EDX);
             R_EAX = my_syscall_sigaction(emu, R_EBX, (void*)R_ECX, (void*)R_EDX, R_ESI);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 190:   // vfork
             {
                 int r = my_vfork(emu);
                 R_EAX = r;
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 192:   // mmap2
-            R_EAX = (uint32_t)my_mmap64(emu, (void*)R_EBX, (unsigned long)R_ECX, R_EDX, R_ESI, R_EDI, R_EBP);
+            S_EAX = (intptr_t)my_mmap64(emu, (void*)R_EBX, (unsigned long)R_ECX, R_EDX, R_ESI, R_EDI, R_EBP);
             break;
         case 195:   // stat64
             {   
@@ -691,8 +692,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 196:   // lstat64
             {   
@@ -702,8 +703,8 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 197:   // fstat64
             {   
@@ -713,73 +714,73 @@ void EXPORT x86Syscall(x86emu_t *emu)
                 
                 R_EAX = r;
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 221: // sys_fcntl64
-            R_EAX = (uint32_t)my_fcntl(emu, (int)R_EBX, (int)R_ECX, R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            S_EAX = my_fcntl(emu, S_EBX, S_ECX, R_EDX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 243: // set_thread_area
             R_EAX = my_set_thread_area((thread_area_t*)R_EBX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #ifndef NOALIGN
         case 254: // epoll_create
-            R_EAX = my_epoll_create(emu, (int)R_EBX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            R_EAX = my_epoll_create(emu, S_EBX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 255: // epoll_ctl
-            R_EAX = my_epoll_ctl(emu, (int)R_EBX, (int)R_ECX, (int)R_EDX, (void*)R_ESI);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            R_EAX = my_epoll_ctl(emu, S_EBX, S_ECX, S_EDX, (void*)R_ESI);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
         case 256: // epoll_wait
-            R_EAX = my_epoll_wait(emu, (int)R_EBX, (void*)R_ECX, (int)R_EDX, (int)R_ESI);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            R_EAX = my_epoll_wait(emu, S_EBX, (void*)R_ECX, S_EDX, S_ESI);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
         case 270:   // tgkill
             R_EAX = syscall(__NR_tgkill, R_EBX, R_ECX, R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #ifndef NOALIGN
         case 329:   // epoll_create1
             R_EAX = my_epoll_create1(emu, of_convert(R_EBX));
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
 #ifndef __NR_getrandom
         case 355:  // getrandom
             R_EAX = my_getrandom(emu, (void*)R_EBX, R_ECX, R_EDX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
 #ifndef __NR_memfd_create
         case 356:  // memfd_create
             R_EAX = my_memfd_create(emu, (void*)R_EBX, R_ECX);
-            if(R_EAX==0xffffffff && errno>0)
-                R_EAX = (uint32_t)-errno;
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
             break;
 #endif
         case 449:
             #ifdef __NR_futex_waitv
             if(box86_futex_waitv)
-                R_EAX = (uint32_t)syscall(R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+                S_EAX = syscall(R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
             else
             #endif
-                R_EAX = (uint32_t)-ENOSYS;
+                S_EAX = -ENOSYS;
             break;
         default:
             printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
-            R_EAX = (uint32_t)-ENOSYS;
+            S_EAX = -ENOSYS;
             return;
     }
     printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
@@ -790,7 +791,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
 #define u32(n)  *(uint32_t*)stack(n)
 #define p(n)    *(void**)stack(n)
 
-uint32_t EXPORT my_syscall(x86emu_t *emu)
+long EXPORT my_syscall(x86emu_t *emu)
 {
     static uint32_t warned = 0;
     uint32_t s = u32(0);
@@ -818,34 +819,34 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
     switch (s) {
         case 1: // __NR_exit
             emu->quit = 1;
-            return u32(4); // faking the syscall here, we don't want to really terminate the program now
+            return i32(4); // faking the syscall here, we don't want to really terminate the program now
         case 3:  // sys_read
-            return (uint32_t)read(i32(4), p(8), u32(12));
+            return read(i32(4), p(8), u32(12));
         case 4:  // sys_write
-            return (uint32_t)write(i32(4), p(8), u32(12));
+            return write(i32(4), p(8), u32(12));
         case 5: // sys_open
             return my_open(emu, p(4), of_convert(u32(8)), u32(12));
         case 6:  // sys_close
-            return (uint32_t)close(i32(4));
+            return close(i32(4));
         case 11: // execve
-            return (uint32_t)my_execve(emu, p(4), p(8), p(12));
+            return my_execve(emu, p(4), p(8), p(12));
 #ifndef __NR_alarm
         case 27:
             return alarm(R_EBX);
 #endif
         case 45: // brk
-            return (uintptr_t)ElfSetBrk(p(4));
+            return (intptr_t)ElfSetBrk(p(4));
         case 67: // sys_sigaction
             return my_syscall_sigaction(emu, u32(4), (x86_sigaction_restorer_t*)p(8), (x86_sigaction_restorer_t*)p(12), u32(16));
         case 91:   // munmap
-            return (uint32_t)my_munmap(emu, p(4), u32(8));
+            return my_munmap(emu, p(4), u32(8));
 #ifndef __NR_socketcall
         case 102:
             return my_socketcall(emu, i32(4), (unsigned long *)p(8));
 #endif
 #ifndef __NR_ipc
         case 117:   // ipc
-            return (uint32_t)my_ipc(u32(4), i32(8), i32(12), i32(16), p(20), i32(24));
+            return my_ipc(u32(4), i32(8), i32(12), i32(16), p(20), i32(24));
 #endif
         case 120:   // clone
             // x86 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, unsigned long tls, int *child_tid);
@@ -885,19 +886,19 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
                 }
                 // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
                 long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), u32(4), newemu, p(12), p(16), p(20));
-                return (uint32_t)ret;
+                return ret;
             }
             else
-                return (uint32_t)syscall(__NR_clone, u32(4), p(8), p(12), p(16), p(20));
+                return syscall(__NR_clone, u32(4), p(8), p(12), p(16), p(20));
             break;
         case 123:   // SYS_modify_ldt
             return my_modify_ldt(emu, i32(4), (thread_area_t*)p(8), i32(12));
         case 125:   // mprotect
-            return (uint32_t)my_mprotect(emu, p(4), u32(8), i32(12));
+            return my_mprotect(emu, p(4), u32(8), i32(12));
         case 174:   // sys_rt_sigaction
-            return (uint32_t)my_syscall_sigaction(emu, i32(4), p(8), p(12), i32(16));
+            return my_syscall_sigaction(emu, i32(4), p(8), p(12), i32(16));
         case 192:   // mmap2
-            return (uint32_t)my_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24));
+            return (intptr_t)my_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24));
         case 243: // set_thread_area
             return my_set_thread_area((thread_area_t*)p(4));
 #ifndef NOALIGN
@@ -924,30 +925,28 @@ uint32_t EXPORT my_syscall(x86emu_t *emu)
 #endif
 #ifndef __NR_getrandom
         case 355:  // getrandom
-            return (uint32_t)my_getrandom(emu, p(4), u32(8), u32(12));
+            return my_getrandom(emu, p(4), u32(8), u32(12));
 #endif
 #ifndef __NR_memfd_create
         case 356:  // memfd_create
-            return (uint32_t)my_memfd_create(emu, (void*)R_EBX, R_ECX);
+            return my_memfd_create(emu, (void*)R_EBX, R_ECX);
 #endif
         case 449:
             #ifdef __NR_futex_waitv
             if(box86_futex_waitv)
-                return (uint32_t)syscall(__NR_futex_waitv, u32(4), u32(8), u32(12), u32(16), u32(20));
+                return syscall(__NR_futex_waitv, u32(4), u32(8), u32(12), u32(16), u32(20));
             else
             #endif
                 {
                     errno = ENOSYS;
-                    return 0xffffffff;
+                    return -1;
                 }
-            break;
         default:
             if(!(warned&(1<<s))) {
                 printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
                 warned|=(1<<s);
             }
             errno = ENOSYS;
-            return 0xffffffff;
+            return -1;
     }
-    return 0;
 }

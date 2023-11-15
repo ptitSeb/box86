@@ -1810,7 +1810,7 @@ GO(symlinkat, iFpip)
 GO(sync, vFv)
 GO(syncfs, iFi)
 // sync_file_range
-GOM(syscall, uFEv) //%%
+GOM(syscall, lFEv) //%%
 GOW(sysconf, lFi)
 GO(__sysconf, lFi)
 // sysctl   // Weak

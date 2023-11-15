@@ -214,7 +214,6 @@
 #() CFpu
 #() CFpp
 #() WFpp
-#() uFEv
 #() uFEu
 #() uFEp
 #() uFii
@@ -254,6 +253,7 @@
 #() dFpd
 #() dFpp
 #() DFpp
+#() lFEv
 #() lFui
 #() lFll
 #() lFpi
@@ -3088,9 +3088,9 @@ wrappedlibc:
 - iFp:
   - getwc
 - iFO:
-- uFv:
 - uFu:
 - uFp:
+- lFv:
 - LFL:
 - pFu:
   - getpwuid
