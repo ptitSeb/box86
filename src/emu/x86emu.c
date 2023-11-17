@@ -422,8 +422,6 @@ void UnimpOpcode(x86emu_t* emu)
         tid, (void*)emu->old_ip, Peek(emu, -1),
         Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
         Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7));
-    emu->quit=1;
-    emu->error |= ERR_UNIMPL;
 }
 
 void EmuCall(x86emu_t* emu, uintptr_t addr)
@@ -440,9 +438,9 @@ void EmuCall(x86emu_t* emu, uintptr_t addr)
     Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
-    if(emu->quitonlongjmp && emu->longjmp) {
-        if(emu->quitonlongjmp==1)
-            emu->longjmp = 0;   // don't change anything because of the longjmp
+    if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
+        if(emu->flags.quitonlongjmp==1)
+            emu->flags.longjmp = 0;   // don't change anything because of the longjmp
     } else {
         R_EBX = old_ebx;
         R_EDI = old_edi;

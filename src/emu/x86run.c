@@ -428,7 +428,7 @@ x86emurun:
         case 0x6F:                      /* OUTSD */
             #ifndef TEST_INTERPRETER
             // this is a privilege opcode
-            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
             STEP;
             #endif
             break;
@@ -704,15 +704,6 @@ x86emurun:
         case 0x9D:                      /* POPF */
             emu->eflags.x32 = ((Pop(emu) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
-            #ifndef TEST_INTERPRETER
-            if(ACCESS_FLAG(F_TF)) {
-                R_EIP = addr;
-                emit_signal(emu, SIGTRAP, (void*)addr, 1);
-                if(emu->quit) goto fini;
-                CLEAR_FLAG(F_TF);
-                STEP;
-            }
-            #endif
             break;
         case 0x9E:                      /* SAHF */
             tmp8u = emu->regs[_AX].byte[1];
@@ -1118,7 +1109,7 @@ x86emurun:
                     printf_log(LOG_DEBUG, "INT 2D called\n");
                 } else {
                     #ifndef TEST_INTERPRETER
-                    emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+                    emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
                     if(emu->quit) goto fini;
                     STEP;
                     #endif
@@ -1128,8 +1119,9 @@ x86emurun:
         case 0xCE:                      /* INTO */
             emu->old_ip = R_EIP;
             #ifndef TEST_INTERPRETER
-            emit_signal(emu, SIGFPE, (void*)R_EIP, FPE_INTOVF);
-            if(emu->quit) goto fini;
+            CHECK_FLAGS(emu);
+            if(ACCESS_FLAG(F_OF))
+                emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
             STEP;
             #endif
             break;
@@ -1341,7 +1333,7 @@ x86emurun:
         case 0xE7:                      /* OUT Ib, EAX */
             #ifndef TEST_INTERPRETER
             // this is a privilege opcode
-            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
             STEP;
             #endif
             break;
@@ -1369,7 +1361,7 @@ x86emurun:
         case 0xEF:                      /* OUT DX, EAX */
             #ifndef TEST_INTERPRETER
             // this is a privilege opcode
-            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
             STEP;
             #endif
             break;
@@ -1396,7 +1388,7 @@ x86emurun:
         case 0xF4:                      /* HLT */
             #ifndef TEST_INTERPRETER
             // this is a privilege opcode
-            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
             STEP;
             #endif
             break;
@@ -1476,7 +1468,7 @@ x86emurun:
         case 0xFB:                      /* STI */
             #ifndef TEST_INTERPRETER
             // this is a privilege opcode
-            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 128);
             STEP;
             #endif
             break;
@@ -1576,15 +1568,32 @@ x86emurun:
             unimp = 1;
             goto fini;
         }
+        #ifndef TEST_INTERPRETER
+        if(ACCESS_FLAG(F_TF)) {
+            R_EIP = addr;
+            emit_signal(emu, SIGTRAP, (void*)addr, 1);
+            if(emu->quit) goto fini;
+        }
+        #endif
         R_EIP = addr;
     }
 
 fini:
 #ifndef TEST_INTERPRETER
+    // check the TRACE flag before going to out, in case it's a step by step scenario
+    if(!emu->quit && !emu->fork && !emu->uc_link && ACCESS_FLAG(F_TF)) {
+        R_EIP = addr;
+        emit_signal(emu, SIGTRAP, (void*)addr, 1);
+        if(emu->quit) goto fini;
+    }
+#endif
+#ifndef TEST_INTERPRETER
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_EIP, (void*)R_ESP, unimp, emu->fork, emu->uc_link, emu->quit);
     if(unimp) {
-        emu->quit = 1;
         UnimpOpcode(emu);
+        emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+        emu->quit=1;
+        emu->error |= ERR_UNIMPL;
     }
     // fork handling
     if(emu->fork) {
@@ -1598,7 +1607,7 @@ fini:
         goto x86emurun;
     }
     // setcontext handling
-    else if(emu->uc_link) {
+    else if(emu->quit && emu->uc_link) {
         emu->quit = 0;
         my_setcontext(emu, emu->uc_link);
         addr = R_EIP;

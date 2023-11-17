@@ -34,6 +34,21 @@ typedef struct x86test_s {
     uint8_t     mem[16];
 } x86test_t;
 
+typedef struct emu_flags_s {
+    uint32_t    need_jmpbuf:1;    // need a new jmpbuff for signal handling
+    uint32_t    quitonlongjmp:2;  // quit if longjmp is called
+    uint32_t    quitonexit:2;     // quit if exit/_exit is called
+    uint32_t    longjmp:1;        // if quit because of longjmp
+    uint32_t    jmpbuf_ready:1;   // the jmpbuf in the emu is ok and don't need refresh
+} emu_flags_t;
+
+#ifdef ANDROID
+#include <setjmp.h>
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 typedef struct x86emu_s {
     // cpu
 	reg32_t     regs[8];
@@ -70,10 +85,9 @@ typedef struct x86emu_s {
     int         quit;
     int         error;
     int         fork;   // quit because need to fork
-    forkpty_t*  forkpty_info;
     int         exit;
-    int         quitonlongjmp;  // quit if longjmp is called
-    int         longjmp;        // if quit because of longjmp
+    forkpty_t*  forkpty_info;
+    emu_flags_t flags;
     x86test_t   test;       // used for dynarec testing
     // parent context
     box86context_t *context;
@@ -86,6 +100,7 @@ typedef struct x86emu_s {
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
+    JUMPBUFF*   jmpbuf;
 
     i386_ucontext_t *uc_link; // to handle setcontext
 

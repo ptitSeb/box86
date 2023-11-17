@@ -40,9 +40,21 @@ uint32_t RunSafeFunction(uintptr_t fnc, int nargs, ...)
     }
     va_end (va);
 
+    // save defered flags
+    defered_flags_t old_df = emu->df;
+    uint32_t old_op1 = emu->op1;
+    uint32_t old_op2 = emu->op2;
+    uint32_t old_res = emu->res;
+
     uintptr_t oldip = R_EIP;
     DynaCall(emu, fnc);
     R_ESP+=(nargs*4);
+
+    // restore defered flags
+    emu->df = old_df;
+    emu->op1 = old_op1;
+    emu->op2 = old_op2;
+    emu->res = old_res;
 
     uint32_t ret = R_EAX;
     R_EIP = oldip;
@@ -281,10 +293,10 @@ uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
     uint32_t oldip = R_EIP;
     int old_quit = emu->quit;
-    int oldlong = emu->quitonlongjmp;
+    int oldlong = emu->flags.quitonlongjmp;
 
     emu->quit = 0;
-    emu->quitonlongjmp = QuitOnLongJump;
+    emu->flags.quitonlongjmp = QuitOnLongJump;
 
     DynaCall(emu, fnc);
 
@@ -292,7 +304,7 @@ uint32_t RunFunctionWithEmu(x86emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
         R_ESP+=(nargs*4);   // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
 
     emu->quit = old_quit;
-    emu->quitonlongjmp = oldlong;
+    emu->flags.quitonlongjmp = oldlong;
 
 
     return R_EAX;

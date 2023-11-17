@@ -293,9 +293,9 @@ GO2(execlp, iFpV, execvp)
 GOWM(execv, iFEpp)     //%%
 GOM(execve, iFEppp)   //%% and this one too...
 GOWM(execvp, iFEpp)
-GO(exit, vFi)
-GO(_exit, vFi)
-GOW(_Exit, vFi)
+GOM(exit, vFEi)
+GOM(_exit, vFEi)
+GOWM(_Exit, vFEi)
 GOM(__explicit_bzero_chk, vFEpuu)    //%% not always defined
 GO(faccessat, iFipii)
 // fattach

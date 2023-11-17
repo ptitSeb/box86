@@ -67,7 +67,7 @@ x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
     R_EAX = v;
     return emu;
 }
-
+void emit_signal(x86emu_t* emu, int sig, void* addr, int code); // in signals.c
 extern int errno;
 void x86Int3(x86emu_t* emu)
 {
@@ -350,8 +350,8 @@ void x86Int3(x86emu_t* emu)
         }
         return;
     }
-    if(0 && my_context->signals[SIGTRAP])
-        raise(SIGTRAP);
+    if(1 && my_context->signals[SIGTRAP])
+        emit_signal(emu, SIGTRAP, (void*)R_EIP, 128);
     else
         printf_log(LOG_INFO, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_EIP);
     //emu->quit = 1;

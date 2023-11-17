@@ -154,7 +154,7 @@ static void emuthread_cancel(void* p)
 		return;
 	// check cancels threads
 	for(int i=et->cancel_size-1; i>=0; --i) {
-		et->emu->quitonlongjmp = 0;
+		et->emu->flags.quitonlongjmp = 0;
 		my_longjmp(et->emu, et->cancels[i]->__cancel_jmp_buf, 1);
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
@@ -926,28 +926,6 @@ EXPORT int my___pthread_mutex_unlock(pthread_mutex_t *m) __attribute__((alias("m
 
 #endif
 
-static void emujmpbuf_destroy(void* p)
-{
-	emu_jmpbuf_t *ej = (emu_jmpbuf_t*)p;
-	if(ej) {
-		box_free(ej->jmpbuf);
-		box_free(ej);
-	}
-}
-
-static pthread_key_t jmpbuf_key;
-
-emu_jmpbuf_t* GetJmpBuf()
-{
-	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
-	if(!ejb) {
-		ejb = (emu_jmpbuf_t*)box_calloc(1, sizeof(emu_jmpbuf_t));
-		ejb->jmpbuf = box_calloc(1, sizeof(jmp_buf));
-		pthread_setspecific(jmpbuf_key, ejb);
-	}
-	return ejb;
-}
-
 void init_pthread_helper()
 {
 	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
@@ -967,8 +945,6 @@ void init_pthread_helper()
 	}
 
 	mapcond = kh_init(mapcond);
-	pthread_key_create(&jmpbuf_key, emujmpbuf_destroy);
-	pthread_setspecific(jmpbuf_key, NULL);
 	pthread_key_create(&thread_key, emuthread_destroy);
 	pthread_setspecific(thread_key, NULL);
 #if !defined(NOALIGN) && defined(ANDROID)
@@ -1007,11 +983,6 @@ void fini_pthread_helper(box86context_t* context)
 	FreeAllMutexes(mutexes);
 #endif //!ANDROID
 #endif
-	emu_jmpbuf_t *ejb = (emu_jmpbuf_t*)pthread_getspecific(jmpbuf_key);
-	if(ejb) {
-		pthread_setspecific(jmpbuf_key, NULL);
-		emujmpbuf_destroy(ejb);
-	}
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(et) {
 		pthread_setspecific(thread_key, NULL);

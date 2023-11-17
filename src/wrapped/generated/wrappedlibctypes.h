@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFv_t)(void);
+typedef void (*vFi_t)(int32_t);
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
@@ -120,6 +121,9 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__cxa_pure_virtual, vFv_t) \
+	GO(_Exit, vFi_t) \
+	GO(_exit, vFi_t) \
+	GO(exit, vFi_t) \
 	GO(__close_nocancel, iFi_t) \
 	GO(getwc, iFp_t) \
 	GO(getpwuid, pFu_t) \

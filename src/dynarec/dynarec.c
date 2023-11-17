@@ -89,123 +89,62 @@ void* LinkNext(x86emu_t* emu, uintptr_t addr, void* x2)
 
 void DynaCall(x86emu_t* emu, uintptr_t addr)
 {
-    // prepare setjump for signal handling
-    emu_jmpbuf_t *ejb = NULL;
-    int jmpbuf_reset = 0;
-    int skip = 0;
-    if(emu->type == EMUTYPE_MAIN) {
-        ejb = GetJmpBuf();
-        if(!ejb->jmpbuf_ok) {
-            ejb->emu = emu;
-            ejb->jmpbuf_ok = 1;
-            jmpbuf_reset = 1;
-            if((skip=sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1))) {
-                printf_log(LOG_DEBUG, "Setjmp DynaCall %d, fs=0x%x\n", skip, ejb->emu->segs[_FS]);
-                addr = R_EIP;   // not sure if it should still be inside DynaCall!
-                #ifdef DYNAREC
-                if(box86_dynarec_test) {
-                    if(emu->test.clean)
-                        x86test_check(emu, R_EIP);
-                    emu->test.clean = 0;
-                }
-                #endif
-                if(skip!=2)
-                    skip = 0;
-            }
-        }
+    uint32_t old_esp = R_ESP;
+    uint32_t old_ebx = R_EBX;
+    uint32_t old_edi = R_EDI;
+    uint32_t old_esi = R_ESI;
+    uint32_t old_ebp = R_EBP;
+    uint32_t old_eip = R_EIP;
+    // save defered flags
+    defered_flags_t old_df = emu->df;
+    uint32_t old_op1 = emu->op1;
+    uint32_t old_op2 = emu->op2;
+    uint32_t old_res = emu->res;
+    PushExit(emu);
+    R_EIP = addr;
+    emu->df = d_none;
+    DynaRun(emu);
+    emu->quit = 0;  // reset Quit flags...
+    emu->df = d_none;
+    if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
+        if(emu->flags.quitonlongjmp==1)
+            emu->flags.longjmp = 0;   // don't change anything because of the longjmp
+    } else {
+        // restore defered flags
+        emu->df = old_df;
+        emu->op1 = old_op1;
+        emu->op2 = old_op2;
+        emu->res = old_res;
+        // and the old registers
+        R_EBX = old_ebx;
+        R_EDI = old_edi;
+        R_ESI = old_esi;
+        R_EBP = old_ebp;
+        R_ESP = old_esp;
+        R_EIP = old_eip;  // and set back instruction pointer
     }
-#ifdef DYNAREC
-    if(!box86_dynarec)
-#endif
-        EmuCall(emu, addr);
-#ifdef DYNAREC
-    else {
-        uint32_t old_esp = R_ESP;
-        uint32_t old_ebx = R_EBX;
-        uint32_t old_edi = R_EDI;
-        uint32_t old_esi = R_ESI;
-        uint32_t old_ebp = R_EBP;
-        uint32_t old_eip = R_EIP;
-        PushExit(emu);
-        R_EIP = addr;
-        emu->df = d_none;
-        dynablock_t* block = NULL;
-        dynablock_t* current = NULL;
-        while(!emu->quit) {
-            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1);
-            current = block;
-            if(!block || !block->block || !block->done) {
-                skip = 0;
-                // no block, of block doesn't have DynaRec content (yet, temp is not null)
-                // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "%04d|Calling Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
-                if(box86_dynarec_test)
-                    emu->test.clean = 0;
-                Run(emu, 1);
-            } else {
-                dynarec_log(LOG_DEBUG, "%04d|Calling DynaRec Block @%p (%p) of %d x86 instructions emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize ,emu);
-                CHECK_FLAGS(emu);
-                // block is here, let's run it!
-                #ifdef ARM
-                arm_prolog(emu, block->block);
-                #endif
-            }
-            if(emu->fork) {
-                int forktype = emu->fork;
-                emu->quit = 0;
-                emu->fork = 0;
-                emu = x86emu_fork(emu, forktype);
-                if(emu->type == EMUTYPE_MAIN) {
-                    ejb = GetJmpBuf();
-                    ejb->emu = emu;
-                    ejb->jmpbuf_ok = 1;
-                    jmpbuf_reset = 1;
-                    if(sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1)) {
-                        printf_log(LOG_DEBUG, "Setjmp inner DynaCall, fs=0x%x\n", ejb->emu->segs[_FS]);
-                        addr = R_EIP;
-                    }
-                }
-            }
-        }
-        emu->quit = 0;  // reset Quit flags...
-        emu->df = d_none;
-        if(emu->quitonlongjmp && emu->longjmp) {
-            emu->longjmp = 0;   // don't change anything because of the longjmp
-        } else {
-            R_EBX = old_ebx;
-            R_EDI = old_edi;
-            R_ESI = old_esi;
-            R_EBP = old_ebp;
-            R_ESP = old_esp;
-            R_EIP = old_eip;  // and set back instruction pointer
-        }
-    }
-#endif
-    // clear the setjmp
-    if(ejb && jmpbuf_reset)
-        ejb->jmpbuf_ok = 0;
 }
 
 int my_setcontext(x86emu_t* emu, void* ucp);
 int DynaRun(x86emu_t* emu)
 {
     // prepare setjump for signal handling
-    emu_jmpbuf_t *ejb = NULL;
+    JUMPBUFF jmpbuf[1] = {0};
     int skip = 0;
-#ifdef DYNAREC
-    int jmpbuf_reset = 1;
-#endif
-    if(emu->type == EMUTYPE_MAIN) {
-        ejb = GetJmpBuf();
-        if(!ejb->jmpbuf_ok) {
-            ejb->emu = emu;
-            ejb->jmpbuf_ok = 1;
-            int a;
-#ifdef DYNAREC
-            jmpbuf_reset = 1;
-#endif
-            if((skip=sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1))) {
-                printf_log(LOG_DEBUG, "Setjmp DynaRun %d, fs=0x%x\n", skip, ejb->emu->segs[_FS]);
+    JUMPBUFF *old_jmpbuf = emu->jmpbuf;
+    emu->flags.jmpbuf_ready = 0;
+
+    while(!(emu->quit)) {
+        if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
+            emu->jmpbuf = jmpbuf;
+            emu->flags.jmpbuf_ready = 1;
+            #ifdef ANDROID
+            if((skip=sigsetjmp(*(JUMPBUFF*)emu->jmpbuf, 1))) 
+            #else
+            if((skip=sigsetjmp(emu->jmpbuf, 1))) 
+            #endif
+            {
+                printf_log(LOG_DEBUG, "Setjmp DynaRun\n");
                 #ifdef DYNAREC
                 if(box86_dynarec_test) {
                     if(emu->test.clean)
@@ -213,60 +152,46 @@ int DynaRun(x86emu_t* emu)
                     emu->test.clean = 0;
                 }
                 #endif
-                if(skip!=2)
-                    skip = 0;
             }
         }
-    }
-#ifdef DYNAREC
-    if(!box86_dynarec)
-#endif
-        return Run(emu, 0);
-#ifdef DYNAREC
-    else {
-        dynablock_t* block = NULL;
-        dynablock_t* current = NULL;
-        while(!emu->quit) {
-            block = (skip==2)?NULL:DBGetBlock(emu, R_EIP, 1);
-            current = block;
+        if(emu->flags.need_jmpbuf)
+            emu->flags.need_jmpbuf = 0;
+
+#ifndef DYNAREC
+        Run(emu, 0);
+#else
+        if(!box86_dynarec)
+            Run(emu, 0);
+        else {
+            dynablock_t* block = (skip || ACCESS_FLAG(F_TF))?NULL:DBGetBlock(emu, R_EIP, 1);
             if(!block || !block->block || !block->done) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)
-                dynarec_log(LOG_DEBUG, "%04d|Running Interpretor @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running Interpreter @%p, emu=%p\n", GetTID(), (void*)R_EIP, emu);
                 if(box86_dynarec_test)
                     emu->test.clean = 0;
                 Run(emu, 1);
             } else {
-                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, emu);
+                dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x86 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_EIP, block->block, block->isize, block->hash, emu);
                 // block is here, let's run it!
-                #ifdef ARM
                 arm_prolog(emu, block->block);
-                #endif
             }
             if(emu->fork) {
                 int forktype = emu->fork;
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x86emu_fork(emu, forktype);
-                if(emu->type == EMUTYPE_MAIN) {
-                    ejb = GetJmpBuf();
-                    ejb->emu = emu;
-                    ejb->jmpbuf_ok = 1;
-                    jmpbuf_reset = 1;
-                    if(sigsetjmp((JUMPBUFF*)ejb->jmpbuf, 1))
-                        printf_log(LOG_DEBUG, "Setjmp inner DynaRun, fs=0x%x\n", ejb->emu->segs[_FS]);
-                }
             }
-            else if(emu->quit && emu->uc_link) {
+            if(emu->quit && emu->uc_link) {
                 emu->quit = 0;
                 my_setcontext(emu, emu->uc_link);
             }
         }
+#endif
+        if(emu->flags.need_jmpbuf)
+            emu->quit = 0;
     }
     // clear the setjmp
-    if(ejb && jmpbuf_reset)
-        ejb->jmpbuf_ok = 0;
-    return 0;
-#endif
+    emu->jmpbuf = old_jmpbuf;
 }

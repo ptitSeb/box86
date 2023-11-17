@@ -585,17 +585,6 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SMDMB();
             --addr;
             break;
-        case 0x90:  // This is xchg reg, reg, so let's ignore the LOCK prefix...
-        case 0x91:
-        case 0x92:
-        case 0x93:
-        case 0x94:
-        case 0x95:
-        case 0x96:
-        case 0x97:
-            SMDMB();
-            --addr;
-            break;
     
         case 0x0F:
             nextop = F8;
@@ -1010,8 +999,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
 
                 default:
-                    // dafault to NO LOCK
-                    addr-=2;
+                    DEFAULT;
             }
             break;
 
@@ -1095,15 +1083,13 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     break;
                 default:
-                    // default to NO LOCK
-                    addr-=2;
+                    DEFAULT;
             }
             SMDMB();
             break;
        
         default:
-            // default to NO LOCK
-            --addr;
+            DEFAULT;
     }
 
     return addr;

@@ -691,15 +691,23 @@ EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/voi
 //EXPORT int32_t my_setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p);
 //EXPORT int32_t my__setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 //EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
-#if 0
-EXPORT void my_exit(x86emu_t *emu, int32_t status)
+extern int box86_quit;
+EXPORT void my_exit(x86emu_t* emu, int code)
 {
-    R_EAX = (uint32_t)status;
+    if(emu->flags.quitonexit) {
+        emu->quit = 1;
+        R_EAX = code;
+        emu->flags.quitonexit = 2;
+        return;
+    }
     emu->quit = 1;
+    box86_quit = 1;
+    exit(code);
 }
-EXPORT void my__exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
+
+EXPORT void my__exit(x86emu_t* emu, int code) __attribute__((alias("my_exit")));
 EXPORT void my__Exit(x86emu_t *emu, int32_t status) __attribute__((alias("my_exit")));
-#endif
+
 void myStackAlign(const char* fmt, uint32_t* st, uint32_t* mystack); // align st into mystack according to fmt (for v(f)printf(...))
 typedef int (*iFpp_t)(void*, void*);
 typedef int (*iFppp_t)(void*, void*, void*);
@@ -2687,8 +2695,8 @@ void EXPORT my_longjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, 
     if(((__jmp_buf_tag_t*)p)->__mask_was_saved) {
         sigprocmask(SIG_SETMASK, &((__jmp_buf_tag_t*)p)->__saved_mask, NULL);
     }
-    if(emu->quitonlongjmp) {
-        emu->longjmp = 1;
+    if(emu->flags.quitonlongjmp) {
+        emu->flags.longjmp = 1;
         emu->quit = 1;
     }
 }
@@ -2711,6 +2719,11 @@ EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/vo
             ((__jmp_buf_tag_t*)p)->__mask_was_saved = 1;
     } else
         ((__jmp_buf_tag_t*)p)->__mask_was_saved = 0;
+    // quit emulation loop and create a new jumpbuf if needed
+    if(!emu->flags.jmpbuf_ready) {
+        emu->flags.need_jmpbuf = 1;
+        emu->quit = 1;
+    }
     return 0;
 }
 EXPORT int32_t my_sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int savesigs)

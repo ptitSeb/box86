@@ -28,6 +28,7 @@
 #include "dynarec_arm_helper.h"
 
 int isRetX87Wrapper(wrapper_t fun);
+void emit_signal(x86emu_t* emu, int sig, void* addr, int code);
 
 uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -1247,14 +1248,11 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
             ORR_IMM8(xFlags, xFlags, 2, 0);
             SET_DFNONE(x1);
-            if(box86_wine) {    // should this be done all the time?
+            if(box86_wine || 1) {    // should this be done all the time?
                 TSTS_IMM8_ROR(xFlags, 0x1, 12); // 0x100 == F_TF
                 B_NEXT(cEQ);
-                MOV32(x1, addr);
-                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP));
-                STR_IMM9(x1, xEmu, offsetof(x86emu_t, ip));
-                CALL(arm_singlestep, -1, 0);
-                BFC(xFlags, F_TF, 1);   // should not be needed
+                // go to epilog, TF should trigger at end of next opcode, so using Interpretor only
+                jump_to_epilog(dyn, addr, 0, ninst);
             }
             break;
         case 0x9E:
@@ -1713,9 +1711,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, offsetof(box86context_t, signals[SIGTRAP]));
                 LDR_REG_LSL_IMM5(x3, x1, x2, 0);
                 CMPS_IMM8(x3, 0);
-                B_NEXT(cNE);
+                B_NEXT(cEQ);
+                STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
+                MOV32(xEIP, addr);
+                STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
                 MOV32(x1, SIGTRAP);
-                CALL_(raise, -1, 0);
+                MOV32(x2, addr);
+                MOV32(x3, 128);
+                CALL(emit_signal, -1, 0);
                 break;
             }
             break;
@@ -2371,6 +2374,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX? AL":"OUT DX, EAX")));
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+            MOV32(xEIP, ip);
             STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
             CALL(arm_priv, -1, 0);
             LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
@@ -2871,6 +2875,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME(opcode==0xFA?"STI":"CLI");
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
+            MOV32(xEIP, ip);
             STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
             CALL(arm_priv, -1, 0);
             LDR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
