@@ -563,6 +563,34 @@ void UpdateFlags(x86emu_t *emu)
                 CONDITIONAL_SET_FLAG(emu->op1 & 0x80000000, F_OF);
             }
             break;
+        case d_shrd32:
+            cnt = emu->op2;
+            if (cnt > 0) {
+                cc = emu->op1 & (1 << (cnt - 1));
+                CONDITIONAL_SET_FLAG(cc, F_CF);
+                CONDITIONAL_SET_FLAG(!emu->res, F_ZF);
+                CONDITIONAL_SET_FLAG(emu->res & 0x80000000, F_SF);
+                CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+                if (cnt == 1) {
+                    CONDITIONAL_SET_FLAG((emu->op1 ^ emu->res) & 0x80000000, F_OF);
+                }
+            }
+            break;
+        case d_shld32:
+            cnt = emu->op2;
+            if (cnt > 0) {
+                cc = emu->op1 & (1 << (32 - cnt));
+                CONDITIONAL_SET_FLAG(cc, F_CF);
+                CONDITIONAL_SET_FLAG(!emu->res, F_ZF);
+                CONDITIONAL_SET_FLAG(emu->res & 0x80000000, F_SF);
+                CONDITIONAL_SET_FLAG(PARITY(emu->res & 0xff), F_PF);
+                if (cnt == 1) {
+                    CONDITIONAL_SET_FLAG((emu->op1 ^ emu->res) & 0x80000000, F_OF);
+                } else {
+                    CLEAR_FLAG(F_OF);
+                }
+            }
+            break;
         case d_sub8:
             CONDITIONAL_SET_FLAG(emu->res & 0x80, F_SF);
             CONDITIONAL_SET_FLAG((emu->res & 0xff) == 0, F_ZF);

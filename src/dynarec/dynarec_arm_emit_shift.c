@@ -924,6 +924,12 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
         }
         return;
     }
+    IFX(X_OF) {
+        if(c==1) {
+            MOV_REG_LSR_IMM5(s4, s1, 31);
+            BFI(xFlags, s4, F_OF, 1);   // store sign for later use
+        }
+    }
     IFX(X_CF) {
         MOVS_REG_LSR_IMM5(s1, s1, c);
     } else {
@@ -952,9 +958,11 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
     }
     IFX(X_OF) {
         if(c==1) {
-            MOV_REG_LSR_IMM5(s4, s1, 30);
-            XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+            MOV_REG_LSR_IMM5(s4, s1, 31);
+            XOR_REG_LSR_IMM8(s4, s4, xFlags, F_OF); // set if sign changed
             BFI(xFlags, s4, F_OF, 1);
+        } else {
+            BFC(xFlags, F_OF, 1);
         }
     }
     IFX(X_PF) {
@@ -983,6 +991,12 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
         }
         return;
     }
+    IFX(X_OF) {
+        if(c==1) {
+            MOV_REG_LSR_IMM5(s4, s1, 31);
+            BFI(xFlags, s4, F_OF, 1);   // store sign for later use
+        }
+    }
     IFX(X_CF) {
         MOV_REG_LSR_IMM5(s3, s1, 32-c);
         BFI(xFlags, s3, F_CF, 1);
@@ -994,9 +1008,9 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
     }
     IFX(X_OF) {
         if(c==1) {
-            UBFX(s3, s1, (31-c), 1);
-            XOR_IMM8_COND(cCS, s3, s3, 1);
-            BFI(xFlags, s3, F_OF, 1);
+            MOV_REG_LSR_IMM5(s4, s1, 31);
+            XOR_REG_LSR_IMM8(s4, s4, xFlags, F_OF); // set if sign changed
+            BFI(xFlags, s4, F_OF, 1);
         } else {
             BFC(xFlags, F_OF, 1);
         }
@@ -1032,7 +1046,7 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
         // same flags calc as shr32
-        SET_DF(s4, d_shr32);
+        SET_DF(s4, d_shrd32);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
@@ -1042,6 +1056,10 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
         B_NEXT(cEQ);
 
+    IFX(X_OF) {
+        MOV_REG_LSR_IMM5(s4, s1, 31);
+        BFI(xFlags, s4, F_OF, 1);   // store sign for later use
+    }
     IFX(X_CF) {
         MOVS_REG_LSR_REG(s1, s1, s3);
     } else {
@@ -1071,8 +1089,8 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_OF) {
         CMPS_IMM8(s3, 31);  // 32-c
-            MOV_REG_LSR_IMM5_COND(cEQ, s4, s1, 30);
-            XOR_REG_LSR_IMM8_COND(cEQ, s4, s4, s4, 1);
+            MOV_REG_LSR_IMM5_COND(cEQ, s4, s1, 31);
+            XOR_REG_LSR_IMM8_COND(cEQ, s4, s4, xFlags, F_OF);
             BFI_COND(cEQ, xFlags, s4, F_OF, 1);
     }
     IFX(X_PF) {
@@ -1089,7 +1107,7 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, op1));
         STR_IMM9(s3, xEmu, offsetof(x86emu_t, op2));
         // same flags calc as shl32
-        SET_DF(s4, d_shl32);
+        SET_DF(s4, d_shld32);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
@@ -1102,6 +1120,10 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
         B_NEXT(cEQ);
 
+    IFX(X_OF) {
+        MOV_REG_LSR_IMM5(s4, s1, 31);
+        BFI(xFlags, s4, F_OF, 1);   // store sign for later use
+    }
     IFX(X_CF) {
         RSB_IMM8(s4, s3, 32);
         MOV_REG_LSR_REG(s4, s1, s4);
@@ -1113,13 +1135,10 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV_REG_LSL_REG(s1, s1, s3);
     }
     IFX(X_OF) {
-        MOVW_COND(cCS, s4, 1);
-        MOVW_COND(cCC, s4, 0);
-        CMPS_IMM8(s3, 1);
-            ORR_REG_LSR_IMM5_COND(cEQ, s4, s4, s1, 30);
+        CMPS_IMM8(s3, 31);  // 32-c
+            MOV_REG_LSR_IMM5_COND(cEQ, s4, s1, 31);
+            XOR_REG_LSR_IMM8_COND(cEQ, s4, s4, xFlags, F_OF);
             BFI_COND(cEQ, xFlags, s4, F_OF, 1);
-        //else
-            BFC_COND(cNE, xFlags, F_OF, 1);
     }
     RSB_IMM8(s3, s3, 32);
     IFX(X_ZF) {

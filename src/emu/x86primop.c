@@ -877,8 +877,7 @@ uint16_t shld16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 			res = d;
 		}
 		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG((((res & 0x8000) == 0x8000) ^
-								  (ACCESS_FLAG(F_CF) != 0)), F_OF);
+			CONDITIONAL_SET_FLAG(((res ^ d) >> 15)&1, F_OF);
 		} else {
 			CLEAR_FLAG(F_OF);
 		}
@@ -919,8 +918,7 @@ uint32_t shld32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 		res = d;
 	}
 	if (cnt == 1) {
-		CONDITIONAL_SET_FLAG((((res & 0x80000000) == 0x80000000) ^
-								(ACCESS_FLAG(F_CF) != 0)), F_OF);
+		CONDITIONAL_SET_FLAG(((res ^ d) >> 31)&1, F_OF);
 	} else {
 		CLEAR_FLAG(F_OF);
 	}
@@ -951,7 +949,7 @@ uint16_t shrd16 (x86emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		}
 
 		if (cnt == 1) {
-			CONDITIONAL_SET_FLAG(XOR2(res >> 14), F_OF);
+			CONDITIONAL_SET_FLAG(((res ^ d) >> 15)&1, F_OF);
         } else {
 			CLEAR_FLAG(F_OF);
         }
@@ -997,7 +995,7 @@ uint32_t shrd32 (x86emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 		res = d;
 	}
 	if (cnt == 1) {
-		CONDITIONAL_SET_FLAG(XOR2(res >> 30), F_OF);
+		CONDITIONAL_SET_FLAG(((res ^ d) >> 31)&1, F_OF);
 	} else {
 		CLEAR_FLAG(F_OF);
 	}

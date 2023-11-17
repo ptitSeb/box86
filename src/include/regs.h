@@ -96,7 +96,9 @@ typedef enum {
 	d_rcr8,
 	d_rcr16,
 	d_rcr32,
-	d_unknown	//46
+	d_shld32,
+	d_shrd32,
+	d_unknown	//66
 } defered_flags_t;
 
 #pragma pack(push, 1)
