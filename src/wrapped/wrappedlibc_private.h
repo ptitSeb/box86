@@ -348,7 +348,7 @@ GO(fgetws, pFpip)
 // __fgetws_chk
 GO(fgetws_unlocked, pFpip)
 // __fgetws_unlocked_chk
-GO(fgetxattr, iFippu)
+GO(fgetxattr, lFippL)
 GO(fileno, iFp)
 GOW(fileno_unlocked, iFp)
 GOW(finite, iFd)
@@ -622,7 +622,7 @@ GO(getwchar_unlocked, iFv)
 GOW(getwc_unlocked, iFp)
 GO(getwd, pFp)
 // __getwd_chk
-GO(getxattr, iFpppu)
+GO(getxattr, lFpppL)
 GOM(glob, iFEpipp)             //%%
 GOM(glob64, iFEpipp)           //%%
 GO(globfree, vFp)
@@ -1010,7 +1010,7 @@ GOW(lchown, iFpuu)
 // ldexpl   // Weak
 GOS(ldiv, pFEpii)               //%% return a struct, so address of stuct is on the stack, as a shadow 1st element
 GOM(lfind, pFEpppLp)            //%%
-GO(lgetxattr, iFpppu)
+GO(lgetxattr, lFpppL)
 GOM(__libc_alloca_cutoff, iFEL) //%%
 // __libc_allocate_rtsig
 // __libc_allocate_rtsig_private
