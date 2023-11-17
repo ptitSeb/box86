@@ -845,6 +845,7 @@ x86emurun:
                     }
                     if(R_ECX) cmp32(emu, tmp32u2, tmp32u3);
                     R_ECX = tmp32u;
+                    break;
                 case 2:
                     tmp32u2 = 0;
                     tmp32u3 = 0;
@@ -860,6 +861,7 @@ x86emurun:
                     }
                     if(R_ECX) cmp32(emu, tmp32u2, tmp32u3);
                     R_ECX = tmp32u;
+                    break;
             }
             break;
         case 0xA8:                      /* TEST AL, Ib */
