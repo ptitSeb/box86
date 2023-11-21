@@ -26,14 +26,14 @@ GO(XftDrawCreate, pFpppp)
 //GO(XftDrawGlyphs, 
 //GO(XftDrawGlyphSpec, 
 //GO(XftDrawPicture, 
-//GO(XftDrawRect, 
+GO(XftDrawRect, vFppiiuu)
 GO(XftDrawSetClip, iFpp)
 //GO(XftDrawSetClipRectangles, 
 //GO(XftDrawSetSubwindowMode, 
 //GO(XftDrawSrcPicture, 
 //GO(XftDrawString16, 
 GO(XftDrawString32, vFpppiipi)
-//GO(XftDrawString8, 
+GO(XftDrawString8, vFpppiipi)
 //GO(XftDrawStringUtf16, 
 //GO(XftDrawStringUtf8, 
 //GO(XftDrawVisual, 
@@ -65,7 +65,7 @@ GO(XftFontOpenXlfd, pFpip)
 GO(XftNameUnparse, iFppi)
 //GO(XftTextExtents16, 
 GO(XftTextExtents32, vFpppip)
-//GO(XftTextExtents8, 
+GO(XftTextExtents8, vFpppip)
 //GO(XftTextExtentsUtf16, 
 //GO(XftTextExtentsUtf8, 
 //GO(XftTextRender16, 
