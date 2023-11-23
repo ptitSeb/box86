@@ -4,7 +4,9 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <signal.h>
+#ifndef ANDROID
 #include <aio.h>
+#endif
 
 #include "wrappedlibs.h"
 
@@ -77,7 +79,7 @@ EXPORT int my_timer_create(x86emu_t* emu, uint32_t clockid, void* sevp, timer_t*
 
     return timer_create(clockid, &sevent, timerid);
 }
-
+#ifndef ANDROID
 EXPORT int my_aio_cancel(x86emu_t emu, int fd, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
@@ -118,6 +120,38 @@ EXPORT int mylio_listio(x86emu_t* emu, int mode, struct aiocb* list[], int nent,
     }
     return my->lio_listio(mode, list, nent, sig?(&sevent):sig);
 }
+#else
+EXPORT int my_aio_cancel(x86emu_t emu, int fd, void* aiocbp)
+{
+    errno = ENNOSYS;
+    return -1;
+}
+EXPORT int my_aio_read(x86emu_t emu, void* aiocbp)
+{
+    errno = ENNOSYS;
+    return -1;
+}
+EXPORT int my_aio_read64(x86emu_t emu, void* aiocbp)
+{
+    errno = ENNOSYS;
+    return -1;
+}
+EXPORT int my_aio_write(x86emu_t emu, void* aiocbp)
+{
+    errno = ENNOSYS;
+    return -1;
+}
+EXPORT int my_aio_write64(x86emu_t emu, void* aiocbp)
+{
+    errno = ENNOSYS;
+    return -1;
+}
+EXPORT int mylio_listio(x86emu_t* emu, int mode, void* list[], int nent, struct sigevent* sig)
+{
+    errno = ENOSYS;
+    return -1;
+}
+#endif
 
 #define CUSTOM_INIT \
     getMy(lib);
