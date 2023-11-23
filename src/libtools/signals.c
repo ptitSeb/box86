@@ -622,23 +622,19 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
             info2->si_errno = 0;
             if(*(uint8_t*)info->si_addr == 0xCD) {
                 sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 13;
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0a;
                 info2->si_addr = NULL;
                 uint8_t int_n = *(uint8_t*)(info->si_addr+1);
+                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x2 | (int_n<<3);
                 // some special cases...
                 if(int_n==3) {
                     info2->si_signo = SIGTRAP;
                     sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 3;
                     sigcontext->uc_mcontext.gregs[REG_ERR] = 0;
                     sigcontext->uc_mcontext.gregs[REG_EIP]+=2;   // segfault after the INT
-                } else if(int_n==0xfd) {
-                    sigcontext->uc_mcontext.gregs[REG_ERR] = 0x7ea;
                 } else if(int_n==0x04) {
                     sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 4;
                     sigcontext->uc_mcontext.gregs[REG_ERR] = 0;
                     sigcontext->uc_mcontext.gregs[REG_EIP]+=2;   // segfault after the INT
-                } else if (int_n==0x05) {
-                    sigcontext->uc_mcontext.gregs[REG_ERR] = 0x2a;
                 }
             } else if(*(uint8_t*)info->si_addr == 0xCC) {
                 info2->si_signo = SIGTRAP;
