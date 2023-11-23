@@ -1744,7 +1744,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 jump_to_epilog(dyn, 0, xEIP, ninst);
             } else {
                 INST_NAME("INT Ib");
-                if(box86_wine && u8==0x2D) {
+                if(box86_wine && u8==0x2D && 0) {
                     MESSAGE(LOG_DEBUG, "Hack for wine/int 2d\n");
                 } else {
                     DEFAULT;
@@ -2274,6 +2274,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV32(x2, addr);
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
+                    SKIPTEST(x14);
                     // calling a native function
                     if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2))) {
                         // return value will be on the stack, so the stack depth needs to be updated

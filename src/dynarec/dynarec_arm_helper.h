@@ -120,6 +120,8 @@
                 }
 // GETGW extract x86 register in gd, that is i
 #define GETGW(i) gd = xEAX+((nextop&0x38)>>3); UXTH(i, gd, 0); gd = i;
+// GETSGW extract x86 signed register in gd, that is i
+#define GETSGW(i) gd = xEAX+((nextop&0x38)>>3); SXTH(i, gd, 0); gd = i;
 //GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i) if((nextop&0xC0)==0xC0) {  \
                     wback = xEAX+(nextop&7);\

@@ -725,17 +725,14 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     }
                     AND_IMM8(x2, gd, 0x1f);
                     MOV_REG_LSR_REG(x14, ed, x2);
-                    ANDS_IMM8(x14, x14, 1);
                     BFI(xFlags, x14, F_CF, 1);
-                    B_MARK3(cEQ); // bit already clear, jump to end of instruction
                     MOVW(x14, 1);
-                    XOR_REG_LSL_REG(ed, ed, x14, x2);
+                    BIC_REG_LSL_REG(ed, ed, x14, x2);
                     if(wback) {
                         STREX(x14, ed, wback);
                         CMPS_IMM8(x14, 0);
                         B_MARKLOCK(cNE);
                     }
-                    MARK3;
                     SMDMB();
                     break;
 
@@ -767,26 +764,21 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             INST_NAME("LOCK BTS Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
                             SET_DFNONE(x1);
-                            gd = x2;
                             if((nextop&0xC0)==0xC0) {
                                 ed = xEAX+(nextop&7);
-                                u8 = F8;
-                                MOVW(gd, u8&0x1f);
+                                u8 = F8&0x1f;
                                 wback = 0;
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0, LOCK_LOCK);
-                                u8 = F8;
+                                u8 = F8&0x1f;
                                 ed = x1;
-                                MOVW(gd, u8&0x1f);
                                 MARKLOCK;
                                 LDREX(ed, wback);
                             }
-                            MOV_REG_LSR_REG(x14, ed, x2);
-                            ANDS_IMM8(x14, x14, 1);
+                            MOV_REG_LSR_IMM5(x14, ed, u8);
                             BFI(xFlags, x14, F_CF, 1);
-                            B_MARK3(cNE); // bit already set, jump to next instruction
                             MOVW(x14, 1);
-                            XOR_REG_LSL_REG(ed, ed, x14, x2);
+                            BFI(ed, x14, u8, 1);
                             if(wback) {
                                 STREX(x14, ed, wback);
                                 CMPS_IMM8(x14, 0);
@@ -798,26 +790,46 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             INST_NAME("LOCK BTR Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
                             SET_DFNONE(x1);
-                            gd = x2;
                             if((nextop&0xC0)==0xC0) {
                                 ed = xEAX+(nextop&7);
-                                u8 = F8;
-                                MOVW(gd, u8&0x1f);
+                                u8 = F8&0x1f;
                                 wback = 0;
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0, LOCK_LOCK);
-                                u8 = F8;
+                                u8 = F8&0x1f;
                                 ed = x1;
-                                MOVW(gd, u8&0x1f);
                                 MARKLOCK;
                                 LDREX(ed, wback);
                             }
-                            MOV_REG_LSR_REG(x14, ed, x2);
-                            ANDS_IMM8(x14, x14, 1);
+                            MOV_REG_LSR_IMM5(x14, ed, u8);
                             BFI(xFlags, x14, F_CF, 1);
-                            B_MARK3(cEQ); // bit already clear, jump to next instruction
-                            //MOVW(x14, 1); // already 0x01
-                            XOR_REG_LSL_REG(ed, ed, x14, x2);
+                            BFC(ed, u8, 1);
+                            if(wback) {
+                                STREX(x14, ed, wback);
+                                CMPS_IMM8(x14, 0);
+                                B_MARKLOCK(cNE);
+                            }
+                            MARK3;
+                            break;
+                        case 7:
+                            INST_NAME("LOCK BTC Ed, Ib");
+                            SETFLAGS(X_CF, SF_SUBSET);
+                            SET_DFNONE(x1);
+                            if((nextop&0xC0)==0xC0) {
+                                ed = xEAX+(nextop&7);
+                                u8 = F8&0x1f;
+                                wback = 0;
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 0, 0, 0, LOCK_LOCK);
+                                u8 = F8&0x1f;
+                                ed = x1;
+                                MARKLOCK;
+                                LDREX(ed, wback);
+                            }
+                            MOV_REG_LSR_IMM5(x14, ed, u8);
+                            BFI(xFlags, x14, F_CF, 1);
+                            MOV32(x14, 1);
+                            XOR_REG_LSL_IMM5(ed, ed, x14, u8);
                             if(wback) {
                                 STREX(x14, ed, wback);
                                 CMPS_IMM8(x14, 0);

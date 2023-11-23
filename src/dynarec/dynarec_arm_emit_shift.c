@@ -814,7 +814,9 @@ void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s3, 0, 1);
     }
     MOV_REG_ASR_IMM5(s1, s1, c);
-    UBFX(s1, s1, 0, 16);
+    IFX(X_PEND | X_ZF) {
+        UXTH(s1, s1, 0);
+    }
     IFX(X_PEND) {
         STR_IMM9(s1, xEmu, offsetof(x86emu_t, res));
     }
