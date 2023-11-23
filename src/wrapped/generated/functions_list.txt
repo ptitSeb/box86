@@ -1202,6 +1202,7 @@
 #() iFEiipp
 #() iFEiipV
 #() iFEiupp
+#() iFEipip
 #() iFEipuu
 #() iFEippi
 #() iFEippL
@@ -3571,8 +3572,17 @@ wrappedlibpthread:
   - pthread_create
 wrappedlibresolv:
 wrappedlibrt:
+- iFp:
+  - aio_read
+  - aio_read64
+  - aio_write
+  - aio_write64
+- iFip:
+  - aio_cancel
 - iFupp:
   - timer_create
+- iFipip:
+  - lio_listio
 wrappedlibsm:
 - iFppp:
   - SmcRequestSaveYourselfPhase2

@@ -6,27 +6,27 @@
 // pid_t is uint32 too? (for clock_getcpuclockid)
 // time_t is uint32?
 
-// aio_cancel
+GOM(aio_cancel, iFEip)
 // aio_cancel64
 // aio_error
 GO(aio_error64, iFp)
 GO(aio_fsync, iFip)
 GO(aio_fsync64, iFip)
 // aio_init
-// aio_read
-GO(aio_read64, iFp)
+GOM(aio_read, iFEp)
+GOM(aio_read64, iFEp)
 // aio_return
 GO(aio_return64, lFp)
 GO(aio_suspend, iFpip)
 GO(aio_suspend64, iFpip)
-// aio_write
-GO(aio_write64, iFp)
+GOM(aio_write, iFEp)
+GOM(aio_write64, iFEp)
 GO(clock_getcpuclockid, iFup)
 GO(clock_getres, iFup)
 GO(clock_gettime, iFup)
 GO(clock_nanosleep, iFuipp)
 GO(clock_settime, iFup)
-// lio_listio
+GOM(lio_listio, iFEipip)
 // lio_listio64
 // mq_close
 GO(mq_getattr, iFip)
