@@ -1059,7 +1059,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
     return 0;
 }
 
-void CalcStack(elfheader_t* elf, uint32_t* stacksz, uint32_t* stackalign)
+void CalcStack(elfheader_t* elf, uint32_t* stacksz, size_t* stackalign)
 {
     if(*stacksz < elf->stacksz)
         *stacksz = elf->stacksz;
