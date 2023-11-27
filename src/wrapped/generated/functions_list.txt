@@ -4614,6 +4614,7 @@ wrappedudev1:
 wrappedutil:
 - iFpppp:
   - forkpty
+wrappedandroidshmem:
 wrappedvorbisfile:
 - iFp:
   - ov_bitrate_instant
