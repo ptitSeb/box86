@@ -42,6 +42,11 @@ uintptr_t RunF30F(x86emu_t *emu, uintptr_t addr)
     x86emu_t*emu = test->emu;
     #endif
 
+    #ifdef TERMUX
+    extern int isinff(float);
+    extern int isnanf(float);
+    #endif
+
     opcode = F8;
 
     switch(opcode) {
