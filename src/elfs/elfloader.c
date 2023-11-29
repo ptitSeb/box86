@@ -198,18 +198,24 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
 
     // prereserve the whole elf image, without populating
     void* image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    if(image!=MAP_FAILED && head->vaddr && image!=(void*)offs && (((uintptr_t)image)&max_align)) {
+        munmap(image, head->memsz);
+        image = mmap64(find32bitBlockElf(head->memsz, mainbin, max_align), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    }
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
         offs = (uintptr_t)image;
         printf_log(LOG_INFO, "Mamp64 for (@%p 0x%zx) for elf \"%s\" returned %p instead", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
     }
     if(image==MAP_FAILED || image!=(void*)(head->vaddr?head->vaddr:offs)) {
-        printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx) for elf \"%s\"", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name);
+        printf_log(LOG_NONE, "%s cannot create memory map (@%p 0x%zx) for elf \"%s\"", (image==MAP_FAILED)?"Error:":"Warning:", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name);
         if(image==MAP_FAILED) {
             printf_log(LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
         } else {
             printf_log(LOG_NONE, " got %p\n", image);
         }
-        return 1;
+        if(image==MAP_FAILED)
+            return 1;
+        offs = (uintptr_t)image-head->vaddr;
     }
     printf_log(log_level, "Pre-allocated 0x%zx byte at %p for %s\n", head->memsz, image, head->name);
     head->delta = offs;
