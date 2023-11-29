@@ -1884,7 +1884,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     if(dyn->f.dfnone)  // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go = 0;
+    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
         case SF_SET: 
@@ -1902,12 +1902,10 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
             && dyn->f.pending!=SF_SET_PENDING
             && dyn->f.pending!=SF_PENDING)
                 go = 1;
-            else
-                go = (dyn->insts[jmp].f_entry.dfnone  == dyn->f.dfnone)?0:1;
+            else if(dyn->insts[jmp].f_entry.dfnone!=dyn->f.dfnone)
+                go = 1;
             break;
     }
-    if(dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)
-        go = 1;
     if(go) {
         if(dyn->f.pending!=SF_PENDING) {
             LDR_IMM9(s1, xEmu, offsetof(x86emu_t, df));
