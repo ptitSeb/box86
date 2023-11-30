@@ -377,6 +377,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibc.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibrt.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibbsd.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibgl.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibglu.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibx11.c"

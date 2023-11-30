@@ -3322,18 +3322,21 @@ EXPORT char my___libc_single_threaded = 0;
 #define NEEDED_LIBS_234 3,  \
     "libpthread.so.0",      \
     "libdl.so.2" ,          \
-    "libm.so"
+    "libm.so",              \
+    "libbsd.so"
 #else
-#define NEEDED_LIBS   3,\
+#define NEEDED_LIBS   4,\
     "ld-linux.so.2",    \
     "libpthread.so.0",  \
-    "librt.so.1"
-#define NEEDED_LIBS_234 5,  \
+    "librt.so.1",       \
+    "libbsd.so.0"
+#define NEEDED_LIBS_234 6,  \
     "ld-linux.so.2",        \
     "libpthread.so.0",      \
     "librt.so.1",           \
     "libdl.so.2",           \
-    "libm.so.6"
+    "libm.so.6",            \
+    "libbsd.so.0"
 #endif
 
 #define CUSTOM_INIT         \

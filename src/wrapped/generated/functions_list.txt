@@ -3082,6 +3082,8 @@ wrappedlibasound:
   - snd_async_add_pcm_handler
 - pFpipL:
   - snd_dlopen
+wrappedlibbsd:
+- pFpLL:
 wrappedlibc:
 - vFv:
   - __cxa_pure_virtual
@@ -3179,7 +3181,6 @@ wrappedlibc:
   - __read_nocancel
 - pFpii:
 - pFpip:
-- pFpLL:
 - vFiipV:
   - __syslog_chk
 - vFpLLp:

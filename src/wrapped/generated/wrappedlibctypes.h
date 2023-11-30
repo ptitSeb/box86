@@ -68,7 +68,6 @@ typedef double (*KFppu_t)(void*, void*, uint32_t);
 typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
-typedef void* (*pFpLL_t)(void*, uintptr_t, uintptr_t);
 typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);

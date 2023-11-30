@@ -2190,7 +2190,6 @@ GOM(getauxval, uFEu)  //%% implemented since glibc 2.16
 GOM(prlimit64, lFpupp)       //%%,noE
 GO(process_vm_readv, lFipLpLL)
 GO(process_vm_writev, lFipLpLL)
-GOM(reallocarray, pFpLL)     //%%,noE
 GOM(__open_nocancel, iFEpOV) //%%
 GO2(__read_nocancel, lFipL, read)
 GO2(__close_nocancel, iFi, close)
@@ -2263,8 +2262,6 @@ GOM(stat, iFpp)             //%noE
 GOM(lstat, iFpp)            //%noE
 GOM(fstat, iFip)            //%noE
 GO(__errno, pFv)
-GO(setprogname, vFp)
-GO(getprogname, pFv)
 #include "wrappedlibpthread_private.h"
 #include "wrappedlibrt_private.h"
 #else
@@ -2274,6 +2271,4 @@ GO(getprogname, pFv)
 //GOM(lstat,
 //GOM(fstat,
 //GO(__errno,
-//GO(setprogname,
-//GO(getprogname,
 #endif
