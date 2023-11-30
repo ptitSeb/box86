@@ -574,8 +574,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                         end = globend;
                     }
                     if (!offs) {
-                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start"))
-                            printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
+                        if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start")) {
+                            printf_log((bind==STB_GLOBAL)?LOG_NONE:LOG_INFO, "%s: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", (bind==STB_GLOBAL)?"Error":"Warning", symname, p, *(void**)p, head->name);
+                            if(bind==STB_GLOBAL) ret_ok=1;
+                        }
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT @%p (%p -> %p) on sym=%s (ver=%d/%s)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), p, (void*)(p?(*p):0), (void*)offs, symname, version, vername?vername:"(none)");
                         *p = offs/* + rela[i].r_addend*/;   // not addend it seems

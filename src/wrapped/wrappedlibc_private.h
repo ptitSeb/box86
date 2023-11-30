@@ -2251,6 +2251,8 @@ GOM(fstatat64, iFippi)  //%%,noE
 GOM(fstat64, iFip)  //%%,noE
 GOM(fstatat, iFippi)  //%%,noE
 
+DATAM(__libc_single_threaded, 1)
+
 GOWM(_Unwind_Find_FDE, pFEpp)    // this is a libgcc_s function, I think. Create a dummy weak one, just in case
 GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
 GO(dummy_safer_scalable_aligned_realloc, pFpLLp)    // for mallochook.c

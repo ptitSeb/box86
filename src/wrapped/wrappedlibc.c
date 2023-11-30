@@ -3309,6 +3309,9 @@ EXPORT char* my___progname_full = NULL;
 EXPORT char* my_program_invocation_name = NULL;
 EXPORT char* my_program_invocation_short_name = NULL;
 
+// ignoring this for now
+EXPORT char my___libc_single_threaded = 0;
+
 #define PRE_INIT\
     if(1)                                                           \
         my_lib = lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
