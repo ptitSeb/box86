@@ -3318,7 +3318,8 @@ EXPORT char my___libc_single_threaded = 0;
     else
 
 #ifdef ANDROID
-#define NEEDED_LIBS   0
+#define NEEDED_LIBS   1,    \
+    "libbsd.so"
 #define NEEDED_LIBS_234 3,  \
     "libpthread.so.0",      \
     "libdl.so.2" ,          \

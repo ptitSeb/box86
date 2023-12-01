@@ -19,7 +19,11 @@
 #include "callback.h"
 
 
+#ifdef ANDROID
+const char* libbsdName = "libbsd.so";
+#else
 const char* libbsdName = "libbsd.so.0";
+#endif
 #define LIBNAME libbsd
 
 #define PRE_INIT\
@@ -27,6 +31,5 @@ const char* libbsdName = "libbsd.so.0";
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
-// define all standard library functions
 #include "wrappedlib_init.h"
 
