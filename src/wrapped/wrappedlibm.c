@@ -62,7 +62,10 @@ EXPORT uint64_t my_##N##f(void* c, void* d)         \
     return ret.u64;                                 \
 }
 
+#ifndef TERMUX
 GO_cFc(clog)
+GO_cFcc(cpow)
+#endif
 GO_cFc(csqrt)
 GO_cFc(cproj)
 GO_cFc(cexp)
@@ -78,7 +81,6 @@ GO_cFc(cacosh)
 GO_cFc(casinh)
 GO_cFc(catan)
 GO_cFc(catanh)
-GO_cFcc(cpow)
 
 #undef GO_cFc
 #undef GO_cFcc

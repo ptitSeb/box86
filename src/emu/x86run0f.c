@@ -54,6 +54,10 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
 #ifdef TEST_INTERPRETER
     x86emu_t *emu = test->emu;
 #endif
+#ifdef TERMUX
+    extern int isinff(float);
+    extern int isnanf(float);
+#endif
     opcode = F8;
 
     switch(opcode) {
