@@ -842,14 +842,8 @@ int GatherEnv(char*** dest, char** env, const char* prog)
 }
 
 
-void PrintHelp() {
-    printf("\n\nThis is Box86, the Linux x86 emulator with a twist\n");
-    printf("\nUsage is box86 [options] path/to/software [args]\n");
-    printf("to launch x86 software\n");
-    printf(" options can be :\n");
-    printf("    '-v'|'--version' to print box86 version and quit\n");
-    printf("    '-h'|'--help'    to print box86 help and quit\n");
-    printf("You can also set some environment variables:\n");
+void PrintFlags() {
+    printf("Environment Variables:\n");
     printf(" BOX86_PATH is the box86 version of PATH (default is '.:bin')\n");
     printf(" BOX86_LD_LIBRARY_PATH is the box86 version LD_LIBRARY_PATH (default is '.:lib')\n");
     printf(" BOX86_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX86_DUMP)\n");
@@ -877,7 +871,7 @@ void PrintHelp() {
     printf(" BOX86_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
 #endif
 #endif
-    printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)");
+    printf(" BOX86_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)\n");
     printf(" BOX86_DLSYM_ERROR with 1 to log dlsym errors\n");
     printf(" BOX86_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX86_NOSIGSEGV=1 to disable handling of SigSEGV\n");
@@ -886,11 +880,11 @@ void PrintHelp() {
 #ifdef PANDORA
     printf(" BOX86_X11COLOR16=1 to try convert X11 color from 32 bits to 16 bits (to avoid light green on light cyan windows\n");
 #endif
-    printf(" BOX86_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
+    printf(" BOX86_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)\n");
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
-    printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably  crash later)\n");
-    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
+    printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably crash later)\n");
+    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11)\n");
     printf(" BOX64_PREFER_WRAPPED if box86 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX86_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX86_NOGTK=1 to disable the loading of wrapped gtk libs\n");
@@ -898,6 +892,15 @@ void PrintHelp() {
     printf(" BOX86_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
     printf(" BOX86_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
     printf(" BOX86_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
+}
+
+void PrintHelp() {
+    printf("This is Box86, the Linux x86 emulator with a twist\n");
+    printf("\nUsage is 'box86 [options] path/to/software [args]' to launch x86 software.\n");
+    printf(" options are:\n");
+    printf("    '-v'|'--version' to print box86 version and quit\n");
+    printf("    '-h'|'--help' to print this and quit\n");
+    printf("    '-f'|'--flags' to print box86 flags and quit\n");
 }
 
 void addNewEnvVar(const char* s)
@@ -1236,9 +1239,12 @@ int main(int argc, const char **argv, char **env)
     init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
     if(argc==1) {
-        PrintBox86Version();
+        /*PrintBox86Version();
         PrintHelp();
-        return 1;
+        return 1;*/
+        printf("BOX86: Missing operand after 'box86'\n");
+        printf("See 'box86 --help' for more information.\n");
+        exit(0);
     }
     if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb"))
         exit(0);
@@ -1290,6 +1296,10 @@ int main(int argc, const char **argv, char **env)
         }
         if(!strcmp(prog, "-h") || !strcmp(prog, "--help")) {
             PrintHelp();
+            exit(0);
+        }
+        if(!strcmp(prog, "-f") || !strcmp(prog, "--flags")) {
+            PrintFlags();
             exit(0);
         }
         // other options?
@@ -1546,7 +1556,7 @@ int main(int argc, const char **argv, char **env)
     if(!elf_header) {
         int x64 = my_context->box64path?FileIsX64ELF(my_context->fullpath):0;
         int script = my_context->bashpath?FileIsShell(my_context->fullpath):0;
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->fullpath, x64?"using box64":(script?"using bash":"natively"));
+        printf_log(LOG_NONE, "Error: reading elf header of %s, trying to launch %s instead\n", my_context->fullpath, x64?"using box64":(script?"using bash":"natively"));
         fclose(f);
         FreeCollection(&ld_preload);
         int ret;
@@ -1742,7 +1752,7 @@ int main(int argc, const char **argv, char **env)
             needed_libs_t* tmp = new_neededlib(1);
             tmp->names[0] = ld_preload.paths[i];
             if(AddNeededLib(my_context->maplib, 0, 0, tmp, elf_header, my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load of %s\n", tmp->names[0]);
+                printf_log(LOG_INFO, "Warning, cannot pre-load %s\n", tmp->names[0]);
                 RemoveNeededLib(my_context->maplib, 0, tmp, my_context, emu);
             } else {
                 for(int j=0; j<tmp->size; ++j)
