@@ -305,6 +305,10 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box86context_t* 
             box86_dynarec_bigblock = 0;
             box86_dynarec_strongmem = 1;
         }
+        if(libname && box86_dynarec_tbb && strstr(libname, "libtbb.so")) {
+            printf_dump(LOG_INFO, "libtbb detected, enable Dynarec StrongMem\n");
+            box86_dynarec_strongmem = 3;
+        }
         #endif
         if(libname && box86_libcef && strstr(libname, "libcef.so")) {
             printf_dump(LOG_INFO, "libcef detected, using malloc_hack_2\n");

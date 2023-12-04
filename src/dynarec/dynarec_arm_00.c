@@ -1120,10 +1120,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         ed = wback;
                     }
                 } else {
-                    if(box86_dynarec_strongmem && 
-                     (dyn->insts[ninst].x86.barrier || !ninst || (box86_dynarec_strongmem>1) || (ninst && dyn->insts[ninst-1].x86.barrier))) {
-                        SMDMB();
-                    }
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 4095, 0, 0, &lock);
                     SMREADLOCK(lock);
                     LDRB_IMM9(x14, wback, fixedaddress);

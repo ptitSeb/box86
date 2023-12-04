@@ -28,28 +28,31 @@
 #define PKa(a)  *(uint8_t*)(a)
 
 // Strong mem emulation helpers
-// Sequence of Read will trigger a DMB on "first" read if strongmem is 2
-// Squence of Write will trigger a DMB on "last" write if strongmem is 1
+#define SMREAD_MIN  2
+#define SMWRITE_MIN 1
+// Sequence of Read will trigger a DMB on "first" read if strongmem is >= SMREAD_MIN
+// Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
+// All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
 // Opcode will read
-#define SMREAD()    if(!dyn->smread && box86_dynarec_strongmem>1) {SMDMB();}
+#define SMREAD()    if((dyn->smread==0) && (box86_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if(lock || (!dyn->smread && box86_dynarec_strongmem>1)) {SMDMB();}
-// Opcode migh read (depend on nextop)
+#define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box86_dynarec_strongmem>SMREAD_MIN))) {SMDMB();}
+// Opcode might read (depend on nextop)
 #define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
 #define SMWRITE()   dyn->smwrite=1
 // Opcode has wrote (strongmem>1 only)
-#define SMWRITE2()   if(box86_dynarec_strongmem>1) dyn->smwrite=1
+#define SMWRITE2()   if(box86_dynarec_strongmem>SMREAD_MIN) dyn->smwrite=1
 // Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock)   if(lock) {SMDMB();} else dyn->smwrite=1
-// Opcode migh have wrote (depend on nextop)
+#define SMWRITELOCK(lock)   if(lock || (box86_dynarec_strongmem>SMWRITE_MIN)) {SMDMB();} else dyn->smwrite=1
+// Opcode might have wrote (depend on nextop)
 #define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
 // Start of sequence
 #define SMSTART()   SMEND()
 // End of sequence
-#define SMEND()     if(dyn->smwrite && box86_dynarec_strongmem) {DMB_ISH();} dyn->smwrite=0; dyn->smread=0;
+#define SMEND()     if(dyn->smwrite && box86_dynarec_strongmem) {if(box86_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();}} dyn->smwrite=0; dyn->smread=0;
 // Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()     DMB_ISH(); dyn->smwrite=0; dyn->smread=1
+#define SMDMB()     if(box86_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();} dyn->smwrite=0; dyn->smread=1
 
 //LOCK_* define
 #define LOCK_LOCK   (int*)1

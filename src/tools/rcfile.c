@@ -81,7 +81,7 @@ ENTRYINT(BOX86_DYNAREC_DUMP, box86_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX86_DYNAREC_LOG, box86_dynarec_log, 0, 3, 2)             \
 ENTRYINT(BOX86_DYNAREC_BIGBLOCK, box86_dynarec_bigblock, 0, 3, 2)   \
 ENTRYSTRING_(BOX86_DYNAREC_FORWARD, box86_dynarec_forward)          \
-ENTRYINT(BOX86_DYNAREC_STRONGMEM, box86_dynarec_strongmem, 0, 2, 2) \
+ENTRYINT(BOX86_DYNAREC_STRONGMEM, box86_dynarec_strongmem, 0, 3, 2) \
 ENTRYBOOL(BOX86_DYNAREC_X87DOUBLE, box86_dynarec_x87double)         \
 ENTRYBOOL(BOX86_DYNAREC_FASTNAN, box86_dynarec_fastnan)             \
 ENTRYBOOL(BOX86_DYNAREC_FASTROUND, box86_dynarec_fastround)         \
@@ -91,6 +91,7 @@ ENTRYBOOL(BOX86_DYNAREC_FASTPAGE, box86_dynarec_fastpage)           \
 ENTRYBOOL(BOX86_DYNAREC_WAIT, box86_dynarec_wait)                   \
 ENTRYBOOL(BOX86_DYNAREC_BLEEDING_EDGE, box86_dynarec_bleeding_edge) \
 ENTRYBOOL(BOX86_DYNAREC_JVM, box86_dynarec_jvm)                     \
+ENTRYBOOL(BOX86_DYNAREC_TBB, box86_dynarec_tbb)                     \
 ENTRYSTRING_(BOX86_NODYNAREC, box86_nodynarec)                      \
 ENTRYBOOL(BOX86_DYNAREC_TEST, box86_dynarec_test)                   \
 ENTRYBOOL(BOX86_DYNAREC_MISSING, box86_dynarec_missing)             \
@@ -112,6 +113,7 @@ IGNORE(BOX86_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX86_DYNAREC_WAIT)                                          \
 IGNORE(BOX86_DYNAREC_BLEEDING_EDGE)                                 \
 IGNORE(BOX86_DYNAREC_JVM)                                           \
+IGNORE(BOX86_DYNAREC_TBB)                                           \
 IGNORE(BOX86_NODYNAREC)                                             \
 IGNORE(BOX86_DYNAREC_TEST)                                          \
 IGNORE(BOX86_DYNAREC_MISSING)                                       \

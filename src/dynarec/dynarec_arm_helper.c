@@ -40,6 +40,9 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     if(hint>0 && hint<xEAX) scratch = hint;
     if(hint==xEIP) scratch = hint;  // allow this one as a scratch and return register
     MAYUSE(scratch);
+
+    if(l==LOCK_LOCK) { /*SMDMB();*/DMB_ISH(); }
+
     if(!(nextop&0xC0)) {
         if((nextop&7)==4) {
             uint8_t sib = F8;

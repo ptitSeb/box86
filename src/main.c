@@ -71,6 +71,7 @@ int box86_dynarec_safeflags = 1;
 int box86_dynarec_hotpage = 16;
 int box86_dynarec_bleeding_edge = 1;
 int box86_dynarec_jvm = 1;
+int box86_dynarec_tbb = 1;
 int box86_dynarec_wait = 1;
 int box86_dynarec_fastpage = 0;
 uintptr_t box86_nodynarec_start = 0;
@@ -399,11 +400,11 @@ void LoadLogEnv()
     p = getenv("BOX86_DYNAREC_STRONGMEM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
+            if(p[0]>='0' && p[0]<='3')
                 box86_dynarec_strongmem = p[0]-'0';
         }
         if(box86_dynarec_strongmem)
-            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box86_dynarec_strongmem==1)?" with limited performace loss":"");
+            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box86_dynarec_strongmem==1)?" with limited performance loss":((box86_dynarec_strongmem==3)?" with more performance loss":""));
     }
     p = getenv("BOX86_DYNAREC_X87DOUBLE");
     if(p) {
@@ -490,6 +491,15 @@ void LoadLogEnv()
         }
         if(!box86_dynarec_jvm)
             printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
+    }
+    p = getenv("BOX86_DYNAREC_TBB");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_tbb = p[0]-'0';
+        }
+        if(!box86_dynarec_tbb)
+            printf_log(LOG_INFO, "Dynarec will not detect libtbb\n");
     }
     p = getenv("BOX86_DYNAREC_MISSING");
     if(p) {

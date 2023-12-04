@@ -609,10 +609,19 @@ Op is 20-27
 #define DMB_gen(opt)    (0b1111<<28 | 0b01010111<<20 | 0b1111<<16 | 0b1111<<12 | 0b0000<<8 | 0b0101<<4 | (opt))
 // Data memory barrier Inner Sharable
 #ifdef PANDORA
-// The Pandora is single code, DMB is not usefull here so just emit nothing
+// The Pandora is single core and ordered, DMB is not usefull here so just emit nothing
 #define DMB_ISH()
 #else
 #define DMB_ISH()   EMIT(DMB_gen(0b1011))
+#endif
+
+#define DSB_gen(opt)    (0b1111<<28 | 0b01010111<<20 | 0b1111<<16 | 0b1111<<12 | 0b0000<<8 | 0b0100<<4 | (opt))
+// Data memory barrier Inner Sharable
+#ifdef PANDORA
+// The Pandora is single core and ordered, DSB is not usefull here so just emit nothing
+#define DSB_ISH()
+#else
+#define DSB_ISH()   EMIT(DSB_gen(0b1011))
 #endif
 
 #define SWP_gen(cond, B, Rn, Rt, Rt2)   (cond | 0b0001<<24 | (B)<<22 | (Rn)<<16 | (Rt)<<12 | 0b1001<<4 | (Rt2))

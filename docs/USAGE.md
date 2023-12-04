@@ -146,8 +146,9 @@ Define Box86's Dynarec max allowed forward value when building Block.
 #### BOX86_DYNAREC_STRONGMEM *
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)
-* 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
-* 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
+* 1 : Enable some Memory Barrier when writting to memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
+* 2 : All 1. plus a memory barrier on every write to memory using MOV
+* 3 : All 2. plus Memory Barrier when reading from memory and on some SSE/SSE2 opcodes too
 
 #### BOX86_DYNAREC_X87DOUBLE *
 Force the use of Double for x87 emulation
