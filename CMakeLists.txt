@@ -574,7 +574,7 @@ add_custom_command(
     OUTPUT "${BOX86_ROOT}/src/wrapped/generated/functions_list.txt"
     COMMAND "${PYTHON_EXECUTABLE}" "${BOX86_ROOT}/rebuild_wrappers.py" 
     "${BOX86_ROOT}" 
-    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "POWERPCLE" "ANDROID" "--" 
+    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "POWERPCLE" "ANDROID" "TERMUX" "--" 
     ${WRAPPEDS_HEAD}
     MAIN_DEPENDENCY "${BOX86_ROOT}/rebuild_wrappers.py"
     DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
