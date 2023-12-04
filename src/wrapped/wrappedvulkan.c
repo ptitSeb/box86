@@ -207,6 +207,28 @@ typedef struct my_VkAllocationCallbacks_s {
     void*   pfnInternalFree;
 } my_VkAllocationCallbacks_t;
 
+typedef struct my_VkDebugReportCallbackCreateInfoEXT_s {
+    int         sType;
+    void*       pNext;
+    uint32_t    flags;
+    void*       pfnCallback;
+    void*       pUserData;
+} my_VkDebugReportCallbackCreateInfoEXT_t;
+
+typedef struct my_VkDebugUtilsMessengerCreateInfoEXT_s {
+    int          sType;
+    const void*  pNext;
+    int          flags;
+    int          messageSeverity;
+    int          messageType;
+    void*        pfnUserCallback;
+    void*        pUserData;
+} my_VkDebugUtilsMessengerCreateInfoEXT_t;
+
+typedef struct my_VkStruct_s {
+    int         sType;
+    struct my_VkStruct_s* pNext;
+} my_VkStruct_t;
 
 #define SUPER() \
 GO(0)   \
@@ -345,6 +367,28 @@ static void* find_DebugReportCallbackEXT_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for Vulkan DebugReportCallbackEXT callback\n");
+    return NULL;
+}
+// DebugUtilsMessengerCallback ...
+#define GO(A)   \
+static uintptr_t my_DebugUtilsMessengerCallback_fct_##A = 0;                            \
+static int my_DebugUtilsMessengerCallback_##A(int a, int b, void* c, void* d)           \
+{                                                                                       \
+    return RunFunctionFmt(my_DebugUtilsMessengerCallback_fct_##A, "iipp", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_DebugUtilsMessengerCallback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DebugUtilsMessengerCallback_fct_##A == (uintptr_t)fct) return my_DebugUtilsMessengerCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DebugUtilsMessengerCallback_fct_##A == 0) {my_DebugUtilsMessengerCallback_fct_##A = (uintptr_t)fct; return my_DebugUtilsMessengerCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Vulkan DebugUtilsMessengerCallback callback\n");
     return NULL;
 }
 
@@ -494,11 +538,46 @@ EXPORT int my_vkCreateGraphicsPipelines(x86emu_t* emu, void* device, uint64_t pi
 CREATE(vkCreateImage)
 CREATE(vkCreateImageView)
 
+#define VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT 1000011000
+#define VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT 1000128004
 EXPORT int my_vkCreateInstance(x86emu_t* emu, void* pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pInstance)
 {
-    (void)emu;
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkCreateInstance(pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pInstance);
+    my_VkStruct_t *p = (my_VkStruct_t*)pCreateInfos;
+    void* old[20] = {0};
+    int old_i = 0;
+    while(p) {
+        if(p->sType==VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT) {
+            my_VkDebugReportCallbackCreateInfoEXT_t* vk = (my_VkDebugReportCallbackCreateInfoEXT_t*)p;
+            old[old_i] = vk->pfnCallback;
+            vk->pfnCallback = find_DebugReportCallbackEXT_Fct(old[old_i]);
+            old_i++;
+        } else if(p->sType==VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) {
+            my_VkDebugUtilsMessengerCreateInfoEXT_t* vk = (my_VkDebugUtilsMessengerCreateInfoEXT_t*)p;
+            old[old_i] = vk->pfnUserCallback;
+            vk->pfnUserCallback = find_DebugUtilsMessengerCallback_Fct(old[old_i]);
+            old_i++;
+        }
+        p = p->pNext;
+    }
+    int ret = my->vkCreateInstance(pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pInstance);
+    if(old_i) {// restore, just in case it's re-used?
+        p = (my_VkStruct_t*)pCreateInfos;
+        old_i = 0;
+        while(p) {
+            if(p->sType==VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT) {
+                my_VkDebugReportCallbackCreateInfoEXT_t* vk = (my_VkDebugReportCallbackCreateInfoEXT_t*)p;
+                vk->pfnCallback = old[old_i];
+                old_i++;
+            } else if(p->sType==VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) {
+                my_VkDebugUtilsMessengerCreateInfoEXT_t* vk = (my_VkDebugUtilsMessengerCreateInfoEXT_t*)p;
+                vk->pfnUserCallback = old[old_i];
+                old_i++;
+            }
+            p = p->pNext;
+        }
+    }
+    return ret;
 }
 
 CREATE(vkCreatePipelineCache)
@@ -692,14 +771,6 @@ EXPORT void my_vkCmdPipelineBarrier(x86emu_t* emu, void* device, int src, int ds
     my->vkCmdPipelineBarrier(device, src, dst, dep, barrierCount, pBarriers, bufferCount, pBuffers, imageCount, aligned);
     if(imageCount) vkunalignStruct(aligned, desc, imageCount);
 }
-
-typedef struct my_VkDebugReportCallbackCreateInfoEXT_s {
-    int         sType;
-    void*       pNext;
-    uint32_t    flags;
-    void*       pfnCallback;
-    void*       pUserData;
-} my_VkDebugReportCallbackCreateInfoEXT_t;
 
 EXPORT int my_vkCreateDebugReportCallbackEXT(x86emu_t* emu, void* instance, 
                                              my_VkDebugReportCallbackCreateInfoEXT_t* create, 
