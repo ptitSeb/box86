@@ -415,6 +415,7 @@
 #() iFiip
 #() iFiiO
 #() iFiII
+#() iFiui
 #() iFiuu
 #() iFiup
 #() iFiLN
@@ -820,6 +821,7 @@
 #() iFiuwp
 #() iFiuii
 #() iFiuui
+#() iFiLpL
 #() iFipii
 #() iFipip
 #() iFipui
@@ -1238,6 +1240,7 @@
 #() iFipuii
 #() iFipuui
 #() iFippui
+#() iFippuu
 #() iFippup
 #() iFipppi
 #() iFipppp
@@ -1565,7 +1568,9 @@
 #() iFiiiiip
 #() iFiiiuwp
 #() iFiuiipi
+#() iFiuUuUu
 #() iFipipuu
+#() iFipuIup
 #() iFipupup
 #() iFipuppp
 #() iFipppup
@@ -1806,6 +1811,7 @@
 #() iFEpppppp
 #() iFiiiiiii
 #() iFiiiiiip
+#() iFippuIup
 #() iFpiiiiii
 #() iFpiiiiip
 #() iFpiiiuwp
@@ -3263,6 +3269,8 @@ wrappedlibdl:
 - iFpppi:
   - dladdr1
 wrappedlibdrm:
+- vFpV:
+  - drmMsg
 wrappedlibformw:
 wrappedlibfuse:
 - iFpp:
