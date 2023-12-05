@@ -1353,6 +1353,7 @@ x86emurun:
             tmp32s = F32S; // call is relative
             Push(emu, addr);
             addr += tmp32s;
+            addr = (uintptr_t)getAlternate((void*)addr);
             STEP2;
             break;
         case 0xE9:                      /* JMP Id */
