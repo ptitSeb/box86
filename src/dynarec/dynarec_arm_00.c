@@ -1295,14 +1295,18 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA4:
             INST_NAME("MOVSB");
             GETDIR(x3, 1);
+            SMREAD();
             LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
             STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
+            SMWRITE();
             break;
         case 0xA5:
             INST_NAME("MOVSD");
             GETDIR(x3, 4);
+            SMREAD();
             LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
             STRAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
+            SMWRITE();
             break;
         case 0xA6:
             INST_NAME("CMPSB");
@@ -1339,11 +1343,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("STOSB");
             GETDIR(x3, 1);
             STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
+            SMWRITE();
             break;
         case 0xAB:
             INST_NAME("STOSD");
             GETDIR(x3, 4);
             STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
+            SMWRITE();
             break;
         case 0xAC:
             INST_NAME("LODSB");
@@ -2401,11 +2407,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3, 2);
+                        SMREAD();
                         MARK;
                         LDRHAI_REG_LSL_IMM5(x1, xESI, x3);
                         STRHAI_REG_LSL_IMM5(x1, xEDI, x3);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        SMWRITE();
                         break;
                     case 0xAB:
                         INST_NAME("REP STOSW");
@@ -2416,6 +2424,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STRHAI_REG_LSL_IMM5(xEAX, xEDI, x3);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        SMWRITE();
                         break;
                     case 0xAF:
                         if(opcode==0xF2) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
@@ -2494,11 +2503,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,1);
+                        SMREAD();
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        SMWRITE();
                         // done
                         break;
                     case 0xA5:
@@ -2506,11 +2517,13 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
                         GETDIR(x3,4);
+                        SMREAD();
                         MARK;
                         LDRAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        SMWRITE();
                         // done
                         break;
                     case 0xA6:
@@ -2572,6 +2585,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STRBAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        SMWRITE();
                         break;
                     case 0xAB:
                         INST_NAME("REP STOSD");
@@ -2582,6 +2596,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STRAI_REG_LSL_IMM5(xEAX, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        SMWRITE();
                         break;
                     case 0xAC:
                         INST_NAME("REP LODSB");
