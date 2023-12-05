@@ -652,6 +652,10 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
                 sigcontext->uc_mcontext.gregs[REG_EIP] = (uintptr_t)info2->si_addr;
                 info2->si_addr = NULL;
             }
+        } else if(info->si_errno==0xcafe) {
+            info2->si_errno = 0;
+            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 0;
+            info2->si_signo = SIGFPE;
         }
     } else if(sig==SIGFPE) {
         if (info->si_code == FPE_INTOVF) {
@@ -1117,6 +1121,20 @@ void emit_signal(x86emu_t* emu, int sig, void* addr, int code)
     info.si_addr = addr;
     printf_log(LOG_INFO, "Emit Signal %d at IP=%p / addr=%p, code=%d\n", sig, (void*)R_EIP, addr, code);
     my_sigactionhandler_oldcode(sig, 0, Locks, &info, NULL, NULL, db);
+}
+
+void emit_div0(x86emu_t* emu, void* addr, int code)
+{
+    int Locks = unlockMutex();
+    siginfo_t info = {0};
+    info.si_signo = SIGSEGV;
+    info.si_errno = 0xcafe;
+    info.si_code = code;
+    info.si_addr = addr;
+    const char* x86name = NULL;
+    const char* elfname = NULL;
+    printf_log(LOG_INFO, "Emit Divide by 0 at IP=%p, addr=%p\n", (void*)R_EIP, addr);
+    my_sigactionhandler_oldcode(SIGSEGV, 0, Locks, &info, NULL, NULL, NULL);
 }
 
 EXPORT sighandler_t my_signal(x86emu_t* emu, int signum, sighandler_t handler)

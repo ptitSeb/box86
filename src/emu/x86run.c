@@ -1432,9 +1432,13 @@ x86emurun:
                     imul8(emu, EB->byte[0]);
                     break;
                 case 6:                 /* DIV Eb */
+                    if(!EB->byte[0])
+                        emit_div0(emu, (void*)R_EIP, 0);
                     div8(emu, EB->byte[0]);
                     break;
                 case 7:                 /* IDIV Eb */
+                    if(!EB->byte[0])
+                        emit_div0(emu, (void*)R_EIP, 0);
                     idiv8(emu, EB->byte[0]);
                     break;
             }
@@ -1461,9 +1465,13 @@ x86emurun:
                     imul32_eax(emu, ED->dword[0]);
                     break;
                 case 6:                 /* DIV Ed */
+                    if(!ED->dword[0])
+                        emit_div0(emu, (void*)R_EIP, 0);
                     div32(emu, ED->dword[0]);
                     break;
                 case 7:                 /* IDIV Ed */
+                    if(!ED->dword[0])
+                        emit_div0(emu, (void*)R_EIP, 0);
                     idiv32(emu, ED->dword[0]);
                     break;
             }
