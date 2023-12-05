@@ -488,9 +488,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     offs = old_offs;
                     end = old_end;
                 } else {
-                    GetGlobalWeakSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                     if(!offs && !end && local_maplib)
                         GetGlobalWeakSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end)
+                        GetGlobalWeakSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 }
             } else {
                 if(old_version==version && old_bind==bind && old_symname==symname) {
@@ -569,10 +570,10 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
+                    /*if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
                         offs = globoffs;
                         end = globend;
-                    }
+                    }*/
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start")) {
                             printf_log((bind==STB_GLOBAL)?LOG_NONE:LOG_INFO, "%s: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", (bind==STB_GLOBAL)?"Error":"Warning", symname, p, *(void**)p, head->name);
@@ -788,9 +789,10 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     offs = old_offs;
                     end = old_end;
                 } else {
-                    GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                     if(!offs && !end && local_maplib)
                         GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
+                    if(!offs && !end)
+                        GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, globdefver, weakdefver);
                 }
             }
         }
@@ -859,10 +861,10 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     *p = globoffs;
                 } else {
                     // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
+                    /*if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
                         offs = globoffs;
                         end = globend;
-                    }
+                    }*/
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
