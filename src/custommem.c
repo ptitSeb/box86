@@ -992,6 +992,9 @@ void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 
 void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
+    if(!size)
+        return;
+    size = (size+box86_pagesize-1)&~(box86_pagesize-1); // round size
     mutex_lock(&mutex_prot);
     addMapMem(mmapmem, addr, addr+size-1);
     mutex_unlock(&mutex_prot);
