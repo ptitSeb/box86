@@ -38,8 +38,6 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	return retval;
 }
 
-#define MODREG  ((nextop&0xC0)==0xC0)
-
 #ifdef TEST_INTERPRETER
 uintptr_t Test660F(x86test_t *test, uintptr_t addr)
 #else
@@ -1020,7 +1018,7 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
                 nextop = F8;
                 GET_EX;
                 tmp8u = F8;
-                if((nextop&0xC0)==0xC0) tmp8s = (tmp8u>>6)&3; else tmp8s = 0;
+                if(MODREG) tmp8s = (tmp8u>>6)&3; else tmp8s = 0;
                 GX.ud[(tmp8u>>4)&3] = EX->ud[tmp8s];
                 for(int i=0; i<4; ++i)
                     if(tmp8u&(1<<i))
@@ -1992,12 +1990,12 @@ uintptr_t Run660F(x86emu_t *emu, uintptr_t addr)
         nextop = F8;
         GET_EX;
         EX->q[0] = GX.q[0];
-        if((nextop&0xC0)==0xC0)
+        if(MODREG)
             EX->q[1] = 0;
         break;
     case 0xD7:  /* PMOVMSKB Gd,Ex */
         nextop = F8;
-        if((nextop&0xC0)==0xC0) {
+        if(MODREG) {
             GET_EX;
             GD.dword[0] = 0;
             for (int i=0; i<16; ++i)

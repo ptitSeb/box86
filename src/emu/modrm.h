@@ -21,6 +21,7 @@
 #endif
 
 // ModRM utilities macros
+#define MODREG ((nextop&0xC0)==0xC0)
 #define getecommon(A, T) \
     if(!(nextop&0xC0)) { \
         if((nextop&7)==4) { \
@@ -116,11 +117,11 @@
 
 
 #define geteb(A) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
     } else getecommon(A, reg32_t)
 #define testeb(A, O) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
     } else { \
         reg32_t* ret; \
@@ -131,19 +132,19 @@
         A = (reg32_t*)test->mem;\
     }
 #define getebo(A, O)          \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = (reg32_t*)&emu->regs[(nextop&3)].byte[((nextop&0x4)>>2)]; \
     } else getecommono(A, reg32_t, O)
 #define geted(A) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->regs[(nextop&7)]; \
     } else getecommon(A, reg32_t)
 #define getedo(A, O) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->regs[(nextop&7)]; \
     } else getecommono(A, reg32_t, O)
 #define tested(A, SZ, O) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->regs[(nextop&7)]; \
     } else {\
         reg32_t* ret; \
@@ -154,11 +155,11 @@
         A = (reg32_t*)test->mem;\
     }
 #define getem(A) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->mmx[(nextop&7)]; \
     } else getecommon(A, mmx87_regs_t)
 #define testem(A) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->mmx[(nextop&7)]; \
     } else {\
         mmx87_regs_t* ret; \
@@ -169,11 +170,11 @@
         A = (mmx87_regs_t*)test->mem;\
     }
 #define getex(A) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->xmm[(nextop&7)]; \
     } else getecommon(A, sse_regs_t)
 #define testex(A) \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->xmm[(nextop&7)]; \
     } else {\
         sse_regs_t* ret; \
@@ -184,15 +185,15 @@
         A = (sse_regs_t*)test->mem;\
     }
 #define getew16(A)  \
-    if((nextop&0xC0)==0xC0) { \
+    if(MODREG) { \
         A = &emu->regs[(nextop&7)]; \
     } else getecommon16(A, reg32_t)
 #define getew16o(A, O)              \
-    if((nextop&0xC0)==0xC0) {       \
+    if(MODREG) {       \
         A = &emu->regs[(nextop&7)]; \
     } else getecommon16o(A, reg32_t, O)
 #define testtew16(A, O)                 \
-    if((nextop&0xC0)==0xC0) {           \
+    if(MODREG) {           \
         A = &emu->regs[(nextop&7)];     \
     } else {                            \
         reg32_t* ret;                   \

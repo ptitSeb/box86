@@ -27,6 +27,8 @@
 #define PKip(a) *(uint8_t*)(ip+a)
 #define PKa(a)  *(uint8_t*)(a)
 
+#define MODREG  ((nextop&0xC0)==0xC0)
+
 // Strong mem emulation helpers
 #define SMREAD_MIN  2
 #define SMWRITE_MIN 1

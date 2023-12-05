@@ -68,13 +68,13 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
                 case 0:                 /* SLDT Ew */
                     GET_EW;
                     EW->word[0] = 0;
-                    if((nextop&0xC0)==0xC0)
+                    if(MODREG)
                         EW->word[1] = 0;
                     break;
                 case 1:                 /* STR Ew */
                     GET_EW;
                     EW->word[0] = 0x7f; // dummy return
-                    if((nextop&0xC0)==0xC0)
+                    if(MODREG)
                         EW->word[1] = 0;
                     break;
                 case 4: //VERR
@@ -149,7 +149,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
         case 0x12:                      
             nextop = F8;
             GET_EX;
-            if((nextop&0xC0)==0xC0)    /* MOVHLPS Gx,Ex */
+            if(MODREG)    /* MOVHLPS Gx,Ex */
                 GX.q[0] = EX->q[1];
             else
                 GX.q[0] = EX->q[0];    /* MOVLPS Gx,Ex */
@@ -187,7 +187,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
         case 0x18:                       /* PREFETCHh Ed */
             nextop = F8;
             GET_ED_;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
             } else
             switch((nextop>>3)&7) {
                 case 0: //PREFETCHnta
@@ -1388,7 +1388,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
 
         case 0xD7:                   /* PMOVMSKB Gd,Em */
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GET_EM;
                 GD.dword[0] = 0;
                 for (int i=0; i<8; ++i)
@@ -1504,7 +1504,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
 
         case 0xE7:                   /* MOVNTQ Em,Gm */
             nextop = F8;
-            if((nextop&0xC0)==0xC0)
+            if(MODREG)
                 return 0;
             GET_EM;
             EM->q = GM.q;
@@ -1617,7 +1617,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             break;
         case 0xF7:                   /* MASKMOVQ Gm, Em */
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GET_EM;
                 for (int i=0; i<8; ++i)
                     if(EM->ub[i]&0x80) ((uint8_t*)(R_EDI))[i] = GM.ub[i];

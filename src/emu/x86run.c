@@ -568,7 +568,7 @@ x86emurun:
             nextop = F8;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GET_EB;
-            if((nextop&0xC0)==0xC0) { // reg / reg: no lock
+            if(MODREG) { // reg / reg: no lock
                 tmp8u = GB;
                 GB = EB->byte[0];
                 EB->byte[0] = tmp8u;
@@ -594,7 +594,7 @@ x86emurun:
             nextop = F8;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GET_ED;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 tmp32u = GD.dword[0];
                 GD.dword[0] = ED->dword[0];
                 ED->dword[0] = tmp32u;
@@ -644,7 +644,7 @@ x86emurun:
         case 0x8C:                      /* MOV Ed, Seg */
             nextop = F8;
             GET_ED;
-            if((nextop&0xC0)==0xC0)
+            if(MODREG)
                 ED->dword[0] = emu->segs[((nextop&0x38)>>3)];
             else
                 ED->word[0] = emu->segs[((nextop&0x38)>>3)];
@@ -664,7 +664,7 @@ x86emurun:
             break;
         case 0x8F:                      /* POP Ed */
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 emu->regs[(nextop&7)].dword[0] = Pop(emu);
             } else {
                 tmp32u = Pop(emu);  // this order allows handling POP [ESP] and variant
@@ -1035,6 +1035,12 @@ x86emurun:
             break;
         case 0xC4:                      /* LES Gd,Ed */
             nextop = F8;
+            if(MODREG) {
+                UnimpOpcode(emu);
+                emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+                emu->quit=1;
+                emu->error |= ERR_UNIMPL;
+            }
             GET_ED;
             emu->segs[_ES] = *(__uint16_t*)(((char*)ED)+4);
             emu->segs_serial[_ES] = 0;
@@ -1042,6 +1048,12 @@ x86emurun:
             break;
         case 0xC5:                      /* LDS Gd,Ed */
             nextop = F8;
+            if(MODREG) {
+                UnimpOpcode(emu);
+                emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+                emu->quit=1;
+                emu->error |= ERR_UNIMPL;
+            }
             GET_ED;
             emu->segs[_DS] = *(__uint16_t*)(((char*)ED)+4);
             emu->segs_serial[_DS] = 0;

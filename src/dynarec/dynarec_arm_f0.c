@@ -42,7 +42,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
@@ -65,7 +65,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_add32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -83,7 +83,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LOCK OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETGB(x2);
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
@@ -108,7 +108,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_or32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -128,7 +128,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
@@ -152,7 +152,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_adc32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -172,7 +172,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
@@ -196,7 +196,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_sbb32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -214,7 +214,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LOCK AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETGB(x2);
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
@@ -239,7 +239,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_and32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -258,7 +258,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x2);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
                 wback = xEAX+(wback&3);
@@ -281,7 +281,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_sub32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -299,7 +299,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LOCK XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETGB(x2);
                 wback = (nextop&7);    
                 wb2 = (wback>>2);      
@@ -324,7 +324,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 emit_xor32(dyn, ninst, ed, gd, x3, x14);
             } else {
@@ -354,7 +354,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("LOCK ADD Ed, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_add32c(dyn, ninst, ed, i32, x3, x14);
@@ -394,7 +394,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1: //OR
                     if(opcode==0x81) {INST_NAME("LOCK OR Ed, Id");} else {INST_NAME("LOCK OR Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_or32c(dyn, ninst, ed, i32, x3, x14);
@@ -414,7 +414,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(opcode==0x81) {INST_NAME("LOCK ADC Ed, Id");} else {INST_NAME("LOCK ADC Ed, Ib");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_adc32c(dyn, ninst, ed, i32, x3, x14);
@@ -434,7 +434,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if(opcode==0x81) {INST_NAME("LOCK SBB Ed, Id");} else {INST_NAME("LOCK SBB Ed, Ib");}
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_sbb32c(dyn, ninst, ed, i32, x3, x14);
@@ -453,7 +453,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 4: //AND
                     if(opcode==0x81) {INST_NAME("LOCK AND Ed, Id");} else {INST_NAME("LOCK AND Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_and32c(dyn, ninst, ed, i32, x3, x14);
@@ -472,7 +472,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 5: //SUB
                     if(opcode==0x81) {INST_NAME("LOCK SUB Ed, Id");} else {INST_NAME("LOCK SUB Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_sub32c(dyn, ninst, ed, i32, x3, x14);
@@ -512,7 +512,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6: //XOR
                     if(opcode==0x81) {INST_NAME("LOCK XOR Ed, Id");} else {INST_NAME("LOCK XOR Ed, Ib");}
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i32 = F32S; else i32 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_xor32c(dyn, ninst, ed, i32, x3, x14);
@@ -571,7 +571,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("LOCK CMPXCHG Eb, Gb");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         wback = (nextop&7);    
                         wb2 = (wback>>2);      
                         wback = xEAX+(wback&3);
@@ -615,7 +615,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         // same as no lock, all in regs...
                         CMPS_REG_LSL_IMM5(xEAX, ed, 0);
@@ -686,7 +686,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SET_DFNONE(x1);
                     nextop = F8;
                     GETGD;
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
@@ -719,7 +719,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             SETFLAGS(X_CF, SF_SUBSET);
                             SET_DFNONE(x1);
                             gd = x2;
-                            if((nextop&0xC0)==0xC0) {
+                            if(MODREG) {
                                 ed = xEAX+(nextop&7);
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, 4095-32, 0, 0, LOCK_LOCK);
@@ -738,7 +738,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             INST_NAME("LOCK BTS Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
                             SET_DFNONE(x1);
-                            if((nextop&0xC0)==0xC0) {
+                            if(MODREG) {
                                 ed = xEAX+(nextop&7);
                                 u8 = F8&0x1f;
                                 wback = 0;
@@ -764,7 +764,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             INST_NAME("LOCK BTR Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
                             SET_DFNONE(x1);
-                            if((nextop&0xC0)==0xC0) {
+                            if(MODREG) {
                                 ed = xEAX+(nextop&7);
                                 u8 = F8&0x1f;
                                 wback = 0;
@@ -789,7 +789,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             INST_NAME("LOCK BTC Ed, Ib");
                             SETFLAGS(X_CF, SF_SUBSET);
                             SET_DFNONE(x1);
-                            if((nextop&0xC0)==0xC0) {
+                            if(MODREG) {
                                 ed = xEAX+(nextop&7);
                                 u8 = F8&0x1f;
                                 wback = 0;
@@ -822,7 +822,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SET_DFNONE(x1);
                     nextop = F8;
                     GETGD;
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
@@ -853,7 +853,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop = F8;
                     SMDMB();
                     GETGB(x1);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         wback = (nextop&7); 
                         wb2 = (wback>>2); 
                         wback = xEAX+(wback&3); 
@@ -883,7 +883,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         if(gd!=ed) {
                             XOR_REG_LSL_IMM5(gd, gd, ed, 0);    // swap gd, ed
@@ -994,7 +994,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         emit_inc32(dyn, ninst, ed, x3, x14);
                     } else {
@@ -1032,7 +1032,7 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1: //DEC Ed
                     INST_NAME("DEC Ed");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         emit_dec32(dyn, ninst, ed, x3, x14);
                     } else {

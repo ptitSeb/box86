@@ -114,7 +114,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop = F8;
                     grab_fsdata(dyn, addr, ninst, x14);
                     GETGD;  // don't need GETGW here
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         if(ed!=gd) {
                             BFI(ed, gd, 0, 16);
@@ -131,7 +131,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop=F8;
                     grab_fsdata(dyn, addr, ninst, x14);
                     GETGD;
-                    if((nextop&0xC0)==0xC0) {   // reg <= reg
+                    if(MODREG) {   // reg <= reg
                         MOV_REG(gd, xEAX+(nextop&7));
                     } else {                    // mem <= reg
                         SMREAD();
@@ -144,7 +144,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("POP FS:Ew16");
                     nextop=F8;
                     grab_fsdata(dyn, addr, ninst, x14);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         POP1(xEAX+(nextop&7));  // 67 ignored
                     } else {
                         addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
@@ -184,7 +184,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     switch((nextop>>3)&7) {
                         case 6: // Push Ed
                             INST_NAME("PUSH FS:Ew");
-                            if((nextop&0xC0)==0xC0) {   // reg
+                            if(MODREG) {   // reg
                                 DEFAULT;
                             } else {                    // mem <= i32
                                 SMREAD();
@@ -214,7 +214,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 gd = gb1;   // no need to extract
             }
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = ((ed&4)<<1);    // L or H
@@ -230,7 +230,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_fsdata(dyn, addr, ninst, x14);
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg
+            if(MODREG) {   // reg <= reg
                 MOV_REG(xEAX+(nextop&7), gd);
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
@@ -244,7 +244,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_fsdata(dyn, addr, ninst, x14);
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg
+            if(MODREG) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
                 SMREAD();
@@ -257,7 +257,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("POP FS:Ed");
             grab_fsdata(dyn, addr, ninst, x14);
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 POP1(xEAX+(nextop&7));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
@@ -333,7 +333,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV FS:Ed, Id");
             grab_fsdata(dyn, addr, ninst, x14);
             nextop=F8;
-            if((nextop&0xC0)==0xC0) {   // reg <= i32
+            if(MODREG) {   // reg <= i32
                 i32 = F32S;
                 ed = xEAX+(nextop&7);
                 MOV32(ed, i32);
@@ -366,7 +366,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     } else {
                         SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
                     }
-                    if((nextop&0xC0)==0xC0) {   // reg
+                    if(MODREG) {   // reg
                         MOV_REG(xEIP, xEAX+(nextop&7));
                     } else {                    // mem
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
@@ -381,7 +381,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6: // Push Ed
                     INST_NAME("PUSH FS:Ed");
-                    if((nextop&0xC0)==0xC0) {   // reg
+                    if(MODREG) {   // reg
                         DEFAULT;
                     } else {                    // mem <= i32
                         SMREAD();

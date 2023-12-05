@@ -49,7 +49,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                         INST_NAME("LOCK ADD Ew, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         ed = xEAX+(nextop&7);
                         emit_add16c(dyn, ninst, ed, i16, x3, x14);
@@ -99,7 +99,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 0: // INC Ew
                     INST_NAME("INC Ew");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         GETEW(x1);
                         emit_inc16(dyn, ninst, ed, x3, x14);
                         EWBACK(x1);
@@ -138,7 +138,7 @@ uintptr_t dynarec66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 case 1: //DEC Ew
                     INST_NAME("DEC Ew");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         GETEW(x1);
                         emit_dec32(dyn, ninst, ed, x3, x14);
                         EWBACK(x1);

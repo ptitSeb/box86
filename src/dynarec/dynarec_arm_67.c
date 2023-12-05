@@ -50,7 +50,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop = F8;
                     grab_fsdata(dyn, addr, ninst, x14);
                     GETGD;  // don't need GETGW here
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         if(ed!=gd) {
                             BFI(ed, gd, 0, 16);
@@ -67,7 +67,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     nextop=F8;
                     grab_fsdata(dyn, addr, ninst, x14);
                     GETGD;
-                    if((nextop&0xC0)==0xC0) {   // reg <= reg
+                    if(MODREG) {   // reg <= reg
                         ed = xEAX+(nextop&7);
                         if(ed!=gd) {
                             BFI(gd, ed, 0, 16);
@@ -83,7 +83,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("POP FS:Ew16");
                     nextop=F8;
                     grab_fsdata(dyn, addr, ninst, x14);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         POP1(xEAX+(nextop&7));  // 67 ignored
                     } else {
                         addr = geted16(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0);
@@ -123,7 +123,7 @@ uintptr_t dynarec67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     switch((nextop>>3)&7) {
                         case 6: // Push Ed
                             INST_NAME("PUSH FS:Ew");
-                            if((nextop&0xC0)==0xC0) {   // reg
+                            if(MODREG) {   // reg
                                 DEFAULT;
                             } else {                    // mem <= i32
                                 SMREAD();

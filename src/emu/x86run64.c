@@ -260,7 +260,7 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
             nextop = F8;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             GET_ED_OFFS(tlsdata);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 tmp32u = GD.dword[0];
                 GD.dword[0] = ED->dword[0];
                 ED->dword[0] = tmp32u;
@@ -278,12 +278,12 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
             }
 #else
             GET_ED_OFFS(tlsdata);
-            if((nextop&0xC0)!=0xC0)
+            if(!MODREG)
                 pthread_mutex_lock(&emu->context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
             tmp32u = GD.dword[0];
             GD.dword[0] = ED->dword[0];
             ED->dword[0] = tmp32u;
-            if((nextop&0xC0)!=0xC0)
+            if(!MODREG)
                 pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
             break;

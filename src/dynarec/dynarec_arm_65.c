@@ -376,7 +376,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg
+            if(MODREG) {   // reg <= reg
                 MOV_REG(xEAX+(nextop&7), gd);
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
@@ -390,7 +390,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg
+            if(MODREG) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
                 SMREAD();
@@ -403,7 +403,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("POP GS:Ed");
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 POP1((xEAX+(nextop&7)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
@@ -454,7 +454,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV GS:Eb, Ib");
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop=F8;
-            if((nextop&0xC0)==0xC0) {   // reg <= u8
+            if(MODREG) {   // reg <= u8
                 u8 = F8;
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
@@ -473,7 +473,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV GS:Ed, Id");
             grab_tlsdata(dyn, addr, ninst, x14);
             nextop=F8;
-            if((nextop&0xC0)==0xC0) {   // reg <= i32
+            if(MODREG) {   // reg <= i32
                 i32 = F32S;
                 ed = xEAX+(nextop&7);
                 MOV32(ed, i32);
@@ -660,7 +660,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 6: // Push Ed
                     INST_NAME("PUSH GS:Ed");
-                    if((nextop&0xC0)==0xC0) {   // reg
+                    if(MODREG) {   // reg
                         DEFAULT;
                     } else {                    // mem <= i32
                         SMREAD();

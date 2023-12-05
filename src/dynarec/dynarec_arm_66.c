@@ -507,7 +507,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x87:
             INST_NAME("(LOCK) XCHG Ew, Gw");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETGD;
                 UXTH(x14, gd, 0);
                 ed = xEAX + (nextop&7);
@@ -541,7 +541,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
             GETGD;  // don't need GETGW here
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 if(ed!=gd) {
                     BFI(ed, gd, 0, 16);
@@ -556,7 +556,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV Gw, Ew");
             nextop = F8;
             GETGD;  // don't need GETGW neither
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 if(ed!=gd) {
                     BFI(gd, ed, 0, 16);
@@ -573,7 +573,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             nextop = F8;
             MOV32(x2, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
             LDRH_REG(x1, xEmu, x2);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 BFI(ed, x1, 0, 16);
             } else {
@@ -586,7 +586,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x8E:
             INST_NAME("MOV Seg,Ew");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 MOV32(x2, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
                 STRH_REG(ed, xEmu, x2);
@@ -813,7 +813,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 u16 = F16;
                 MOVW(x1, u16);

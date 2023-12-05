@@ -17,8 +17,6 @@
 #include "modrm.h"
 #include "x86compstrings.h"
 
-#define MODREG  ((nextop&0xC0)==0xC0)
-
 #ifdef TEST_INTERPRETER
 uintptr_t Test66F20F(x86test_t *test, uintptr_t addr)
 #else

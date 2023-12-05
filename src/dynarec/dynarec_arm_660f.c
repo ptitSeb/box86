@@ -25,7 +25,7 @@
 
 // Get EX as a quad
 #define GETEX(a, w)             \
-    if((nextop&0xC0)==0xC0) {   \
+    if(MODREG) {   \
         a = sse_get_reg(dyn, ninst, x1, nextop&7, w);  \
     } else {                    \
         SMREAD();               \
@@ -41,8 +41,6 @@
     a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
 #define GETG    gd = (nextop&0x38)>>3
-
-#define MODREG  ((nextop&0xC0)==0xC0)
 
 uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, int* ok, int* need_epilog)
 {
@@ -75,7 +73,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVUPD Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
@@ -96,7 +94,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
@@ -114,7 +112,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVLPD Gx, Eq");
             nextop = F8;
             GETGX(v0, 1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
@@ -135,7 +133,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVLPD Eq, Gx");
             nextop = F8;
             GETGX(v0, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
@@ -156,7 +154,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(v0+1, v1);
             } else {
@@ -170,7 +168,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(v0, 1);
             VMOVD(v0, v0+1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(v0+1, v1+1);
             } else {
@@ -183,7 +181,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVHPD Gx, Ed");
             nextop = F8;
             GETGX(v0, 1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
@@ -204,7 +202,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVHPD Ed, Gx");
             nextop = F8;
             GETGX(v0, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 // access register instead of memory is bad opcode!
                 DEFAULT;
                 return addr;
@@ -232,7 +230,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVAPD Gx, Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
@@ -248,7 +246,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
@@ -264,7 +262,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
@@ -295,7 +293,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     nextop = F8;
                     GETGX(q0, 1);
                     q1 = fpu_get_scratch_quad(dyn);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         v0 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                     } else {
                         SMREAD();
@@ -668,7 +666,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     } else {
                         GETG;
                         sse_forget_reg(dyn, ninst, gd, x1);
-                        if((nextop&0xC0)==0xC0) {
+                        if(MODREG) {
                             ed = nextop&7;
                             sse_forget_reg(dyn, ninst, ed, x1);
                             MOV32(x2, ed);
@@ -737,7 +735,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     GETG;
                     sse_forget_reg(dyn, ninst, gd, x1);
                     MOV32(x1, gd); // gx
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = nextop&7;
                         sse_forget_reg(dyn, ninst, ed, x2);
                         MOV32(x2, ed);
@@ -762,7 +760,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETFLAGS;   \
             nextop=F8;  \
             GETGD;      \
-            if((nextop&0xC0)==0xC0) {   \
+            if(MODREG) {   \
                 ed = xEAX+(nextop&7);   \
             } else { \
                 SMREAD(); \
@@ -870,7 +868,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETEX(q0, 0);
             gd = xEAX+((nextop&0x38)>>3);
-            if((nextop&0xC0)==0xC0)
+            if(MODREG)
                 q1 = fpu_get_scratch_quad(dyn);
             else 
                 q1 = q0;
@@ -1214,7 +1212,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(v0+1, v1);
             } else {
@@ -1228,7 +1226,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             GETGX(q0, 1);
             VMOVD(q0, q0+1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 q1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 VMOVD(q0+1, q1+1);
             } else {
@@ -1250,7 +1248,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVDQA Gx,Ex");
             nextop = F8;
             gd = (nextop&0x38)>>3;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 VMOVQ(v0, v1);
@@ -1266,7 +1264,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             i32 = -1;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 u8 = F8;
                 v1 = sse_get_reg(dyn, ninst, x1, nextop&7, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
@@ -1397,7 +1395,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             switch((nextop>>3)&7) {
                 case 2:
                     INST_NAME("PSRLW Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1420,7 +1418,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 4:
                     INST_NAME("PSRAW Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1439,7 +1437,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 6:
                     INST_NAME("PSLLW Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1470,7 +1468,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             switch((nextop>>3)&7) {
                 case 2:
                     INST_NAME("PSRLD Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1493,7 +1491,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 4:
                     INST_NAME("PSRAD Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1512,7 +1510,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 6:
                     INST_NAME("PSLLD Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1542,7 +1540,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             switch((nextop>>3)&7) {
                 case 2:
                     INST_NAME("PSRLQ Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1565,7 +1563,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 3:
                     INST_NAME("PSRLDQ Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1590,7 +1588,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 6:
                     INST_NAME("PSLLQ Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1613,7 +1611,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     break;
                 case 7:
                     INST_NAME("PSLLDQ Ex, Ib");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         q0 = sse_get_reg(dyn, ninst, x1, nextop&7, 1);
                     } else {
                         SMREAD();
@@ -1667,7 +1665,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX + (nextop&7);
                 VMOVfrDx_32(ed, v0, 0);
             } else {
@@ -1681,7 +1679,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVDQA Ex,Gx");
             nextop = F8;
             GETGX(v0, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
@@ -1697,7 +1695,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, so 32bits is the same (no need for GETGW)
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);   // no need for extract
             } else {
                 SMREAD();
@@ -1739,7 +1737,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 wback = 0;   // no need for extract
             } else {
@@ -1789,7 +1787,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
@@ -1809,7 +1807,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 wback = 0;   // no need for extract
             } else {
@@ -1838,7 +1836,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVZX Gw, Eb");
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = (ed&4)>>2;    // L or H
@@ -1854,7 +1852,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVZX Gw, Ew");
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX + (nextop&7);
                 UXTH(x1, ed, 0);
             } else {
@@ -1872,7 +1870,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     INST_NAME("BT Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
                     SET_DFNONE(x1);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                     } else {
                         SMREAD();
@@ -1892,7 +1890,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     INST_NAME("BTS Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
                     SET_DFNONE(x1);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
@@ -1923,7 +1921,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     INST_NAME("BTR Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
                     SET_DFNONE(x1);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
@@ -1954,7 +1952,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     INST_NAME("BTC Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
                     SET_DFNONE(x1);
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         ed = xEAX+(nextop&7);
                         wback = 0;
                     } else {
@@ -1990,7 +1988,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             SET_DFNONE(x1);
             nextop = F8;
             GETGD;  // there is an AND below, to 32bits is the same
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
                 wback = 0;   // no need for extract
             } else {
@@ -2049,7 +2047,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVSX Gw, Eb");
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = (ed&4)>>2;    // L or H
@@ -2122,7 +2120,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PINSRW Gx,Ed,Ib");
             nextop = F8;
             GETGX(v0, 1);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 u8 = (F8)&7;
                 ed = xEAX+(nextop&7);
                 VMOVtoDx_16(v0+(u8/4), u8&3, ed);
@@ -2137,7 +2135,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("PEXTRW Gd,Ex,Ib");
             nextop = F8;
             gd = xEAX+((nextop&0x38)>>3);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETEX(v0, 0);
                 u8 = (F8)&7;
                 VMOVfrDx_U16(gd, v0+(u8/4), (u8&3));
@@ -2251,7 +2249,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             INST_NAME("MOVQ Ex,Gx");
             nextop = F8;
             GETGX(q0, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 q1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVD(q1, q0);
                 VEOR(q1+1, q1+1, q1+1);
@@ -2272,7 +2270,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             break;
         case 0xD7:
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 INST_NAME("PMOVMSKB Gd, Ex");
                 GETEX(q0, 0);
                 gd = xEAX+((nextop&0x38)>>3);
@@ -2443,7 +2441,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, nextop&7);
                 VMOVQ(v1, v0);
             } else {
@@ -2558,7 +2556,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             q0 = fpu_get_scratch_quad(dyn);
             VMOVQ(q0, v0);
             VTRN_32(q0, q0+1);  // transpose GX
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 q1 = fpu_get_scratch_quad(dyn);
                 VMOVQ(q1, v1);
             } else {
@@ -2595,7 +2593,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             GETEX(q1, 0);
             v0 = fpu_get_scratch_quad(dyn);
             VLD1Q_8(v0, xEDI);  // hopefully it's always aligned?
-            if((nextop&0xC0)==0xC0)
+            if(MODREG)
                 v1 = fpu_get_scratch_quad(dyn); // need to preserve the register
             else
                 v1 = q1;

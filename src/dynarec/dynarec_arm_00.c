@@ -1003,7 +1003,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("(LOCK)XCHG Eb, Gb");
             // Do the swap
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETGB(x14);
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);
@@ -1030,7 +1030,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x87:
             INST_NAME("(LOCK)XCHG Ed, Gd");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 GETGD;
                 GETED;
                 if(gd!=ed) {
@@ -1080,7 +1080,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 gd = gb1;   // no need to extract
             }
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
                 eb2 = ((ed&4)>>2);    // L or H
@@ -1095,7 +1095,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV Ed, Gd");
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg
+            if(MODREG) {   // reg <= reg
                 MOV_REG(xEAX+(nextop&7), gd);
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, 0, &lock);
@@ -1109,7 +1109,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             gd = (nextop&0x38)>>3;
             gb1 = xEAX+(gd&3);
             gb2 = ((gd&4)>>2);
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                     wback = (nextop&7);
                     wb2 = (wback>>2);
                     wback = xEAX+(wback&3);
@@ -1131,7 +1131,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV Gd, Ed");
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg
+            if(MODREG) {   // reg <= reg
                 MOV_REG(gd, xEAX+(nextop&7));
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 4095, 0, 0, &lock);
@@ -1143,7 +1143,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV Ed, Seg");
             nextop=F8;
             MOV32(x3, offsetof(x86emu_t, segs[(nextop&0x38)>>3]));
-            if((nextop&0xC0)==0xC0) {   // reg <= seg
+            if(MODREG) {   // reg <= seg
                 LDRH_REG(xEAX+(nextop&7), xEmu, x3);
             } else {                    // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
@@ -1156,7 +1156,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("LEA Gd, Ed");
             nextop=F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {   // reg <= reg? that's an invalid operation
+            if(MODREG) {   // reg <= reg? that's an invalid operation
                 DEFAULT;
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, 0, 0, 0, NULL);
@@ -1168,7 +1168,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x8E:
             INST_NAME("MOV Seg,Ew");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xEAX+(nextop&7);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 255, 0, 0, NULL);
@@ -1188,7 +1188,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x8F:
             INST_NAME("POP Ed");
             nextop = F8;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 POP1(xEAX+(nextop&7));
             } else {
                 POP1(x2); // so this can handle POP [ESP] and maybe some variant too
@@ -1621,7 +1621,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
             INST_NAME("MOV Eb, Ib");
             nextop=F8;
-            if((nextop&0xC0)==0xC0) {   // reg <= u8
+            if(MODREG) {   // reg <= u8
                 u8 = F8;
                 ed = (nextop&7);
                 eb1 = xEAX+(ed&3);  // Ax, Cx, Dx or Bx
@@ -1639,7 +1639,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop=F8;
-            if((nextop&0xC0)==0xC0) {   // reg <= i32
+            if(MODREG) {   // reg <= i32
                 i32 = F32S;
                 ed = xEAX+(nextop&7);
                 MOV32(ed, i32);
@@ -2695,7 +2695,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 2:
                     INST_NAME("NOT Eb");
-                    if((nextop&0xC0)==0xC0) {
+                    if(MODREG) {
                         wback = (nextop&7);
                         wb2 = (wback>>2);
                         wback = xEAX+(wback&3);
