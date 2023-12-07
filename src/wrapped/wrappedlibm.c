@@ -62,10 +62,15 @@ EXPORT uint64_t my_##N##f(void* c, void* d)         \
     return ret.u64;                                 \
 }
 
-#ifndef TERMUX
+#ifdef TERMUX
+double complex clog(double complex);
+float complex clogf(float complex);
+double complex cpow(double complex, double complex);
+float complex cpowf(float complex, float complex);
+#endif
+
 GO_cFc(clog)
 GO_cFcc(cpow)
-#endif
 GO_cFc(csqrt)
 GO_cFc(cproj)
 GO_cFc(cexp)
