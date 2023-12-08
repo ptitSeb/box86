@@ -119,185 +119,184 @@ int my_fcntl(x86emu_t* emu, int fd, int cmd, ... /* arg */ );
 
 // Syscall table for x86 can be found here: http://shell-storm.org/shellcode/files/syscalls.html
 typedef struct scwrap_s {
-    uint32_t x86s;
     int nats;
     int nbpars;
 } scwrap_t;
 
 scwrap_t syscallwrap[] = {
-    { 2, __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
-    //{ 3, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
-    //{ 4, __NR_write, 3 }, // same
-    //{ 5, __NR_open, 3 },  // flags need transformation
-    //{ 6, __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
+    [2] ={ __NR_fork, 1 },    // should wrap this one, because of the struct pt_regs (the only arg)?
+    //[3] ={ __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
+    //[4] ={ __NR_write, 3 }, // same
+    //[5] ={ __NR_open, 3 },  // flags need transformation
+    //[6] ={ __NR_close, 1 },   // wrapped so SA_RESTART can be handled by libc
 #ifdef __NR_waitpid
-    { 7, __NR_waitpid, 3 },
+    [7] ={ __NR_waitpid, 3 },
 #endif
-    { 10, __NR_unlink, 1 },
-    { 12, __NR_chdir, 1 },
+    [10] { __NR_unlink, 1 },
+    [12] { __NR_chdir, 1 },
 #ifdef __NR_time
-    { 13, __NR_time, 1 },
+    [13] { __NR_time, 1 },
 #endif
-    { 15, __NR_chmod, 2 },
-    { 19, __NR_lseek, 3 },
-    { 20, __NR_getpid, 0 },
-    { 24, __NR_getuid, 0 },
+    [15] { __NR_chmod, 2 },
+    [19] { __NR_lseek, 3 },
+    [20] { __NR_getpid, 0 },
+    [24] { __NR_getuid, 0 },
 #ifdef __NR_alarm
-    { 27, __NR_alarm, 1 },
+    [27] { __NR_alarm, 1 },
 #endif
-    { 33, __NR_access, 2 },
-    { 37, __NR_kill, 2 },
-    { 38, __NR_rename, 2 },
-    { 39, __NR_mkdir, 2 },
-    { 40, __NR_rmdir, 1 },
-    { 41, __NR_dup, 1 },
-    { 42, __NR_pipe, 1 },
-    //{ 45, __NR_brk, 1 },
-    { 47, __NR_getgid, 0 },
-    { 49, __NR_geteuid, 0 },
-    { 50, __NR_getegid, 0 },
-    { 54, __NR_ioctl, 3 },    // should be wrapped to allow SA_RESTART handling by libc, but syscall is only 3 arguments, ioctl can be 5
-    //{ 55, __NR_fcntl, 3 },    // wrapped to allow filter of F_SETFD
-    { 60, __NR_umask, 1 },
-    { 63, __NR_dup2, 2 },
-    { 64, __NR_getppid, 0 },
-    { 66, __NR_setsid, 0 },
-    //{ 67, __NR_sigaction, 3 },
-    { 75, __NR_setrlimit, 2 },
+    [33] { __NR_access, 2 },
+    [37] { __NR_kill, 2 },
+    [38] { __NR_rename, 2 },
+    [39] { __NR_mkdir, 2 },
+    [40] { __NR_rmdir, 1 },
+    [41] { __NR_dup, 1 },
+    [42] { __NR_pipe, 1 },
+    //[45] { __NR_brk, 1 },
+    [47] { __NR_getgid, 0 },
+    [49] { __NR_geteuid, 0 },
+    [50] { __NR_getegid, 0 },
+    [54] { __NR_ioctl, 3 },    // should be wrapped to allow SA_RESTART handling by libc, but syscall is only 3 arguments, ioctl can be 5
+    //[55] { __NR_fcntl, 3 },    // wrapped to allow filter of F_SETFD
+    [60] { __NR_umask, 1 },
+    [63] { __NR_dup2, 2 },
+    [64] { __NR_getppid, 0 },
+    [66] { __NR_setsid, 0 },
+    //[67] { __NR_sigaction, 3 },
+    [75] { __NR_setrlimit, 2 },
 #ifdef __NR_getrlimit
-    { 76, __NR_getrlimit, 2 },
+    [76] { __NR_getrlimit, 2 },
 #endif
-    { 77, __NR_getrusage, 2 },
-    { 78, __NR_gettimeofday, 2 },
-    { 80, __NR_getgroups, 2 },
-    { 83, __NR_symlink, 2 },
+    [77] { __NR_getrusage, 2 },
+    [78] { __NR_gettimeofday, 2 },
+    [80] { __NR_getgroups, 2 },
+    [83] { __NR_symlink, 2 },
 #ifdef __NR_select
-    { 82, __NR_select, 5 },
+    [82] { __NR_select, 5 },
 #endif
-    { 85, __NR_readlink, 3 },
-    //{ 91, __NR_munmap, 2 },
-    { 94, __NR_fchmod, 2 },
-    { 99, __NR_statfs, 2 },
+    [85] { __NR_readlink, 3 },
+    //[91] { __NR_munmap, 2 },
+    [94] { __NR_fchmod, 2 },
+    [99] { __NR_statfs, 2 },
 #ifdef __NR_socketcall
-    { 102, __NR_socketcall, 2 },
+    [102] { __NR_socketcall, 2 },
 #endif
-    { 104, __NR_setitimer, 3 },
-    { 105, __NR_getitimer, 2 },
+    [104] { __NR_setitimer, 3 },
+    [105] { __NR_getitimer, 2 },
 #ifdef __NR_newstat
-    { 106, __NR_newstat, 2 },
+    [106] { __NR_newstat, 2 },
 #else
-    { 106, __NR_stat, 2 },
+    [106] { __NR_stat, 2 },
 #endif
 #ifdef __NR_newlstat
-    { 107, __NR_newlstat, 2 },
+    [107] { __NR_newlstat, 2 },
 #else
-    { 107, __NR_lstat, 2 },
+    [107] { __NR_lstat, 2 },
 #endif
 #ifdef __NR_newfstat
-    { 108, __NR_newfstat, 2 },
+    [108] { __NR_newfstat, 2 },
 #else
-    { 108, __NR_fstat, 2 },
+    [108] { __NR_fstat, 2 },
 #endif
 #ifdef __NR_olduname
-    { 109, __NR_olduname, 1 },
+    [109] { __NR_olduname, 1 },
 #endif
 #ifdef __NR_iopl
-    { 110, __NR_iopl, 1 },
+    [110] { __NR_iopl, 1 },
 #endif
-    { 114, __NR_wait4, 4 }, //TODO: check struct rusage alignment
+    [114] { __NR_wait4, 4 }, //TODO: check struct rusage alignment
 #ifdef __NR_ipc
-    { 117, __NR_ipc, 6 },
+    [117] { __NR_ipc, 6 },
 #endif
-    //{ 119, __NR_sigreturn, 0},
-    //{ 120, __NR_clone, 5 },    // need works
-    //{ 122, __NR_uname, 1 },
-    //{ 123, __NR_modify_ldt },
-    //{ 125, __NR_mprotect, 3 },
-    { 126, __NR_sigprocmask, 3 },
-    { 136, __NR_personality, 1 },
-    { 140, __NR__llseek, 5 },
-    { 141, __NR_getdents, 3 },
-    { 142, __NR__newselect, 5 },
-    { 143, __NR_flock,  2 },
-    { 144, __NR_msync, 3 },
-    { 145, __NR_readv, 3 },
-    { 146, __NR_writev, 3 },
-    { 148, __NR_fdatasync, 1 },
-    { 149, __NR__sysctl, 1 },    // need wrapping?
-    { 156, __NR_sched_setscheduler, 3 },
-    { 157, __NR_sched_getscheduler, 1 },
-    { 158, __NR_sched_yield, 0 },
-    { 162, __NR_nanosleep, 2 },
-    { 164, __NR_setresuid, 3 },
-    //{ 168, __NR_poll, 3 },    // wrapped to allow SA_RESTART wrapping by libc
-    { 172, __NR_prctl, 5 },
-    //{ 173, __NR_rt_sigreturn, 0 },
-    { 175, __NR_rt_sigprocmask, 4 },
-    { 179, __NR_rt_sigsuspend, 2 },
-    { 183, __NR_getcwd, 2 },
-    { 184, __NR_capget, 2},
-    { 185, __NR_capset, 2},
-    { 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
-    { 191, __NR_ugetrlimit, 2 },
-//    { 192, __NR_mmap2, 6},
-    //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
-    //{ 196, __NR_lstat64, 2 }, // need proprer wrap because of structure size change
-    //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
+    //[119] { __NR_sigreturn, 0},
+    //[120] { __NR_clone, 5 },    // need works
+    //[122] { __NR_uname, 1 },
+    //[123] { __NR_modify_ldt },
+    //[125] { __NR_mprotect, 3 },
+    [126] { __NR_sigprocmask, 3 },
+    [136] { __NR_personality, 1 },
+    [140] { __NR__llseek, 5 },
+    [141] { __NR_getdents, 3 },
+    [142] { __NR__newselect, 5 },
+    [143] { __NR_flock,  2 },
+    [144] { __NR_msync, 3 },
+    [145] { __NR_readv, 3 },
+    [146] { __NR_writev, 3 },
+    [148] { __NR_fdatasync, 1 },
+    [149] { __NR__sysctl, 1 },    // need wrapping?
+    [156] { __NR_sched_setscheduler, 3 },
+    [157] { __NR_sched_getscheduler, 1 },
+    [158] { __NR_sched_yield, 0 },
+    [162] { __NR_nanosleep, 2 },
+    [164] { __NR_setresuid, 3 },
+    //[168] { __NR_poll, 3 },    // wrapped to allow SA_RESTART wrapping by libc
+    [172] { __NR_prctl, 5 },
+    //[173] { __NR_rt_sigreturn, 0 },
+    [175] { __NR_rt_sigprocmask, 4 },
+    [179] { __NR_rt_sigsuspend, 2 },
+    [183] { __NR_getcwd, 2 },
+    [184] { __NR_capget, 2},
+    [185] { __NR_capset, 2},
+    [186] { __NR_sigaltstack, 2 },    // neeed wrap or something?
+    [191] { __NR_ugetrlimit, 2 },
+//    [192] { __NR_mmap2, 6},
+    //[195] { __NR_stat64, 2 },  // need proprer wrap because of structure size change
+    //[196] { __NR_lstat64, 2 }, // need proprer wrap because of structure size change
+    //[197] { __NR_fstat64, 2 },  // need proprer wrap because of structure size change
 #ifndef POWERPCLE
-    { 199, __NR_getuid32, 0 },
-    { 200, __NR_getgid32, 0 },
-    { 201, __NR_geteuid32, 0 },
-    { 202, __NR_getegid32, 0 },
-    { 208, __NR_setresuid32, 3 },
-    { 209, __NR_getresuid32, 3 },
-    { 210, __NR_setresgid32, 3 },
-    { 211, __NR_getresgid32, 3 },
+    [199] { __NR_getuid32, 0 },
+    [200] { __NR_getgid32, 0 },
+    [201] { __NR_geteuid32, 0 },
+    [202] { __NR_getegid32, 0 },
+    [208] { __NR_setresuid32, 3 },
+    [209] { __NR_getresuid32, 3 },
+    [210] { __NR_setresgid32, 3 },
+    [211] { __NR_getresgid32, 3 },
 #else
     // PowerPC uses the same syscalls for 32/64 bit processes.
-    { 199, __NR_getuid, 0 },
-    { 200, __NR_getgid, 0 },
-    { 201, __NR_geteuid, 0 },
-    { 202, __NR_getegid, 0 },
-    { 208, __NR_setresuid, 3 },
-    { 209, __NR_getresuid, 3 },
-    { 210, __NR_setresgid, 3 },
-    { 211, __NR_getresgid, 3 },
+    [199] { __NR_getuid, 0 },
+    [200] { __NR_getgid, 0 },
+    [201] { __NR_geteuid, 0 },
+    [202] { __NR_getegid, 0 },
+    [208] { __NR_setresuid, 3 },
+    [209] { __NR_getresuid, 3 },
+    [210] { __NR_setresgid, 3 },
+    [211] { __NR_getresgid, 3 },
 #endif
-    { 220, __NR_getdents64, 3 },
-    //{ 221, __NR_fcntl64, 3 },
-    { 224, __NR_gettid, 0 },
-    { 240, __NR_futex, 6 },
-    { 241, __NR_sched_setaffinity, 3 },
-    { 242, __NR_sched_getaffinity, 3 },
-    { 252, __NR_exit_group, 1 },
+    [220] { __NR_getdents64, 3 },
+    //[221] { __NR_fcntl64, 3 },
+    [224] { __NR_gettid, 0 },
+    [240] { __NR_futex, 6 },
+    [241] { __NR_sched_setaffinity, 3 },
+    [242] { __NR_sched_getaffinity, 3 },
+    [252] { __NR_exit_group, 1 },
 #ifdef NOALIGN
-    { 254, __NR_epoll_create, 1 },
-    { 255, __NR_epoll_ctl, 4 },
-    { 256, __NR_epoll_wait, 4 },
+    [254] { __NR_epoll_create, 1 },
+    [255] { __NR_epoll_ctl, 4 },
+    [256] { __NR_epoll_wait, 4 },
 #endif
-    { 265, __NR_clock_gettime, 2 },
-    { 266, __NR_clock_getres, 2 },
-    //{ 270, __NR_tgkill, 3 },
-    { 271, __NR_utimes, 2 },
-    { 291, __NR_inotify_init, 0},
-    { 292, __NR_inotify_add_watch, 3},
-    { 293, __NR_inotify_rm_watch, 2},
-    { 311, __NR_set_robust_list, 2 },
-    { 312, __NR_get_robust_list, 4 },
-    { 318, __NR_getcpu, 3},
-    { 328, __NR_eventfd2, 2},
+    [265] { __NR_clock_gettime, 2 },
+    [266] { __NR_clock_getres, 2 },
+    //[270] { __NR_tgkill, 3 },
+    [271] { __NR_utimes, 2 },
+    [291] { __NR_inotify_init, 0},
+    [292] { __NR_inotify_add_watch, 3},
+    [293] { __NR_inotify_rm_watch, 2},
+    [311] { __NR_set_robust_list, 2 },
+    [312] { __NR_get_robust_list, 4 },
+    [318] { __NR_getcpu, 3},
+    [328] { __NR_eventfd2, 2},
 #ifdef NOALIGN
-    { 329, __NR_epoll_create1, 1 },
+    [329] { __NR_epoll_create1, 1 },
 #endif
-    { 331, __NR_pipe2, 2},
-    { 332, __NR_inotify_init1, 1},
+    [331] { __NR_pipe2, 2},
+    [332] { __NR_inotify_init1, 1},
 #ifdef __NR_getrandom
-    { 355, __NR_getrandom, 3 },
+    [355] { __NR_getrandom, 3 },
 #endif
 #ifdef __NR_memfd_create
-    { 356, __NR_memfd_create, 2},
+    [356] { __NR_memfd_create, 2},
 #endif
-    //{ 449, __NR_futex_waitv, 5},
+    //[449] { __NR_futex_waitv, 5},
 };
 
 struct mmap_arg_struct {
@@ -412,27 +411,25 @@ void EXPORT x86Syscall(x86emu_t *emu)
     printf_log(LOG_DEBUG, "%p: Calling syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_EIP, s, s, (void*)R_EBX, (void*)R_ECX, (void*)R_EDX, (void*)R_ESI, (void*)R_EDI); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    for (int i=0; i<cnt; i++) {
-        if(syscallwrap[i].x86s == s) {
-            int sc = syscallwrap[i].nats;
-            switch(syscallwrap[i].nbpars) {
-                case 0: S_EAX = syscall(sc); break;
-                case 1: S_EAX = syscall(sc, R_EBX); break;
-                case 2: if(s==33) {printf_log(LOG_DEBUG, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; S_EAX = syscall(sc, R_EBX, R_ECX); break;
-                case 3: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); break;
-                case 4: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); break;
-                case 5: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
-                case 6: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
-                default:
-                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
-                   emu->quit = 1;
-                   return;
-            }
-            if(S_EAX==-1 && errno>0)
-                S_EAX = -errno;
-            printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
-            return;
+    if(s<cnt && syscallwrap[s].nats) {
+        int sc = syscallwrap[s].nats;
+        switch(syscallwrap[s].nbpars) {
+            case 0: S_EAX = syscall(sc); break;
+            case 1: S_EAX = syscall(sc, R_EBX); break;
+            case 2: if(s==33) {printf_log(LOG_DEBUG, " => sys_access(\"%s\", %d)\n", (char*)R_EBX, R_ECX);}; S_EAX = syscall(sc, R_EBX, R_ECX); break;
+            case 3: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX); break;
+            case 4: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI); break;
+            case 5: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
+            case 6: S_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
+            default:
+                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars); 
+                emu->quit = 1;
+                return;
         }
+        if(S_EAX==-1 && errno>0)
+            S_EAX = -errno;
+        printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
+        return;
     }
     switch (s) {
         case 1: // sys_exit
@@ -798,22 +795,20 @@ long EXPORT my_syscall(x86emu_t *emu)
     printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", (void*)R_EIP, s, s, (void*)u32(4), (void*)u32(8), (void*)u32(12), (void*)u32(16), (void*)u32(20)); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    for (int i=0; i<cnt; i++) {
-        if(syscallwrap[i].x86s == s) {
-            int sc = syscallwrap[i].nats;
-            switch(syscallwrap[i].nbpars) {
-                case 0: return syscall(sc);
-                case 1: return syscall(sc, u32(4));
-                case 2: return syscall(sc, u32(4), u32(8));
-                case 3: return syscall(sc, u32(4), u32(8), u32(12));
-                case 4: return syscall(sc, u32(4), u32(8), u32(12), u32(16));
-                case 5: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20));
-                case 6: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20), u32(24));
-                default:
-                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
-                   emu->quit = 1;
-                   return 0;
-            }
+    if(s<cnt && syscallwrap[s].nats) {
+        int sc = syscallwrap[s].nats;
+        switch(syscallwrap[s].nbpars) {
+            case 0: return syscall(sc);
+            case 1: return syscall(sc, u32(4));
+            case 2: return syscall(sc, u32(4), u32(8));
+            case 3: return syscall(sc, u32(4), u32(8), u32(12));
+            case 4: return syscall(sc, u32(4), u32(8), u32(12), u32(16));
+            case 5: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20));
+            case 6: return syscall(sc, u32(4), u32(8), u32(12), u32(16), u32(20), u32(24));
+            default:
+                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars); 
+                emu->quit = 1;
+                return 0;
         }
     }
     switch (s) {
