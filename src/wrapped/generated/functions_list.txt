@@ -1278,6 +1278,8 @@
 #() iFpuuLL
 #() iFpuupu
 #() iFpuupp
+#() iFpuLpL
+#() iFpuLpp
 #() iFpupiU
 #() iFpupuu
 #() iFpupup
@@ -1391,6 +1393,9 @@
 #() pFpuiii
 #() pFpuiip
 #() pFpuuip
+#() pFpuuup
+#() pFpuupp
+#() pFpuLpp
 #() pFpuppp
 #() pFpUdii
 #() pFpdddd
@@ -1594,6 +1599,8 @@
 #() iFpipppp
 #() iFpCpipu
 #() iFpuiiii
+#() iFpuuupp
+#() iFpuuLpp
 #() iFpupipi
 #() iFpupuui
 #() iFpUuupp
@@ -1615,6 +1622,7 @@
 #() iFppuipp
 #() iFppuIII
 #() iFppuupp
+#() iFppuLpp
 #() iFppupip
 #() iFppuppp
 #() iFppUipp
@@ -1688,6 +1696,7 @@
 #() pFpiUUUU
 #() pFpippip
 #() pFpuuuuu
+#() pFpupppp
 #() pFplpppp
 #() pFpLiLpp
 #() pFpLpLLi
@@ -1833,6 +1842,7 @@
 #() iFpuupppp
 #() iFpupuuui
 #() iFpupuufu
+#() iFpupuupp
 #() iFpupupui
 #() iFpuppppp
 #() iFpLipipi
@@ -1875,6 +1885,7 @@
 #() LFEppLppU
 #() LFEpppppu
 #() pFEpiiiiu
+#() pFEpupppp
 #() pFEpLiiii
 #() pFEpLiiiI
 #() pFEppCuup
@@ -1890,6 +1901,7 @@
 #() pFdiiiIiI
 #() pFpiiUdii
 #() pFpipippp
+#() pFpuppppp
 #() pFplppppp
 #() pFpLpLLiL
 #() pFpLppiip
@@ -2004,6 +2016,7 @@
 #() iFpppipppp
 #() iFppppiipi
 #() iFppppippp
+#() iFpppppupp
 #() iFppppppii
 #() iFpppppppi
 #() iFpppppppp
@@ -2043,6 +2056,7 @@
 #() pFpWWiCpup
 #() pFpuuuupup
 #() pFpupupuuu
+#() pFpupLLLpp
 #() pFpdwwWWui
 #() pFplpppppp
 #() pFpLppLLiL
@@ -2113,11 +2127,17 @@
 #() iFppiiiiiii
 #() iFppiuiippu
 #() iFppipiiipi
+#() iFppuLLpupp
+#() iFppupppupp
 #() iFppLpiippp
 #() iFpppiiuuii
 #() iFpppiipiiu
+#() iFpppLLLupp
+#() iFpppLppupp
 #() iFppppiiupp
 #() iFppppupiii
+#() iFpppppLupp
+#() iFppppppupp
 #() iFppppppppu
 #() iFppppppppp
 #() uFEipippppp
@@ -2201,8 +2221,10 @@
 #() pFEppCuwwWWu
 #() pFEppCuuuCup
 #() pFEppuuWWCuu
+#() pFpupLLLLLpp
 #() pFplllllllll
 #() pFppuiipuuii
+#() pFppuuLLuppp
 #() pFpppppppppp
 #() vFEpiiiupupup
 #() vFiiiiillliip
@@ -2240,6 +2262,7 @@
 #() iFiiiiiiiiiip
 #() iFpiippiiipip
 #() iFppippipppip
+#() iFppuppLLpupp
 #() iFppppiiuuiiu
 #() uFEpiiupppiuV
 #() uFEpiippppiup
@@ -2284,6 +2307,7 @@
 #() pFWWiCCCCiipup
 #() pFppiiuuuiupup
 #() pFppippLLLiLpp
+#() pFppuuppppuppp
 #() pFpppppppppppp
 #() vFEpppppppiippp
 #() vFuiiiiiiiiiuup
@@ -2301,6 +2325,7 @@
 #() iFpippppppppppp
 #() iFpupiiiipppppp
 #() iFpuppppppppppp
+#() iFppppppLLLLupp
 #() iFppppppppppppp
 #() uFippuuuulllipp
 #() uFpppppuupppppp
@@ -2312,6 +2337,7 @@
 #() vFpppppppppppppp
 #() iFpipppppppppppp
 #() iFpupppppppppppp
+#() iFppupppLLLLpupp
 #() iFpppppppppppppp
 #() pFEppCuuWWwwCCup
 #() pFEppuuuWWWWWWWW
@@ -4112,6 +4138,13 @@ wrappedopenal:
   - alcGetProcAddress
 - vFiiipp:
   - alRequestFoldbackStart
+wrappedopencl:
+- pFpuppp:
+  - clCreateContextFromType
+- iFpupppp:
+  - clBuildProgram
+- pFpupppp:
+  - clCreateContext
 wrappedpango:
 - vFpp:
   - pango_attribute_init
