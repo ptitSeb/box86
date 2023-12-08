@@ -93,12 +93,14 @@ x86emurun:
         opcode = F8;
         
         rep = 0;
-        while((opcode==0xF2) || (opcode==0xF3)) {
-            rep = opcode-0xF1;
+        while((opcode==0xF2) || (opcode==0xF3) || (opcode==0x3E)) {
+            switch (opcode) {
+                case 0xF2: rep = 1; break;
+                case 0xF3: rep = 2; break;
+                case 0x3E: /* ignored*/ break;
+            }
             opcode = F8;
         }
-        while((opcode==0x3E))   //Branch Taken Hint ignored
-            opcode = F8;
 
         switch(opcode) {
 
