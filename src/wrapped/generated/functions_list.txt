@@ -81,7 +81,6 @@
 #() lFp
 #() lFG
 #() LFv
-#() LFi
 #() LFu
 #() LFL
 #() LFp
@@ -223,6 +222,7 @@
 #() uFui
 #() uFuu
 #() uFup
+#() uFUp
 #() uFpw
 #() uFpi
 #() uFpu
@@ -234,6 +234,7 @@
 #() UFii
 #() UFuu
 #() UFUU
+#() UFUp
 #() UFpp
 #() UFss
 #() fFEp
@@ -261,7 +262,6 @@
 #() LFii
 #() LFuu
 #() LFLi
-#() LFLp
 #() LFpi
 #() LFpL
 #() LFpp
@@ -612,7 +612,6 @@
 #() pFplu
 #() pFpll
 #() pFplp
-#() pFpLu
 #() pFpLL
 #() pFpLp
 #() pFppi
@@ -1361,7 +1360,6 @@
 #() pFEpipL
 #() pFEpipp
 #() pFEpupp
-#() pFEpUpp
 #() pFEppii
 #() pFEppip
 #() pFEppCC
@@ -1806,9 +1804,9 @@
 #() iFEpUuppp
 #() iFEpLiipV
 #() iFEppiuui
+#() iFEppupIi
 #() iFEppuppp
 #() iFEpplppi
-#() iFEppLpIi
 #() iFEpppiiu
 #() iFEpppppp
 #() iFiiiiiii
@@ -4178,7 +4176,6 @@ wrappedpulse:
   - pa_context_set_event_callback
   - pa_context_set_state_callback
   - pa_context_set_subscribe_callback
-  - pa_mainloop_api_once
   - pa_mainloop_set_poll_func
   - pa_stream_set_buffer_attr_callback
   - pa_stream_set_event_callback
@@ -4229,8 +4226,6 @@ wrappedpulse:
   - pa_context_subscribe
   - pa_context_unload_module
   - pa_stream_update_sample_rate
-- pFpUpp:
-  - pa_context_rttime_new
 - pFpppp:
   - pa_context_get_sink_info_by_name
   - pa_context_get_source_info_by_name
@@ -4264,7 +4259,7 @@ wrappedpulse:
   - pa_context_load_module
   - pa_context_set_sink_port_by_name
   - pa_context_set_source_volume_by_name
-- iFppLpIi:
+- iFppupIi:
   - pa_stream_write
 - pFpiuCppp:
   - pa_ext_device_restore_save_formats
