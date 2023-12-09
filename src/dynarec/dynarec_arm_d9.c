@@ -319,15 +319,21 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C1 C2 = 0 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            // so here: F64: Imm8 = abcd efgh that gives => aBbbbbbb bbcdefgh 0000000 00000000 00000000...
-            // and want 1.0 = 0x3ff0000000000000
-            // so 00111111 11110000 00000000 00000000....
-            // a = 0, b = 1, c = 1, d = 1, efgh=0
-            // 0b01110000
-            if(ST_IS_F(0)) {
-                VMOV_i_32(v2, 0b01110000);
+            if(PK(0)==0xdd && PK(1)==0xd8) {
+                MESSAGE(LOG_DUMP, "Optimized next DD D8 fstp st0, st0, not emiting 1\n");
+                u8 = F8;
+                u8 = F8;
             } else {
-                VMOV_i_64(v2, 0b01110000);
+                // so here: F64: Imm8 = abcd efgh that gives => aBbbbbbb bbcdefgh 0000000 00000000 00000000...
+                // and want 1.0 = 0x3ff0000000000000
+                // so 00111111 11110000 00000000 00000000....
+                // a = 0, b = 1, c = 1, d = 1, efgh=0
+                // 0b01110000
+                if(ST_IS_F(0)) {
+                    VMOV_i_32(v2, 0b01110000);
+                } else {
+                    VMOV_i_64(v2, 0b01110000);
+                }
             }
             break;
         case 0xF3:
