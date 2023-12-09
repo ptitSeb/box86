@@ -2429,6 +2429,7 @@ wrappedappindicator3:
 wrappedatk:
 wrappedatkbridge:
 wrappedatomic:
+wrappedayatanaappindicator3:
 wrappedbz2:
 - iFp:
   - BZ2_bzCompressEnd
