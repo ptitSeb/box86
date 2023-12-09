@@ -382,9 +382,6 @@ void FreeBox86Context(box86context_t** context)
 
     finiAllHelpers(ctx);
 
-#ifdef DYNAREC
-    pthread_mutex_destroy(&ctx->mutex_lock);
-#endif
 #ifndef USE_CUSTOM_MUTEX
     pthread_mutex_destroy(&ctx->mutex_once);
     pthread_mutex_destroy(&ctx->mutex_once2);
@@ -392,10 +389,8 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
-#ifndef ANDROID
+#endif
     pthread_mutex_destroy(&ctx->mutex_lock);
-#endif
-#endif
 
     freeCycleLog(ctx);
 
