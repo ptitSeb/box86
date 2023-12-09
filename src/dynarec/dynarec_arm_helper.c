@@ -1052,8 +1052,10 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     if(ret==-1)    // nothing to do
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
+    int reg = dyn->n.x87reg[ret];
     #if STEP == 1
-    neoncache_promote_double(dyn, ninst, st);
+    if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F)
+        neoncache_promote_double(dyn, ninst, st);
     #endif
     // prepare offset to fpu => s1
     ADD_IMM8(s1, xEmu, offsetof(x86emu_t, x87));
@@ -1065,11 +1067,17 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         AND_IMM8(s2, s2, 7);    // (emu->top + i)&7
     }
     ADD_REG_LSL_IMM5(s2, s1, s2, 3);    // fpu[(emu->top+i)&7] lsl 3 because fpu are double, so 8 bytes
-    VSTR_64(dyn->n.x87reg[ret], s2, 0);    // save the value
+    if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {
+        // this should not happens
+        VCVT_F64_F32(0, reg*2);    // use D0 as scratch...
+        VSTR_64(0, s2, 0);
+    } else {
+        VSTR_64(reg, s2, 0);    // save the value
+    }
     MESSAGE(LOG_DUMP, "\t--------Forget x87 Cache for ST%d\n", st);
     // and forget that cache
-    fpu_free_reg_double(dyn, dyn->n.x87reg[ret]);
-    dyn->n.neoncache[dyn->n.x87reg[ret]].v = 0;
+    fpu_free_reg_double(dyn, reg);
+    dyn->n.neoncache[reg].v = 0;
     dyn->n.x87cache[ret] = -1;
     dyn->n.x87reg[ret] = -1;
 }
