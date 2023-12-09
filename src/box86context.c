@@ -392,7 +392,9 @@ void FreeBox86Context(box86context_t** context)
     pthread_mutex_destroy(&ctx->mutex_tls);
     pthread_mutex_destroy(&ctx->mutex_thread);
     pthread_mutex_destroy(&ctx->mutex_bridge);
+#ifndef ANDROID
     pthread_mutex_destroy(&ctx->mutex_lock);
+#endif
 #endif
 
     freeCycleLog(ctx);
