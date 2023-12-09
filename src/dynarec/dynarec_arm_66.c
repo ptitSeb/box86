@@ -18,6 +18,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "custommem.h"
 
 #include "dynarec_arm_helper.h"
 #include "dynarec_arm_functions.h"
@@ -649,7 +650,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV, AX, Od");
             u32 = F32;
             MOV32(x2, u32);
-            SMREAD();
+            if(isLockAddress(u32)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRH_IMM8(x2, x2, 0);
             BFI(xEAX, x2, 0, 16);
             break;
@@ -657,8 +659,9 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV Od, AX");
             u32 = F32;
             MOV32(x2, u32);
+            if(isLockAddress(u32)) lock=1; else lock = 0;
             STRH_IMM8(xEAX, x2, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA5:
             INST_NAME("MOVSW");

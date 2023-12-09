@@ -394,7 +394,7 @@
     } else dyn->f.pending = SF_SET
 #endif
 #ifndef JUMP
-#define JUMP(A, C) 
+#define JUMP(A, C) SMEND()
 #endif
 #ifndef BARRIER
 #define BARRIER(A) 

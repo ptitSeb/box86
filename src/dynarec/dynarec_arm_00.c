@@ -1270,6 +1270,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV AL, Ob");
             u32 = F32;
             MOV32(x2, u32);
+            if(isLockAddress(u32)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRB_IMM9(x2, x2, 0);
             BFI(xEAX, x2, 0, 8);
             break;
@@ -1277,21 +1279,25 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("MOV EAX, Od");
             u32 = F32;
             MOV32(x2, u32);
+            if(isLockAddress(u32)) lock=1; else lock = 0;
+            SMREADLOCK(lock);            
             LDR_IMM9(xEAX, x2, 0);
             break;
         case 0xA2:
             INST_NAME("MOV Ob, AL");
             u32 = F32;
             MOV32(x2, u32);
+            if(isLockAddress(u32)) lock=1; else lock = 0;
             STRB_IMM9(xEAX, x2, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA3:
             INST_NAME("MOV Od, EAX");
             u32 = F32;
             MOV32(x2, u32);
+            if(isLockAddress(u32)) lock=1; else lock = 0;
             STR_IMM9(xEAX, x2, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA4:
             INST_NAME("MOVSB");
@@ -1671,6 +1677,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     SKIPTEST(x14);
                     MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
                     MOV32(x14, ip+1+2);
+                    SMEND();
                     STM(xEmu, (1<<xEAX)|(1<<xEBX)|(1<<xECX)|(1<<xEDX)|(1<<xESI)|(1<<xEDI)|(1<<xESP)|(1<<xEBP)|(1<<xEIP)|(1<<xFlags));
                     MOVW(x1, 1);
                     STR_IMM9(x1, xEmu, offsetof(x86emu_t, quit));
@@ -1679,6 +1686,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     SKIPTEST(x14);
+                    SMEND();
                     x87_forget(dyn, ninst, x3, x14, 0);
                     if((box86_log<2) && !cycle_log) {   // call the wrapper directly
                         uintptr_t ncall[2]; // to avoid BUSERROR!!!
