@@ -2823,7 +2823,7 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
         }
     }
     #endif
-    if(ret!=(void*)-1)
+    if(ret!=(void*)-1 && emu)
         setProtection_mmap((uintptr_t)ret, length, prot);
     return ret;
 }
@@ -2881,7 +2881,7 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
         }
     }
     #endif
-    if(ret!=(void*)-1)
+    if(ret!=(void*)-1 && emu)
         setProtection_mmap((uintptr_t)ret, length, prot);
     return ret;
 }
