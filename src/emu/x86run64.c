@@ -440,7 +440,7 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
                     } else {
                         Push16(emu, R_CS);
                         Push(emu, addr);
-                        addr = ED->dword[0];
+                        addr = (uintptr_t)getAlternate((void*)ED->dword[0]);
                         R_CS = (ED+1)->word[0];
                     }
                     break;
@@ -454,7 +454,7 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
                         emu->error |= ERR_ILLEGAL;
                         return 0;
                     } else {
-                        addr = ED->dword[0];
+                        addr = (uintptr_t)getAlternate((void*)ED->dword[0]);
                         R_CS = (ED+1)->word[0];
                     }
                     break;

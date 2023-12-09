@@ -1547,7 +1547,7 @@ x86emurun:
                         GET_ED_;
                         Push(emu, R_CS);
                         Push(emu, addr);
-                        addr = ED->dword[0];
+                        addr = (uintptr_t)getAlternate((void*)ED->dword[0]);
                         R_CS = (ED+1)->word[0];
                         goto fini;  // in case there is a change of CS
                     }
@@ -1567,7 +1567,7 @@ x86emurun:
                         goto fini;
                     } else {
                         GET_ED_;
-                        addr = ED->dword[0];
+                        addr = (uintptr_t)getAlternate((void*)ED->dword[0]);
                         R_CS = (ED+1)->word[0];
                         STEP2;
                     }
