@@ -1698,6 +1698,7 @@
 #() pFpiiuuu
 #() pFpiUUUU
 #() pFpippip
+#() pFpipppp
 #() pFpuuuuu
 #() pFpupppp
 #() pFplpppp
@@ -2014,6 +2015,7 @@
 #() iFpdiiiIiI
 #() iFppiiiiiu
 #() iFppIIIppp
+#() iFpppiiipi
 #() iFpppiippp
 #() iFpppipipi
 #() iFpppipppp
@@ -2133,6 +2135,7 @@
 #() iFppuLLpupp
 #() iFppupppupp
 #() iFppLpiippp
+#() iFpppiiipip
 #() iFpppiiuuii
 #() iFpppiipiiu
 #() iFpppLLLupp
@@ -2213,6 +2216,7 @@
 #() iFppipiippii
 #() iFppuuiiiiii
 #() iFppuuiiuupi
+#() iFpppiiipipi
 #() iFpppLLipppp
 #() iFppppiiuuii
 #() iFpppppppipi
@@ -3542,6 +3546,7 @@ wrappedlibnm:
   - nm_client_add_and_activate_connection_async
 wrappedlibogg:
 wrappedlibpanel:
+wrappedlibpcre:
 wrappedlibpthread:
 - vFv:
   - __pthread_initialize

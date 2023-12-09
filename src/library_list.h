@@ -178,6 +178,7 @@ GO("libFAudio.so.0", faudio)
 GO("libtbbmalloc_proxy.so.2", tbbmallocproxy)
 GO("libfuse.so.2", libfuse)
 GO("libatomic.so.1", atomic)
+GO("libpcre.so.3", libpcre)
 
 #ifdef ANDROID
 GO("libc.so", libc)
