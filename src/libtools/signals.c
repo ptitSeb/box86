@@ -835,8 +835,8 @@ void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #ifdef DYNAREC
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         CancelBlock(0);
-        cancelFillBlock();  // Segfault inside a Fillblock
         relockMutex(Locks);
+        cancelFillBlock();  // Segfault inside a Fillblock
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
