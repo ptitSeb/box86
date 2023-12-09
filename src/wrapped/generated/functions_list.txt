@@ -721,6 +721,7 @@
 #() vFffff
 #() vFdddd
 #() vFllii
+#() vFLppi
 #() vFpiii
 #() vFpiiu
 #() vFpiip
@@ -1142,6 +1143,7 @@
 #() vFfffff
 #() vFddddp
 #() vFluipp
+#() vFLpppi
 #() vFpiiii
 #() vFpiiiI
 #() vFpiiiu
@@ -1583,6 +1585,7 @@
 #() iFuppipp
 #() iFuppppp
 #() iFdipppL
+#() iFLpppii
 #() iFpiiiii
 #() iFpiiiip
 #() iFpiiipp
@@ -2425,6 +2428,7 @@ wrappedappindicator:
 wrappedappindicator3:
 wrappedatk:
 wrappedatkbridge:
+wrappedatomic:
 wrappedbz2:
 - iFp:
   - BZ2_bzCompressEnd
