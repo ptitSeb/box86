@@ -663,6 +663,8 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            #if 0
+            // the approximate is not precise enough and and some incorrect behavior
             v2 = fpu_get_scratch_quad(dyn);
             v1 = fpu_get_scratch_quad(dyn);
             // Newton-Raphson: Xn+1 = Xn*(3-d*Xn²)/2 converge to 1/sqrt(d) with X0 = result of VSQRTE
@@ -695,6 +697,33 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VMULQ_F32(v0, v2, q0);  // v0 = X2*d ~ SQRT(d)
             }
+            #else
+            if((q0<15) && (v0<15)) {
+                d0 = q0;
+                d1 = v0;
+            } else {
+                s0 = fpu_get_scratch_quad(dyn);
+                // source ok or not
+                if(q0<15) {
+                    d0 = q0;
+                } else {
+                    VMOVQ(s0, q0);
+                    d0 = s0;
+                }
+                if(v0<15)
+                    d1 = v0;
+                else
+                    d1 = s0;
+            }
+            for(int i=0; i<4; ++i) {
+                VSQRT_F32(d1*2+i, d0*2+i);
+            }
+            if(v0<15) {
+                //done
+            } else {
+                VMOVQ(v0, d1);
+            }
+            #endif
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
