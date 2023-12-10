@@ -1219,6 +1219,11 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     emit_dec16(dyn, ninst, x1, x2, x14);
                     EWBACK;
                     break;
+                case 6:
+                    INST_NAME("PUSH Ew");
+                    GETEW(x1);
+                    PUSH16(x1, xESP);
+                    break;
                 default:
                     DEFAULT;
             }
