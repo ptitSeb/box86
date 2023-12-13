@@ -493,7 +493,7 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
             int k=-1;
             int search = ((j>=helper.insts[0].x86.addr) && j<helper.insts[0].x86.addr+helper.isize)?1:0;
             int imin = 0;
-            int imax = helper.size;
+            int imax = helper.size-1;
             int i2 = helper.size/2;
             // dichotomy search
             while(search) {
