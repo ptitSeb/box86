@@ -187,12 +187,8 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 {
                     ok = 1;
                     // need to find back that instruction to copy the caches, as previous version cannot be used anymore
-                    reset_n = -2;
-                    for(int ii=0; ii<ninst; ++ii)
-                        if(dyn->insts[ii].x86.jmp == next) {
-                            reset_n = ii;
-                            ii=ninst;
-                        }
+                    // and pred table is not ready yet
+                    reset_n = get_first_jump(dyn, next);
                     if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
                 } else if(next && (next-addr)<box86_dynarec_forward && (getProtection(next)&PROT_READ)/*box86_dynarec_bigblock>=stopblock*/) {
                     if(!((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)next))) {

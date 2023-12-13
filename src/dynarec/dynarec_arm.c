@@ -95,6 +95,21 @@ uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr) {
     }
     return best;
 }
+void add_jump(dynarec_arm_t *dyn, int ninst) {
+    // add slots
+    if(dyn->jmp_sz == dyn->jmp_cap) {
+        dyn->jmp_cap += 64;
+        dyn->jmps = (int*)dynaRealloc(dyn->jmps, dyn->jmp_cap*sizeof(int));
+    }
+    dyn->jmps[dyn->jmp_sz++] = ninst;
+}
+int get_first_jump(dynarec_arm_t *dyn, int next) {
+    for(int i=0; i<dyn->jmp_sz; ++i)
+        if(dyn->insts[dyn->jmps[i]].x86.jmp == next)
+            return i;
+    return -2;
+}
+
 #define PK(A) (*((uint8_t*)(addr+(A))))
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n)
 {
@@ -447,10 +462,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     helper.insts = (instruction_arm_t*)dynaCalloc(helper.cap, sizeof(instruction_arm_t));
     // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
-    // no need for next anymore
-    dynaFree(helper.next);
-    helper.next_sz = helper.next_cap = 0;
-    helper.next = NULL;
     // basic checks
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
@@ -469,26 +480,57 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         protectDB(addr, end-addr);  //end is 1byte after actual end
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
     // calculate barriers
-    for(int i=0; i<helper.size; ++i)
-        if(helper.insts[i].x86.jmp) {
-            uintptr_t j = helper.insts[i].x86.jmp;
-            if(j<start || j>=end || j==helper.insts[i].x86.addr) {
-                if(j==helper.insts[i].x86.addr) // if there is a loop on some opcode, make the block "always to tested"
-                    helper.always_test = 1;
-                helper.insts[i].x86.jmp_insts = -1;
-                helper.insts[i].x86.need_after |= X_PEND;
-            } else {
-                // find jump address instruction
-                int k=-1;
-                for(int i2=0; i2<helper.size && k==-1; ++i2) {
-                    if(helper.insts[i2].x86.addr==j)
-                        k=i2;
+    for(int ii=0; ii<helper.jmp_sz; ++ii) {
+        int i = helper.jmps[ii];
+        uintptr_t j = helper.insts[i].x86.jmp;
+        if(j<start || j>=end || j==helper.insts[i].x86.addr) {
+            if(j==helper.insts[i].x86.addr) // if there is a loop on some opcode, make the block "always to tested"
+                helper.always_test = 1;
+            helper.insts[i].x86.jmp_insts = -1;
+            helper.insts[i].x86.need_after |= X_PEND;
+        } else {
+            // find jump address instruction
+            int k=-1;
+            int search = ((j>=helper.insts[0].x86.addr) && j<helper.insts[0].x86.addr+helper.isize)?1:0;
+            int imin = 0;
+            int imax = helper.size;
+            int i2 = helper.size/2;
+            // dichotomy search
+            while(search) {
+                if(helper.insts[i2].x86.addr == j) {
+                    k = i2;
+                    search = 0;
+                } else if(helper.insts[i2].x86.addr>j) {
+                    imax = i2;
+                    i2 = (imax+imin)/2;
+                } else {
+                    imin = i2;
+                    i2 = (imax+imin)/2;
                 }
-                if(k!=-1 && !helper.insts[i].barrier_maybe)
-                    helper.insts[k].x86.barrier |= BARRIER_FULL;
-                helper.insts[i].x86.jmp_insts = k;
+                if(search && (imax-imin)<2) {
+                    search = 0;
+                    if(helper.insts[imin].x86.addr==j)
+                        k = imin;
+                    else if(helper.insts[imax].x86.addr==j)
+                        k = imax;
+                }
             }
+            /*for(int i2=0; i2<helper.size && k==-1; ++i2) {
+                if(helper.insts[i2].x86.addr==j)
+                    k=i2;
+            }*/
+            if(k!=-1 && !helper.insts[i].barrier_maybe)
+                helper.insts[k].x86.barrier |= BARRIER_FULL;
+            helper.insts[i].x86.jmp_insts = k;
         }
+    }
+    // no need for next and jmps anymore
+    dynaFree(helper.next);
+    helper.next_sz = helper.next_cap = 0;
+    helper.next = NULL;
+    dynaFree(helper.jmps);
+    helper.jmp_sz = helper.jmp_cap = 0;
+    helper.jmps = NULL;
     // fill predecessors with the jump address
     fillPredecessors(&helper);
 
