@@ -324,6 +324,7 @@ Will use yyyy as x86_64 interpretor, to launch x64_64 binaries
  * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting.
  Use `gdb /PATH/TO/box86` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX86_JITGDB=1`.
  This mode can be usefullwhen programs redirect all console output to a file (like Unity3D Games)
+ * 3 : Launch `lldb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting.
 
 #### BOX86_NORCFILES
 If the env var exist, no rc files (like /etc/box86.box86rc and ~/.box86rc) will be loaded

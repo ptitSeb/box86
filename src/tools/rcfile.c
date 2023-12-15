@@ -47,7 +47,7 @@ ENTRYBOOL(BOX86_NOVULKAN, box86_novulkan)               \
 ENTRYBOOL(BOX86_FUTEX_WAITV, box86_futex_waitv)         \
 ENTRYBOOL(BOX86_FIX_64BIT_INODES, fix_64bit_inodes)     \
 ENTRYSTRING_(BOX86_BASH, bash)                          \
-ENTRYINT(BOX86_JITGDB, jit_gdb, 0, 2, 2)                \
+ENTRYINT(BOX86_JITGDB, jit_gdb, 0, 3, 2)                \
 ENTRYSTRING_(BOX86_BOX64, box64)                        \
 ENTRYSTRING_(BOX86_LD_PRELOAD, ld_preload)              \
 ENTRYBOOL(BOX86_NOSANDBOX, box86_nosandbox)             \
