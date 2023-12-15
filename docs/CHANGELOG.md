@@ -1,3 +1,21 @@
+v0.3.4
+======
+* X86Libs: Updated libstdc++ & libgcc_s
+* X86Libs: Use x86 vrsion of libunwind (it's needed by wine)
+* Dynarec: Fixed some flags propagation issues inside blocks
+* Dynarec: Improved Strong Memory Model emulation, introducing a 3rd level
+* CPU: Remoworked how INT, priviliged opcodes and teh Trace flags works
+* CPU: Added full support for SSE4.2
+* ElfLoader: rework how elf memory is handled
+* Emulation: Better handling of Signal (also handling SIGMAX correctly)
+* Emulation: Better support for POKEUSER/PEEKUSER (helps Windows Unity games)
+* Wrapping: More libs and some fixes in function wrapping (gtk3, vulkan...)
+* Wrapping: Removed faked libunwind wrapping
+* Hardware: Added more profile, with support for ADLink Ampere Altra
+* OS: Added profile to build for Android and Termux.
+=> Mostly a stability update with improved elfloader again, and added SSE 4.2 support (still need to work on the Dynarec part of this)
+=> Some work also to reduce the memory footprint
+
 v0.3.2
 ======
 * Better syscall handling
