@@ -75,7 +75,6 @@
 #() dFp
 #() dFG
 #() lFv
-#() lFi
 #() lFu
 #() lFl
 #() lFp
@@ -255,6 +254,7 @@
 #() dFpp
 #() DFpp
 #() lFEv
+#() lFEi
 #() lFui
 #() lFll
 #() lFpi
@@ -3146,6 +3146,9 @@ wrappedlibc:
 - uFu:
 - uFp:
 - lFv:
+- lFi:
+  - __sysconf
+  - sysconf
 - LFL:
 - pFu:
   - getpwuid

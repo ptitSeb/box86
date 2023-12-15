@@ -3306,6 +3306,17 @@ EXPORT void* my_mallinfo(x86emu_t* emu, void* p)
     return p;
 }
 
+#ifndef _SC_NPROCESSORS_ONLN
+#define _SC_NPROCESSORS_ONLN    84
+#endif 
+EXPORT long my_sysconf(x86emu_t* emu, int what) {
+    if(what==_SC_NPROCESSORS_ONLN) {
+        return getNCpu();
+    }
+    return sysconf(what);
+}
+EXPORT long my___sysconf(x86emu_t* emu, int what) __attribute__((alias("my_sysconf")));
+
 EXPORT char* my___progname = NULL;
 EXPORT char* my___progname_full = NULL;
 EXPORT char* my_program_invocation_name = NULL;

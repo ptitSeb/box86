@@ -83,6 +83,8 @@ int getNCpu()
 {
     if(!nCPU)
         grabNCpu();
+    if(box86_wine && nCPU>32)
+        return 32;
     return nCPU;
 }
 

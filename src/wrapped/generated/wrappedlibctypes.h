@@ -22,6 +22,7 @@ typedef int32_t (*iFO_t)(int32_t);
 typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef intptr_t (*lFv_t)(void);
+typedef intptr_t (*lFi_t)(int32_t);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void* (*pFu_t)(uint32_t);
 typedef void* (*pFL_t)(uintptr_t);
@@ -125,6 +126,8 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(exit, vFi_t) \
 	GO(__close_nocancel, iFi_t) \
 	GO(getwc, iFp_t) \
+	GO(__sysconf, lFi_t) \
+	GO(sysconf, lFi_t) \
 	GO(getpwuid, pFu_t) \
 	GO(__secure_getenv, pFp_t) \
 	GO(secure_getenv, pFp_t) \
