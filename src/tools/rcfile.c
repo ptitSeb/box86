@@ -362,6 +362,7 @@ void LoadRCFile(const char* filename)
     if(current_name)
         addParam(current_name, &current_param);
     free(line);
+    fclose(f);
     printf_log(LOG_INFO, "Params database has %d entries\n", kh_size(params));
 }
 
