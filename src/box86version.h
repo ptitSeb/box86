@@ -3,6 +3,6 @@
 
 #define BOX86_MAJOR 0
 #define BOX86_MINOR 3
-#define BOX86_REVISION 4
+#define BOX86_REVISION 5
 
 #endif //__BOX86_VERSION_H_
