@@ -1736,6 +1736,16 @@ static void CreateCPUTopologyCoreID(int fd, int cpu)
     size_t dummy = write(fd, buf, strlen(buf));
     (void)dummy;
 }
+void CreateCPUPresentFile(int fd)
+{
+    size_t dummy;
+    char buff[600];
+    int n = getNCpu();
+    // generate fake CPUINFO
+    sprintf(buff, "0-%d\n", n-1);
+    dummy = write(fd, buff, strlen(buff));
+    (void)dummy;
+}
 
 
 #ifdef ANDROID
@@ -1752,6 +1762,7 @@ static int shm_unlink(const char *name) {
 #endif
 #define TMP_MEMMAP  "box86_tmpmemmap"
 #define TMP_CMDLINE "box86_tmpcmdline"
+#define TMP_CPUPRESENT "box64_cpupresent"
 EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
     if(isProcSelf((const char*) pathname, "cmdline")) {
@@ -1929,6 +1940,15 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);;
     }
+    if(box86_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=32)) {
+        // special case for cpu present (to limit to 64 cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen(path, mode); // error fallback
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
     #endif
     if(isProcSelf(path, "exe")) {
         return fopen(emu->context->fullpath, mode);
@@ -1962,11 +1982,20 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
         char buf[512];
         snprintf(buf, 512, TMP_CPUTOPO, n);
         int tmp = shm_open(buf, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen(path, mode); // error fallback
+        if(tmp<0) return fopen64(path, mode); // error fallback
         shm_unlink(buf);    // remove the shm file, but it will still exist because it's currently in use
         CreateCPUTopologyCoreID(tmp, n);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);;
+    }
+    if(box86_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=32)) {
+        // special case for cpu present (to limit to 64 cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen64(path, mode); // error fallback
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
     }
     #endif
     if(isProcSelf(path, "exe")) {
