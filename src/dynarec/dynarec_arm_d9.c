@@ -319,7 +319,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C1 C2 = 0 0
             STRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
-            if(PK(0)==0xdd && PK(1)==0xd8) {
+            if(PK(0)==0xdd && PK(1)==0xd8 && 0) {
                 MESSAGE(LOG_DUMP, "Optimized next DD D8 fstp st0, st0, not emiting 1\n");
                 u8 = F8;
                 u8 = F8;
