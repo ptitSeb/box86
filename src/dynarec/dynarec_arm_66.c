@@ -48,8 +48,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("ADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x2);
-            GETSEW(x1);
+            GETGW(x2);
+            GETEW(x1);
             emit_add16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
             break;
@@ -57,16 +57,16 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("ADD Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x1);
-            GETSEW(x2);
+            GETGW(x1);
+            GETEW(x2);
             emit_add16(dyn, ninst, x1, x2, x3, x14, 0);
             GWBACK;
             break;
         case 0x05:
             INST_NAME("ADD AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16S;
-            SXTH(x1, xEAX, 0);
+            i32 = F16;
+            UXTH(x1, xEAX, 0);
             emit_add16c(dyn, ninst, x1, i32, x3, x14);
             BFI(xEAX, x1, 0, 16);
             break;
@@ -124,8 +124,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x2);
-            GETSEW(x1);
+            GETGW(x2);
+            GETEW(x1);
             emit_adc16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
             break;
@@ -134,8 +134,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x1);
-            GETSEW(x2);
+            GETGW(x1);
+            GETEW(x2);
             emit_adc16(dyn, ninst, x1, x2, x14, x3, 0);
             GWBACK;
             break;
@@ -143,8 +143,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("ADC AX, Iw");
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16S;
-            SXTH(x1, xEAX, 0);
+            i32 = F16;
+            UXTH(x1, xEAX, 0);
             emit_adc16c(dyn, ninst, x1, i32, x3, x14);
             BFI(xEAX, x1, 0, 16);
             break;
@@ -154,8 +154,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x2);
-            GETSEW(x1);
+            GETGW(x2);
+            GETEW(x1);
             emit_sbb16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
             break;
@@ -165,7 +165,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x1);
-            GETSEW(x2);
+            GETEW(x2);
             emit_sbb16(dyn, ninst, x1, x2, x14, x3, 0);
             GWBACK;
             break;
@@ -173,8 +173,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SBB AX, Iw");
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16S;
-            SXTH(x1, xEAX, 0);
+            i32 = F16;
+            UXTH(x1, xEAX, 0);
             emit_sbb16c(dyn, ninst, x1, i32, x3, x14);
             BFI(xEAX, x1, 0, 16);
             break;
@@ -220,8 +220,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SUB Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x2);
-            GETSEW(x1);
+            GETGW(x2);
+            GETEW(x1);
             emit_sub16(dyn, ninst, x1, x2, x14, x3, (wb1 && (wback==x3))?1:0);
             EWBACK;
             break;
@@ -229,16 +229,16 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("SUB Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETSGW(x1);
-            GETSEW(x2);
+            GETGW(x1);
+            GETEW(x2);
             emit_sub16(dyn, ninst, x1, x2, x3, x14, 0);
             GWBACK;
             break;
         case 0x2D:
             INST_NAME("SUB AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
-            i32 = F16S;
-            SXTH(x1, xEAX, 0);
+            i32 = F16;
+            UXTH(x1, xEAX, 0);
             emit_sub16c(dyn, ninst, x1, i32, x3, x14);
             BFI(xEAX, x1, 0, 16);
             break;
