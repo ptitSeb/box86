@@ -297,8 +297,9 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
         BLcond(cEQ, x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        LDR_IMM9(x3, xEmu, offsetof(x86emu_t, xSPSave));
-        SUB_IMM8(xSP, x3, 16);
+        CMPS_IMM8(x2, 0);   // that was already the top of the stack...
+        LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave));
+        SUB_IMM8(xSP, xSP, 16);
     }
     MOV32(x2, getJumpTable());
     MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
@@ -314,34 +315,35 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
 
 void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 {
-        MESSAGE(LOG_DUMP, "Retn epilog\n");
-        POP1(xEIP);
-        if(n>0xff) {
-            MOVW(x1, n);
-            ADD_REG_LSL_IMM5(xESP, xESP, x1, 0);
-        } else {
-            ADD_IMM8(xESP, xESP, n);
-        }
-        SMEND();
-        if(box86_dynarec_callret) {
-            // pop the actual return address for ARM stack
-            LDM(xSP, (1<<x2)|(1<<x3));
-            CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
-            BLcond(cEQ, x2);
-            // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-            LDR_IMM9(x3, xEmu, offsetof(x86emu_t, xSPSave));
-            SUB_IMM8(xSP, x3, 16);
-        }
-        MOV32(x2, getJumpTable());
-        MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
-        LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
-        UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
-        LDR_REG_LSL_IMM5(x3, x2, x3, 2);    // shiftsizeof(uintptr_t)
-        MOV_REG(x1, xEIP);
-        #ifdef HAVE_TRACE
-        MOV_REG(x2, 15);    // move current PC to x2, for tracing
-        #endif
-        BX(x3);
+    MESSAGE(LOG_DUMP, "Retn epilog\n");
+    POP1(xEIP);
+    if(n>0xff) {
+        MOVW(x1, n);
+        ADD_REG_LSL_IMM5(xESP, xESP, x1, 0);
+    } else {
+        ADD_IMM8(xESP, xESP, n);
+    }
+    SMEND();
+    if(box86_dynarec_callret) {
+        // pop the actual return address for ARM stack
+        LDM(xSP, (1<<x2)|(1<<x3));
+        CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
+        BLcond(cEQ, x2);
+        // not the correct return address, regular jump, but purge the stack first, it's unsync now...
+        CMPS_IMM8(x2, 0);   // that was already the top of the stack...
+        LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave));
+        SUB_IMM8(xSP, xSP, 16);
+    }
+    MOV32(x2, getJumpTable());
+    MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
+    LDR_REG_LSL_IMM5(x2, x2, x3, 2);    // shiftsizeof(uintptr_t)
+    UBFX(x3, xEIP, 0, JMPTABL_SHIFT);
+    LDR_REG_LSL_IMM5(x3, x2, x3, 2);    // shiftsizeof(uintptr_t)
+    MOV_REG(x1, xEIP);
+    #ifdef HAVE_TRACE
+    MOV_REG(x2, 15);    // move current PC to x2, for tracing
+    #endif
+    BX(x3);
 }
 
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
