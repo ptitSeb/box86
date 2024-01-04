@@ -54,6 +54,7 @@ typedef struct x86emu_s {
 	reg32_t     regs[8];
 	x86flags_t  eflags;
     reg32_t     ip;
+    uintptr_t   xSPSave;
     // fpu / mmx
 	x87control_t cw;
 	x87flags_t  sw;
@@ -102,6 +103,7 @@ typedef struct x86emu_s {
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
     JUMPBUFF*   jmpbuf;
+    uintptr_t   old_savedsp;
 
     i386_ucontext_t *uc_link; // to handle setcontext
 

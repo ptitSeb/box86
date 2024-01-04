@@ -9,8 +9,11 @@
 .global arm_epilog
 arm_epilog:
     //update register -> emu
-    //pop     {r0}
     stm     r0, {r4-r12,r14}   // put back reg value in emu, including EIP (so r14 must be Flags now)
+    // restore stack pointer
+    ldr     sp, [r0, #(8*4+2*4)]
+    ldr     r5, [sp, #-4]
+    str     r5, [r0, #(8*4+2*4)]    // put back old value
     //restore all used register
     vpop     {d8-d15}
     pop     {r4-r12, pc}
@@ -20,6 +23,10 @@ arm_epilog:
 
 .global arm_epilog_fast
 arm_epilog_fast:
+    // restore stack pointer
+    ldr     sp, [r0, #(8*4+2*4)]
+    ldr     r5, [sp, #-4]
+    str     r5, [r0, #(8*4+2*4)]    // put back old value
     //restore all used register
     vpop     {d8-d15}
     pop     {r4-r12, pc}

@@ -745,6 +745,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, int Locks, siginfo_t* 
             if(Locks & is_dyndump_locked)
                 CancelBlock(1);
             #endif
+            emu->xSPSave = emu->old_savedsp;
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, 1);
             #else

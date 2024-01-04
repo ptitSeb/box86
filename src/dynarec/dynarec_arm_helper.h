@@ -402,6 +402,9 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
+#ifndef SET_HASCALLRET
+#define SET_HASCALLRET()
+#endif
 #define UFLAG_OP1(A) if(dyn->insts[ninst].x86.gen_flags) {STR_IMM9(A, xEmu, offsetof(x86emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts[ninst].x86.gen_flags) {STR_IMM9(A, xEmu, offsetof(x86emu_t, op2));}
 #define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x86.gen_flags) {STR_IMM9(A1, xEmu, offsetof(x86emu_t, op1));STR_IMM9(A2, 0, offsetof(x86emu_t, op2));}

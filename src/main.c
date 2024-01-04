@@ -68,6 +68,7 @@ int box86_dynarec_x87double = 0;
 int box86_dynarec_fastnan = 1;
 int box86_dynarec_fastround = 1;
 int box86_dynarec_safeflags = 1;
+int box86_dynarec_callret = 0;
 int box86_dynarec_hotpage = 16;
 int box86_dynarec_bleeding_edge = 1;
 int box86_dynarec_jvm = 1;
@@ -444,6 +445,17 @@ void LoadLogEnv()
         else
             printf_log(LOG_INFO, "Dynarec will play %s safe with x86 flags\n", (box86_dynarec_safeflags==1)?"moderatly":"it");
     }
+    p = getenv("BOX86_DYNAREC_CALLRET");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_dynarec_callret = p[0]-'0';
+        }
+        if(box86_dynarec_callret)
+            printf_log(LOG_INFO, "Dynarec will optimize CALL/RET\n");
+        else
+            printf_log(LOG_INFO, "Dynarec will not optimize CALL/RET\n");
+    }
     p = getenv("BOX86_DYNAREC_WAIT");
     if(p) {
         if(strlen(p)==1) {
@@ -529,6 +541,7 @@ void LoadLogEnv()
         if(box86_dynarec_test) {
             box86_dynarec_fastnan = 0;
             box86_dynarec_fastround = 0;
+            box86_dynarec_callret = 0;
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }

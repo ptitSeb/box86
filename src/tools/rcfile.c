@@ -86,6 +86,7 @@ ENTRYBOOL(BOX86_DYNAREC_X87DOUBLE, box86_dynarec_x87double)         \
 ENTRYBOOL(BOX86_DYNAREC_FASTNAN, box86_dynarec_fastnan)             \
 ENTRYBOOL(BOX86_DYNAREC_FASTROUND, box86_dynarec_fastround)         \
 ENTRYINT(BOX86_DYNAREC_SAFEFLAGS, box86_dynarec_safeflags, 0, 2, 2) \
+ENTRYBOOL(BOX86_DYNAREC_CALLRET, box86_dynarec_callret)             \
 ENTRYINT(BOX86_DYNAREC_HOTPAGE, box86_dynarec_hotpage, 0, 255, 8)   \
 ENTRYBOOL(BOX86_DYNAREC_FASTPAGE, box86_dynarec_fastpage)           \
 ENTRYBOOL(BOX86_DYNAREC_WAIT, box86_dynarec_wait)                   \
@@ -108,6 +109,7 @@ IGNORE(BOX86_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX86_DYNAREC_FASTNAN)                                       \
 IGNORE(BOX86_DYNAREC_FASTROUND)                                     \
 IGNORE(BOX86_DYNAREC_SAFEFLAGS)                                     \
+IGNORE(BOX64_DYNAREC_CALLRET)                                       \
 IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX86_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX86_DYNAREC_WAIT)                                          \
@@ -529,6 +531,11 @@ void ApplyParams(const char* name, path_collection_t* preload)
     }
     if(!olddynarec && box86_dynarec)
         GatherDynarecExtensions();
+    if(param->is_box86_dynarec_test_present && box86_dynarec_test) {
+        box86_dynarec_fastnan = 0;
+        box86_dynarec_fastround = 0;
+        box86_dynarec_callret = 0;
+    }
     #endif
     if(box86_log==3) {
         box86_log = 2;

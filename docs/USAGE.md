@@ -171,6 +171,11 @@ Handling of flags on CALL/RET opcodes
 * 1 : most of RET will need flags, most of CALLS will not (Default)
 * 2 : All CALL/RET will need flags (slower, but might be needed. Automatically enabled for Vara.exe)
 
+#### BOX86_DYNAREC_CALLRET *
+Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
+* 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
+* 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible
+
 #### BOX86_DYNAREC_HOTPAGE *
 Handling of HotPage (Page beeing both executed and writen)
 * 0 : Don't track hotpage

@@ -20,6 +20,7 @@ extern int box86_dynarec_forward;
 extern int box86_dynarec_strongmem;
 extern int box86_dynarec_x87double;
 extern int box86_dynarec_safeflags;
+extern int box86_dynarec_callret;
 extern uintptr_t box86_nodynarec_start, box86_nodynarec_end;
 extern int box86_dynarec_fastnan;
 extern int box86_dynarec_fastround;

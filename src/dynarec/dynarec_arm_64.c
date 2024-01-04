@@ -18,6 +18,7 @@
 #include "dynarec_arm.h"
 #include "dynarec_arm_private.h"
 #include "arm_printer.h"
+#include "custommem.h"
 
 #include "dynarec_arm_functions.h"
 #include "dynarec_arm_helper.h"
@@ -372,10 +373,31 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, 0, 0, 0, NULL);
                         LDR_REG_LSL_IMM5(xEIP, ed, x14, 0);
                     }
-                    BARRIER(BARRIER_FULL);
-                    *need_epilog = 0;
-                    *ok = 0;
+                    if(box86_dynarec_callret && box86_dynarec_bigblock>1) {
+                        BARRIER(BARRIER_FULL);
+                        BARRIER_NEXT(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
                     MOV32(x2, addr);
+                    if(box86_dynarec_callret) {
+                        SET_HASCALLRET();
+                        // Push actual return address
+                        if(addr < (dyn->start+dyn->isize)) {
+                            // there is a next...
+                            j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0;
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j32>>2);
+                            ADR(c__, x3, j32);
+                        } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
+                            j32 = getJumpTableAddress(addr);
+                            MOV32(x3, j32);
+                            LDR_IMM9(x3, x3, 0);
+                        }
+                        STMDB(xSP, (1<<x2)|(1<<x3));
+                    }
                     PUSH1(x2);
                     jump_to_next(dyn, 0, xEIP, ninst);
                     break;

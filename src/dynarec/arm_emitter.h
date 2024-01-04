@@ -434,6 +434,10 @@ Op is 20-27
 // bl cond offset
 #define BLcond(C, O) EMIT(C | (0b101<<25) | (1<<24) | (((O)>>2)&0xffffff))
 
+// adr
+#define ADR_gen(cond, P, Rd, Imm12) (cond | (1<<25) | (((P)?0b0100:0b0010)<<21) | (0b1111<<16) | ((Rd)<<12) | (Imm12))
+#define ADR(cond, Rd, Imm)  EMIT(ADR_gen(cond, (Imm>=0), Rd, ((Imm>=0)?Imm:-Imm)&0b111111111111))
+
 // push reg!, {list}
 //                           all |    const    |pre-index| subs    | no PSR  |writeback| store   |   base    |reg list
 #define PUSH(reg, list) EMIT(c__ | (0b100<<25) | (1<<24) | (0<<23) | (0<<22) | (1<<21) | (0<<20) | ((reg)<<16) | (list))

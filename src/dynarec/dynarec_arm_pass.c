@@ -72,6 +72,11 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         }
         fpu_propagate_stack(dyn, ninst);
         NEW_INST;
+        #if STEP == 0
+        if(ninst && dyn->insts[ninst-1].x86.barrier_next) {
+            BARRIER(dyn->insts[ninst-1].x86.barrier_next);
+        }
+        #endif
         if(!ninst) {
             GOTEST(x1, x2);
         }
@@ -159,7 +164,9 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog) {
                 // we made it!
-                if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
+                if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x86.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to);
+                if(dyn->insts[dyn->forward_ninst].x86.has_callret && !dyn->insts[dyn->forward_ninst].x86.has_next)
+                    dyn->insts[dyn->forward_ninst].x86.has_next = 1;  // this block actually continue
                 dyn->forward = 0;
                 dyn->forward_to = 0;
                 dyn->forward_size = 0;
@@ -186,10 +193,14 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                     /*||(((next-addr)<30) && is_instructions(dyn, addr, next-addr))*/ ))
                 {
                     ok = 1;
-                    // need to find back that instruction to copy the caches, as previous version cannot be used anymore
-                    // and pred table is not ready yet
-                    reset_n = get_first_jump(dyn, next);
-                    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %p -> %p (ninst=%d, jump from %d)\n", dyn, (void*)addr, (void*)next, ninst, reset_n);
+                    if(dyn->insts[ninst].x86.has_callret && !dyn->insts[ninst].x86.has_next) {
+                        dyn->insts[ninst].x86.has_next = 1;  // this block actually continue
+                    } else {
+                        // need to find back that instruction to copy the caches, as previous version cannot be used anymore
+                        // and pred table is not ready yet
+                        reset_n = get_first_jump(dyn, next);
+                    }
+                    if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %s%p -> %p (ninst=%d, jump from %d)\n", dyn, dyn->insts[ninst].x86.has_callret?"(opt. call) ":"", (void*)addr, (void*)next, ninst, dyn->insts[ninst].x86.has_callret?ninst:reset_n);
                 } else if(next && (next-addr)<box86_dynarec_forward && (getProtection(next)&PROT_READ)/*box86_dynarec_bigblock>=stopblock*/) {
                     if(!((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)next))) {
                         if(dyn->forward) {
