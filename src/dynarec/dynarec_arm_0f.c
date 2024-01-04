@@ -86,6 +86,16 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
     switch(opcode) {
 
+        case 0x01:
+            INST_NAME("FAKE xgetbv");
+            nextop = F8;
+            addr = fakeed(dyn, addr, ninst, nextop);
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            //CALL(arm_ud, -1, 0);
+            SKIPTEST(x14);
+            UDF(0);
+            break;
+
         case 0x0B:
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
