@@ -11,6 +11,15 @@
 int get_cpuMhz()
 {
 	int MHz = 0;
+	#ifdef PANDORA
+	FILE *f = fopen("//proc/pandora/cpu_mhz_max", "r");
+        if(f) {
+                int r;
+                if(1==fscanf(f, "%d", &r))
+                        MHz = r;
+                fclose(f);
+        }
+	#else
 	FILE *f = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
 	if(f) {
 		int r;
@@ -46,6 +55,7 @@ int get_cpuMhz()
             }
         }
     }
+	#endif
 	if(!MHz)
 		MHz = 1000; // default to 1Ghz...
 	return MHz;
@@ -102,6 +112,9 @@ const char* getCpuName()
     if(done)
         return name;
     done = 1;
+    #ifdef PANDORA
+    strcpy(name, "Cortex-A8");
+    #else
     FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
     if(f) {
         char tmp[200] = "";
@@ -139,6 +152,7 @@ const char* getCpuName()
             return name;
         }
     }
+    #endif
     // Nope, bye
     return name;
 }
