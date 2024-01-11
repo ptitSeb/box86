@@ -164,6 +164,7 @@ To have a trace enabled build (***the interpreter will be slightly slower***), a
 #### to have ARM Dynarec
 
 ###### *Note: VFPv3 and NEON are required for Dynarec.*
+###### You might need to `sudo apt install neon-support` package for CMAKE to correctly detect them.
 
 ###### *Note: Compiling with `ARM_DYNAREC` without selecting a hardware profile is not advised.*
 
