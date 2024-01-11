@@ -786,6 +786,7 @@ void vFpUUi(x86emu_t *emu, uintptr_t fnc);
 void vFpUUu(x86emu_t *emu, uintptr_t fnc);
 void vFpUUp(x86emu_t *emu, uintptr_t fnc);
 void vFpUpp(x86emu_t *emu, uintptr_t fnc);
+void vFpUPP(x86emu_t *emu, uintptr_t fnc);
 void vFpfff(x86emu_t *emu, uintptr_t fnc);
 void vFpdii(x86emu_t *emu, uintptr_t fnc);
 void vFpddi(x86emu_t *emu, uintptr_t fnc);

@@ -826,6 +826,7 @@ typedef void (*vFpUUi_t)(void*, uint64_t, uint64_t, int32_t);
 typedef void (*vFpUUu_t)(void*, uint64_t, uint64_t, uint32_t);
 typedef void (*vFpUUp_t)(void*, uint64_t, uint64_t, void*);
 typedef void (*vFpUpp_t)(void*, uint64_t, void*, void*);
+typedef void (*vFpUPP_t)(void*, uint64_t, void*, void*);
 typedef void (*vFpfff_t)(void*, float, float, float);
 typedef void (*vFpdii_t)(void*, double, int32_t, int32_t);
 typedef void (*vFpddi_t)(void*, double, double, int32_t);
@@ -3268,6 +3269,7 @@ void vFpUUi(x86emu_t *emu, uintptr_t fcn) { vFpUUi_t fn = (vFpUUi_t)fcn; fn(*(vo
 void vFpUUu(x86emu_t *emu, uintptr_t fcn) { vFpUUu_t fn = (vFpUUu_t)fcn; fn(*(void**)(R_ESP + 4), *(uint64_t*)(R_ESP + 8), *(uint64_t*)(R_ESP + 16), *(uint32_t*)(R_ESP + 24)); }
 void vFpUUp(x86emu_t *emu, uintptr_t fcn) { vFpUUp_t fn = (vFpUUp_t)fcn; fn(*(void**)(R_ESP + 4), *(uint64_t*)(R_ESP + 8), *(uint64_t*)(R_ESP + 16), *(void**)(R_ESP + 24)); }
 void vFpUpp(x86emu_t *emu, uintptr_t fcn) { vFpUpp_t fn = (vFpUpp_t)fcn; fn(*(void**)(R_ESP + 4), *(uint64_t*)(R_ESP + 8), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); }
+void vFpUPP(x86emu_t *emu, uintptr_t fcn) { vFpUPP_t fn = (vFpUPP_t)fcn; void *arg16 = VulkanFromx86(*(void**)(R_ESP + 16)); void *arg20 = VulkanFromx86(*(void**)(R_ESP + 20)); fn(*(void**)(R_ESP + 4), *(uint64_t*)(R_ESP + 8), arg16, arg20); VulkanTox86(arg16); VulkanTox86(arg20); }
 void vFpfff(x86emu_t *emu, uintptr_t fcn) { vFpfff_t fn = (vFpfff_t)fcn; fn(*(void**)(R_ESP + 4), *(float*)(R_ESP + 8), *(float*)(R_ESP + 12), *(float*)(R_ESP + 16)); }
 void vFpdii(x86emu_t *emu, uintptr_t fcn) { vFpdii_t fn = (vFpdii_t)fcn; fn(*(void**)(R_ESP + 4), *(double*)(R_ESP + 8), *(int32_t*)(R_ESP + 16), *(int32_t*)(R_ESP + 20)); }
 void vFpddi(x86emu_t *emu, uintptr_t fcn) { vFpddi_t fn = (vFpddi_t)fcn; fn(*(void**)(R_ESP + 4), *(double*)(R_ESP + 8), *(double*)(R_ESP + 16), *(int32_t*)(R_ESP + 24)); }

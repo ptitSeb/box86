@@ -655,3 +655,9 @@ GO(vkWaitForPresentKHR, iFpUUU)
 
 // VK_KHR_cooperative_matrix
 GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR, iFppp)    // last arg should be P, but it's an array, with size as second arg *uint32_t and struct looks fine
+
+// VK_KHR_maintenance5
+GO(vkCmdBindIndexBuffer2KHR, vFpUUUu)
+GO(vkGetDeviceImageSubresourceLayoutKHR, vFpPP)
+GO(vkGetImageSubresourceLayout2KHR, vFpUPP)
+GO(vkGetRenderingAreaGranularityKHR, vFpPp)
