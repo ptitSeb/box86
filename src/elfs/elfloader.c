@@ -391,14 +391,14 @@ int FindR386COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint32_t*
             int t = ELF32_R_TYPE(rel[i].r_info);
             Elf32_Sym *sym = &h->DynSym[ELF32_R_SYM(rel[i].r_info)];
             const char* symname = SymName(h, sym);
-            if(t==R_386_COPY && symname && !strcmp(symname, name) && sym->st_size==size) {
+            if((t==R_386_COPY) && symname && !strcmp(symname, name) && (sym->st_size==size)) {
                 int version2 = h->VerSym?((Elf32_Half*)((uintptr_t)h->VerSym+h->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
                 if(version2!=-1) version2 &= 0x7fff;
                 if(version && !version2) version2=-1;   // match a versionned symbol against a global "local" symbol
                 const char* vername2 = GetSymbolVersion(h, version2);
                 if(SameVersionedSymbol(name, version, vername, symname, version2, vername2)) {
-                    *offs = sym->st_value + h->delta;
-                    *p = (uint32_t*)(rel[i].r_offset + h->delta);
+                    if(offs) *offs = sym->st_value + h->delta;
+                    if(p) *p = (uint32_t*)(rel[i].r_offset + h->delta);
                     return 1;
                 }
             }
@@ -551,7 +551,7 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 }
                 break;
             case R_386_GLOB_DAT:
-                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername, globdefver) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
+                if((head!=my_context->elfs[0]) && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername, globdefver) && FindR386COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
@@ -569,11 +569,9 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     }
                     *p = globoffs;
                 } else {
-                    // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    /*if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
+                    if((size==0 )&& GetSymbolStartEnd(GetGlobalData(maplib), symname, &globoffs, &globend, version, vername, 0, globdefver)) {
                         offs = globoffs;
-                        end = globend;
-                    }*/
+                    }
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start")) {
                             printf_log((bind==STB_GLOBAL)?LOG_NONE:LOG_INFO, "%s: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", (bind==STB_GLOBAL)?"Error":"Warning", symname, p, *(void**)p, head->name);
@@ -860,11 +858,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     }
                     *p = globoffs;
                 } else {
-                    // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    /*if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
+                    if((size==0 )&& GetSymbolStartEnd(GetGlobalData(maplib), symname, &globoffs, &globend, version, vername, 0, globdefver)) {
                         offs = globoffs;
-                        end = globend;
-                    }*/
+                    }
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start"))
                             printf_log(LOG_NONE, "Error: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
