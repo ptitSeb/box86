@@ -75,7 +75,7 @@ BOX86_EMULATED_LIBS=libudev.so.0:libSDL2-2.0.so.0
 BOX86_NOGTK=1
 BOX86_DYNAREC_STRONGMEM=1
 BOX86_X11COLOR16=1
-BOX86_DYNAREC_CALLRET=1
+BOX86_DYNAREC_CALLRET=0 #it seems to be unstable in some cases, so disabling (for #920)
 
 [streaming_client]
 BOX86_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
