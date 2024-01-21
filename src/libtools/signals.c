@@ -804,10 +804,17 @@ static pthread_mutex_t mutex_dynarec_prot = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER
 #define unlock_signal()   
 #endif
 
+extern int box86_quit;
+extern int box86_exit_code;
+
 void my_box86signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL here!
     int log_minimum = (box86_showsegv)?LOG_NONE:((my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO);
+    if((sig==SIGSEGV || sig==SIGBUS) && box86_quit) {
+        printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
+        _exit(box86_exit_code);    // Hack, segfault while quiting, exit silently
+    }
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue
     uintptr_t x86pc = (uintptr_t)-1;

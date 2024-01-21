@@ -527,13 +527,11 @@ int my_dl_iterate_phdr(x86emu_t *emu, void* F, void *data);
 
 pid_t EXPORT my_fork(x86emu_t* emu)
 {
-/*    #if 1
+    #if 1
     emu->quit = 1;
     emu->fork = 1;
     return 0;
     #else
-    return 0;
-    #endif*/
     // execute atforks prepare functions, in reverse order
     for (int i=my_context->atfork_sz-1; i>=0; --i)
         if(my_context->atforks[i].prepare)
@@ -559,6 +557,7 @@ pid_t EXPORT my_fork(x86emu_t* emu)
                 RunFunctionWithEmu(emu, 0, my_context->atforks[i].child, 0);
     }
     return v;
+    #endif
 }
 pid_t EXPORT my___fork(x86emu_t* emu) __attribute__((alias("my_fork")));
 pid_t EXPORT my_vfork(x86emu_t* emu)
@@ -692,6 +691,17 @@ EXPORT void my___longjmp_chk(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/voi
 //EXPORT int32_t my__setjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 //EXPORT int32_t my___sigsetjmp(x86emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p) __attribute__((alias("my_setjmp")));
 extern int box86_quit;
+extern int box86_exit_code;
+void endBox86();
+#if !defined(ANDROID)
+static void* timed_exit_thread(void* a)
+{
+    // this is a workaround if unloading hang
+    // waiting on a pthread_cond_destroy or something similar
+    usleep(500000); // wait 1/2 a second
+    _exit(box86_exit_code); // force exit, something is wrong
+}
+#endif
 EXPORT void my_exit(x86emu_t* emu, int code)
 {
     if(emu->flags.quitonexit) {
@@ -701,7 +711,12 @@ EXPORT void my_exit(x86emu_t* emu, int code)
         return;
     }
     emu->quit = 1;
-    box86_quit = 1;
+    box86_exit_code = code;
+    endBox86();
+#if !defined(ANDROID)
+    pthread_t exit_thread;
+    pthread_create(&exit_thread, NULL, timed_exit_thread, NULL);
+#endif
     exit(code);
 }
 
@@ -3399,6 +3414,7 @@ EXPORT char my___libc_single_threaded = 0;
         setNeededLibs(lib, NEEDED_LIBS);
 
 #define CUSTOM_FINI \
-    freeMy();
+    freeMy();       \
+     return;     // do not unload...
 
 #include "wrappedlib_init.h"

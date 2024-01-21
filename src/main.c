@@ -56,6 +56,7 @@ int box86_nosandbox = 0;
 int box86_malloc_hack = 0;
 int box86_mutex_aligned = 0;
 int box86_quit = 0;
+int box86_exit_code = 0;
 #ifdef DYNAREC
 int box86_dynarec = 1;
 int box86_dynarec_dump = 0;
@@ -190,6 +191,7 @@ void my_child_fork()
         // open a new ftrace...
         fclose(ftrace);
         openFTrace(NULL);
+        //printf_log(/*LOG_DEBUG*/LOG_INFO, "Forked child of %s\n", GetLastApplyName());
     }
 }
 
@@ -1115,6 +1117,7 @@ void setupTrace()
     }
 #endif
 }
+void endMallocHook();
 
 void endBox86()
 {
@@ -1122,15 +1125,18 @@ void endBox86()
         return;
 
     box86_quit = 1;
+    endMallocHook();
     x86emu_t* emu = thread_get_emu();
     //atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions\n");
     CallAllCleanup(emu);
-    // then call all the fini
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
+    void closeAllDLOpenned();
+    closeAllDLOpenned();    // close residual dlopenned libs
+    #if 0
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
     // int pid = getpid();
@@ -1169,8 +1175,13 @@ void endBox86()
             closedir(proc_dir);
         }
     }
+    #endif
     // all done, free context
     FreeBox86Context(&my_context);
+    #ifdef DYNAREC
+    // disable dynarec now
+    box86_dynarec = 0;
+    #endif
     if(box86_libGL) {
         box_free(box86_libGL);
         box86_libGL = NULL;
