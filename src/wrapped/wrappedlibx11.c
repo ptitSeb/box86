@@ -495,6 +495,293 @@ typedef struct {
 #define XNR6PreeditCallback "r6PreeditCallback"
 #define XNStringConversionCallback "stringConversionCallback"
 
+// utility functions
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)
+
+// XNGeometryCallback
+#define GO(A)   \
+static uintptr_t my_XNGeometryCallback_fct_##A = 0;                 \
+static void my_XNGeometryCallback_##A(void* a, void* b, void* c)    \
+{                                                                   \
+    RunFunctionFmt(my_XNGeometryCallback_fct_##A, "ppp", a, b);     \
+}
+SUPER()
+#undef GO
+static void* findXNGeometryCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNGeometryCallback_fct_##A == (uintptr_t)fct) return my_XNGeometryCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNGeometryCallback_fct_##A == 0) {my_XNGeometryCallback_fct_##A = (uintptr_t)fct; return my_XNGeometryCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNGeometryCallback callback\n");
+    return NULL;
+}
+// XNDestroyCallback
+#define GO(A)   \
+static uintptr_t my_XNDestroyCallback_fct_##A = 0;              \
+static void my_XNDestroyCallback_##A(void* a, void* b, void* c) \
+{                                                               \
+    RunFunctionFmt(my_XNDestroyCallback_fct_##A, "ppp", a, b);  \
+}
+SUPER()
+#undef GO
+static void* findXNDestroyCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNDestroyCallback_fct_##A == (uintptr_t)fct) return my_XNDestroyCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNDestroyCallback_fct_##A == 0) {my_XNDestroyCallback_fct_##A = (uintptr_t)fct; return my_XNDestroyCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNDestroyCallback callback\n");
+    return NULL;
+}
+// XNPreeditStartCallback
+#define GO(A)   \
+static uintptr_t my_XNPreeditStartCallback_fct_##A = 0;                 \
+static void my_XNPreeditStartCallback_##A(void* a, void* b, void* c)    \
+{                                                                       \
+    RunFunctionFmt(my_XNPreeditStartCallback_fct_##A, "ppp", a, b);     \
+}
+SUPER()
+#undef GO
+static void* findXNPreeditStartCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNPreeditStartCallback_fct_##A == (uintptr_t)fct) return my_XNPreeditStartCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNPreeditStartCallback_fct_##A == 0) {my_XNPreeditStartCallback_fct_##A = (uintptr_t)fct; return my_XNPreeditStartCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNPreeditStartCallback callback\n");
+    return NULL;
+}
+// XNPreeditDoneCallback
+#define GO(A)   \
+static uintptr_t my_XNPreeditDoneCallback_fct_##A = 0;              \
+static void my_XNPreeditDoneCallback_##A(void* a, void* b, void* c) \
+{                                                                   \
+    RunFunctionFmt(my_XNPreeditDoneCallback_fct_##A, "ppp", a, b);  \
+}
+SUPER()
+#undef GO
+static void* findXNPreeditDoneCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNPreeditDoneCallback_fct_##A == (uintptr_t)fct) return my_XNPreeditDoneCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNPreeditDoneCallback_fct_##A == 0) {my_XNPreeditDoneCallback_fct_##A = (uintptr_t)fct; return my_XNPreeditDoneCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNPreeditDoneCallback callback\n");
+    return NULL;
+}
+// XNPreeditDrawCallback
+#define GO(A)   \
+static uintptr_t my_XNPreeditDrawCallback_fct_##A = 0;              \
+static void my_XNPreeditDrawCallback_##A(void* a, void* b, void* c) \
+{                                                                   \
+    RunFunctionFmt(my_XNPreeditDrawCallback_fct_##A, "ppp", a, b);  \
+}
+SUPER()
+#undef GO
+static void* findXNPreeditDrawCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNPreeditDrawCallback_fct_##A == (uintptr_t)fct) return my_XNPreeditDrawCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNPreeditDrawCallback_fct_##A == 0) {my_XNPreeditDrawCallback_fct_##A = (uintptr_t)fct; return my_XNPreeditDrawCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNPreeditDrawCallback callback\n");
+    return NULL;
+}
+// XNPreeditCaretCallback
+#define GO(A)   \
+static uintptr_t my_XNPreeditCaretCallback_fct_##A = 0;                 \
+static void my_XNPreeditCaretCallback_##A(void* a, void* b, void* c)    \
+{                                                                       \
+    RunFunctionFmt(my_XNPreeditCaretCallback_fct_##A, "ppp", a, b);     \
+}
+SUPER()
+#undef GO
+static void* findXNPreeditCaretCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNPreeditCaretCallback_fct_##A == (uintptr_t)fct) return my_XNPreeditCaretCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNPreeditCaretCallback_fct_##A == 0) {my_XNPreeditCaretCallback_fct_##A = (uintptr_t)fct; return my_XNPreeditCaretCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNPreeditCaretCallback callback\n");
+    return NULL;
+}
+// XNPreeditStateNotifyCallback
+#define GO(A)   \
+static uintptr_t my_XNPreeditStateNotifyCallback_fct_##A = 0;               \
+static void my_XNPreeditStateNotifyCallback_##A(void* a, void* b, void* c)  \
+{                                                                           \
+    RunFunctionFmt(my_XNPreeditStateNotifyCallback_fct_##A, "ppp", a, b);   \
+}
+SUPER()
+#undef GO
+static void* findXNPreeditStateNotifyCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNPreeditStateNotifyCallback_fct_##A == (uintptr_t)fct) return my_XNPreeditStateNotifyCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNPreeditStateNotifyCallback_fct_##A == 0) {my_XNPreeditStateNotifyCallback_fct_##A = (uintptr_t)fct; return my_XNPreeditStateNotifyCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNPreeditStateNotifyCallback callback\n");
+    return NULL;
+}
+// XNStatusStartCallback
+#define GO(A)   \
+static uintptr_t my_XNStatusStartCallback_fct_##A = 0;                  \
+static void my_XNStatusStartCallback_##A(void* a, void* b, void* c)     \
+{                                                                       \
+    RunFunctionFmt(my_XNStatusStartCallback_fct_##A, "ppp", a, b);      \
+}
+SUPER()
+#undef GO
+static void* findXNStatusStartCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNStatusStartCallback_fct_##A == (uintptr_t)fct) return my_XNStatusStartCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNStatusStartCallback_fct_##A == 0) {my_XNStatusStartCallback_fct_##A = (uintptr_t)fct; return my_XNStatusStartCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNStatusStartCallback callback\n");
+    return NULL;
+}
+// XNStatusDoneCallback
+#define GO(A)   \
+static uintptr_t my_XNStatusDoneCallback_fct_##A = 0;               \
+static void my_XNStatusDoneCallback_##A(void* a, void* b, void* c)  \
+{                                                                   \
+    RunFunctionFmt(my_XNStatusDoneCallback_fct_##A, "ppp", a, b);   \
+}
+SUPER()
+#undef GO
+static void* findXNStatusDoneCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNStatusDoneCallback_fct_##A == (uintptr_t)fct) return my_XNStatusDoneCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNStatusDoneCallback_fct_##A == 0) {my_XNStatusDoneCallback_fct_##A = (uintptr_t)fct; return my_XNStatusDoneCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNStatusDoneCallback callback\n");
+    return NULL;
+}
+// XNStatusDrawCallback
+#define GO(A)   \
+static uintptr_t my_XNStatusDrawCallback_fct_##A = 0;               \
+static void my_XNStatusDrawCallback_##A(void* a, void* b, void* c)  \
+{                                                                   \
+    RunFunctionFmt(my_XNStatusDrawCallback_fct_##A, "ppp", a, b);   \
+}
+SUPER()
+#undef GO
+static void* findXNStatusDrawCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNStatusDrawCallback_fct_##A == (uintptr_t)fct) return my_XNStatusDrawCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNStatusDrawCallback_fct_##A == 0) {my_XNStatusDrawCallback_fct_##A = (uintptr_t)fct; return my_XNStatusDrawCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNStatusDrawCallback callback\n");
+    return NULL;
+}
+// XNR6PreeditCallback
+#define GO(A)   \
+static uintptr_t my_XNR6PreeditCallback_fct_##A = 0;                \
+static void my_XNR6PreeditCallback_##A(void* a, void* b, void* c)   \
+{                                                                   \
+    RunFunctionFmt(my_XNR6PreeditCallback_fct_##A, "ppp", a, b);    \
+}
+SUPER()
+#undef GO
+static void* findXNR6PreeditCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNR6PreeditCallback_fct_##A == (uintptr_t)fct) return my_XNR6PreeditCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNR6PreeditCallback_fct_##A == 0) {my_XNR6PreeditCallback_fct_##A = (uintptr_t)fct; return my_XNR6PreeditCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNR6PreeditCallback callback\n");
+    return NULL;
+}
+// XNStringConversionCallback
+#define GO(A)   \
+static uintptr_t my_XNStringConversionCallback_fct_##A = 0;                 \
+static void my_XNStringConversionCallback_##A(void* a, void* b, void* c)    \
+{                                                                           \
+    RunFunctionFmt(my_XNStringConversionCallback_fct_##A, "ppp", a, b);     \
+}
+SUPER()
+#undef GO
+static void* findXNStringConversionCallbackFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_XNStringConversionCallback_fct_##A == (uintptr_t)fct) return my_XNStringConversionCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XNStringConversionCallback_fct_##A == 0) {my_XNStringConversionCallback_fct_##A = (uintptr_t)fct; return my_XNStringConversionCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 XNStringConversionCallback callback\n");
+    return NULL;
+}
+
+#undef SUPER
+
 #define SUPER()                     \
 GO(XNGeometryCallback)              \
 GO(XNDestroyCallback)               \
@@ -508,24 +795,6 @@ GO(XNStatusDoneCallback)            \
 GO(XNStatusDrawCallback)            \
 GO(XNR6PreeditCallback)             \
 GO(XNStringConversionCallback)
-
-#define GO(A)                                                                   \
-static uintptr_t my_XICProc_fct_##A = 0;                                        \
-static int my_XICProc_##A(void* a, void* b, void* c)                            \
-{                                                                               \
-    if (my_XICProc_fct_##A == 0)                                                \
-        printf_log(LOG_NONE, "%s cannot find XICProc callback\n", __func__);    \
-    return (int)RunFunctionFmt(my_XICProc_fct_##A, "ppp", a, b, c); \
-}                                                                               \
-static uintptr_t my_XIMProc_fct_##A = 0;                                        \
-static void my_XIMProc_##A(void* a, void* b, void* c)                           \
-{                                                                               \
-    if (my_XIMProc_fct_##A == 0)                                                \
-        printf_log(LOG_NONE, "%s cannot find XIMProc callback\n", __func__);    \
-    RunFunctionFmt(my_XIMProc_fct_##A, "ppp", a, b, c);             \
-}
-SUPER()
-#undef GO
 
 #define VA_CALL(FUNC, FIRST_ARG, VAARGS, VAARGSZ, RESULT)       \
 switch (VAARGSZ)                                                \
@@ -565,14 +834,10 @@ default:                                                                        
     break;                                                                                                              \
 }
 
-#define GO(A)                                                                       \
-if (va[i] && strcmp((char*)va[i], A) == 0) {                                        \
-    XICCallback* origin = (XICCallback*)va[i+1];                                    \
-    XICCallback* new = callbacks + i;                                               \
-    new->client_data = origin->client_data;                                         \
-    my_XICProc_fct_##A = (uintptr_t)origin->callback;                               \
-    new->callback = my_XICProc_##A;                                                 \
-    new_va[i+1] = new;                                                              \
+#define GO(A)                                       \
+if (va[i] && strcmp((char*)va[i], A) == 0) {        \
+    XICCallback* origin = (XICCallback*)va[i+1];    \
+    new_va[i+1] = find##A##Fct(origin);             \
 }
 
 EXPORT void* my_XVaCreateNestedList(x86emu_t* emu, int unused, void** va) {
@@ -580,7 +845,6 @@ EXPORT void* my_XVaCreateNestedList(x86emu_t* emu, int unused, void** va) {
     (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
-    XICCallback* callbacks = (XICCallback*)alloca(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
         new_va[i] = va[i];
@@ -598,7 +862,6 @@ EXPORT void* my_XCreateIC(x86emu_t* emu, void* xim, void** va) {
     (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
-    XICCallback* callbacks = (XICCallback*)alloca(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
         new_va[i] = va[i];
@@ -616,7 +879,6 @@ EXPORT void* my_XSetICValues(x86emu_t* emu, void* xic, void** va) {
     (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
-    XICCallback* callbacks = (XICCallback*)alloca(sizeof(XIMCallback) * n);
 
     for (int i = 0; i < n; i += 2) {
         new_va[i] = va[i];
@@ -635,16 +897,11 @@ EXPORT void* my_XSetIMValues(x86emu_t* emu, void* xim, void** va) {
     (void)emu;
     while (va[n]) n+=2;
     void** new_va = alloca(sizeof(void*) * n);
-    XIMCallback* callbacks = (XIMCallback*)alloca(sizeof(XIMCallback) * n);
 
-    #define GO(A)                                                                       \
-    if (va[i] && strcmp((char*)va[i], A) == 0) {                                        \
-        XIMCallback* origin = (XIMCallback*)va[i+1];                                    \
-        XIMCallback* new = callbacks + i;                                               \
-        new->client_data = origin->client_data;                                         \
-        my_XIMProc_fct_##A = (uintptr_t)origin->callback;                               \
-        new->callback = my_XIMProc_##A;                                                 \
-        new_va[i+1] = new;                                                              \
+    #define GO(A)                                       \
+    if (va[i] && strcmp((char*)va[i], A) == 0) {        \
+        XIMCallback* origin = (XIMCallback*)va[i+1];    \
+        new_va[i+1] = find##A##Fct(origin);             \
     }
     for (int i = 0; i < n; i += 2) {
         new_va[i] = va[i];
