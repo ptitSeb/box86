@@ -59,13 +59,14 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
     if(init) {
         PushExit(emu);
         R_EIP=(uint32_t)*init;
-        printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
+        printf_dump(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
         DynaRun(emu);
         if(emu->error)  // any error, don't bother with more
             return 0;
         emu->quit = 0;
     } else {
         if(my_context->elfs[0]) {
+            printf_dump(LOG_DEBUG, "Calling init from main elf\n");
             RunElfInit(my_context->elfs[0], emu);
         }
     }
