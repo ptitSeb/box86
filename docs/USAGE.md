@@ -176,16 +176,6 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 * 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
 * 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible
 
-#### BOX86_DYNAREC_HOTPAGE *
-Handling of HotPage (Page beeing both executed and writen)
-* 0 : Don't track hotpage
-* 1-255 : Trak HotPage, and disable execution of a page beeing writen for N attempts (default is 16)
-
-#### BOX86_DYNAREC_FASTPAGE *
-Will use a faster handling of HotPage (Page being both executed and written)
-* 0 : use regular hotpage (Default)
-* 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
-
 #### BOX86_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge

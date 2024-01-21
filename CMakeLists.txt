@@ -313,6 +313,7 @@ set(ELFLOADER_SRC
     "${BOX86_ROOT}/src/tools/my_cpuid.c"
     "${BOX86_ROOT}/src/tools/gtkclass.c"
     "${BOX86_ROOT}/src/tools/rcfile.c"
+    "${BOX86_ROOT}/src/tools/rbtree.c"
     "${BOX86_ROOT}/src/tools/wine_tools.c"
     "${BOX86_ROOT}/src/elfs/elfloader.c"
     "${BOX86_ROOT}/src/elfs/elfparser.c"

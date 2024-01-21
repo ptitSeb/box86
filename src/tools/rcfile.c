@@ -87,8 +87,8 @@ ENTRYBOOL(BOX86_DYNAREC_FASTNAN, box86_dynarec_fastnan)             \
 ENTRYBOOL(BOX86_DYNAREC_FASTROUND, box86_dynarec_fastround)         \
 ENTRYINT(BOX86_DYNAREC_SAFEFLAGS, box86_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX86_DYNAREC_CALLRET, box86_dynarec_callret)             \
-ENTRYINT(BOX86_DYNAREC_HOTPAGE, box86_dynarec_hotpage, 0, 255, 8)   \
-ENTRYBOOL(BOX86_DYNAREC_FASTPAGE, box86_dynarec_fastpage)           \
+IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
+IGNORE(BOX86_DYNAREC_FASTPAGE)                                      \
 ENTRYBOOL(BOX86_DYNAREC_WAIT, box86_dynarec_wait)                   \
 ENTRYBOOL(BOX86_DYNAREC_BLEEDING_EDGE, box86_dynarec_bleeding_edge) \
 ENTRYBOOL(BOX86_DYNAREC_JVM, box86_dynarec_jvm)                     \

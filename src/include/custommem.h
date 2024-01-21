@@ -16,6 +16,8 @@ void customFree(void* p);
 #define krealloc    customRealloc
 #define kfree       customFree
 
+#define ALIGN(p) (((p)+box86_pagesize-1)&~(box86_pagesize-1))
+
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose
@@ -56,9 +58,6 @@ void loadProtectionFromMap();
 void protectDB(uintptr_t addr, size_t size);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 int isprotectedDB(uintptr_t addr, size_t size);
-int IsInHotPage(uintptr_t addr);
-int AreaInHotPage(uintptr_t start, uintptr_t end);
-void AddHotPage(uintptr_t addr);
 #endif
 void* find32bitBlock(size_t size);
 void* findBlockNearHint(void* hint, size_t size, uintptr_t mask);

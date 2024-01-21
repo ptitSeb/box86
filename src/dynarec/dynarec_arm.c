@@ -438,10 +438,6 @@ void* FillBlock(dynablock_t* block, uintptr_t addr) {
 
     */
 dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
-    if(IsInHotPage(addr)) {
-        dynarec_log(LOG_DEBUG, "Cancelling dynarec FillBlock on hotpage for %p\n", (void*)addr);
-        return NULL;
-    }
     if(addr>=box86_nodynarec_start && addr<box86_nodynarec_end) {
         dynarec_log(LOG_DEBUG, "Asked to fill a block in fobidden zone\n");
         return CreateEmptyBlock(block, addr);
@@ -470,7 +466,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
-        AddHotPage(addr);
         CancelBlock(0);
         return NULL;
     }
@@ -601,7 +596,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     // Check if something changed, to abbort if it as
     if((block->hash != hash)) {
         dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%zu)=%x/%x\n", block->x86_addr, block->x86_size, block->hash, hash);
-        AddHotPage(addr);
         CancelBlock(0);
         return NULL;
     }
@@ -624,7 +618,6 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     }
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%zu, marking as need_test\n", block->x86_addr, block->x86_size);
-        AddHotPage(addr);
         block->dirty = 1;
         //protectDB(addr, end-addr);
     }

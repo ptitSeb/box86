@@ -465,27 +465,6 @@ void LoadLogEnv()
         if(!box86_dynarec_wait)
             printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
     }
-    p = getenv("BOX86_DYNAREC_HOTPAGE");
-    if(p) {
-        int val = -1;
-        if(sscanf("%d", p, &val)==1) {
-            if(val>=0)
-                box86_dynarec_hotpage = val;
-        }
-        if(!box86_dynarec_hotpage)
-            printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d attempts\n", box86_dynarec_hotpage);
-        else
-            printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
-    }
-    p = getenv("BOX86_DYNAREC_FASTPAGE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box86_dynarec_fastpage = p[0]-'0';
-        }
-        if(box86_dynarec_fastpage)
-            printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
-    }
     p = getenv("BOX86_DYNAREC_BLEEDING_EDGE");
     if(p) {
         if(strlen(p)==1) {

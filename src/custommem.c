@@ -23,7 +23,7 @@
 #include <sys/mman.h>
 #include "custommem.h"
 #include "threads.h"
-//#define TRACE_MEMSTAT
+#include "rbtree.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/dynablock_private.h"
@@ -54,23 +54,12 @@ static pthread_mutex_t     mutex_blocks;
 #endif
 #define MEMPROT_SHIFT 12
 #define MEMPROT_SIZE (1<<(32-MEMPROT_SHIFT))
-static uint8_t             memprot[MEMPROT_SIZE] = {0};    // protection flags by 4K block
-#ifdef DYNAREC
-static uint8_t             hotpages[MEMPROT_SIZE] = {0};
-#endif
-#ifdef TRACE_MEMSTAT
-static uint32_t  memprot_allocated = 0, memprot_max_allocated = 0;
-#endif
+//#define TRACE_MEMSTAT
+rbtree* memprot = NULL;
 static int inited = 0;
 
-
-typedef struct mapmem_s {
-    uintptr_t begin, end;
-    struct mapmem_s *next;
-} mapmem_t;
-
-static mapmem_t *mapallmem = NULL;
-static mapmem_t *mmapmem = NULL;
+static rbtree*  mapallmem = NULL;
+static rbtree*  mmapmem = NULL;
 
 typedef struct blocklist_s {
     void*               block;
@@ -402,6 +391,8 @@ void* customMalloc(size_t size)
     void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
     mutex_unlock(&mutex_blocks);
+    if(mapallmem)
+        setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
     return ret;
 }
 void* customCalloc(size_t n, size_t size)
@@ -794,22 +785,33 @@ uintptr_t getJumpAddress64(uintptr_t addr)
 void protectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+
+    uintptr_t cur = addr&~(box86_pagesize-1);
+    uintptr_t end = ALIGN(addr+size);
+
     mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t prot = memprot[i];
+    while(cur!=end) {
+        uint32_t prot = 0, oprot;
+        uintptr_t bend = 0;
+        rb_get_end(memprot, cur, &prot, &bend);
+        if(bend>end)
+            bend = end;
+        oprot = prot;
         uint32_t dyn = prot&PROT_DYN;
         if(!prot)
-            prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
-        prot&=~PROT_CUSTOM;
+            prot = PROT_READ | PROT_WRITE | PROT_EXEC;
         if(!(dyn&PROT_NOPROT)) {
+            prot&=~PROT_CUSTOM;
             if(prot&PROT_WRITE) {
-                if(!dyn) mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
-                    memprot[i] = prot|PROT_DYNAREC;   // need to use atomic exchange?
-                } else 
-                    memprot[i] = prot|PROT_DYNAREC_R;
+                if(!dyn) 
+                    mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                prot |= PROT_DYNAREC;
+            } else 
+                prot |= PROT_DYNAREC_R;
         }
+        if (prot != oprot) // If the node doesn't exist, then prot != 0
+            rb_set(memprot, cur, bend, prot);
+        cur = bend;
     }
     mutex_unlock(&mutex_prot);
 }
@@ -819,21 +821,36 @@ void protectDB(uintptr_t addr, uintptr_t size)
 void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
 {
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p (mark=%d)\n", (void*)addr, (void*)(addr+size-1), mark);
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
+
+    uintptr_t cur = addr&~(box86_pagesize-1);
+    uintptr_t end = ALIGN(addr+size);
+
     mutex_lock(&mutex_prot);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t prot = memprot[i];
+    while(cur!=end) {
+        uint32_t prot = 0, oprot;
+        uintptr_t bend = 0;
+        if (!rb_get_end(memprot, cur, &prot, &bend)) {
+            if(bend>=end) break;
+            else {
+                cur = bend;
+                continue;
+            }
+        }
+        oprot = prot;
+        if(bend>end)
+            bend = end;
         if(!(prot&PROT_NOPROT)) {
             if(prot&PROT_DYNAREC) {
                 prot&=~PROT_DYN;
                 if(mark)
-                    cleanDBFromAddressRange((i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, 0);
-                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot);
-                memprot[i] = prot;  // need to use atomic exchange?
+                    cleanDBFromAddressRange(cur, bend-cur, 0);
+                mprotect((void*)cur, bend-cur, prot);
             } else if(prot&PROT_DYNAREC_R)
-                memprot[i] = prot&~PROT_CUSTOM;
+                prot &= ~PROT_CUSTOM;
         }
+        if (prot != oprot)
+            rb_set(memprot, cur, bend, prot);
+        cur = bend;
     }
     mutex_unlock(&mutex_prot);
 }
@@ -841,138 +858,50 @@ void unprotectDB(uintptr_t addr, uintptr_t size, int mark)
 int isprotectedDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t prot = memprot[i];
-        if(!(prot&PROT_DYN)) {
+    uintptr_t end = ALIGN(addr+size);
+    addr &=~(box86_pagesize-1);
+    mutex_lock(&mutex_prot);
+    while (addr < end) {
+        uint32_t prot;
+        uintptr_t bend;
+        if (!rb_get_end(memprot, addr, &prot, &bend) || !(prot&PROT_DYN)) {
             dynarec_log(LOG_DEBUG, "0\n");
+            mutex_unlock(&mutex_prot);
             return 0;
+        } else {
+            addr = bend;
         }
     }
+    mutex_unlock(&mutex_prot);
     dynarec_log(LOG_DEBUG, "1\n");
     return 1;
 }
 
 #endif
 
-void printMapMem(mapmem_t* mapmem)
-{
-    mapmem_t* m = mapmem;
-    while(m) {
-        printf_log(LOG_NONE, " %p-%p\n", (void*)m->begin, (void*)m->end);
-        m = m->next;
-    }
-}
-
-void addMapMem(mapmem_t* mapmem, uintptr_t begin, uintptr_t end)
-{
-    if(!mapmem)
-        return;
-   if(begin<box86_pagesize)
-        begin = box86_pagesize;
-    begin &=~(box86_pagesize-1);
-    end = (end&~(box86_pagesize-1))+(box86_pagesize-1); // full page
-    // sanitize values
-    if(end<0x10000) return;
-    if(!begin) begin = 0x10000;
-    // find attach point (cannot be the 1st one by construction)
-    mapmem_t* m = mapmem;
-    while(m->next && begin>m->next->begin) {
-        m = m->next;
-    }
-    // attach at the end of m
-    mapmem_t* newm;
-    if(m->end>=begin-1) {
-        if(end<=m->end)
-            return; // zone completly inside current block, nothing to do
-        m->end = end;   // enlarge block
-        newm = m;
-    } else {
-    // create a new block
-        newm = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
-        newm->next = m->next;
-        newm->begin = begin;
-        newm->end = end;
-        m->next = newm;
-    }
-    while(newm && newm->next && (newm->next->begin-1)<=newm->end) {
-        // fuse with next
-        if(newm->next->end>newm->end)
-            newm->end = newm->next->end;
-        mapmem_t* tmp = newm->next;
-        newm->next = tmp->next;
-        box_free(tmp);
-    }
-    // all done!
-}
-void removeMapMem(mapmem_t* mapmem, uintptr_t begin, uintptr_t end)
-{
-    if(!mapmem)
-        return;
-   if(begin<box86_pagesize)
-        begin = box86_pagesize;
-    begin &=~(box86_pagesize-1);
-    end = (end&~(box86_pagesize-1))+(box86_pagesize-1); // full page
-    // sanitize values
-    if(end<0x10000) return;
-    if(!begin) begin = 0x10000;
-    mapmem_t* m = mapmem, *prev = NULL;
-    while(m) {
-        // check if block is beyond the zone to free
-        if(m->begin > end)
-            return;
-        // check if the block is completly inside the zone to free
-        if(m->begin>=begin && m->end<=end) {
-            // just free the block
-            mapmem_t *tmp = m;
-            if(prev) {
-                prev->next = m->next;
-                m = prev;
-            } else {
-                mapmem = m->next; // change attach, but should never happens
-                m = mapmem;
-                prev = NULL;
-            }
-            box_free(tmp);
-        } else if(begin>m->begin && end<m->end) { // the zone is totaly inside the block => split it!
-            mapmem_t* newm = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));    // create a new "next"
-            newm->end = m->end;
-            m->end = begin - 1;
-            newm->begin = end + 1;
-            newm->next = m->next;
-            m->next = newm;
-            // nothing more to free
-            return;
-        } else if(begin>m->begin && begin<m->end) { // free the tail of the block
-            m->end = begin - 1;
-        } else if(end>m->begin && end<m->end) { // free the head of the block
-            m->begin = end + 1;
-        }
-        prev = m;
-        m = m->next;
-    }
-}
-
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     //dynarec_log(LOG_DEBUG, "updateProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
     mutex_lock(&mutex_prot);
-    addMapMem(mapallmem, addr, addr+size-1);
-    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t old_prot = memprot[i];
-        uint32_t dyn=(old_prot&PROT_DYN);
+    uintptr_t cur = addr & ~(box86_pagesize-1);
+    uintptr_t end = ALIGN(cur+size);
+    rb_set(mapallmem, cur, cur+size, 1);
+    while (cur < end) {
+        uintptr_t bend;
+        uint32_t oprot;
+        rb_get_end(memprot, cur, &oprot, &bend);
+        uint32_t dyn=(oprot&PROT_DYN);
         if(!(dyn&PROT_NOPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
-                mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
+                mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
             } else if(dyn && !(prot&PROT_WRITE)) {
                 dyn = PROT_DYNAREC_R;
             }
         }
-        memprot[i] = prot|dyn;
+        if ((prot|dyn) != oprot)
+            rb_set(memprot, cur, bend, prot|dyn);
+        cur = bend;
     }
     mutex_unlock(&mutex_prot);
 }
@@ -980,13 +909,12 @@ void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 void setProtection(uintptr_t addr, uintptr_t size, uint32_t prot)
 {
     //dynarec_log(LOG_DEBUG, "setProtection %p -> %p to 0x%02x\n", (void*)addr, (void*)(addr+size-1), prot);
+    size = ALIGN(size);
     mutex_lock(&mutex_prot);
-    addMapMem(mapallmem, addr, addr+size-1);
-    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        memprot[i] = prot;
-    }
+    uintptr_t cur = addr & ~(box86_pagesize-1);
+    uintptr_t end = ALIGN(cur+size);
+    rb_set(mapallmem, cur, end, 1);
+    rb_set(memprot, cur, end, prot);
     mutex_unlock(&mutex_prot);
 }
 
@@ -994,26 +922,29 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
     if(!size)
         return;
-    size = (size+box86_pagesize-1)&~(box86_pagesize-1); // round size
+    addr &= ~(box86_pagesize-1);
+    size = ALIGN(size);
     mutex_lock(&mutex_prot);
-    addMapMem(mmapmem, addr, addr+size-1);
+    rb_set(mmapmem, addr, addr+size, 1);
     mutex_unlock(&mutex_prot);
     if(prot)
         setProtection(addr, size, prot);
     else {
         mutex_lock(&mutex_prot);
-        addMapMem(mapallmem, addr, addr+size-1);
+        rb_set(mapallmem, addr, addr+size, 1);
         mutex_unlock(&mutex_prot);
     }
 }
 
 void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
 {
+    size = ALIGN(size);
+    addr &= ~(box86_pagesize-1);
     if(prot)
         setProtection(addr, size, prot);
     else {
         mutex_lock(&mutex_prot);
-        addMapMem(mapallmem, addr, addr+size-1);
+        rb_set(mapallmem, addr, addr+size, 1);
         mutex_unlock(&mutex_prot);
     }
 }
@@ -1021,11 +952,11 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
 void refreshProtection(uintptr_t addr)
 {
     mutex_lock(&mutex_prot);
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    int prot = memprot[idx];
-    if(!(prot&PROT_DYNAREC)) {
-        int ret = mprotect((void*)(idx<<MEMPROT_SHIFT), box86_pagesize, prot&~PROT_CUSTOM);
-printf_log(LOG_INFO, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)(idx<<MEMPROT_SHIFT), prot, ret, ret?strerror(errno):"ok");
+    uint32_t prot;
+    uintptr_t bend;
+    if (rb_get_end(memprot, addr, &prot, &bend)) {
+        int ret = mprotect((void*)(addr&~(box86_pagesize-1)), box86_pagesize, prot&~PROT_CUSTOM);
+        dynarec_log(LOG_DEBUG, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)(addr&~(box86_pagesize-1)), prot, ret, ret?strerror(errno):"ok");
     }
     mutex_unlock(&mutex_prot);
 }
@@ -1033,46 +964,13 @@ printf_log(LOG_INFO, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr
 void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
+    size = ALIGN(size);
+    addr &= ~(box86_pagesize-1);
     mutex_lock(&mutex_prot);
-    addMapMem(mapallmem, addr, addr+size-1);
+    rb_set(mapallmem, addr, addr+size, 1);
     mutex_unlock(&mutex_prot);
+    // don't need to add precise tracking probably
 }
-
-#ifdef DYNAREC
-int IsInHotPage(uintptr_t addr) {
-    int idx = (addr>>MEMPROT_SHIFT);
-    if(!hotpages[idx])
-        return 0;
-    // decrement hot
-    arm_lock_decifnot0b(&hotpages[idx]);
-    return 1;
-}
-
-int AreaInHotPage(uintptr_t start, uintptr_t end_) {
-    uintptr_t idx = (start>>MEMPROT_SHIFT);
-    uintptr_t end = (end_>>MEMPROT_SHIFT);
-    int ret = 0;
-    for (uintptr_t i=idx; i<=end; ++i) {
-        uint32_t hot = hotpages[i];
-        if(hot) {
-            // decrement hot
-            arm_lock_decifnot0b(&hotpages[i]);
-            ret = 1;
-        }
-    }
-    if(ret && box86_dynarec_log>LOG_INFO)
-        dynarec_log(LOG_DEBUG, "BOX64: AreaInHotPage %p-%p\n", (void*)start, (void*)end_);
-    return ret;
-
-}
-
-void AddHotPage(uintptr_t addr) {
-    int idx = (addr>>MEMPROT_SHIFT);
-    arm_lock_storeb(&hotpages[idx], box86_dynarec_hotpage);
-}
-#endif
 
 void loadProtectionFromMap()
 {
@@ -1098,40 +996,27 @@ void loadProtectionFromMap()
 
 void freeProtection(uintptr_t addr, uintptr_t size)
 {
+    size = ALIGN(size);
+    addr &= ~(box86_pagesize-1);
+    dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     mutex_lock(&mutex_prot);
-    removeMapMem(mmapmem, addr, addr+size-1);
-    removeMapMem(mapallmem, addr, addr+size-1);
-    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    const uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
-    for (uintptr_t i=idx; i<=end; ++i) {
-        memprot[i] = 0;
-    }
+    rb_unset(mapallmem, addr, addr+size);
+    rb_unset(mmapmem, addr, addr+size);
+    rb_unset(memprot, addr, addr+size);
     mutex_unlock(&mutex_prot);
 }
 
 uint32_t getProtection(uintptr_t addr)
 {
-    const uintptr_t idx = (addr>>MEMPROT_SHIFT);
     mutex_lock(&mutex_prot);
-    uint32_t ret = memprot[idx];
+    uint32_t ret = rb_get(memprot, addr);
     mutex_unlock(&mutex_prot);
     return ret;
 }
 
 int getMmapped(uintptr_t addr)
 {
-    mapmem_t* m = mmapmem;
-    if(addr<box86_pagesize) return 0;
-    while(m) {
-        uintptr_t begin = m->begin;
-        uintptr_t end = m->end;
-        if(addr>=begin && addr<=end)
-            return 1;
-        if(addr<begin)
-            return 0;
-        m = m->next;
-    }
-    return 0;
+    return rb_get(mmapmem, addr);
 }
 
 
@@ -1139,22 +1024,20 @@ int getMmapped(uintptr_t addr)
 #define MEDIAN (void*)0x40000000
 static void* findBlockHinted(void* hint, size_t size, uintptr_t mask)
 {
-    mapmem_t* m = mapallmem;
-    uintptr_t h = (uintptr_t)hint;
+    int prot;
+    if(hint<LOWEST) hint = LOWEST;
+    uintptr_t bend = 0;
+    uintptr_t cur = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
-    while(m) {
+    while(bend!=0xffffffffLL) {
+        if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
+            if(bend-cur>=size)
+                return (void*)cur;
+            if(bend>=0xc0000000 && (uintptr_t)hint<0xc0000000)
+                return NULL;
+        }
         // granularity 0x10000
-        uintptr_t addr = m->end+1;
-        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
-        // check hint and available size
-        if(addr<=h && end>=h && end-h+1>=size)
-            return hint;
-        uintptr_t aaddr = (addr+mask)&~mask;
-        if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
-            return (void*)aaddr;
-        if(end>=0xc0000000 && h<0xc0000000)
-            return NULL;
-        m = m->next;
+        cur = (bend+mask)&~mask;
     }
     return NULL;
 }
@@ -1182,16 +1065,12 @@ void* find32bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 
 int isBlockFree(void* hint, size_t size)
 {
-    mapmem_t* m = mapallmem;
-    uintptr_t h = (uintptr_t)hint;
-    while(m) {
-        uintptr_t addr = m->end+1;
-        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffff;
-        if(addr<=h && end>=h && end-h+1>=size)
+    int prot;
+    uintptr_t bend = 0;
+    uintptr_t cur = (uintptr_t)hint;
+    if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
+        if(bend-cur>=size)
             return 1;
-        if(addr>h)
-            return 0;
-        m = m->next;
     }
     return 0;
 }
@@ -1259,6 +1138,7 @@ void init_custommem_helper(box86context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
+    memprot = init_rbtree();
     init_mutexes();
 #ifdef DYNAREC
 #ifdef ARM
@@ -1273,13 +1153,9 @@ void init_custommem_helper(box86context_t* ctx)
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapallmem list
-    mapallmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
-    mapallmem->begin = 0x0;
-    mapallmem->end = (uintptr_t)LOWEST - 1;
+    mapallmem = init_rbtree();
     // init mmapmem list
-    mmapmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
-    mmapmem->begin = 0x0;
-    mmapmem->end = (uintptr_t)box86_pagesize - 1;
+    mmapmem = init_rbtree();
     loadProtectionFromMap();
 }
 
@@ -1298,7 +1174,7 @@ void fini_custommem_helper(box86context_t *ctx)
         }
         if (njmps_in_cur_lv1 > njmps_in_lv1_max) njmps_in_lv1_max = njmps_in_cur_lv1;
     }
-    printf_log(LOG_INFO, "Allocation:\n- dynarec: %lu kio\n- customMalloc: %zu kio\n- memprot: %lu kio (peak at %ld kio)\n- jump table: %zu kio (%zu level 1 table allocated, for %zu jumps, with at most %zu per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, memprot_allocated / 1024, memprot_max_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+    printf_log(LOG_INFO, "Allocation:\n- dynarec: %lu kio\n- customMalloc: %zu kio\n- jump table: %zu kio (%zu level 1 table allocated, for %zu jumps, with at most %zu per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated1, njmps, njmps_in_lv1_max);
 #endif
     if(!inited)
         return;
@@ -1333,6 +1209,13 @@ void fini_custommem_helper(box86context_t *ctx)
     kh_destroy(lockaddress, lockaddress);
     lockaddress = NULL;
 #endif
+    delete_rbtree(memprot);
+    memprot = NULL;
+    delete_rbtree(mmapmem);
+    mmapmem = NULL;
+    delete_rbtree(mapallmem);
+    mapallmem = NULL;
+
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP
         munmap(p_blocks[i].block, p_blocks[i].size);
@@ -1344,16 +1227,6 @@ void fini_custommem_helper(box86context_t *ctx)
     pthread_mutex_destroy(&mutex_blocks);
     pthread_mutex_destroy(&mutex_prot);
     #endif
-    while(mapallmem) {
-        mapmem_t *tmp = mapallmem;
-        mapallmem = mapallmem->next;
-        box_free(tmp);
-    }
-    while(mmapmem) {
-        mapmem_t *tmp = mmapmem;
-        mmapmem = mmapmem->next;
-        box_free(tmp);
-    }
 }
 
 #ifdef DYNAREC
