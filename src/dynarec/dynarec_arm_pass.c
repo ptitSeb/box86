@@ -27,6 +27,12 @@
 #error No STEP defined
 #endif
 
+#if STEP == 0
+#ifndef PROT_READ
+#define PROT_READ 0x1
+#endif
+#endif
+
 uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
 {
     int ok = 1;
@@ -47,7 +53,19 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     int reset_n = -1;
     int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3    // ok, go now
     INIT;
+    #if STEP == 0
+    uintptr_t cur_page = (addr)&~box86_pagesize;
+    #endif
     while(ok) {
+        #if STEP == 0
+        if(cur_page != (addr)&~box86_pagesize) {
+            cur_page = (addr)&~box86_pagesize;
+            if(!(getProtection(addr)&PROT_READ)) {
+                need_epilog = 1;
+                break;
+            }
+        }
+        #endif
         ip = addr;
         if (reset_n!=-1) {
             if(reset_n==-2) {
