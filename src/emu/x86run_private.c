@@ -64,6 +64,10 @@ int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, c
         if(emu->error)  // any error, don't bother with more
             return 0;
         emu->quit = 0;
+    } else {
+        if(my_context->elfs[0]) {
+            RunElfInit(my_context->elfs[0], emu);
+        }
     }
     MarkElfInitDone(my_context->elfs[0]);
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
