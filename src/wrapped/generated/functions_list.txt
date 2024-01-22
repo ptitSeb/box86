@@ -2543,6 +2543,7 @@ wrappedexpat:
 - vFpp:
   - XML_SetCharacterDataHandler
 - vFppp:
+  - XML_SetDoctypeDeclHandler
   - XML_SetElementHandler
 wrappedfaudio:
 - vFpp:

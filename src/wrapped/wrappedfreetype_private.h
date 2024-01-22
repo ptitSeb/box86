@@ -43,7 +43,7 @@ GO(FT_Get_Charmap_Index, iFp)
 //GO(FT_Get_CID_From_Glyph_Index, 
 //GO(FT_Get_CID_Is_Internally_CID_Keyed, 
 //GO(FT_Get_CID_Registry_Ordering_Supplement, 
-//GO(FT_Get_CMap_Format, 
+GO(FT_Get_CMap_Format, LFp)
 //GO(FT_Get_CMap_Language_ID, 
 GO(FT_Get_First_Char, LFpp)
 //GO(FT_Get_Font_Format, 
@@ -200,3 +200,6 @@ GO(FTC_SBitCache_New, iFpp)
 
 //GO(TT_New_Context, 
 //GO(TT_RunIns, 
+
+GO(FT_Set_MM_WeightVector, iFpUp)
+GO(FT_Get_MM_WeightVector, iFppp)
