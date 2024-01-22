@@ -39,7 +39,7 @@ GOM(XML_SetCharacterDataHandler, vFEpp)
 //GO(XML_SetCommentHandler, 
 //GO(XML_SetDefaultHandler, 
 //GO(XML_SetDefaultHandlerExpand, 
-//GO(XML_SetDoctypeDeclHandler, 
+GOM(XML_SetDoctypeDeclHandler, vFEppp)
 //GO(XML_SetElementDeclHandler, 
 GOM(XML_SetElementHandler, vFEppp)
 //GO(XML_SetEncoding, 

@@ -16,6 +16,7 @@ typedef void (*vFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XML_SetCharacterDataHandler, vFpp_t) \
+	GO(XML_SetDoctypeDeclHandler, vFppp_t) \
 	GO(XML_SetElementHandler, vFppp_t)
 
 #endif // __wrappedexpatTYPES_H_
