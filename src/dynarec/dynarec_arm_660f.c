@@ -468,6 +468,15 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VABSQ_S32(q0, q1);
                     break;
 
+		case 0x3A:
+                    INST_NAME("PMINUW Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMINQ_U16(q0, q0, q1);
+                    break;
+
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex");  // AES-NI
                     nextop = F8;
