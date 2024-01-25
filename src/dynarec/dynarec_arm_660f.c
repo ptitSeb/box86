@@ -468,13 +468,69 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VABSQ_S32(q0, q1);
                     break;
 
-		case 0x3A:
+        		case 0x38:
+                    INST_NAME("PMINSB Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMINQ_S8(q0, q0, q1);
+                    break;
+        		case 0x39:
+                    INST_NAME("PMINSD Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMINQ_S32(q0, q0, q1);
+                    break;
+        		case 0x3A:
                     INST_NAME("PMINUW Gx,Ex");
                     nextop = F8;
                     GETEX(q1, 0);
                     gd = (nextop&0x38)>>3;
                     q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                     VMINQ_U16(q0, q0, q1);
+                    break;
+        		case 0x3B:
+                    INST_NAME("PMINUD Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMINQ_U32(q0, q0, q1);
+                    break;
+        		case 0x3C:
+                    INST_NAME("PMAXSB Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMAXQ_S8(q0, q0, q1);
+                    break;
+        		case 0x3D:
+                    INST_NAME("PMAXSD Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMAXQ_S32(q0, q0, q1);
+                    break;
+        		case 0x3E:
+                    INST_NAME("PMAXUW Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMAXQ_U16(q0, q0, q1);
+                    break;
+        		case 0x3F:
+                    INST_NAME("PMAXUD Gx,Ex");
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    gd = (nextop&0x38)>>3;
+                    q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                    VMINQ_U32(q0, q0, q1);
                     break;
 
                 case 0xDB:
