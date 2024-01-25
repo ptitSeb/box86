@@ -468,6 +468,24 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     VABSQ_S32(q0, q1);
                     break;
 
+                case 0x2B:
+                    INST_NAME("PACKUSDW Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX(q0, 1);
+                    v0 = fpu_get_scratch_quad(dyn);
+                    v1 = fpu_get_scratch_quad(dyn);
+                    VEORQ(v0, v0, v0);
+                    VMAXQ_S32(v1, v0, q0);    // values < 0 => 0
+                    VQMOVN_U32(q0, v1);
+                    if(q0==q1) {
+                        VMOV_64(q0+1, q0);
+                    } else {
+                        VMAXQ_S32(v0, v0, q1);
+                        VQMOVN_U32(q0+1, v0);
+                    }
+                    break;
+
         		case 0x38:
                     INST_NAME("PMINSB Gx,Ex");
                     nextop = F8;
