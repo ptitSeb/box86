@@ -660,6 +660,34 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
         case 0x3A:  // these are some more SSSE3 opcodes
             opcode = F8;
             switch(opcode) {
+                case 0x0E:
+                    INST_NAME("PBLENDW Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0);
+                    v0 = fpu_get_scratch_double(dyn);
+                    u8 = F8;
+                    i32 = 0;
+                    for(int i=0; i<4; ++i)
+                        if((u8&(1<<i)))
+                            i32|=(0b11<<(i*2));
+                    if(i32 && (q0!=q1)) {
+                        VMOV_D64(v0, i32);
+                        VBICD(q0, q0, v0);
+                        VANDD(v0, q1, v0);
+                        VORRD(q0, q0, v0);
+                    }
+                    i32 = 0;
+                    for(int i=0; i<4; ++i)
+                        if((u8&(1<<(i+4))))
+                            i32|=(0b11<<(i*2));
+                    if(i32 && (q0!=q1)) {
+                        VMOV_D64(v0, i32);
+                        VBICD(q0+1, q0+1, v0);
+                        VANDD(v0, q1+1, v0);
+                        VORRD(q0+1, q0+1, v0);
+                    }
+                    break;
                 case 0x0F:
                     INST_NAME("PALIGNR Gx, Ex, Ib");
                     nextop = F8;

@@ -913,6 +913,8 @@ Op is 20-27
 #define VMOV_igen(i, D, imm3, Vd, cmode, Q, op, imm4)   (0b1111<<28 | 0b001<<25 | (i)<<24 | 1<<23 | (D)<<22 | (imm3)<<16 | (Vd)<<12 | (cmode)<<8 | (Q)<<6 | (op)<<5 | 1<<4 | (imm4))
 #define VMOV_8(Dd, imm)     EMIT(VMOV_igen(((imm)>>7)&1, ((Dd)>>4)&1, ((imm)>>4)&7, (Dd)&15, 0b1110, 0, 0, (imm)&15))
 #define VMOVQ_8(Dd, imm)    EMIT(VMOV_igen(((imm)>>7)&1, ((Dd)>>4)&1, ((imm)>>4)&7, (Dd)&15, 0b1110, 1, 0, (imm)&15))
+// Dd <= imm8 6bits duplicated 1bit -> 1byte
+#define VMOV_D64(Dd, imm)    EMIT(VMOV_igen(((imm)>>7)&1, ((Dd)>>4)&1, ((imm)>>4)&7, (Dd)&15, 0b1110, 0, 1, (imm)&15))
 // Dd <= imm8 in high bits
 #define VMOV_H32(Dd, imm8)  EMIT(VMOV_igen(((imm8)>>7)&1, ((Dd)>>4)&1, ((imm8)>>4)&7, (Dd)&15, 0b0110, 0, 0, (imm8)&15))
 // Dd <= imm8 in high bits
