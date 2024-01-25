@@ -550,6 +550,13 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                     q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                     VMINQ_U32(q0, q0, q1);
                     break;
+                case 0x40:
+                    INST_NAME("PMULLD Gx, Ex");  // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0);
+                    GETGX(q0, 1);
+                    VMULQ_32(q0, q0, q1);
+                    break;
 
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex");  // AES-NI
