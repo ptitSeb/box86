@@ -87,13 +87,50 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     switch(opcode) {
 
         case 0x01:
-            INST_NAME("FAKE xgetbv");
             nextop = F8;
-            addr = fakeed(dyn, addr, ninst, nextop);
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
-            //CALL(arm_ud, -1, 0);
-            SKIPTEST(x14);
-            UDF(0);
+            if(MODREG)
+            switch(nextop) {
+                case 0xD0:
+                    INST_NAME("FAKE xgetbv");
+                    addr = fakeed(dyn, addr, ninst, nextop);
+                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                    //CALL(arm_ud, -1, 0);
+                    SKIPTEST(x14);
+                    UDF(0);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            else
+                switch((nextop>>3)&7) {
+                    case 0:
+                        INST_NAME("SGDT Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL);
+                        MOVW(x1, 0x7f);
+                        STRH_IMM8(x1, wback, 0);
+                        MOVW(x1, 0x000c);
+                        STRH_IMM8(x1, wback, 2);
+                        MOVW(x1, 0xd000);
+                        STRH_IMM8(x1, wback, 4);
+                        break;
+                    case 1:
+                        INST_NAME("SIDT Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL);
+                        MOVW(x1, 0xfff);
+                        STRH_IMM8(x1, wback, 0);
+                        MOVW(x1, 0);
+                        STR_IMM9(x1, wback, 2);
+                        break;
+                    case 4:
+                        INST_NAME("SMSW Ew");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 0, NULL);
+                        // dummy for now... Do I need to track CR0 state?
+                        MOVW(x1, (1<<0) | (1<<4)); // only PE and ET set...
+                        STRH_IMM8(x1, wback, 0);
+                        break;
+                    default:
+                        DEFAULT;
+                    }
             break;
 
         case 0x0B:

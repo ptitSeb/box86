@@ -89,28 +89,37 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
                     return 0;
             }
             break;
-        case 0x01:                      
+        case 0x01:                      /* XGETBV, SGDT, etc... */
+            // this is a privilege opcode...
             nextop = F8;
-            switch((nextop>>3)&7) {
-                case 0:                 /* SGDT Ed */
-                    GET_ED;
-                    ED->word[0] = 0x7f;    // dummy return...
-                    ED->word[1] = 0x000c;
-                    ED->word[2] = 0xd000;
-                    break;
-                case 1:                 /* SIDT Ed */
-                    GET_ED;
-                    ED->word[0] = 0xfff;    // dummy return, like "disabled"
-                    ED->word[1] = 0;
-                    ED->word[2] = 0;
-                    break;
-                case 4:                 /* SMSW Ew */
-                    GET_ED;
-                    // dummy for now... Do I need to track CR0 state?
-                    ED->word[0] = (1<<0) | (1<<4); // only PE and ET set...
+            GET_ED;
+            if(MODREG)
+            switch(nextop) {
+                case 0xD0:
+                    #ifndef TEST_INTERPRETER
+                    emit_signal(emu, SIGILL, (void*)R_EIP, 0);
+                    #endif
                     break;
                 default:
                     return 0;
+            } else
+                switch((nextop>>3)&7) {
+                    case 0:                 /* SGDT Ed */
+                        ED->word[0] = 0x7f;    // dummy return...
+                        ED->word[1] = 0x000c;
+                        ED->word[2] = 0xd000;
+                        break;
+                    case 1:                 /* SIDT Ed */
+                        ED->word[0] = 0xfff;    // dummy return, like "disabled"
+                        ED->word[1] = 0;
+                        ED->word[2] = 0;
+                        break;
+                    case 4:                 /* SMSW Ew */
+                        // dummy for now... Do I need to track CR0 state?
+                        ED->word[0] = (1<<0) | (1<<4); // only PE and ET set...
+                        break;
+                    default:
+                        return 0;
             }
             break;
 
