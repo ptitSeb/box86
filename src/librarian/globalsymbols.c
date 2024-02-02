@@ -130,6 +130,11 @@ void my_updateGlobalOpt()
     TOGLOB(optind, "GLIBC_2.2.5");
     TOGLOB(opterr, "GLIBC_2.2.5");
     TOGLOB(optopt, "GLIBC_2.2.5");
+
+    TOGLOB(optarg, "GLIBC_2.0");
+    TOGLOB(optind, "GLIBC_2.0");
+    TOGLOB(opterr, "GLIBC_2.0");
+    TOGLOB(optopt, "GLIBC_2.0");
 }
 
 void my_checkGlobalOpt()
@@ -139,4 +144,9 @@ void my_checkGlobalOpt()
     GLOB(optind, "GLIBC_2.2.5");
     GLOB(opterr, "GLIBC_2.2.5");
     GLOB(optopt, "GLIBC_2.2.5");
+
+    GLOB(optarg, "GLIBC_2.0");
+    GLOB(optind, "GLIBC_2.0");
+    GLOB(opterr, "GLIBC_2.0");
+    GLOB(optopt, "GLIBC_2.0");
 }
