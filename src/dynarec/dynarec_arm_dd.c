@@ -215,6 +215,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fsave, -1, 0);
+                    CALL(reset_fpu, -1, 0);
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
