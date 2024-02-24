@@ -3329,6 +3329,11 @@ EXPORT int my_prctl(x86emu_t* emu, int option, unsigned long arg2, unsigned long
     if(option==PR_SET_NAME) {
         printf_log(LOG_DEBUG, "BOX86: set process name to \"%s\"\n", (char*)arg2);
         ApplyParams((char*)arg2, NULL);
+        size_t l = strlen((char*)arg2);
+        if(l>4 && !strcasecmp((char*)arg2+l-4, ".exe")) {
+            printf_log(LOG_DEBUG, "BOX86: hacking orig command line to \"%s\"\n", (char*)arg2);
+            strcpy(my_context->orig_argv[0], (char*)arg2);
+        }
     }
     return prctl(option, arg2, arg3, arg4, arg5);
 }

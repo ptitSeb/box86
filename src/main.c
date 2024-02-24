@@ -1705,6 +1705,8 @@ int main(int argc, const char **argv, char **env)
         memset(endp - diff, 0, diff); // fill reminder with NULL
         for(int i=nextarg; i<argc; ++i)
             argv[i] -= diff;    // adjust strings
+        my_context->orig_argc = argc;
+        my_context->orig_argv = (char**)argv;
     }
     box86_isglibc234 = GetNeededVersionForLib(elf_header, "libc.so.6", "GLIBC_2.34");
     if(box86_isglibc234)

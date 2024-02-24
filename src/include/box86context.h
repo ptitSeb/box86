@@ -99,6 +99,9 @@ typedef struct box86context_s {
     int                 envc;
     char**              envv;
 
+    int                 orig_argc;
+    char**              orig_argv;
+
     char*               fullpath;
     char*               box86path;      // path of current box86 executable
     char*               box64path;      // path of box64 executable (beside box86, if it exists)
