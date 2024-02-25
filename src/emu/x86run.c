@@ -1095,7 +1095,15 @@ x86emurun:
             R_ESP = R_EBP;
             R_EBP = Pop(emu);
             break;
-
+        case 0xCA:                      /* FAR RETN */
+            tmp16u = F16;
+            addr = Pop(emu);
+            emu->segs[_CS] = Pop(emu);    // no check, no use....
+            emu->segs_serial[_CS] = 0;
+            R_ESP += tmp16u;
+            // need to check status of CS register!
+            STEP2;
+            break;
         case 0xCB:                      /* FAR RET */
             addr = Pop(emu);
             emu->segs[_CS] = Pop(emu);    // no check, no use....
