@@ -3298,6 +3298,7 @@ wrappedlibdl:
 - pFv:
   - dlerror
 - iFpp:
+  - _dl_find_object
   - dladdr
 - pFpi:
   - dlopen
