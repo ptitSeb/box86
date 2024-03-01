@@ -104,12 +104,7 @@ Final note: the Steam BigPicture will work, but also need steamwebhelper (and so
 - If you have trouble installing Steam, you can find `install_steam.sh` in the root folder of the box86 repo. This simple script will download and install steam in your home folder, and then create a shortcut to steam in `/usr/local/bin` (and for this it will ask for sudo permission). Simply use `steam` to launch once it's installed. Note that the installation, being in the Home folder, will only work for a single user. Don't use this script if you need a multi-user installation.
 - To avoid the "libc.so.6 is absent" message, you can use `STEAMOS=1` and `STEAM_RUNTIME=1` as environment variables (it's automatically there if you used the `install_steam.sh` script)
 
-to disable `steamwebhelper` when box64 installed and running, create (or edit) `~/.box64rc` and add:
-```
-[steamwebhelper]
-BOX64_EXIT=1
-```
-in it and it will be disable. Comment with a `#` those 2 lines to enable it again
+If you have issue with steam starting, with ` steamwebhelper` not starting, you'll need to start steam with `-cef-disable-gpu`. By default, the ` install_steam.sh`  script will now add this setting to the ` /usr/local/bin/steam` shell script. You can modify the script to remove this parameter if you have good gpu driver (for example NVidia works fine, Turnip/Panfrost don't at the time of testing).
 
 ----
 
