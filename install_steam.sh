@@ -22,7 +22,7 @@ echo "#!/bin/bash
 export STEAMOS=1
 export STEAM_RUNTIME=1
 export DBUS_FATAL_WARNINGS=0
-~/steam/bin/steam -cef-disable-gpu $@" > steam
+~/steam/bin/steam $@" > steam
 
 # make script executable and move
 chmod +x steam

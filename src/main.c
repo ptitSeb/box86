@@ -1570,7 +1570,7 @@ int main(int argc, const char **argv, char **env)
     {
         add_argv("--no-sandbox");
     }
-    if(wine_steam || box86_steam) {
+    if(wine_steam /*|| box86_steam*/) {
         printf_log(LOG_INFO, "Steam%s detected, adding -cef-single-process -cef-in-process-gpu -cef-disable-sandbox -no-cef-sandbox -cef-disable-breakpad to parameters", wine_steam?".exe":"");
         add_argv("-cef-single-process");
         add_argv("-cef-in-process-gpu");
