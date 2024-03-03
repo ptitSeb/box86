@@ -49,7 +49,7 @@ void EXPORT my___libc_init(x86emu_t* emu, void* raw_args __unused, void (*onexit
     emu->quit = 1; // finished!
 }
 #else
-int32_t EXPORT my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
+int32_t EXPORT my___libc_start_main(x86emu_t* emu, int (*main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
     (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
     // let's cheat and set all args...
