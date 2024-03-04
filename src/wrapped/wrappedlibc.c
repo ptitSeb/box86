@@ -463,7 +463,7 @@ static void* findon_exitFct(void* fct)
 #undef SUPER
 
 // some my_XXX declare and defines
-int32_t my___libc_start_main(x86emu_t* emu, int *(main) (int, char * *, char * *), 
+int32_t my___libc_start_main(x86emu_t* emu, int (*main) (int, char * *, char * *),
     int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
     void (*rtld_fini) (void), void (* stack_end)); // implemented in x86run_private.c
 EXPORT void my___libc_init_first(x86emu_t* emu, int argc, char* arg0, char** b)
