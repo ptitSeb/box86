@@ -986,6 +986,52 @@ uintptr_t dynarecF0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
 
+        case 0xFE:
+            nextop = F8;
+            SMDMB();
+            switch((nextop>>3)&7)
+            {
+                case 0: // INC Eb
+                    INST_NAME("INC Eb");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1);
+                        emit_inc8(dyn, ninst, x1, x2, x14);
+                        EBBACK;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1, LOCK_LOCK);
+                        MARKLOCK;
+                        LDREXB(x1, wback);
+                        emit_inc8(dyn, ninst, x1, x3, x14);
+                        STREXB(x3, x1, wback);
+                        CMPS_IMM8(x3, 0);
+                        B_MARKLOCK(cNE);
+                        SMDMB();
+                    }
+                    break;
+                case 1: //DEC Ed
+                    INST_NAME("DEC Eb");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    if(MODREG) {
+                        GETEB(x1);
+                        emit_dec8(dyn, ninst, x1, x2, x14);
+                        EBBACK;
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, 0, 0, 1, LOCK_LOCK);
+                        MARKLOCK;
+                        LDREXB(x1, wback);
+                        emit_dec8(dyn, ninst, x1, x3, x14);
+                        STREXB(x3, x1, wback);
+                        CMPS_IMM8(x3, 0);
+                        B_MARKLOCK(cNE);
+                        SMDMB();
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            SMDMB();
+            break;
         case 0xFF:
             nextop = F8;
             SMDMB();

@@ -1228,7 +1228,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
                 CLEAR_FLAG(F_CF);
             ED->dword[0] ^= (1<<tmp8u);
             break;
-        case 0xBC:                      /* BSF Ed,Gd */
+        case 0xBC:                      /* BSF Gd, Ed */
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;
@@ -1242,7 +1242,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
                 SET_FLAG(F_ZF);
             }
             break;
-        case 0xBD:                      /* BSR Ed,Gd */
+        case 0xBD:                      /* BSR Gd, Ed */
             CHECK_FLAGS(emu);
             nextop = F8;
             GET_ED;

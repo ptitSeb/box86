@@ -555,6 +555,39 @@ uintptr_t RunF0(x86emu_t *emu, uintptr_t addr)
         case 0x87:                      /* XCHG Ed,Gd */
             return addr-1;   // let the normal XCHG execute, it have integrated LOCK
 
+        case 0xFE:              /* GRP 5 Eb */
+            nextop = F8;
+            GET_EB;
+            switch((nextop>>3)&7) {
+                case 0:                 /* INC Ed */
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    do {
+                        tmp8u = arm_lock_read_b(EB);
+                    } while(arm_lock_write_b(EB, inc8(emu, tmp8u)));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    EB->byte[0] = inc8(emu, EB->byte[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                case 1:                 /* DEC Ed */
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    do {
+                        tmp8u = arm_lock_read_b(EB);
+                    } while(arm_lock_write_d(EB, dec8(emu, tmp8u)));
+#else
+                    pthread_mutex_lock(&emu->context->mutex_lock);
+                    EB->byte[0] = dec8(emu, EB->byte[0]);
+                    pthread_mutex_unlock(&emu->context->mutex_lock);
+#endif
+                    break;
+                default:
+                    printf_log(LOG_NONE, "Illegal Opcode 0xF0 0xFE 0x%02X 0x%02X\n", nextop, PK(0));
+                    emu->quit=1;
+                    emu->error |= ERR_ILLEGAL;
+                    return 0;
+            }
+            break;
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
             GET_ED;
