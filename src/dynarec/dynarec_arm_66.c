@@ -774,7 +774,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6:
                     INST_NAME("SHL Ew, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&31) {
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_PENDING);
                         GETEW(x1);
                         u8 = F8;
                         emit_shl16c(dyn, ninst, x1, u8&31, x2, x14);
@@ -787,7 +787,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 5:
                     INST_NAME("SHR Ed, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&31) {
-                        SETFLAGS(X_ALL, SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_PENDING);
                         GETEW(x1);
                         u8 = F8;
                         emit_shr16c(dyn, ninst, x1, u8&31, x2, x14);
@@ -800,7 +800,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("SAR Ed, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&31) {
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_PENDING);
                         GETSEW(x1);
                         u8 = F8;
                         emit_sar16c(dyn, ninst, x1, u8&31, x2, x14);
