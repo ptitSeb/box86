@@ -409,6 +409,7 @@ GO(freopen64, pFppp)
 // frexpf   // Weak
 // frexpl   // Weak
 GO2(fscanf, iFppV, vfscanf)
+GO2(__isoc23_fscanf, iFppV, vfscanf)
 GO(fseek, iFpli)
 GO(fseeko, iFpli)
 GO(fseeko64, iFpIi)
@@ -910,6 +911,7 @@ GOM(__isoc99_vsscanf, iFEppp) //%% TODO: check if ok
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
+GO2(__isoc23_sscanf, iFEppV, my___isoc99_sscanf)
 #else
 GO2(__isoc99_fscanf, iFppV, __isoc99_vfscanf)
 // __isoc99_fwscanf
@@ -923,6 +925,7 @@ GO(__isoc99_vsscanf, iFppp)
 // __isoc99_vswscanf
 // __isoc99_vwscanf
 // __isoc99_wscanf
+GO2(__isoc23_sscanf, iFppV, __isoc99_sscanf)
 #endif
 GO(isprint, iFi)
 // __isprint_l
@@ -1735,6 +1738,7 @@ GO(__strtok_r, pFppp)
 GOW(strtok_r, pFppp)
 // __strtok_r_1c
 GO(strtol, lFppi)
+GO2(__isoc23_strtol, lFppi, strtol)
 #ifdef HAVE_LD80BITS
 GO(strtold, DFpp)
 GO(__strtold_internal, DFppi)
@@ -1748,19 +1752,23 @@ GOW2(strtold_l, KFppu, strtod_l)
 #endif
 GO(__strtol_internal, lFppi)
 GO(strtoll, IFppi)
+GO2(__isoc23_strtoll, IFppi, strtoll)
 GO(__strtol_l, lFppiip)
 GOW(strtol_l, lFppiip)
 GO(__strtoll_internal, IFppii)
 GO(__strtoll_l, IFppip)
 GOW(strtoll_l, IFppip)
+GO2(__isoc23_strtoll_l, IFppip, strtoll_l)
 GOW(strtoq, IFppi)  // is that ok?
 GO(strtoul, LFppi)
 GO(__strtoul_internal, LFppii)
 GO(strtoull, UFppi)
+GO2(__isoc23_strtoull, UFppi, strtoull)
 GO(__strtoul_l, uFppip)
 GOW(strtoul_l, LFppip)
 GO(__strtoull_internal, UFppii)
 GO(__strtoull_l, UFppip)
+GO2(__isoc23_strtoull_l, UFppip, strtoull_l)
 GOW(strtoull_l, UFppip)
 GO(strtoumax, UFppi)
 GOW(strtouq, UFppi) // ok?

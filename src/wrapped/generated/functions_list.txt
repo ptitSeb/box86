@@ -3213,6 +3213,9 @@ wrappedlibc:
 - iFppp:
   - _IO_vfscanf
 - iFppV:
+  - __isoc23_fscanf
+  - __isoc23_sscanf
+  - __isoc23_sscanf
   - __isoc99_fscanf
   - __isoc99_sscanf
   - __isoc99_swscanf
@@ -3222,12 +3225,18 @@ wrappedlibc:
 - iFpOu:
   - __libc_open
 - iFpOV:
+- IFppi:
+  - __isoc23_strtoll
+- UFppi:
+  - __isoc23_strtoull
 - KFppi:
   - __strtold_internal
 - KFppu:
   - strtold_l
 - lFipL:
   - __read_nocancel
+- lFppi:
+  - __isoc23_strtol
 - pFpii:
 - pFpip:
 - vFiipV:
@@ -3258,6 +3267,10 @@ wrappedlibc:
 - iFppiV:
 - iFpppp:
   - _IO_vfprintf
+- IFppip:
+  - __isoc23_strtoll_l
+- UFppip:
+  - __isoc23_strtoull_l
 - KFppip:
   - __strtold_l
 - lFipiI:
