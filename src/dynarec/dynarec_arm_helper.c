@@ -729,28 +729,28 @@ static void x87_purgecache_full(dynarec_arm_t* dyn, int ninst, int next, int s1,
         //Stack is full, so STi is just x87reg[i]
         int j=0; 
         while(dyn->n.x87cache[j]!=i) ++j; // look for STi
+        int st = dyn->n.x87cache[j]+dyn->n.stack_pop;
         #if STEP == 1
         if(!next) {  // don't force promotion here
             // pre-apply pop, because purge happens in-between
-            neoncache_promote_double(dyn, ninst, dyn->n.x87cache[j]+dyn->n.stack_pop);
+            neoncache_promote_double(dyn, ninst, st);
         }
         #endif
-        if(next) {
-            // need to check if a ST_F need local promotion
-            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j])>=0) {
+        #if STEP == 3
+        if(!next && neoncache_get_current_st(dyn, ninst, st)!=NEON_CACHE_ST_D) {
+            MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", st);
+        }
+        #endif
+        switch(neoncache_get_current_st(dyn, ninst, st)) {
+            case NEON_CACHE_ST_D:
+                VSTM_64_W(dyn->n.x87reg[j], s1);    // save the value
+                break;
+            case NEON_CACHE_ST_F:
                 VCVT_F64_F32(0, dyn->n.x87reg[j]*2);
                 VSTM_64_W(0, s1);    // save the value
-            } else {
-                VSTM_64_W(dyn->n.x87reg[j], s1);    // save the value
-            }
-        } else {
-            // need to check if a ST_F need local promotion
-            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[j])>=0) {
-                VCVT_F64_F32(0, dyn->n.x87reg[j]*2);
-                VSTM_64_W(0, s1);    // save the value
-            } else {
-                VSTM_64_W(dyn->n.x87reg[j], s1);    // save the value
-            }
+                break;
+        }
+        if(!next) {
             fpu_free_reg_double(dyn, dyn->n.x87reg[j]);
             dyn->n.x87reg[j] = -1;
             dyn->n.x87cache[j] = -1;

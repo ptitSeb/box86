@@ -67,6 +67,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         }
         #endif
         ip = addr;
+        fpu_propagate_stack(dyn, ninst);
         if (reset_n!=-1) {
             if(reset_n==-2) {
                 MESSAGE(LOG_DEBUG, "Reset Caches to zero\n");
@@ -88,7 +89,6 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             }
             reset_n = -1;
         }
-        fpu_propagate_stack(dyn, ninst);
         NEW_INST;
         #if STEP == 0
         if(ninst && dyn->insts[ninst-1].x86.barrier_next) {
