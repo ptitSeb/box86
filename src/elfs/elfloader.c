@@ -183,8 +183,6 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     uintptr_t max_align = (box86_pagesize-1);
     for (size_t i=0; i<head->numPHEntries; ++i) 
         if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
-            if(max_align < head->PHEntries[i].p_align-1)
-                max_align = head->PHEntries[i].p_align-1;
             ++head->multiblock_n;
         }
 
@@ -195,16 +193,24 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
     }
     if(!offs && !head->vaddr)
         offs = (uintptr_t)find32bitBlockElf(head->memsz, mainbin, max_align);
-
     // prereserve the whole elf image, without populating
-    void* image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-    if(image!=MAP_FAILED && head->vaddr && image!=(void*)offs && (((uintptr_t)image)&max_align)) {
-        munmap(image, head->memsz);
-        image = mmap64(find32bitBlockElf(head->memsz, mainbin, max_align), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    size_t sz = head->memsz;
+    void* raw = NULL;
+    void* image = NULL;
+    if(!head->vaddr) {
+        sz += head->align;
+        raw = mmap64((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        image = (void*)(((uintptr_t)raw+max_align)&~max_align);
+    } else {
+        image = raw = mmap64((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
     }
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
+        printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p(%p/0x%zx) instead\n", (((uintptr_t)image)&max_align)?"Error":"Warning", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image, raw, head->align);
         offs = (uintptr_t)image;
-        printf_log(LOG_INFO, "Mamp64 for (@%p 0x%zx) for elf \"%s\" returned %p instead", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
+        if(((uintptr_t)image)&max_align) {
+            munmap(raw, sz);
+            return 1;   // that's an error, alocated memory is not aligned properly
+        }
     }
     if(image==MAP_FAILED || image!=(void*)(head->vaddr?head->vaddr:offs)) {
         printf_log(LOG_NONE, "%s cannot create memory map (@%p 0x%zx) for elf \"%s\"", (image==MAP_FAILED)?"Error:":"Warning:", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name);
@@ -217,12 +223,14 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             return 1;
         offs = (uintptr_t)image-head->vaddr;
     }
-    printf_log(log_level, "Pre-allocated 0x%zx byte at %p for %s\n", head->memsz, image, head->name);
+    printf_dump(log_level, "Pre-allocated 0x%zx byte at %p for %s\n", head->memsz, image, head->name);
     head->delta = offs;
-    printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\" (0x%zx bytes)\n", (void*)offs, (void*)head->vaddr, head->name, head->memsz);
+    printf_dump(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
 
     head->image = image;
-    setProtection_elf((uintptr_t)image, head->memsz, 0);
+    head->raw = raw;
+    head->raw_size = sz;
+    setProtection_elf((uintptr_t)raw, sz, 0);
 
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
@@ -241,37 +249,34 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
-            if(balign<(box86_pagesize-1)) balign = (box86_pagesize-1);
-            head->multiblocks[n].asize = ALIGN(e->p_memsz+(e->p_paddr&balign));
+            if(balign<4095) balign = 4095;
+            head->multiblocks[n].asize = (e->p_memsz+(e->p_paddr&balign)+4095)&~4095;
             int try_mmap = 1;
             if(e->p_paddr&balign)
                 try_mmap = 0;
             if(e->p_offset&(box86_pagesize-1))
                 try_mmap = 0;
-            if(e->p_memsz-e->p_filesz>(box86_pagesize-1))
+            if(ALIGN(e->p_memsz)!=ALIGN(e->p_filesz))
                 try_mmap = 0;
             if(!e->p_filesz)
                 try_mmap = 0;
+            if(e->p_align<box86_pagesize)
+                try_mmap = 0;
             if(try_mmap) {
-                printf_log(log_level, "Mmaping 0x%zx memory @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
+                printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
                     (void*)head->multiblocks[n].paddr, 
                     head->multiblocks[n].size, 
                     prot,
-                    MAP_PRIVATE|MAP_FIXED,
+                    MAP_PRIVATE|MAP_FIXED, //((prot&PROT_WRITE)?MAP_SHARED:MAP_PRIVATE)|MAP_FIXED,
                     head->fileno,
                     e->p_offset
                 );
                 if(p==MAP_FAILED || p!=(void*)head->multiblocks[n].paddr) {
                     try_mmap = 0;
-                    printf_log(log_level, "Mapping failed, using regular mmap+read");
-                    if(p==MAP_FAILED) {
-                        printf_log(log_level, " err=%d/%s\n", errno, strerror(errno));
-                    } else {
-                        printf_log(log_level, " got %p instead\n", p);
-                    }
+                    printf_dump(log_level, "Mapping failed, using regular mmap+read");
                 } else {
-                    if(e->p_memsz>e->p_filesz)
+                    if(e->p_memsz>e->p_filesz && (prot&PROT_WRITE))
                         memset((void*)((uintptr_t)p + e->p_filesz), 0, e->p_memsz-e->p_filesz);
                     setProtection_elf((uintptr_t)p, head->multiblocks[n].asize, prot);
                     head->multiblocks[n].p = p;
@@ -281,15 +286,43 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
             if(!try_mmap) {
                 uintptr_t paddr = head->multiblocks[n].paddr&~balign;
                 size_t asize = head->multiblocks[n].asize;
-                printf_log(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
-                void* p = mmap64(
-                    (void*)paddr,
-                    asize,
-                    prot,
-                    MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
-                    -1,
-                    0
-                );
+                void* p = MAP_FAILED;
+                if(paddr==(paddr&~(box86_pagesize-1)) && (asize==ALIGN(asize))) {
+                    printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
+                    p = mmap64(
+                        (void*)paddr,
+                        asize,
+                        prot|PROT_WRITE,
+                        MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
+                        -1,
+                        0
+                    );
+                } else {
+                    // difference in pagesize, so need to mmap only what needed to be...
+                    //check startint point
+                    uintptr_t new_addr = paddr;
+                    ssize_t new_size = asize;
+                    while(getProtection(new_addr) && (new_size>0)) {
+                        new_size -= ALIGN(new_addr) - new_addr;
+                        new_addr = ALIGN(new_addr);
+                    }
+                    if(new_size>0) {
+                        printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", ALIGN(new_size), e->p_memsz, (void*)new_addr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
+                        p = mmap64(
+                            (void*)new_addr,
+                            ALIGN(new_size),
+                            prot|PROT_WRITE,
+                            MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
+                            -1,
+                            0
+                        );
+                        if(p==(void*)new_addr)
+                            p = (void*)paddr;
+                    } else {
+                        p = (void*)paddr;
+                        printf_dump(log_level, "Will read 0x%zx @%p for Elf \"%s\"\n", e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);    
+                    }
+                }
                 if(p==MAP_FAILED || p!=(void*)paddr) {
                     printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"", (void*)paddr, asize, balign, head->name);
                     if(p==MAP_FAILED) {
@@ -308,6 +341,8 @@ int AllocLoadElfMemory(box86context_t* context, elfheader_t* head, int mainbin)
                         return 1;
                     }
                 }
+                if(!(prot&PROT_WRITE) && (paddr==(paddr&(box86_pagesize-1)) && (asize==ALIGN(asize))))
+                    mprotect((void*)paddr, asize, prot);
             }
 #ifdef DYNAREC
             if(box86_dynarec && (e->p_flags & PF_X)) {
@@ -349,18 +384,20 @@ void FreeElfMemory(elfheader_t* head)
     if(head->multiblock_n) {
 #ifdef DYNAREC
         for(int i=0; i<head->multiblock_n; ++i) {
-            dynarec_log(LOG_INFO, "Free DynaBlocks for %s\n", head->path);
+            dynarec_log(LOG_INFO, "Free DynaBlocks %p-%p for %s\n", head->multiblocks[i].p, head->multiblocks[i].p+head->multiblocks[i].asize, head->path);
             if(box86_dynarec)
-                cleanDBFromAddressRange((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].size, 1);
+                cleanDBFromAddressRange((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].asize, 1);
             freeProtection((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].asize);
         }
 #endif
         box_free(head->multiblocks);
     }
     // we only need to free the overall mmap, no need to free individual part as they are inside the big one
-    if(head->image && head->memsz)
-        munmap(head->image, head->memsz);
-    freeProtection((uintptr_t)head->image, head->memsz);
+    if(head->raw && head->raw_size) {
+        dynarec_log(LOG_INFO, "Unmap elf memory %p-%p for %s\n", head->raw, head->raw+head->raw_size, head->path);
+        munmap(head->raw, head->raw_size);
+    }
+    freeProtection((uintptr_t)head->raw, head->raw_size);
 }
 
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded)

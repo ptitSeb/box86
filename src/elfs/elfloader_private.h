@@ -50,6 +50,8 @@ typedef struct elfheader_s {
 
     intptr_t    delta;  // should be 0
     void*       image;
+    void*       raw;    // raw pointer (might be unaligned vs image and max_align of elf)
+    size_t      raw_size;
 
     uintptr_t   entrypoint;
     uintptr_t   initentry;
