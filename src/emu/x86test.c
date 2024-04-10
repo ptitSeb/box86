@@ -75,7 +75,7 @@ void x86test_check(x86emu_t* ref, uintptr_t ip)
         for(int i=0; i<ref->fpu_stack; ++i) {
             if(ref->x87[(ref->top+i)&7].d != emu->x87[(emu->top+i)&7].d) {
                 BANNER;
-                printf_log(LOG_NONE, "ST%d: %g | %g\n", i, ref->x87[(ref->top+i)&7].d, emu->x87[(emu->top+i)&7].d);
+                printf_log(LOG_NONE, "ST%d: %g (%a) | %g (%a)\n", i, ref->x87[(ref->top+i)&7].d, ref->x87[(ref->top+i)&7].d, emu->x87[(emu->top+i)&7].d, emu->x87[(emu->top+i)&7].d);
             }
         }
     }

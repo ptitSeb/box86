@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <fenv.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +8,7 @@
 
 #include "debug.h"
 #include "box86stack.h"
+#include "setround.h"
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86emu_private.h"
@@ -33,6 +35,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
     x86emu_t*emu = test->emu;
     #endif
 
+    int rount = setround(emu);
     nextop = F8;
     switch (nextop) {
         case 0xC0:
@@ -110,11 +113,30 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             break;
 
         case 0xF0:  /* F2XM1 */
-            ST0.d = exp2(ST0.d) - 1.0;
+            if (ST0.d == 0)
+                break;
+            // Using the expm1 instead of exp2(ST0)-1 can avoid losing precision much,
+            // expecially when ST0 is close to zero (which loses the precise when -1).
+            // printf("%a, %a\n", LN2 * ST0.d, expm1(LN2 * ST0.d));
+            ST0.d = expm1(LN2 * ST0.d);
+            //    = 2^ST0 - 1 + error. (in math)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xF1:  /* FYL2X */
-            ST(1).d *= log2(ST0.d);
+            if (ST1.d < 0) {
+                switch (emu->cw.f.C87_RD) {
+                    case ROUND_Up:
+                        fesetround(FE_DOWNWARD);
+                        break;
+                    case ROUND_Down:
+                        fesetround(FE_UPWARD);
+                }
+            }
+            if (ST0.d < 1 && emu->cw.f.C87_RD == ROUND_Chop)
+                fesetround(FE_UPWARD);
+            const double log2_st0 = log2(ST0.d);
+            setround(emu);
+            ST(1).d *= log2_st0;
             fpu_do_pop(emu);
             emu->sw.f.F87_C1 = 0;
             break;
@@ -187,7 +209,21 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->top=(emu->top+1)&7;    // this will probably break a few things
             break;
         case 0xF9:  /* FYL2XP1 */
-            ST(1).d *= log2(ST0.d + 1.0);
+            if (ST1.d < 0) {
+                switch (emu->cw.f.C87_RD) {
+                    case ROUND_Up:
+                        fesetround(FE_DOWNWARD);
+                        break;
+                    case ROUND_Down:
+                        fesetround(FE_UPWARD);
+                }
+            }
+            // Using the log1p instead of log2(ST0+1) can avoid losing precision much,
+            // expecially when ST0 is close to zero (which loses the precise when +1).
+            const double log1p_st0 = log1p(ST0.d);
+            setround(emu);
+            ST(1).d = (ST(1).d * log1p_st0) / M_LN2;
+            //      = ST1 * log2(ST0 + 1) + error. (in math)
             fpu_do_pop(emu);
             emu->sw.f.F87_C1 = 0;
             break;
@@ -206,9 +242,14 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFD:  /* FSCALE */
-            // this could probably be done by just altering the exponant part of the float...
+            if (ST1.d > INT32_MAX)
+                tmp32s = INT32_MAX;
+            else if (ST1.d < INT32_MIN)
+                tmp32s = INT32_MIN;
+            else
+                tmp32s = ST1.d;
             if(ST0.d!=0.0)
-                ST0.d *= exp2(trunc(ST1.d));
+                ST0.d = ldexp(ST0.d, tmp32s);
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFE:  /* FSIN */
@@ -241,6 +282,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
         case 0xE6:
         case 0xE7:
         case 0xEF:
+            fesetround(rount);
             return 0;
         default:
         switch((nextop>>3)&7) {
@@ -300,8 +342,10 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
                 EW->word[0] = emu->cw.x16;
                 break;
             default:
+                fesetround(rount);
                 return 0;
         }
     }
-   return addr;
+    fesetround(rount);
+    return addr;
 }

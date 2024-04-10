@@ -192,6 +192,9 @@ Op is 20-27
 // and dst, src1, #imm ror rot*2
 #define AND_IMM8_ROR(dst, src, imm8, rot) \
     EMIT(0xe2000000 | ((dst) << 12) | ((src) << 16) | ((rot)<<8) | brIMM(imm8) )
+// and.c dst, src, #(imm8)
+#define AND_IMM8_COND(cond, dst, src, imm8) \
+    EMIT((cond) | 0x02000000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )
 // and.s dst, src, #(imm8)
 #define ANDS_IMM8(dst, src, imm8) \
     EMIT(0xe2100000 | ((dst) << 12) | ((src) << 16) | brIMM(imm8) )

@@ -1,3 +1,4 @@
+#include <fenv.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,7 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
+#include "setround.h"
 
 #include "modrm.h"
 
@@ -32,6 +34,7 @@ uintptr_t RunDC(x86emu_t *emu, uintptr_t addr)
     x86emu_t*emu = test->emu;
     #endif
 
+    int oldround = setround(emu);
     nextop = F8;
     switch(nextop) {
         case 0xC0:
@@ -184,8 +187,10 @@ uintptr_t RunDC(x86emu_t *emu, uintptr_t addr)
                 }
                 break;
             default:
+                fesetround(oldround);
                 return 0;
         }
     }
+    fesetround(oldround);
     return addr;
 }

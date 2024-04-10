@@ -1,3 +1,4 @@
+#include <fenv.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,7 @@
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
+#include "setround.h"
 
 #include "modrm.h"
 
@@ -24,7 +26,6 @@ uintptr_t RunDA(x86emu_t *emu, uintptr_t addr)
 #endif
 {
     uint8_t nextop;
-    int32_t tmp32s;
     int64_t ll;
     float f;
     reg32_t *oped;
@@ -101,7 +102,8 @@ uintptr_t RunDA(x86emu_t *emu, uintptr_t addr)
     case 0xF9:
     case 0xFD:
         return 0;
-    default:
+    default:;
+        int oldround = setround(emu);
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
                 GET_ED;
@@ -137,6 +139,7 @@ uintptr_t RunDA(x86emu_t *emu, uintptr_t addr)
                 ST0.d = (double)ED->sdword[0] / ST0.d;
                 break;
         }
+        fesetround(oldround);
     }
     return addr;
 }

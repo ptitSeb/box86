@@ -498,6 +498,55 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
     }
     SET_NODF();
 }
+// call a function with 1 double arg (taking care of the SOFTFP / HARD call) and 1 non-float arg that return a double
+void call_ddr(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int arg, int reg, int ret, uint32_t mask, int saveflags)
+{
+    if(ret!=-2 && !mask) {
+        // ARM ABI require the stack to be 8-bytes aligned!
+        // so, if no mask asked, add one to stay 8-bytes aligned
+        if(ret!=xFlags) mask=1<<xFlags; else mask=1<<x3;
+    }
+    if(ret!=-2) {
+        PUSH(xSP, (1<<xEmu) | mask);
+    }
+    fpu_pushcache(dyn, ninst, reg);
+    if(saveflags) {
+        STR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
+    #ifdef ARM_SOFTFP
+    VMOVfrV_64(0, 1, 0);// D0 -> r0:r1
+    MOV_REG(2, arg);
+    #else
+    MOV_REG(0, arg);
+    #endif
+    MOV32(reg, (uintptr_t)fnc);
+    BLX(reg);
+    if(fnc2) {
+        #ifdef ARM_SOFTFP
+        // result are already in r0:r1 for next call
+        #endif
+        MOV32(reg, (uintptr_t)fnc2);
+        BLX(reg);
+    }
+    #ifdef ARM_SOFTFP
+    if(n!=1) {
+        POP(xSP, (1<<2) | (1<<3));
+    }
+    VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
+    #endif
+    fpu_popcache(dyn, ninst, reg);
+    if(ret>=0) {
+        MOV_REG(ret, 0);
+    }
+    if(ret!=-2) {
+        POP(xSP, (1<<xEmu) | mask);
+    }
+    if(saveflags) {
+        LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
+    }
+    SET_NODF();
+}
+
 // call a function with 1 arg, (taking care of the SOFTFP / HARD call) that return a double, using s1 as scratch
 void call_rd(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int s1, uint32_t mask, int saveflags)
 {
@@ -1161,7 +1210,8 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     UBFX(s2, s1, 1, 1);     // swap bits 0 and 1
     BFI(s2, s1, 1, 1);
     VMRS(s1);               // get fpscr
-    MOV_REG(s3, s1);
+    if (s3 >= 0)
+        MOV_REG(s3, s1);
     BFI(s1, s2, 22, 2);     // inject new round
     VMSR(s1);               // put new fpscr
     return s3;

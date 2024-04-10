@@ -281,19 +281,42 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             CALL(arm_f2xm1, -1, 0);
             #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-            //if(ST0.d!=0.0)
-            //    ST0.d = exp2(ST0.d)-1.0;
-            VMOV_64(0, v1);
-            CALL_1D(exp2, 0);   // return is d0
+            VMRS_APSR();
+            B_NEXT(cEQ);
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+            UBFX(x1, x1, 10, 2);    // extract round...
+            UBFX(x2, x1, 1, 1);     // swap bits 0 and 1
+            BFI(x2, x1, 1, 1);
+            VMRS(x14);               // get fpscr
+            MOV_REG(x3, x14);
             if((PK(0)==0xD9 && PK(1)==0xE8) && // next inst is FLD1
             (PK(2)==0xDE && PK(3)==0xC1)) {
                 MESSAGE(LOG_DUMP, "Hack for fld1 / faddp st1, st0\n");
+                VCMP_F64_0(v1);
+                B_MARK(cGE);           // if ST0 < 0 and if the rounding mode is toward 0, then use upward
+                TSTS_IMM8(x2, 0b01);
+                AND_IMM8_COND(cNE, x2, x2, 0b01); // 11 (TOWARDZERO) -> 01 (UPWARD), 01 -> 01
+                MARK;
+                BFI(x3, x2, 22, 2);     // inject new round
+                VMSR(x3);
+
+                VMOV_64(0, v1);
+                CALL_1D(exp2, 1 << x14);   // return is d0
                 VMOV_64(v1, 0);
                 addr+=4;
             } else {
-                VMOV_i_64(v1, 0b01110000);  // 1.0
-                VSUB_F64(v1, 0, v1);
+                BFI(x3, x2, 22, 2);     // inject new round
+                VMSR(x3);               // put new fpscr
+
+                //ST0.d = expm1(LN2 * ST0.d);
+                MOV32(x2, (&d_ln2));
+                VLDR_64(0, x2, 0);
+                VMUL_F64(0, 0, v1);
+                x87_setround(dyn, ninst, x1, x2, -1);
+                CALL_1D(expm1, 1 << x14);   // return is d0
+                VMOV_64(v1, 0);
             }
+            VMSR(x14);
             #endif
             // should set C1 to 0
             break;
@@ -301,9 +324,33 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FYL2X");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+            UBFX(x1, x1, 10, 2);    // extract round...
+            VCMP_F64_0(v2);
+            VMRS_APSR();
+            B_MARK(cLT);            // if ST1.d < 0 then don't swap bits 0 and 1
+            BFI(x1, x1, 2, 1);      // if ST1.d >= 0 then swap bits 0 and 1
+            UBFX(x1, x1, 1, 2);
+            MARK;
+            s0 = fpu_get_scratch_double(dyn);
+            VMOV_i_64(s0, 0b01110000);   // = 1.0
+            VCMP_F64(v1, s0);
+            VMRS_APSR();
+            B_MARK2(cGE);           // if ST0 < 1 and if the rounding mode is toward 0, then use upward
+            TSTS_IMM8(x1, 0b01);
+            AND_IMM8_COND(cNE, x1, x1, 0b01); // 11 (TOWARDZERO) -> 01 (UPWARD), 01 -> 01
+            MARK2;
+            VMRS(x14);              // get fpscr
+            MOV_REG(x3, x14);
+            BFI(x3, x1, 22, 2);    // inject new round
+            VMSR(x3);               // put new fpscr
+
             VMOV_64(0, v1);    // prepare call to log2
-            CALL_1D(log2, 0);
+            CALL_1D(log2, 1 << x14);
+            x87_setround(dyn, ninst, x1, x2, -1);
             VMUL_F64(v2, v2, 0);    //ST(1).d = log2(ST0.d)*ST(1).d
+            VMSR(x14);
             x87_do_pop(dyn, ninst, x3);
             // should set C1 to 0
             break;
@@ -311,9 +358,12 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FPTAN");
             v2 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+            // seems that tan of glib doesn't follow the rounding direction mode
+            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);    // prepare call to tan
             CALL_1D(tan, 0);
             VMOV_64(v1, 0);
+            //x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; 
             //emu->sw.f.F87_C1 = 0; 
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
@@ -338,10 +388,12 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FPATAN");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+            u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v2);    // prepare call to atan2
             VMOV_64(1, v1);
-            CALL_2D(atan2, 0);
+            CALL_2D(atan2, 1 << u8);
             VMOV_64(v2, 0);    //ST(1).d = atan2(ST1.d, ST0.d);
+            x87_restoreround(dyn, ninst, u8);
             x87_do_pop(dyn, ninst, x3);
             // should set C1 to 0
             break;
@@ -449,32 +501,55 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FYL2XP1");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
-            VMOV_i_64(0, 0b01110000);   // D0 = 1.0
-            VADD_F64(0, 0, v1);    // prepare call to log2
-            CALL_1D(log2, 0);
-            VMUL_F64(v2, v2, 0);    //ST(1).d = log2(ST0.d + 1.0)*ST(1).d;
+            LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, cw));    // hopefully cw is not too far for an imm8
+            UBFX(x1, x1, 10, 2);    // extract round...
+            VCMP_F64_0(v2);
+            VMRS_APSR();
+            B_MARK(cLT);            // if ST1.d < 0 then don't swap bits 0 and 1
+            BFI(x1, x1, 2, 1);      // if ST1.d >= 0 then swap bits 0 and 1
+            UBFX(x1, x1, 1, 2);
+            MARK;
+            VMRS(x14);              // get fpscr
+            MOV_REG(x3, x14);
+            BFI(x3, x1, 22, 2);    // inject new round
+            VMSR(x3);              // put new fpscr
+
+            //ST(1).d = (ST(1).d * log1p(ST0.d)) / M_LN2;
+            VMOV_64(0, v1);    // prepare call to log1p
+            CALL_1D(log1p, 1 << x14);
+            x87_setround(dyn, ninst, x1, x2, -1);
+            VMUL_F64(v2, v2, 0);
+            MOV32(x2, (&d_ln2));
+            VLDR_64(0, x2, 0);
+            VDIV_F64(v2, v2, 0);
+            VMSR(x14);
             x87_do_pop(dyn, ninst, x3);
             // should set C1 to 0
             break;
         case 0xFA:
             INST_NAME("FSQRT");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+            u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VSQRT_F32(v1, v1);
             } else {
                 VSQRT_F64(v1, v1);
             }
+            x87_restoreround(dyn, ninst, u8);
             // should set C1 to 0
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
             v2 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+            // seems that sin and cos function of glibc don't follow the rounding mode
+            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);
             CALL_1D(sin, 0);
             VSWP(v1, 0);
             CALL_1D(cos, 0);    // would it be faster to do sqrt(1-sin()²) ???
             VMOV_64(v2, 0);
+            //x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C2 C1 = 0 0
@@ -509,26 +584,28 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             //if(ST0.d!=0.0)
-            //    ST0.d *= exp2(trunc(ST1.d));
-            VCMP_F64_0(v1);
-            VMRS_APSR();
-            B_NEXT(cEQ);
-            if(!arm_v8) {
-                VMOV_64(0, v2);
-                CALL_1DD(trunc, exp2, 0);
-            } else {
-                VRINTZ_F64(0, v2);
-                CALL_1D(exp2, 0);
-            }
-            VMUL_F64(v1, v1, 0);
+            //    ST0.d = ldexp(ST0.d, trunc(ST1.d));
+            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            s0 = fpu_get_scratch_single(dyn);
+            // value of s0 =
+            // 2^31-1 (ST1 >= 2^31), -2^31 (ST1 < -2^31) or int(ST1) (other situations)
+            VCVT_S32_F64(s0 , v2);
+            VMOVfrV(x2, s0);
+            VMOV_64(0, v1);
+            CALL_1DDR(ldexp, x2, x3, 1 << u8);
+            VMOV_64(v1, 0);
+            x87_restoreround(dyn, ninst, u8);
             // should set C1 to 0
             break;
         case 0xFE:
             INST_NAME("FSIN");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            // seems that sin of glib doesn't follow the rounding direction mode
+            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);    // prepare call to sin
             CALL_1D(sin, 0);
             VMOV_64(v1, 0);
+            //x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C2 C1 = 0 0
@@ -537,9 +614,12 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFF:
             INST_NAME("FCOS");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+            // seems that cos of glib doesn't follow the rounding direction mode
+            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);    // prepare call to cos
             CALL_1D(cos, 0);
             VMOV_64(v1, 0);
+            //x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C2 C1 = 0 0
@@ -598,7 +678,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         s0 = v1;
                     else {
                         s0 = fpu_get_scratch_single(dyn);
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                         VCVT_F32_F64(s0, v1);
+                        x87_restoreround(dyn, ninst, u8);
                     }
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
@@ -617,7 +699,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         s0 = v1;
                     else {
                         s0 = fpu_get_scratch_single(dyn);
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                         VCVT_F32_F64(s0, v1);
+                        x87_restoreround(dyn, ninst, u8);
                     }
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
