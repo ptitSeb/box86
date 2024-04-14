@@ -35,7 +35,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
     x86emu_t*emu = test->emu;
     #endif
 
-    int rount = setround(emu);
+    int round;
     nextop = F8;
     switch (nextop) {
         case 0xC0:
@@ -128,14 +128,18 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xF2:  /* FPTAN */
+            round = setround(emu);
             ST0.d = tan(ST0.d);
+            fesetround(round);
             fpu_do_push(emu);
             ST0.d = 1.0;
             emu->sw.f.F87_C2 = 0;
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xF3:  /* FPATAN */
+            round = setround(emu);
             ST1.d = atan2(ST1.d, ST0.d);
+            fesetround(round);
             fpu_do_pop(emu);
             emu->sw.f.F87_C1 = 0;
             break;
@@ -204,12 +208,16 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFA:  /* FSQRT */
+            round = setround(emu);
             ST0.d = sqrt(ST0.d);
+            fesetround(round);
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFB:  /* FSINCOS */
             fpu_do_push(emu);
+            round = setround(emu);
             sincos(ST1.d, &ST1.d, &ST0.d);
+            fesetround(round);
             emu->sw.f.F87_C2 = 0;
             emu->sw.f.F87_C1 = 0;
             break;
@@ -224,17 +232,24 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
                 tmp32s = INT32_MIN;
             else
                 tmp32s = ST1.d;
-            if(ST0.d!=0.0)
+            if(ST0.d!=0.0) {
+                round = setround(emu);
                 ST0.d = ldexp(ST0.d, tmp32s);
+                fesetround(round);
+            }
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFE:  /* FSIN */
+            round = setround(emu);
             ST0.d = sin(ST0.d);
+            fesetround(round);
             emu->sw.f.F87_C2 = 0;
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFF:  /* FCOS */
+            round = setround(emu);
             ST0.d = cos(ST0.d);
+            fesetround(round);
             emu->sw.f.F87_C2 = 0;
             emu->sw.f.F87_C1 = 0;
             break;
@@ -258,7 +273,6 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
         case 0xE6:
         case 0xE7:
         case 0xEF:
-            fesetround(rount);
             return 0;
         default:
         switch((nextop>>3)&7) {
@@ -274,18 +288,22 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
                 break;
             case 2:     /* FST Ed, ST0 */
                 GET_ED;
-                if(!(((uintptr_t)ED)&3))
+                if(!(((uintptr_t)ED)&3)) {
+                    round = setround(emu);
                     *(float*)ED = ST0.d;
-                else {
+                    fesetround(round);
+                } else {
                     f = ST0.d;
                     memcpy(ED, &f, sizeof(float));
                 }
                 break;
             case 3:     /* FSTP Ed, ST0 */
                 GET_ED;
-                if(!(((uintptr_t)ED)&3))
+                if(!(((uintptr_t)ED)&3)) {
+                    round = setround(emu);
                     *(float*)ED = ST0.d;
-                else {
+                    fesetround(round);
+                } else {
                     f = ST0.d;
                     memcpy(ED, &f, sizeof(float));
                 }
@@ -318,10 +336,8 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
                 EW->word[0] = emu->cw.x16;
                 break;
             default:
-                fesetround(rount);
                 return 0;
         }
     }
-    fesetround(rount);
     return addr;
 }
