@@ -123,20 +123,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xF1:  /* FYL2X */
-            if (ST1.d < 0) {
-                switch (emu->cw.f.C87_RD) {
-                    case ROUND_Up:
-                        fesetround(FE_DOWNWARD);
-                        break;
-                    case ROUND_Down:
-                        fesetround(FE_UPWARD);
-                }
-            }
-            if (ST0.d < 1 && emu->cw.f.C87_RD == ROUND_Chop)
-                fesetround(FE_UPWARD);
-            const double log2_st0 = log2(ST0.d);
-            setround(emu);
-            ST(1).d *= log2_st0;
+            ST(1).d *= log2(ST0.d);
             fpu_do_pop(emu);
             emu->sw.f.F87_C1 = 0;
             break;
@@ -209,20 +196,9 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->top=(emu->top+1)&7;    // this will probably break a few things
             break;
         case 0xF9:  /* FYL2XP1 */
-            if (ST1.d < 0) {
-                switch (emu->cw.f.C87_RD) {
-                    case ROUND_Up:
-                        fesetround(FE_DOWNWARD);
-                        break;
-                    case ROUND_Down:
-                        fesetround(FE_UPWARD);
-                }
-            }
             // Using the log1p instead of log2(ST0+1) can avoid losing precision much,
             // expecially when ST0 is close to zero (which loses the precise when +1).
-            const double log1p_st0 = log1p(ST0.d);
-            setround(emu);
-            ST(1).d = (ST(1).d * log1p_st0) / M_LN2;
+            ST(1).d = (ST(1).d * log1p(ST0.d)) / M_LN2;
             //      = ST1 * log2(ST0 + 1) + error. (in math)
             fpu_do_pop(emu);
             emu->sw.f.F87_C1 = 0;
