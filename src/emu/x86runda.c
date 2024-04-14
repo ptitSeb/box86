@@ -12,10 +12,10 @@
 #include "x86emu_private.h"
 #include "x86run_private.h"
 #include "x87emu_private.h"
+#include "x87emu_setround.h"
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
-#include "setround.h"
 
 #include "modrm.h"
 
@@ -103,7 +103,7 @@ uintptr_t RunDA(x86emu_t *emu, uintptr_t addr)
     case 0xFD:
         return 0;
     default:;
-        int oldround = setround(emu);
+        int oldround = fpu_setround(emu);
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
                 GET_ED;

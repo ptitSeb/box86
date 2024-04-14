@@ -8,12 +8,12 @@
 
 #include "debug.h"
 #include "box86stack.h"
-#include "setround.h"
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86emu_private.h"
 #include "x86run_private.h"
 #include "x87emu_private.h"
+#include "x87emu_setround.h"
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
@@ -128,7 +128,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xF2:  /* FPTAN */
-            oldround = setround(emu);
+            oldround = fpu_setround(emu);
             ST0.d = tan(ST0.d);
             fesetround(oldround);
             fpu_do_push(emu);
@@ -137,7 +137,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xF3:  /* FPATAN */
-            oldround = setround(emu);
+            oldround = fpu_setround(emu);
             ST1.d = atan2(ST1.d, ST0.d);
             fesetround(oldround);
             fpu_do_pop(emu);
@@ -208,14 +208,14 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFA:  /* FSQRT */
-            oldround = setround(emu);
+            oldround = fpu_setround(emu);
             ST0.d = sqrt(ST0.d);
             fesetround(oldround);
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFB:  /* FSINCOS */
             fpu_do_push(emu);
-            oldround = setround(emu);
+            oldround = fpu_setround(emu);
             sincos(ST1.d, &ST1.d, &ST0.d);
             fesetround(oldround);
             emu->sw.f.F87_C2 = 0;
@@ -233,21 +233,21 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             else
                 tmp32s = ST1.d;
             if(ST0.d!=0.0) {
-                oldround = setround(emu);
+                oldround = fpu_setround(emu);
                 ST0.d = ldexp(ST0.d, tmp32s);
                 fesetround(oldround);
             }
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFE:  /* FSIN */
-            oldround = setround(emu);
+            oldround = fpu_setround(emu);
             ST0.d = sin(ST0.d);
             fesetround(oldround);
             emu->sw.f.F87_C2 = 0;
             emu->sw.f.F87_C1 = 0;
             break;
         case 0xFF:  /* FCOS */
-            oldround = setround(emu);
+            oldround = fpu_setround(emu);
             ST0.d = cos(ST0.d);
             fesetround(oldround);
             emu->sw.f.F87_C2 = 0;
@@ -289,7 +289,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             case 2:     /* FST Ed, ST0 */
                 GET_ED;
                 if(!(((uintptr_t)ED)&3)) {
-                    oldround = setround(emu);
+                    oldround = fpu_setround(emu);
                     *(float*)ED = ST0.d;
                     fesetround(oldround);
                 } else {
@@ -300,7 +300,7 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             case 3:     /* FSTP Ed, ST0 */
                 GET_ED;
                 if(!(((uintptr_t)ED)&3)) {
-                    oldround = setround(emu);
+                    oldround = fpu_setround(emu);
                     *(float*)ED = ST0.d;
                     fesetround(oldround);
                 } else {

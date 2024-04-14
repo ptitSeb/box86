@@ -12,10 +12,10 @@
 #include "x86emu_private.h"
 #include "x86run_private.h"
 #include "x87emu_private.h"
+#include "x87emu_setround.h"
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
-#include "setround.h"
 
 #include "modrm.h"
 
@@ -34,7 +34,7 @@ uintptr_t RunD8(x86emu_t *emu, uintptr_t addr)
     #ifdef TEST_INTERPRETER
     x86emu_t*emu = test->emu;
     #endif
-    int oldround = setround(emu);
+    int oldround = fpu_setround(emu);
 
     nextop = F8;
     switch (nextop) {
