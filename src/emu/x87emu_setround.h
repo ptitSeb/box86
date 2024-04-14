@@ -4,9 +4,9 @@
 #include <fenv.h>
 #include <stdint.h>
 #include "x86emu.h"
-#include "emu/x86emu_private.h"
+#include "x86emu_private.h"
 // set the rounding mode to the emulator's one, and return the old one
-static inline int setround(x86emu_t* emu) {
+static inline int fpu_setround(x86emu_t* emu) {
     int ret = fegetround();
     int rounding_direction;
     switch (emu->cw.f.C87_RD) {
