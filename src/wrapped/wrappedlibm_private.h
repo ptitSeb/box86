@@ -196,12 +196,12 @@ GO(feenableexcept, iFi)
 GO(fegetenv, iFp)
 GO(fegetexcept, iFv)
 GO(fegetexceptflag, iFpi)
-GO(fegetround, iFv)
+GOM(fegetround, iFEv)
 GO(feholdexcept, iFp)
 GO(feraiseexcept, iFi)
 GO(fesetenv, iFp)
 GO(fesetexceptflag, iFpi)
-GO(fesetround, iFi)
+GOM(fesetround, iFEi)
 GO(fetestexcept, iFi)
 GO(feupdateenv, iFp)
 GOW(finite, iFd)
@@ -301,9 +301,13 @@ GOW2(lgammal_r, KFKp, lgamma_r)
 GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
 DATAV(_LIB_VERSION, 4)
-GOW(llrint, IFd)
-GOW(llrintf, IFf)
-// llrintl  // Weak
+GOM(llrint, IFEd)
+GOM(llrintf, IFEf)
+#ifdef HAVE_LD80BITS
+GOM(llrintl, IFED)
+#else
+GO2(llrintl, IFK, llrint)
+#endif
 GOW(llround, IFd)
 GOW(llroundf, IFf)
 // llroundl // Weak
@@ -332,9 +336,13 @@ GOW(logl, DFD)
 #else
 GOW2(logl, KFK, log)
 #endif
-GOW(lrint, iFd)
-GOW(lrintf, iFf)
-// lrintl   // Weak
+GOM(lrint, iFEd)
+GOM(lrintf, iFEf)
+#ifdef HAVE_LD80BITS
+GOM(lrintl, iFED)
+#else
+GO2(lrintl, iFK, lrint)
+#endif
 GOW(lround, iFd)
 GOW(lroundf, iFf)
 // lroundl  // Weak
@@ -345,9 +353,13 @@ GOW(modff, fFfp)
 // nan  // Weak
 // nanf // Weak
 // nanl // Weak
-GOW(nearbyint, dFd)
-GOW(nearbyintf, fFf)
-// nearbyintl   // Weak
+GOM(nearbyint, dFEd)
+GOM(nearbyintf, fFEf)
+#ifdef HAVE_LD80BITS
+GOM(nearbyintl, DFED)
+#else
+GO2(nearbyintl, KFK, nearbyint)
+#endif
 GOW(nextafter, dFdd)
 GOW(nextafterf, fFff)
 // nextafterl   // Weak
@@ -378,9 +390,13 @@ GOW(remainderf, fFff)
 GOW(remquo, dFddp)
 GOW(remquof, fFffp)
 // remquol  // Weak
-GOW(rint, dFd)
-GOW(rintf, fFf)
-// rintl    // Weak
+GOM(rint, dFEd)
+GOM(rintf, fFEf)
+#ifdef HAVE_LD80BITS
+GOM(rintl, DFED)
+#else
+GO2(rintl, KFK, rint)
+#endif
 GOW(round, dFd)
 GOW(roundf, fFf)
 // roundl   // Weak

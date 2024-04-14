@@ -168,7 +168,10 @@
 #() vFGG
 #() cFpp
 #() iFEv
+#() iFEi
 #() iFEu
+#() iFEf
+#() iFEd
 #() iFEL
 #() iFEp
 #() iFwp
@@ -203,6 +206,8 @@
 #() iFpG
 #() iFSi
 #() iFGG
+#() IFEf
+#() IFEd
 #() IFEp
 #() IFII
 #() IFpu
@@ -236,6 +241,7 @@
 #() UFUp
 #() UFpp
 #() UFss
+#() fFEf
 #() fFEp
 #() fFif
 #() fFfi
@@ -243,6 +249,7 @@
 #() fFfD
 #() fFfp
 #() fFpp
+#() dFEd
 #() dFid
 #() dFuu
 #() dFdi
@@ -2391,7 +2398,6 @@
 #defined(NOALIGN) iFipV
 #defined(NOALIGN) iFiipV
 #defined(NOALIGN) iFppiiiip
-#!defined(NOALIGN) iFEi
 #!defined(NOALIGN) iFEO
 #!defined(NOALIGN) dFEp
 #!defined(NOALIGN) iFEpI
@@ -2406,6 +2412,9 @@
 #defined(POWERPCLE) iFEiiiN
 #!defined(POWERPCLE) iFiiiN
 #defined(HAVE_LD80BITS) DFD
+#defined(HAVE_LD80BITS) iFED
+#defined(HAVE_LD80BITS) IFED
+#defined(HAVE_LD80BITS) DFED
 #defined(HAVE_LD80BITS) DFDD
 #defined(HAVE_LD80BITS) DFDp
 #defined(HAVE_LD80BITS) DFppi
@@ -2413,6 +2422,8 @@
 #defined(HAVE_LD80BITS) DFppip
 #defined(HAVE_LD80BITS) iFDipppL
 #defined(HAVE_LD80BITS) vFppippDDC
+#!defined(HAVE_LD80BITS) iFK
+#!defined(HAVE_LD80BITS) IFK
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
@@ -3437,6 +3448,26 @@ wrappedlibjpeg62:
 - vFpipu:
   - jpeg_write_marker
 wrappedlibm:
+- iFv:
+  - fegetround
+- iFi:
+  - fesetround
+- iFf:
+  - lrintf
+- iFd:
+  - lrint
+- iFD:
+  - lrintl
+- iFK:
+  - lrintl
+- IFf:
+  - llrintf
+- IFd:
+  - llrint
+- IFD:
+  - llrintl
+- IFK:
+  - llrintl
 - UFs:
   - cacosf
   - cacoshf
@@ -3466,6 +3497,8 @@ wrappedlibm:
   - __logf_finite
   - __sinhf_finite
   - __sqrtf_finite
+  - nearbyintf
+  - rintf
 - dFd:
   - __acos_finite
   - __acosh_finite
@@ -3478,8 +3511,12 @@ wrappedlibm:
   - __log_finite
   - __sinh_finite
   - __sqrt_finite
+  - nearbyint
+  - rint
 - DFD:
+  - nearbyintl
   - pow10l
+  - rintl
 - KFK:
   - acoshl
   - acosl
@@ -3493,7 +3530,9 @@ wrappedlibm:
   - ldexpl
   - lgammal
   - logl
+  - nearbyintl
   - pow10l
+  - rintl
   - tgammal
 - fFff:
   - __atan2f_finite

@@ -200,7 +200,10 @@ void vFGp(x86emu_t *emu, uintptr_t fnc);
 void vFGG(x86emu_t *emu, uintptr_t fnc);
 void cFpp(x86emu_t *emu, uintptr_t fnc);
 void iFEv(x86emu_t *emu, uintptr_t fnc);
+void iFEi(x86emu_t *emu, uintptr_t fnc);
 void iFEu(x86emu_t *emu, uintptr_t fnc);
+void iFEf(x86emu_t *emu, uintptr_t fnc);
+void iFEd(x86emu_t *emu, uintptr_t fnc);
 void iFEL(x86emu_t *emu, uintptr_t fnc);
 void iFEp(x86emu_t *emu, uintptr_t fnc);
 void iFwp(x86emu_t *emu, uintptr_t fnc);
@@ -235,6 +238,8 @@ void iFpP(x86emu_t *emu, uintptr_t fnc);
 void iFpG(x86emu_t *emu, uintptr_t fnc);
 void iFSi(x86emu_t *emu, uintptr_t fnc);
 void iFGG(x86emu_t *emu, uintptr_t fnc);
+void IFEf(x86emu_t *emu, uintptr_t fnc);
+void IFEd(x86emu_t *emu, uintptr_t fnc);
 void IFEp(x86emu_t *emu, uintptr_t fnc);
 void IFII(x86emu_t *emu, uintptr_t fnc);
 void IFpu(x86emu_t *emu, uintptr_t fnc);
@@ -268,6 +273,7 @@ void UFUU(x86emu_t *emu, uintptr_t fnc);
 void UFUp(x86emu_t *emu, uintptr_t fnc);
 void UFpp(x86emu_t *emu, uintptr_t fnc);
 void UFss(x86emu_t *emu, uintptr_t fnc);
+void fFEf(x86emu_t *emu, uintptr_t fnc);
 void fFEp(x86emu_t *emu, uintptr_t fnc);
 void fFif(x86emu_t *emu, uintptr_t fnc);
 void fFfi(x86emu_t *emu, uintptr_t fnc);
@@ -275,6 +281,7 @@ void fFff(x86emu_t *emu, uintptr_t fnc);
 void fFfD(x86emu_t *emu, uintptr_t fnc);
 void fFfp(x86emu_t *emu, uintptr_t fnc);
 void fFpp(x86emu_t *emu, uintptr_t fnc);
+void dFEd(x86emu_t *emu, uintptr_t fnc);
 void dFid(x86emu_t *emu, uintptr_t fnc);
 void dFuu(x86emu_t *emu, uintptr_t fnc);
 void dFdi(x86emu_t *emu, uintptr_t fnc);
@@ -2428,7 +2435,6 @@ void iFppiiiip(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(NOALIGN)
-void iFEi(x86emu_t *emu, uintptr_t fnc);
 void iFEO(x86emu_t *emu, uintptr_t fnc);
 void dFEp(x86emu_t *emu, uintptr_t fnc);
 void iFEpI(x86emu_t *emu, uintptr_t fnc);
@@ -2452,6 +2458,9 @@ void iFiiiN(x86emu_t *emu, uintptr_t fnc);
 
 #if defined(HAVE_LD80BITS)
 void DFD(x86emu_t *emu, uintptr_t fnc);
+void iFED(x86emu_t *emu, uintptr_t fnc);
+void IFED(x86emu_t *emu, uintptr_t fnc);
+void DFED(x86emu_t *emu, uintptr_t fnc);
 void DFDD(x86emu_t *emu, uintptr_t fnc);
 void DFDp(x86emu_t *emu, uintptr_t fnc);
 void DFppi(x86emu_t *emu, uintptr_t fnc);
@@ -2462,6 +2471,8 @@ void vFppippDDC(x86emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
+void iFK(x86emu_t *emu, uintptr_t fnc);
+void IFK(x86emu_t *emu, uintptr_t fnc);
 void KFK(x86emu_t *emu, uintptr_t fnc);
 void KFKK(x86emu_t *emu, uintptr_t fnc);
 void KFKp(x86emu_t *emu, uintptr_t fnc);
