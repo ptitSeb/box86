@@ -740,6 +740,7 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
     khint_t k;
     const char* rname = (const char*)name;
     static int lib_checked = 0;
+    void* ret = getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
     if(!lib_checked) {
         lib_checked = 1;
             // check if libGL is loaded, load it if not (helps some Haxe games, like DeadCells or Nuclear Blaze)
@@ -747,7 +748,7 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x86emu_t* emu, void* name)
             // use a my_dlopen to actually open that lib, like SDL2 is doing...
             my_glhandle = my_dlopen(emu, box86_libGL?box86_libGL:"libGL.so.1", RTLD_LAZY|RTLD_GLOBAL);
     }
-    return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
+    return ret;
 }
 
 #define nb_once	16
