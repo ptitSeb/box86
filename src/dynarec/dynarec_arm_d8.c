@@ -74,13 +74,15 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FMUL ST0, STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VMUL_F32(v1, v1, v2);
             } else {
                 VMUL_F64(v1, v1, v2);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;
         case 0xD0:
         case 0xD1:

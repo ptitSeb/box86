@@ -316,7 +316,8 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MOV32(x2, (&d_ln2));
                 VLDR_64(0, x2, 0);
                 VMUL_F64(0, 0, v1);
-                x87_setround(dyn, ninst, x1, x2, -1);
+                if(!box86_dynarec_fastround)
+                    x87_setround(dyn, ninst, x1, x2, -1);
                 CALL_1D(expm1, box86_dynarec_fastround ? 0 : (1 << x14));   // return is d0
                 VMOV_64(v1, 0);
             }
