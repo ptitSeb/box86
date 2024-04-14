@@ -11,6 +11,7 @@
 #include "x86emu_private.h"
 #include "x86run_private.h"
 #include "x87emu_private.h"
+#include "x87emu_setround.h"
 #include "x86primop.h"
 #include "x86trace.h"
 #include "box86context.h"
@@ -32,6 +33,7 @@ uintptr_t RunDE(x86emu_t *emu, uintptr_t addr)
     x86emu_t*emu = test->emu;
     #endif
 
+    int oldround = fpu_setround(emu);
     nextop = F8;
     switch (nextop) {
     case 0xC0:  /* FADDP STx, ST0 */
@@ -158,8 +160,10 @@ uintptr_t RunDE(x86emu_t *emu, uintptr_t addr)
                 ST0.d = (double)EW->sword[0] / ST0.d;
                 break;
         default:
+            fesetround(oldround);
             return 0;
         }
     }
+    fesetround(oldround);
     return addr;
 }

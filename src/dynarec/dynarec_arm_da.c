@@ -33,6 +33,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     int d0;
     int s0;
     int fixedaddress;
+    uint8_t u8;
 
     MAYUSE(s0);
     MAYUSE(d0);
@@ -155,7 +156,11 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VADD_F64(v1, v1, d0);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 1:
                     INST_NAME("FIMUL ST0, Ed");
@@ -165,7 +170,11 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VMUL_F64(v1, v1, d0);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 2:
                     INST_NAME("FICOM ST0, Ed");
@@ -198,7 +207,11 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VSUB_F64(v1, v1, d0);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 5:
                     INST_NAME("FISUBR ST0, Ed");
@@ -208,7 +221,11 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VSUB_F64(v1, d0, v1);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 6:
                     INST_NAME("FIDIV ST0, Ed");
@@ -218,7 +235,11 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VDIV_F64(v1, v1, d0);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 7:
                     INST_NAME("FIDIVR ST0, Ed");
@@ -228,7 +249,11 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     s0 = fpu_get_scratch_single(dyn);
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VDIV_F64(v1, d0, v1);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
             }
     }

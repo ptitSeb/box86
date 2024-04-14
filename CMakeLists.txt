@@ -1007,5 +1007,12 @@ add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref25.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(fpu_rounding ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test26 -D TEST_OUTPUT=tmpfile26.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref26.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(fpu_rounding PROPERTIES ENVIRONMENT "BOX86_DYNAREC_FASTROUND=0")
     
 endif(BOX86LIB)
