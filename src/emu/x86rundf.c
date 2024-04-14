@@ -7,7 +7,6 @@
 
 #include "debug.h"
 #include "box86stack.h"
-#include "setround.h"
 #include "x86emu.h"
 #include "x86run.h"
 #include "x86emu_private.h"

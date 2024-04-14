@@ -49,13 +49,15 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FADD STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VADD_F32(v1, v1, v2);
             } else {
                 VADD_F64(v1, v1, v2);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;
         case 0xC8:
         case 0xC9:
@@ -68,13 +70,15 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FMUL STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VMUL_F32(v1, v1, v2);
             } else {
                 VMUL_F64(v1, v1, v2);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;
         case 0xD0:
         case 0xD1:
@@ -124,13 +128,15 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FSUBR STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VSUB_F32(v1, v2, v1);
             } else {
                 VSUB_F64(v1, v2, v1);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;
         case 0xE8:
         case 0xE9:
@@ -143,13 +149,15 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FSUB STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VSUB_F32(v1, v1, v2);
             } else {
                 VSUB_F64(v1, v1, v2);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;
         case 0xF0:
         case 0xF1:
@@ -162,13 +170,15 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FDIVR STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VDIV_F32(v1, v2, v1);
             } else {
                 VDIV_F64(v1, v2, v1);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;       
         case 0xF8:
         case 0xF9:
@@ -181,13 +191,15 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FDIV STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
-            u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             if(ST_IS_F(0)) {
                 VDIV_F32(v1, v1, v2);
             } else {
                 VDIV_F64(v1, v1, v2);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             break;
         default:
             switch((nextop>>3)&7) {
@@ -205,9 +217,11 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
-                    u8 = x87_setround(dyn, ninst, x1, x2, x14);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VADD_F64(v1, v1, d1);
-                    x87_restoreround(dyn, ninst, u8);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 1:
                     INST_NAME("FMUL ST0, double[ED]");
@@ -223,9 +237,11 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
-                    u8 = x87_setround(dyn, ninst, x1, x2, x14);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VMUL_F64(v1, v1, d1);
-                    x87_restoreround(dyn, ninst, u8);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 2:
                     INST_NAME("FCOM ST0, double[ED]");
@@ -276,9 +292,11 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
-                    u8 = x87_setround(dyn, ninst, x1, x2, x14);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VSUB_F64(v1, v1, d1);
-                    x87_restoreround(dyn, ninst, u8);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 5:
                     INST_NAME("FSUBR ST0, double[ED]");
@@ -294,9 +312,11 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
-                    u8 = x87_setround(dyn, ninst, x1, x2, x14);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VSUB_F64(v1, d1, v1);
-                    x87_restoreround(dyn, ninst, u8);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 6:
                     INST_NAME("FDIV ST0, double[ED]");
@@ -312,9 +332,11 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
-                    u8 = x87_setround(dyn, ninst, x1, x2, x14);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VDIV_F64(v1, v1, d1);
-                    x87_restoreround(dyn, ninst, u8);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
                 case 7:
                     INST_NAME("FDIVR ST0, double[ED]");
@@ -330,9 +352,11 @@ uintptr_t dynarecDC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         LDR_IMM9(x3, wback, fixedaddress+4);
                         VMOVtoV_D(d1, x2, x3);
                     }
-                    u8 = x87_setround(dyn, ninst, x1, x2, x14);
+                    if(!box86_dynarec_fastround)
+                        u8 = x87_setround(dyn, ninst, x1, x2, x14);
                     VDIV_F64(v1, d1, v1);
-                    x87_restoreround(dyn, ninst, u8);
+                    if(!box86_dynarec_fastround)
+                        x87_restoreround(dyn, ninst, u8);
                     break;
             }
     }
