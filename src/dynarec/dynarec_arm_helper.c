@@ -529,9 +529,7 @@ void call_ddr(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int arg, int
         BLX(reg);
     }
     #ifdef ARM_SOFTFP
-    if(n!=1) {
-        POP(xSP, (1<<2) | (1<<3));
-    }
+    POP(xSP, (1<<2) | (1<<3));
     VMOVtoV_64(0, 0, 1);    // load r0:r1 to D0 to simulate hardfo
     #endif
     fpu_popcache(dyn, ninst, reg);
