@@ -368,11 +368,13 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             // seems that tan of glib doesn't follow the rounding direction mode
-            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);    // prepare call to tan
-            CALL_1D(tan, 0);
+            CALL_1D(tan, box86_dynarec_fastround ? 0 : (1 << u8));
             VMOV_64(v1, 0);
-            //x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; 
             //emu->sw.f.F87_C1 = 0; 
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
@@ -560,13 +562,15 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             v2 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             // seems that sin and cos function of glibc don't follow the rounding mode
-            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);
-            CALL_1D(sin, 0);
+            CALL_1D(sin, box86_dynarec_fastround ? 0 : (1 << u8));
             VSWP(v1, 0);
-            CALL_1D(cos, 0);    // would it be faster to do sqrt(1-sin()²) ???
+            CALL_1D(cos, box86_dynarec_fastround ? 0 : (1 << u8));    // would it be faster to do sqrt(1-sin()²) ???
             VMOV_64(v2, 0);
-            //x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C2 C1 = 0 0
@@ -620,11 +624,13 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FSIN");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             // seems that sin of glib doesn't follow the rounding direction mode
-            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);    // prepare call to sin
-            CALL_1D(sin, 0);
+            CALL_1D(sin, box86_dynarec_fastround ? 0 : (1 << u8));
             VMOV_64(v1, 0);
-            //x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C2 C1 = 0 0
@@ -634,11 +640,13 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FCOS");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             // seems that cos of glib doesn't follow the rounding direction mode
-            //u8 = x87_setround(dyn, ninst, x1, x2, x14);
+            if(!box86_dynarec_fastround)
+                u8 = x87_setround(dyn, ninst, x1, x2, x14);
             VMOV_64(0, v1);    // prepare call to cos
-            CALL_1D(cos, 0);
+            CALL_1D(cos, box86_dynarec_fastround ? 0 : (1 << u8));
             VMOV_64(v1, 0);
-            //x87_restoreround(dyn, ninst, u8);
+            if(!box86_dynarec_fastround)
+                x87_restoreround(dyn, ninst, u8);
             //emu->sw.f.F87_C2 = 0; C1 too
             LDRH_IMM8(x1, xEmu, offsetof(x86emu_t, sw));
             BFC(x1, 9, 2); //C2 C1 = 0 0
