@@ -998,10 +998,10 @@ add_test(bswap ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref23.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
     
-#add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
-#        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test24 -D TEST_OUTPUT=tmpfile24.txt
-#        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref24.txt
-#        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test24 -D TEST_OUTPUT=tmpfile24.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref24.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX86}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
