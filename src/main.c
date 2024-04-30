@@ -1202,17 +1202,24 @@ static void add_argv(const char* what) {
 
 static void load_rcfiles()
 {
+ char* rcpath = getenv("BOX86_RCFILE");
+
+    if(rcpath && FileExist(rcpath, IS_FILE))
+	LoadRCFile(rcpath);
+        
     #ifndef TERMUX
-    if(FileExist("/etc/box86.box86rc", IS_FILE))
+    else if(FileExist("/etc/box86.box86rc", IS_FILE))
         LoadRCFile("/etc/box86.box86rc");
     #else
-    if(FileExist("/data/data/com.termux/files/usr/etc/box86.box86rc", IS_FILE))
+    else if(FileExist("/data/data/com.termux/files/usr/etc/box86.box86rc", IS_FILE))
         LoadRCFile("/data/data/com.termux/files/usr/etc/box86.box86rc");
     #endif
     #ifdef PANDORA
-    if(FileExist("/mnt/utmp/codeblocks/usr/etc/box86.box86rc", IS_FILE))
+    else if(FileExist("/mnt/utmp/codeblocks/usr/etc/box86.box86rc", IS_FILE))
         LoadRCFile("/mnt/utmp/codeblocks/usr/etc/box86.box86rc");
     #endif
+    else
+        LoadRCFile(NULL);   // load default rcfile
     char* p = getenv("HOME");
     if(p) {
         char tmp[4096];
