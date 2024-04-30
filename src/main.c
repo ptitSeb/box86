@@ -1218,8 +1218,8 @@ static void load_rcfiles()
     else if(FileExist("/mnt/utmp/codeblocks/usr/etc/box86.box86rc", IS_FILE))
         LoadRCFile("/mnt/utmp/codeblocks/usr/etc/box86.box86rc");
     #endif
-    else
-        LoadRCFile(NULL);   // load default rcfile
+    // else
+    //     LoadRCFile(NULL);   // load default rcfile
     char* p = getenv("HOME");
     if(p) {
         char tmp[4096];
