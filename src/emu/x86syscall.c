@@ -770,7 +770,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
         case 449:
             #ifdef __NR_futex_waitv
             if(box86_futex_waitv)
-                S_EAX = syscall(R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+                S_EAX = syscall(__NR_futex_waitv, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
             else
             #endif
                 S_EAX = -ENOSYS;

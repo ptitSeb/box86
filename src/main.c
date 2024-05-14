@@ -1412,10 +1412,6 @@ int main(int argc, const char **argv, char **env)
     if(!strcmp(prog, "wineserver") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
         box86_wine = 1;
     }
-    if(box86_wine) {
-        // disabling the use of futex_waitv for now
-        setenv("WINEFSYNC", "0", 1);
-    }
     // Create a new context
     my_context = NewBox86Context(argc - nextarg);
 
