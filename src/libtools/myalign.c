@@ -1,5 +1,6 @@
 #undef _LARGEFILE_SOURCE
 #undef _FILE_OFFSET_BITS
+#undef _TIME_BITS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
