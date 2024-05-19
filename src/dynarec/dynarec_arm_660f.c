@@ -804,7 +804,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
-                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET_DF);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     nextop = F8;
                     GETG;
                     if(!sse_reflect_reg(dyn, ninst, gd, x2)) {
