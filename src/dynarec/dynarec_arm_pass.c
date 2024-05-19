@@ -271,15 +271,15 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             }
             #endif
         }
-        if(ok && dyn->insts[ninst].x86.has_callret)
+        if((ok>0) && dyn->insts[ninst].x86.has_callret)
             reset_n = -2;
         ++ninst;
         #if STEP == 0
         memset(&dyn->insts[ninst], 0, sizeof(instruction_arm_t));
-        if(ok && (((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)addr)) 
+        if((ok>0) && (((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)addr)) 
             || (addr>=box86_nodynarec_start && addr<box86_nodynarec_end)))
         #else
-        if(ok && (ninst==dyn->size))
+        if((ok>0) && (ninst==dyn->size))
         #endif
         {
             #if STEP == 0
