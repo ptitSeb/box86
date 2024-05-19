@@ -601,10 +601,10 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 }
 
 // x87 stuffs
-void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
+int x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     if(!dyn->n.x87stack)
-        return;
+        return 0;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, scratch);
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->n.x87stack);
@@ -631,6 +631,39 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     dyn->n.stack_next -= dyn->n.stack;
     dyn->n.stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
+    return a;
+}
+
+void x87_unstackcount(dynarec_arm_t* dyn, int ninst, int scratch, int count)
+{
+    if(!count)
+        return;
+    if(dyn->n.mmxcount)
+        mmx_purgecache(dyn, ninst, 0, scratch);
+    MESSAGE(LOG_DUMP, "\tSynch x87 Unstackcount (%d)\n", dyn->n.x87stack);
+    int a = -count;
+    // Add x87stack to emu fpu_stack
+    LDR_IMM9(scratch, xEmu, offsetof(x86emu_t, fpu_stack));
+    if(a>0) {
+        ADD_IMM8(scratch, scratch, a);
+    } else {
+        SUB_IMM8(scratch, scratch, -a);
+    }
+    STR_IMM9(scratch, xEmu, offsetof(x86emu_t, fpu_stack));
+    // Sub x87stack to top, with and 7
+    LDR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
+    if(a>0) {
+        SUB_IMM8(scratch, scratch, a);
+    } else {
+        ADD_IMM8(scratch, scratch, -a);
+    }
+    AND_IMM8(scratch, scratch, 7);
+    STR_IMM9(scratch, xEmu, offsetof(x86emu_t, top));
+    // reset x87stack, but not the stack count of neoncache
+    dyn->n.x87stack = count;
+    dyn->n.stack = count;
+    dyn->n.stack_next += dyn->n.stack;
+    MESSAGE(LOG_DUMP, "\t------x87 Unstackcount\n");
 }
 
 int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b)

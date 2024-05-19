@@ -251,7 +251,9 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {MOV_REG(x1, ed);}
+                    s0 = x87_stackcount(dyn, ninst, x3);
                     CALL(fpu_fbld, -1, 0);
+                    x87_unstackcount(dyn, ninst, x3, s0);
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
@@ -314,7 +316,9 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {MOV_REG(x1, ed);}
+                    s0 = x87_stackcount(dyn, ninst, x3);
                     CALL(fpu_fbst, -1, 0);
+                    x87_unstackcount(dyn, ninst, x3, s0);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 7: // could be inlined for most thing, but is it usefull?

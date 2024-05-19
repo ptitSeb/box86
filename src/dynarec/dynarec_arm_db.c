@@ -268,16 +268,14 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(PK(0)==0xDB && ((PK(1)>>3)&7)==7) {
                         // the FLD is immediatly followed by an FSTP
-                        LDR_IMM9(x2, ed, 0);
-                        LDR_IMM9(x3, ed, 4);
+                        LDM(ed, (1<<x2)|(1<<x3));
                         LDRH_IMM8(x14, ed, 8);
                         // no persistant scratch register, so unrool both instruction here...
                         MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
                         nextop = F8;    //0xDB
                         nextop = F8;    //modrm
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
-                        STR_IMM9(x2, ed, 0);
-                        STR_IMM9(x3, ed, 4);
+                        STM(ed, (1<<x2)|(1<<x3));
                         STRH_IMM8(x14, ed, 8);
                     } else {
                         if(box86_x87_no80bits) {

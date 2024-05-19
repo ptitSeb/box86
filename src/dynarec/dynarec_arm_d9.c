@@ -366,7 +366,9 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_do_push_empty(dyn, ninst, 0);
             x87_forget(dyn, ninst, x1, x2, 1);
+            s0 = x87_stackcount(dyn, ninst, x3);
             CALL(arm_fxtract, -1, 0);
+            x87_unstackcount(dyn, ninst, x3, s0);
             // C1 set only if stack under/overflow occurs
             break;
         case 0xF5:
