@@ -14,6 +14,8 @@ typedef struct x86emu_s x86emu_t;
 #define LN2		0.69314718055994531
 #define LG2		0.3010299956639812
 
+#define TAGS_EMPTY 0b1111111111111111
+
 #define ST0 emu->x87[emu->top]
 #define ST1 emu->x87[(emu->top+1)&7]
 #define ST(a) emu->x87[(emu->top+(a))&7]
@@ -36,7 +38,8 @@ static inline void fpu_do_push(x86emu_t* emu)
         return;
     }
     emu->sw.f.F87_C1 = 0;
-    emu->p_regs[newtop].tag = 0;    // full
+    emu->fpu_tags<<=2;  // st0 full
+    emu->fpu_tags &= TAGS_EMPTY;
     emu->top = newtop;
 }
 
@@ -51,17 +54,24 @@ static inline void fpu_do_pop(x86emu_t* emu)
     if(emu->fpu_stack>0)
         --emu->fpu_stack;
     
-    emu->p_regs[curtop].tag = 0b11;    // empty
+    emu->fpu_tags>>=2;
+    emu->fpu_tags |= 0b1100000000000000;    // top empty
     emu->top = (emu->top+1)&7;
+    // check tags
+    /*while((emu->fpu_tags&0b11) && emu->fpu_stack) {
+        --emu->fpu_stack;
+        emu->top = (emu->top+1)&7;
+        emu->fpu_tags>>=2;
+        emu->fpu_tags |= 0b1100000000000000;    // top empty
+    }*/
 }
 
 static inline void fpu_do_free(x86emu_t* emu, int i)
 {
-    emu->p_regs[(emu->top+i)&7].tag = 0b11;    // empty
+    emu->fpu_tags |= 0b11 << (i);   // empty
     // check if all empty
-    for(int i=0; i<8; ++i)
-        if(emu->p_regs[i].tag != 0b11)
-            return;
+    if(emu->fpu_tags != TAGS_EMPTY)
+        return;
     emu->fpu_stack = 0;
 }
 

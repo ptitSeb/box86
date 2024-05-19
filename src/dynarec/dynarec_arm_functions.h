@@ -101,4 +101,6 @@ const char* getCacheName(int t, int n);
 void inst_name_pass3(dynarec_arm_t* dyn, int ninst, const char* name);
 void print_opcode(dynarec_arm_t* dyn, int ninst, uint32_t opcode);
 
+// is st freed
+int fpu_is_st_freed(dynarec_arm_t* dyn, int ninst, int st);
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

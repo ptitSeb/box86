@@ -64,7 +64,7 @@ typedef struct x86emu_s {
     int         fpu_stack;
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
-	fpu_p_reg_t p_regs[8];
+	uint32_t    fpu_tags; // tags for the x87 regs, stacked, only on a 16bits anyway
     // sse
     sse_regs_t  xmm[8];
     mmxcontrol_t mxcsr;

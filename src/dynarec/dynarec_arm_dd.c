@@ -46,9 +46,20 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
         case 0xC7:
             INST_NAME("FFREE STx");
+            #if 1
+            if((nextop&7)==0 && PK(0)==0xD9 && PK(1)==0xF7) {
+                MESSAGE(LOG_DUMP, "Hack for FFREE ST0 / FINCSTP\n");
+                x87_do_pop(dyn, ninst, x1);
+                addr+=2;
+                SKIPTEST(x1);
+            } else
+                x87_free(dyn, ninst, x1, x2, x3, nextop&7);
+            #else
+            INST_NAME("FFREE STx");
             x87_purgecache(dyn, ninst, 0, x1, x2, x3);
             MOVW(x1, nextop&7);
             CALL(fpu_do_free, -1, 0);
+            #endif
             break;
         case 0xD0:
         case 0xD1:

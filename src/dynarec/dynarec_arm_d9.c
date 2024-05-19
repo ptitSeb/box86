@@ -134,25 +134,29 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             i1 = x87_get_current_cache(dyn, ninst, 0, NEON_CACHE_ST_D);
             // value put in x14
             if(i1==-1) {
-                // not in cache, so check Empty status and load it
-                // x14 will be the actual top
-                LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
-                i2 = -dyn->n.x87stack;
-                if(i2) {
-                    if(i2<0) {
-                        SUB_IMM8(x14, x14, -i2);
-                    } else {
-                        ADD_IMM8(x14, x14, i2);
+                if(fpu_is_st_freed(dyn, ninst, 0)) {
+                    MOV32(x14, 0b100000100000000);
+                    B_MARK3(c__);
+                } else {                // not in cache, so check Empty status and load it
+                    // x14 will be the actual top
+                    LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
+                    i2 = -dyn->n.x87stack;
+                    if(i2) {
+                        if(i2<0) {
+                            SUB_IMM8(x14, x14, -i2);
+                        } else {
+                            ADD_IMM8(x14, x14, i2);
+                        }
+                        AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
                     }
-                    AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
+                    // load tag
+                    LDRH_IMM8(x3, xEmu, offsetof(x86emu_t, fpu_tags));
+                    TSTS_IMM8(x3, 0b11);
+                    MOVW_COND(cNE, x14, 0b100000100000000);
+                    B_MARK3(cNE);
+                    ADD_REG_LSL_IMM5(x1, xEmu, x14, 3);
+                    LDRD_IMM8(x2, x1, offsetof(x86emu_t, x87)); // load r2/r3 with ST0 anyway, for sign extraction
                 }
-                ADD_REG_LSL_IMM5(x1, xEmu, x14, 3);
-                LDRD_IMM8(x2, x1, offsetof(x86emu_t, x87)); // load r2/r3 with ST0 anyway, for sign extraction
-                ADD_REG_LSL_IMM5(x1, xEmu, x14, 2);
-                LDR_IMM9(x1, x1, offsetof(x86emu_t, p_regs));
-                CMPS_IMM8(x1, 0b11);
-                MOVW_COND(cEQ, x14, 0b100000100000000); // empty: C3,C2,C0 = 101
-                B_MARK3(cEQ);
             } else {
                 // simply move from cache reg to r2/r3
                 v1 = dyn->n.x87reg[i1];

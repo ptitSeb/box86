@@ -1606,7 +1606,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(box86_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // lets play safe here too
             }
-            BARRIER(BARRIER_FLOAT);
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3); // using next, even if there no next
             i32 = F16;
             retn_to_epilog(dyn, ninst, i32);
             *need_epilog = 0;
@@ -1619,7 +1619,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             if(box86_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
             }
-            BARRIER(BARRIER_FLOAT);
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3); // using next, even if there no next
             ret_to_epilog(dyn, ninst);
             *need_epilog = 0;
             *ok = 0;
@@ -2321,15 +2321,16 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    if(box86_dynarec_callret && box86_dynarec_bigblock>1) {
+                    /*if(box86_dynarec_callret && box86_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                         BARRIER_NEXT(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
                         *ok = 0;
-                    }
+                    }*/
                     MOV32(x2, addr);
+                    fpu_purgecache(dyn, ninst, 1, x1, x3, x14);
                     PUSH1(x2);
                     if(box86_dynarec_callret) {
                         SET_HASCALLRET();
@@ -2815,7 +2816,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET_DF);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                     if(ninst && dyn->insts && (nextop==0xF0)
                        && dyn->insts[ninst-1].x86.addr 
                        && *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0xB8 

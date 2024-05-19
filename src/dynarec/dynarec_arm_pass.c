@@ -139,7 +139,6 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         #if STEP > 0
         if(!dyn->insts[ninst].x86.has_next && dyn->insts[ninst].x86.jmp && dyn->insts[ninst].x86.jmp_insts!=-1)
             next = dyn->insts[ninst].x86.jmp_insts;
-        #endif
         if(dyn->insts[ninst].x86.has_next && dyn->insts[next].x86.barrier) {
             if(dyn->insts[next].x86.barrier&BARRIER_FLOAT)
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
@@ -148,6 +147,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 dyn->f.dfnone = 0;
             }
         }
+        #endif
         #ifndef PROT_READ
         #define PROT_READ 1
         #endif
@@ -188,6 +188,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
+                reset_n = get_first_jump(dyn, addr);
                 if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x86.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to);
                 if(dyn->insts[dyn->forward_ninst].x86.has_callret && !dyn->insts[dyn->forward_ninst].x86.has_next)
                     dyn->insts[dyn->forward_ninst].x86.has_next = 1;  // this block actually continue
@@ -267,6 +268,8 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             }
             #endif
         }
+        if(ok && dyn->insts[ninst].x86.has_callret)
+            reset_n = -2;
         ++ninst;
         #if STEP == 0
         if(ok && (((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)addr)) 

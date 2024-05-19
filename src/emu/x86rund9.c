@@ -197,7 +197,10 @@ uintptr_t RunD9(x86emu_t *emu, uintptr_t addr)
             emu->top=(emu->top-1)&7;    // this will probably break a few things
             break;
         case 0xF7:  /* FINCSTP */
-            emu->top=(emu->top+1)&7;    // this will probably break a few things
+            if(emu->fpu_tags&0b11)
+                fpu_do_pop(emu);
+            else
+                emu->top=(emu->top+1)&7;    // this will probably break a few things
             break;
         case 0xF9:  /* FYL2XP1 */
             // Using the log1p instead of log2(ST0+1) can avoid losing precision much,

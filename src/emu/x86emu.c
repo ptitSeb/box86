@@ -219,7 +219,7 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
 	memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
-	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
+	newemu->fpu_tags = emu->fpu_tags;
 	newemu->cw = emu->cw;
 	newemu->sw = emu->sw;
 	newemu->top = emu->top;
@@ -252,7 +252,7 @@ void CopyEmu(x86emu_t *newemu, const x86emu_t* emu)
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
-	memcpy(newemu->p_regs, emu->p_regs, sizeof(emu->p_regs));
+	newemu->fpu_tags = emu->fpu_tags;
 	newemu->cw = emu->cw;
 	newemu->sw = emu->sw;
 	newemu->top = emu->top;

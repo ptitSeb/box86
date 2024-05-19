@@ -106,7 +106,7 @@ void add_jump(dynarec_arm_t *dyn, int ninst) {
 int get_first_jump(dynarec_arm_t *dyn, int next) {
     for(int i=0; i<dyn->jmp_sz; ++i)
         if(dyn->insts[dyn->jmps[i]].x86.jmp == next)
-            return i;
+            return dyn->jmps[i];
     return -2;
 }
 
@@ -511,9 +511,11 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
                 if(helper.insts[i2].x86.addr==j)
                     k=i2;
             }*/
-            if(k!=-1 && !helper.insts[i].barrier_maybe)
-                helper.insts[k].x86.barrier |= BARRIER_FULL;
-            helper.insts[i].x86.jmp_insts = k;
+            if(k!=-1) {
+                if(k!=-1 && !helper.insts[i].barrier_maybe)
+                    helper.insts[k].x86.barrier |= BARRIER_FULL;
+                helper.insts[i].x86.jmp_insts = k;
+            }
         }
     }
     // no need for next and jmps anymore
