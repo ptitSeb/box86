@@ -508,7 +508,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Ed, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     GETEDO2(x14);
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
@@ -519,7 +519,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCR Ed, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
                     CALL_(rcr32, ed, (1<<x2));
@@ -601,7 +601,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Ed, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
                     CALL_(rcl32, ed, (1<<x2));
@@ -611,7 +611,7 @@ uintptr_t dynarecGS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCR Ed, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     if(ed!=x1) {MOV_REG(x1, ed); wb = x1;}
                     CALL_(rcr32, ed, (1<<x14));

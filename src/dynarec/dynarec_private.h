@@ -24,17 +24,21 @@
 #define SF_SUB      4
 #define SF_SUBSET   (SF_SUB|SF_SET)
 #define SF_SUBSET_PENDING   (SF_SUBSET|SF_PENDING)
+#define SF_DF       8
+#define SF_SET_DF   (SF_SET|SF_DF)
+#define SF_NODF     16
+#define SF_SET_NODF (SF_SET|SF_NODF)
 
 typedef struct instruction_x86_s {
     uintptr_t   addr;   //address of the instruction
     int32_t     size;   // size of the instruction
     uintptr_t   jmp;    // offset to jump to, even if conditionnal (0 if not), no relative offset here
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
-    uint8_t     jmp_cond;   // 1 of conditionnal jump
-    uint8_t     has_next;   // does this opcode can continue to the next?
+    uint8_t     jmp_cond:1; // 1 of conditionnal jump
+    uint8_t     has_next:1; // does this opcode can continue to the next?
+    uint8_t     has_callret:1;    // this instruction have an optimised call setup
     uint8_t     barrier;    // next instruction is a jump point, so no optim allowed
     uint8_t     barrier_next;   // next instruction needs a barrier
-    uint8_t     has_callret;    // this instruction have an optimised call setup
     uint8_t     state_flags;// One of SF_XXX state
     uint8_t     use_flags;  // 0 or combination of X_?F
     uint8_t     set_flags;  // 0 or combination of X_?F

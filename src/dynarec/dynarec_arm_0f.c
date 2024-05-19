@@ -93,7 +93,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 0xD0:
                     INST_NAME("FAKE xgetbv");
                     addr = fakeed(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                     //CALL(arm_ud, -1, 0);
                     SKIPTEST(x14);
                     UDF(0);
@@ -147,7 +147,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0x0B:
             INST_NAME("UD2");
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             //CALL(arm_ud, -1, 0);
             SKIPTEST(x14);
             UDF(0);
@@ -444,7 +444,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             nextop = F8;
             GETGX(v0, 0);
             if(MODREG) {
@@ -1644,7 +1644,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             AND_IMM8(x3, xECX, 0x1f);
             GETED;
             GETGD;
@@ -1702,7 +1702,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, Ib");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             GETED;
             GETGD;
             u8 = F8;
@@ -1712,7 +1712,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             AND_IMM8(x3, xECX, 0x1f);
             GETED;
             GETGD;
@@ -1785,7 +1785,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     case 5:
                         INST_NAME("XRSTOR Ed (not implemented");
                         FAKEED;
-                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                         STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
                         STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
                         CALL(arm_ud, -1, 0);

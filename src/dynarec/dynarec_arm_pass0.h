@@ -12,9 +12,9 @@
         dyn->f.pending=SF_SET
 #define SETFLAGS(A,B)   \
         dyn->insts[ninst].x86.set_flags = A;    \
-        dyn->insts[ninst].x86.state_flags = B;  \
+        dyn->insts[ninst].x86.state_flags = (B)&~SF_DF;  \
         dyn->f.pending=(B)&SF_SET_PENDING;      \
-        dyn->f.dfnone=((B)&SF_SET)?1:0;
+        dyn->f.dfnone=((B)&SF_SET)?(((B)==SF_SET_NODF)?0:1):0;
 #define EMIT(A)     
 #define JUMP(A, C)      add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x86.jmp = A; dyn->insts[ninst].x86.jmp_cond = C
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x86.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1

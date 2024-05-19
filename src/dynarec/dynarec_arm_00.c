@@ -352,7 +352,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("DAA");
             MESSAGE(LOG_DUMP, "Need Optimization DAA\n");
             READFLAGS(X_AF|X_CF);
-            SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             UXTB(x1, xEAX, 0);
             CALL_(daa8, x1, 0);
             BFI(xEAX, x1, 0, 8);
@@ -414,7 +414,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("DAS");
             MESSAGE(LOG_DUMP, "Need Optimization DAS\n");
             READFLAGS(X_AF|X_CF);
-            SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             UXTB(x1, xEAX, 0);
             CALL_(das8, x1, 0);
             BFI(xEAX, x1, 0, 8);
@@ -476,7 +476,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("AAA");
             MESSAGE(LOG_DUMP, "Need Optimization AAA\n");
             READFLAGS(X_AF);
-            SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             UXTH(x1, xEAX, 0);
             CALL_(aaa16, x1, 0);
             BFI(xEAX, x1, 0, 16);
@@ -544,7 +544,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("AAS");
             MESSAGE(LOG_DUMP, "Need Optimization AAS\n");
             READFLAGS(X_AF);
-            SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             UXTH(x1, xEAX, 0);
             CALL_(aas16, x1, 0);
             BFI(xEAX, x1, 0, 16);
@@ -1239,7 +1239,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x9D:
             INST_NAME("POPF");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             POP1(xFlags);
             MOV32(x1, 0x3F7FD7);
             AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
@@ -1441,7 +1441,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Eb, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1452,7 +1452,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCR Eb, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization RCR\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEB(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1524,7 +1524,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Ed, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEDW(x14, x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -1563,7 +1563,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         WBACK;
                     } else if(u8>1) {
                         MESSAGE(LOG_DUMP, "Need Optimization RCR\n");
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_DF);
                         MOVW(x2, u8);
                         CALL_(rcr32, ed, (1<<x14));
                         WBACK;
@@ -1602,7 +1602,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC2:
             INST_NAME("RETN");
-            //SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            //SETFLAGS(X_ALL,_NODF SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
             if(box86_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // lets play safe here too
             }
@@ -1614,7 +1614,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xC3:
             INST_NAME("RET");
-            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            // SETFLAGS(X_ALL,_NODF SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
             // ^^^ that hack break PlantsVsZombies and GOG Setup under wine....
             if(box86_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // so instead, force the defered flags, so it's not too slow, and flags are not lost
@@ -1666,7 +1666,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
 
         case 0xCC:
-            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 BARRIER(BARRIER_FLOAT);
@@ -1734,7 +1734,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             }
             break;
         case 0xCD:
-            SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
             SKIPTEST(x14);
             SMEND();
             u8 = F8;
@@ -1765,7 +1765,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xCF:
             INST_NAME("IRET");
-            SETFLAGS(X_ALL, SF_SET);    // Not a hack, EFLAGS are restored
+            SETFLAGS(X_ALL, SF_SET_DF);    // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
             iret_to_epilog(dyn, ninst);
             *need_epilog = 0;
@@ -1793,7 +1793,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Eb, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL 8b\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     GETEB(x1);
                     CALL_(rcl8, x1, (1<<x3));
@@ -1803,7 +1803,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCR Eb, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization RCR 8b\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     GETEB(x1);
                     CALL_(rcr8, x1, (1<<x3));
@@ -1855,7 +1855,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Ed, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     GETEDW(x14, x1);
                     CALL_(rcl32, ed, (1<<x14));
@@ -1864,16 +1864,8 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ed, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     GETED;
-                    IFX(X_PEND) {
-                        STR_IMM9(ed, xEmu, offsetof(x86emu_t, op1));
-                        MOVW(x3, 1);
-                        STR_IMM9(x3, xEmu, offsetof(x86emu_t, op2));
-                        SET_DF(x3, d_rcr32);
-                    } else IFX(X_ALL) {
-                        SET_DFNONE(x3);
-                    }
                     IFX(X_OF) {
                         XOR_REG_LSR_IMM8(x3, xFlags, ed, 31);
                         BFI(xFlags, x3, F_OF, 1);
@@ -1969,7 +1961,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Eb, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL 8b\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEB(x1);
                     CALL_(rcl8, x1, (1<<x3));
@@ -1979,7 +1971,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCR Eb, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization RCR 8b\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEB(x1);
                     CALL_(rcr8, x1, (1<<x3));
@@ -2084,7 +2076,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCL Ed, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization RCL\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcl32, ed, (1<<x14));
@@ -2094,7 +2086,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("RCR Ed, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization RCR\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEDW(x14, x1);
                     CALL_(rcr32, ed, (1<<x14));
@@ -2132,7 +2124,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xD4:
             INST_NAME("AAM Ib");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             UBFX(x1, xEAX, 0, 8);    // load AL
             u8 = F8;
             MOVW(x2, u8);
@@ -2141,7 +2133,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xD5:
             INST_NAME("AAD Ib");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             UBFX(x1, xEAX, 0, 16);    // load AX
             u8 = F8;
             MOVW(x2, u8);
@@ -2264,14 +2256,14 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             #endif
             switch(tmp) {
                 case 1:
-                    //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    //SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call 0\n");
                     SKIPTEST(x14);
                     MOV32(xEIP, addr);
                     PUSH1(xEIP);
                     break;
                 case 2:
-                    //SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    //SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
                     SKIPTEST(x14);
                     u8 = PK(i32+1);
@@ -2279,7 +2271,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV32(gd, addr);
                     break;
                 case 3:
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     BARRIER(BARRIER_FULL);
                     BARRIER_NEXT(BARRIER_FULL);
                     MOV32(x2, addr);
@@ -2326,7 +2318,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     if((box86_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x86.set_flags)) {
                         READFLAGS(X_PEND);  // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
                     if(box86_dynarec_callret && box86_dynarec_bigblock>1) {
@@ -2401,7 +2393,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
             INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX? AL":"OUT DX, EAX")));
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
             MOV32(xEIP, ip);
             STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
@@ -2517,7 +2509,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         if(box86_dynarec_safeflags>1) {
                             READFLAGS(X_PEND);
                         } else {
-                            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
+                            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                         }
                         BARRIER(BARRIER_FLOAT);
                         ret_to_epilog(dyn, ninst);
@@ -2761,7 +2753,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 6:
                     INST_NAME("DIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization DIV 8b\n");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     GETEB(x1);
                     STM(xEmu, (1<<xEAX));
                     CALL(div8, -1, 0);
@@ -2770,7 +2762,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("IDIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization IDIV 8b\n");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     GETEB(x1);
                     STM(xEmu, (1<<xEAX));
                     CALL(idiv8, -1, 0);
@@ -2823,7 +2815,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     if(ninst && dyn->insts && (nextop==0xF0)
                        && dyn->insts[ninst-1].x86.addr 
                        && *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0xB8 
@@ -2871,7 +2863,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 7:
                     INST_NAME("IDIV Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     if(arm_div && ninst && dyn->insts
                        &&  dyn->insts[ninst-1].x86.addr 
                        && *(uint8_t*)(dyn->insts[ninst-1].x86.addr)==0x99) {
@@ -2925,7 +2917,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xFA:
         case 0xFB:
             INST_NAME(opcode==0xFA?"STI":"CLI");
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             STM(xEmu, (1<<xEAX)|(1<<xECX)|(1<<xEDX)|(1<<xEBX)|(1<<xESP)|(1<<xEBP)|(1<<xESI)|(1<<xEDI)|(1<<xFlags));
             MOV32(xEIP, ip);
             STR_IMM9(xEIP, xEmu, offsetof(x86emu_t, ip));
@@ -2992,7 +2984,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETEDH(xEIP);
                     if(box86_dynarec_callret && box86_dynarec_bigblock>1) {

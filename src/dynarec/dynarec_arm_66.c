@@ -637,7 +637,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x9D:
             INST_NAME("POPF (16b)");
-            SETFLAGS(X_ALL, SF_SET);    // lower 16bits is all flags handled in dynarec
+            SETFLAGS(X_ALL, SF_SET_DF);    // lower 16bits is all flags handled in dynarec
             LDRHA_IMM8(x2, xESP, 2);
             MOV32(x1, 0x7FD7);
             AND_REG_LSL_IMM5(x2, x2, x1, 0);
@@ -753,7 +753,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("RCL Ew, Ib");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEW(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -763,7 +763,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ew, Ib");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEW(x1);
                     u8 = F8;
                     MOVW(x2, u8);
@@ -849,7 +849,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("RCL Ew, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     GETEW(x1);
                     CALL_(rcl16, x1, (1<<x3));
@@ -858,7 +858,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ew, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOVW(x2, 1);
                     GETEW(x1);
                     CALL_(rcr16, x1, (1<<x3));
@@ -942,7 +942,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 2:
                     INST_NAME("RCL Ew, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEW(x1);
                     CALL_(rcl16, x1, (1<<x3));
@@ -951,7 +951,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 3:
                     INST_NAME("RCR Ew, CL");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     AND_IMM8(x2, xECX, 0x1f);
                     GETEW(x1);
                     CALL_(rcr16, x1, (1<<x3));
@@ -1161,7 +1161,8 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("DIV Ew");
                     if(arm_div) {
                         GETEW(x1);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_DF);
+                        SET_DFNONE(x2);
                         UXTH(x2, xEAX, 0);
                         ORR_REG_LSL_IMM5(x2, x2, xEDX, 16);
                         UDIV(x3, x2, ed);
@@ -1170,7 +1171,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         BFI(xEDX, x14, 0, 16);
                     } else {
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_DF);
                         GETEW(x1);
                         STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                         CALL(div16, -1, 0);
@@ -1180,7 +1181,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 7:
                     INST_NAME("IDIV Ew");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     GETEW(x1);
                     STM(xEmu, (1<<xEAX) | (1<<xECX) | (1<<xEDX));
                     CALL(idiv16, -1, 0);

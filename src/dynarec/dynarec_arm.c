@@ -332,13 +332,9 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
         need |= dyn->insts[ninst].x86.need_after;
-        if((need&X_PEND) && (dyn->insts[ninst].x86.state_flags==SF_SUBSET)) {
+        if((need&X_PEND) && (dyn->insts[ninst].x86.state_flags==SF_SUBSET || dyn->insts[ninst].x86.state_flags==SF_SET || dyn->insts[ninst].x86.state_flags==SF_SET_NODF)) {
             need &=~X_PEND;
             need |= X_ALL;
-        }
-        if((need&X_PEND) && (dyn->insts[ninst].x86.state_flags==SF_SET)) {
-            need &=~X_PEND;
-            need |= dyn->insts[ninst].x86.set_flags;    // SF_SET will compute all flags, it's not SUBSET!
         }
         if((need&X_PEND) && dyn->insts[ninst].x86.state_flags==SF_SUBSET_PENDING) {
             need |= X_ALL&~(dyn->insts[ninst].x86.set_flags);
@@ -348,10 +344,11 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
             dyn->insts[ninst].x86.gen_flags |= X_PEND;
         dyn->insts[ninst].x86.need_after = need;
         need = dyn->insts[ninst].x86.need_after&~dyn->insts[ninst].x86.gen_flags;
+
         if(dyn->insts[ninst].x86.may_set)
             need |= dyn->insts[ninst].x86.gen_flags;    // forward the flags
         else if((need&X_PEND) && (dyn->insts[ninst].x86.set_flags&SF_PENDING))
-            need &=~X_PEND;     // Consume X_PEND if relevant
+            need &=~X_PEND;         // Consume X_PEND if relevant
         need |= dyn->insts[ninst].x86.use_flags;
         if(dyn->insts[ninst].x86.need_before == need)
             return ninst - 1;
@@ -478,10 +475,10 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     for(int ii=0; ii<helper.jmp_sz; ++ii) {
         int i = helper.jmps[ii];
         uintptr_t j = helper.insts[i].x86.jmp;
+        helper.insts[i].x86.jmp_insts = -1;
         if(j<start || j>=end || j==helper.insts[i].x86.addr) {
             if(j==helper.insts[i].x86.addr) // if there is a loop on some opcode, make the block "always to tested"
                 helper.always_test = 1;
-            helper.insts[i].x86.jmp_insts = -1;
             helper.insts[i].x86.need_after |= X_PEND;
         } else {
             // find jump address instruction

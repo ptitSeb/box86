@@ -276,7 +276,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
@@ -804,7 +804,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
-                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET_DF);
                     nextop = F8;
                     GETG;
                     if(!sse_reflect_reg(dyn, ninst, gd, x2)) {
@@ -1836,7 +1836,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 INST_NAME("SHLD Ew, Gw, CL");
             }
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             GETEWW(x14, x1);
             GETGW(x2);
             if(opcode==0xA4) {
@@ -1888,7 +1888,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
                 INST_NAME("SHRD Ew, Gw, CL");
             }
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_DF);
             GETEWW(x14, x1);
             GETGW(x2);
             if(opcode==0xAC) {

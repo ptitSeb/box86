@@ -349,6 +349,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
 void iret_to_epilog(dynarec_arm_t* dyn, int ninst)
 {
     MESSAGE(LOG_DUMP, "IRet epilog\n");
+    SET_DFNONE(x1);
     // POP IP
     POP1(xEIP);
     // POP CS
@@ -395,7 +396,6 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, uint32_t
     if(saveflags) {
         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
-    SET_NODF();
 }
 
 #if defined(__ARM_PCS) && !defined(__ARM_PCS_VFP)
@@ -447,7 +447,6 @@ void call_dr(dynarec_arm_t* dyn, int ninst, int reg, int n, int s1, int ret, int
     if(saveflags) {
         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
-    SET_NODF();
 }
 // call a function with n double args (taking care of the SOFTFP / HARD call) that return a double too
 void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg, int ret, uint32_t mask, int saveflags)
@@ -496,7 +495,6 @@ void call_d(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int n, int reg
     if(saveflags) {
         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
-    SET_NODF();
 }
 // call a function with 1 double arg (taking care of the SOFTFP / HARD call) and 1 non-float arg that return a double
 void call_ddr(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int arg, int reg, int ret, uint32_t mask, int saveflags)
@@ -542,7 +540,6 @@ void call_ddr(dynarec_arm_t* dyn, int ninst, void* fnc, void* fnc2, int arg, int
     if(saveflags) {
         LDR_IMM9(xFlags, xEmu, offsetof(x86emu_t, eflags));
     }
-    SET_NODF();
 }
 
 // call a function with 1 arg, (taking care of the SOFTFP / HARD call) that return a double, using s1 as scratch
