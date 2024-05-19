@@ -69,6 +69,7 @@ typedef struct blocklist_s {
 } blocklist_t;
 
 #define MMAPSIZE (64*1024)      // allocate 64kb sized blocks
+#define DYNMMAPSZ (2*1024*1024) // allocate 2Mb block for dynarec
 
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static int                 c_blocks = 0;       // capacity of blocks for custom malloc
@@ -530,7 +531,7 @@ uintptr_t AllocDynarecMap(size_t size)
         // check if new
         if(!list->chunks[i].size) {
             // alloc a new block, aversized or not, we are at the end of the list
-            size_t allocsize = (sz>MMAPSIZE)?sz:MMAPSIZE;
+            size_t allocsize = (sz>DYNMMAPSZ)?sz:DYNMMAPSZ;
             // allign sz with pagesize
             allocsize = (allocsize+(box86_pagesize-1))&~(box86_pagesize-1);
             #ifndef USE_MMAP
@@ -542,10 +543,13 @@ uintptr_t AllocDynarecMap(size_t size)
             mprotect(p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
             #else
             void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-            if(p==(void*)-1) {
-                dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", allocsize);
+            if(p==MAP_FAILED) {
+                dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes (%s)\n", allocsize, strerror(errno));
                 return 0;
             }
+            #ifdef MADV_HUGEPAGE
+            madvise(p, allocsize, MADV_HUGEPAGE);
+            #endif
             #endif
 #ifdef TRACE_MEMSTAT
             dynarec_allocated += allocsize;
