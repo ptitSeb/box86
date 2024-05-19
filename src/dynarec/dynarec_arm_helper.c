@@ -293,12 +293,13 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
     SMEND();
     if(box86_dynarec_callret) {
         // pop the actual return address for ARM stack
-        LDM(xSP, (1<<x2)|(1<<x3));
-        CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
-        BXcond(cEQ, x2);
+        POP(xSP, (1<<x2)|(1<<x3));
+        CMPS_REG_LSL_IMM5(x2, xEIP, 0); // is it the right address?
+        BXcond(cEQ, x3);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        CMPS_IMM8(x2, 0);   // that was already the top of the stack...
+        CMPS_IMM8(x3, 0);   // that was already the top of the stack...
         LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave)); // load pointer only if not already on top
+        SUB_COND_IMM8(cEQ, xSP, xSP, 8);   // unpop
     }
     MOV32(x2, getJumpTable());
     MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
@@ -325,12 +326,13 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
     SMEND();
     if(box86_dynarec_callret) {
         // pop the actual return address for ARM stack
-        LDM(xSP, (1<<x2)|(1<<x3));
-        CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
-        BXcond(cEQ, x2);
+        POP(xSP, (1<<x2)|(1<<x3));
+        CMPS_REG_LSL_IMM5(x2, xEIP, 0); // is it the right address?
+        BXcond(cEQ, x3);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        CMPS_IMM8(x2, 0);   // that was already the top of the stack...
+        CMPS_IMM8(x3, 0);   // that was already the top of the stack...
         LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave));
+        SUB_COND_IMM8(cEQ, xSP, xSP, 8);   // unpop
     }
     MOV32(x2, getJumpTable());
     MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);

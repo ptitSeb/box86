@@ -365,7 +365,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     if(MODREG) {   // reg
                         MOV_REG(xEIP, xEAX+(nextop&7));
@@ -387,7 +387,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
-                            j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)):0;
+                            j32 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->arm_size)-8):0;
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j32>>2);
                             ADR(c__, x3, j32);
                         } else {
@@ -396,7 +396,7 @@ uintptr_t dynarecFS(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             MOV32(x3, j32);
                             LDR_IMM9(x3, x3, 0);
                         }
-                        STMDB(xSP, (1<<x2)|(1<<x3));
+                        PUSH(xSP, (1<<x2)|(1<<x3));
                     }
                     PUSH1(x2);
                     jump_to_next(dyn, 0, xEIP, ninst);

@@ -13,7 +13,7 @@ arm_epilog:
     // restore stack pointer
     ldr     sp, [r0, #(8*4+2*4)]
     pop     {r4, r5}
-    str     r5, [r0, #(8*4+2*4)]    // put back old value
+    str     r4, [r0, #(8*4+2*4)]    // put back old value
     //restore all used register
     vpop     {d8-d15}
     pop     {r4-r12, pc}
@@ -26,7 +26,7 @@ arm_epilog_fast:
     // restore stack pointer
     ldr     sp, [r0, #(8*4+2*4)]
     pop     {r4, r5}
-    str     r5, [r0, #(8*4+2*4)]    // put back old value
+    str     r4, [r0, #(8*4+2*4)]    // put back old value
     //restore all used register
     vpop     {d8-d15}
     pop     {r4-r12, pc}
