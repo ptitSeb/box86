@@ -665,6 +665,13 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         block->dirty = 1;
         //protectDB(addr, end-addr);
     }
+    if(getProtection(addr)&PROT_NEVERCLEAN) {
+        block->dirty = 1;
+        block->always_test = 1;
+    }
+    if(block->always_test) {
+        dynarec_log(LOG_DEBUG, "Note: block marked as always dirty %p:%ld\n", block->x86_addr, block->x86_size);
+    }
     current_helper = NULL;
     //block->done = 1;
     return (void*)block;

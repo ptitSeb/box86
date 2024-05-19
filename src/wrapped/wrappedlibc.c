@@ -2991,33 +2991,33 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
     #endif
     void* ret = mmap(new_addr, length, prot, flags, fd, offset);
     #ifndef NOALIGN
-    if(!addr && ret!=new_addr && ret!=(void*)-1) {
+    if(!addr && ret!=new_addr && ret!=MAP_FAILED) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         new_addr = findBlockNearHint(addr, length, 0);
         ret = mmap(new_addr, length, prot, flags, fd, offset);
-    } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
+    } else if(addr && ret!=MAP_FAILED && ret!=new_addr && 
       ((uintptr_t)ret&0xffff) && !(flags&MAP_FIXED) && box86_wine) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         new_addr = findBlockNearHint(addr, length, 0);
         ret = mmap(new_addr, length, prot, flags, fd, offset);
-        if(ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&0xffff) && box86_wine) {
+        if(ret!=MAP_FAILED && ret!=addr && ((uintptr_t)ret&0xffff) && box86_wine) {
             // addr is probably too high, start again with a low address
             munmap(ret, length);
             loadProtectionFromMap();    // reload map, because something went wrong previously
             new_addr = findBlockNearHint(NULL, length, 0); // is this the best way?
             ret = mmap(new_addr, length, prot, flags, fd, offset);
-            if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
+            if(ret!=MAP_FAILED && (uintptr_t)ret&0xffff) {
                 munmap(ret, length);
-                ret = (void*)-1;
+                ret = MAP_FAILED;
             }
         }
     }
     #endif
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
-    if(box86_dynarec && ret!=(void*)-1) {
+    if(box86_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
         {
             // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
@@ -3030,8 +3030,19 @@ EXPORT void* my_mmap(x86emu_t* emu, void *addr, unsigned long length, int prot, 
         }
     }
     #endif
-    if(ret!=(void*)-1 && emu)
-        setProtection_mmap((uintptr_t)ret, length, prot);
+    if(ret!=MAP_FAILED) {
+        if((flags&MAP_SHARED) && (fd>0)) {
+            uint32_t flags = fcntl(fd, F_GETFL);
+            if((flags&O_ACCMODE)==O_RDWR) {
+                if((box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
+                prot |= PROT_NEVERCLEAN;
+            }
+        }
+        if(emu)
+            setProtection_mmap((uintptr_t)ret, length, prot);
+        else
+            setProtection((uintptr_t)ret, length, prot);
+    }
     return ret;
 }
 
@@ -3048,34 +3059,34 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
     #endif
     void* ret = mmap64(new_addr, length, prot, flags, fd, offset);
     #ifndef NOALIGN
-    if(!addr && ret!=new_addr && ret!=(void*)-1) {
+    if(!addr && ret!=new_addr && ret!=MAP_FAILED) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         new_addr = (flags&MAP_FIXED)?addr:(addr?findBlockNearHint(addr, length, 0):find32bitBlock(length));
         ret = mmap64(new_addr, length, prot, flags, fd, offset);
-    } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
+    } else if(addr && ret!=MAP_FAILED && ret!=new_addr && 
       ((uintptr_t)ret&0xffff) && !(flags&MAP_FIXED) && box86_wine) {
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         new_addr = findBlockNearHint(addr, length, 0);
         ret = mmap64(new_addr, length, prot, flags, fd, offset);
-        if(ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&0xffff) && box86_wine) {
+        if(ret!=MAP_FAILED && ret!=addr && ((uintptr_t)ret&0xffff) && box86_wine) {
             // addr is probably too high, start again with a low address
             munmap(ret, length);
             loadProtectionFromMap();    // reload map, because something went wrong previously
             new_addr = findBlockNearHint(NULL, length, 0); // is this the best way?
             ret = mmap64(new_addr, length, prot, flags, fd, offset);
-            if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
+            if(ret!=MAP_FAILED && (uintptr_t)ret&0xffff) {
                 munmap(ret, length);
                 errno = EEXIST;
-                ret = (void*)-1;
+                ret = MAP_FAILED;
             }
         }
     }
     #endif
     if(box86_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
-    if(box86_dynarec && ret!=(void*)-1) {
+    if(box86_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
         {
             // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
@@ -3088,8 +3099,19 @@ EXPORT void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot
         }
     }
     #endif
-    if(ret!=(void*)-1 && emu)
-        setProtection_mmap((uintptr_t)ret, length, prot);
+    if(ret!=MAP_FAILED) {
+        if((flags&MAP_SHARED) && (fd>0)) {
+            uint32_t flags = fcntl(fd, F_GETFL);
+            if((flags&O_ACCMODE)==O_RDWR) {
+                if((box86_log>=LOG_DEBUG || box86_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
+                prot |= PROT_NEVERCLEAN;
+            }
+        }
+        if(emu)
+            setProtection_mmap((uintptr_t)ret, length, prot);
+        else
+            setProtection((uintptr_t)ret, length, prot);
+    }
     return ret;
 }
 
@@ -3099,7 +3121,7 @@ EXPORT void* my_mremap(x86emu_t* emu, void* old_addr, size_t old_size, size_t ne
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, 0x%x, 0x%x, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     dynarec_log(/*LOG_DEBUG*/LOG_NONE, "%p\n", ret);
-    if(ret==(void*)-1)
+    if(ret==MAP_FAILED)
         return ret; // failed...
     uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
     if(ret==old_addr) {
