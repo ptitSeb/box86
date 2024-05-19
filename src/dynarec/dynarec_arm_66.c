@@ -637,7 +637,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x9D:
             INST_NAME("POPF (16b)");
-            SETFLAGS(X_ALL, SF_SET_DF);    // lower 16bits is all flags handled in dynarec
+            SETFLAGS(X_ALL, SF_SET_NODF);    // lower 16bits is all flags handled in dynarec
             LDRHA_IMM8(x2, xESP, 2);
             MOV32(x1, 0x7FD7);
             AND_REG_LSL_IMM5(x2, x2, x1, 0);
@@ -1161,7 +1161,7 @@ uintptr_t dynarec66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     INST_NAME("DIV Ew");
                     if(arm_div) {
                         GETEW(x1);
-                        SETFLAGS(X_ALL, SF_SET_DF);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                         SET_DFNONE(x2);
                         UXTH(x2, xEAX, 0);
                         ORR_REG_LSL_IMM5(x2, x2, xEDX, 16);

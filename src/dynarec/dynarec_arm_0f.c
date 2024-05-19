@@ -444,7 +444,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET_DF);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             GETGX(v0, 0);
             if(MODREG) {

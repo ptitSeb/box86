@@ -276,7 +276,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET_DF);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             gd = (nextop&0x38)>>3;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);

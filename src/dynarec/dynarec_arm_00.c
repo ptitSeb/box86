@@ -1239,7 +1239,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x9D:
             INST_NAME("POPF");
-            SETFLAGS(X_ALL, SF_SET_DF);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             POP1(xFlags);
             MOV32(x1, 0x3F7FD7);
             AND_REG_LSL_IMM5(xFlags, xFlags, x1, 0);
@@ -1765,7 +1765,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xCF:
             INST_NAME("IRET");
-            SETFLAGS(X_ALL, SF_SET_DF);    // Not a hack, EFLAGS are restored
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
             iret_to_epilog(dyn, ninst);
             *need_epilog = 0;
