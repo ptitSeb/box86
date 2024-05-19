@@ -343,6 +343,37 @@
     }                                                                       \
 
 
+#if STEP == 0
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)   var = x87_do_push(dyn, ninst, scratch, t)
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)     x87_do_push_empty(dyn, ninst, scratch)
+#define X87_POP_OR_FAIL(dyn, ninst, scratch)            x87_do_pop(dyn, ninst, scratch)
+#else
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)   \
+    if ((dyn->n.x87stack==8) || (dyn->n.pushed==8)) {   \
+        if(box86_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->n.x87stack, dyn->n.pushed, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
+    var = x87_do_push(dyn, ninst, scratch, t)
+
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)     \
+    if ((dyn->n.x87stack==8) || (dyn->n.pushed==8)) {   \
+        if(box86_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->n.x87stack, dyn->n.pushed, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
+    x87_do_push_empty(dyn, ninst, scratch)
+
+#define X87_POP_OR_FAIL(dyn, ninst, scratch)            \
+    if ((dyn->n.x87stack==-8) || (dyn->n.poped==8)) {   \
+        if(box86_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Pop, stack=%d/%d on inst %d\n", dyn->n.x87stack, dyn->n.poped, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
+    x87_do_pop(dyn, ninst, scratch)
+#endif
+
+
 #define SET_DFNONE(S)    if(!dyn->f.dfnone) {MOVW(S, d_none); STR_IMM9(S, xEmu, offsetof(x86emu_t, df)); dyn->f.dfnone=1;}
 #define SET_DF(S, N)     \
     if(N) {             \
@@ -590,7 +621,6 @@ void* arm_next(x86emu_t* emu, uintptr_t addr);
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
-#define fpu_reset       STEPNAME(fpu_reset)
 #define fpu_reset_cache STEPNAME(fpu_reset_cache)
 #define fpu_propagate_stack STEPNAME(fpu_propagate_stack)
 #define fpu_purgecache  STEPNAME(fpu_purgecache)
@@ -805,8 +835,6 @@ void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a, int s1);
 int sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a, int s1);
 
 // common coproc helpers
-// reset the cache
-void fpu_reset(dynarec_arm_t* dyn);
 // reset the cache with n
 void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n);
 // propagate stack state

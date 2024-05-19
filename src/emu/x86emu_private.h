@@ -62,9 +62,9 @@ typedef struct x86emu_s {
 	mmx87_regs_t mmx[8];
 	uint32_t    top;        // top is part of sw, but it's faster to have it separatly
     int         fpu_stack;
+	uint32_t    fpu_tags; // tags for the x87 regs, stacked, only on a 16bits anyway
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
-	uint32_t    fpu_tags; // tags for the x87 regs, stacked, only on a 16bits anyway
     // sse
     sse_regs_t  xmm[8];
     mmxcontrol_t mxcsr;

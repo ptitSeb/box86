@@ -430,6 +430,8 @@ Op is 20-27
 
 // blx reg
 #define BLX(reg) EMIT(0xe12fff30 | (reg) )
+// blx cond reg
+#define BLXcond(C, reg) EMIT(C | 0x012fff30 | (reg) )
 
 // b cond offset
 #define Bcond(C, O) EMIT(C | (0b101<<25) | (0<<24) | (((O)>>2)&0xffffff))

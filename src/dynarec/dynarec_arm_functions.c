@@ -487,13 +487,18 @@ void fpu_free_reg_quad(dynarec_arm_t* dyn, int reg)
     dyn->n.neoncache[i+1].v = 0;
 }
 // Reset fpu regs counter
+static void fpu_reset_reg_neoncache(neoncache_t* n)
+{
+    n->fpu_reg = 0;
+    for (int i=0; i<24; ++i) {
+        n->fpuused[i]=0;
+        n->neoncache[i].v = 0;
+    }
+
+}
 void fpu_reset_reg(dynarec_arm_t* dyn)
 {
-    dyn->n.fpu_reg = 0;
-    for (int i=0; i<24; ++i) {
-        dyn->n.fpuused[i]=0;
-        dyn->n.neoncache[i].v = 0;
-    }
+    fpu_reset_reg_neoncache(&dyn->n);
 }
 
 int neoncache_get_st(dynarec_arm_t* dyn, int ninst, int a)
@@ -1040,6 +1045,54 @@ void inst_name_pass3(dynarec_arm_t* dyn, int ninst, const char* name)
 void print_opcode(dynarec_arm_t* dyn, int ninst, uint32_t opcode)
 {
     dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, arm_print(opcode));
+}
+
+static void x87_reset(neoncache_t* n)
+{
+    for (int i=0; i<8; ++i)
+        n->x87cache[i] = -1;
+    n->x87stack = 0;
+    n->stack = 0;
+    n->stack_next = 0;
+    n->stack_pop = 0;
+    n->stack_push = 0;
+    n->combined1 = n->combined2 = 0;
+    n->swapped = 0;
+    n->barrier = 0;
+    n->pushed = 0;
+    n->poped = 0;
+
+    for(int i=0; i<24; ++i)
+        if(n->neoncache[i].t == NEON_CACHE_ST_F || n->neoncache[i].t == NEON_CACHE_ST_D)
+            n->neoncache[i].v = 0;
+}
+static void mmx_reset(neoncache_t* n)
+{
+    n->mmxcount = 0;
+    for (int i=0; i<8; ++i)
+        n->mmxcache[i] = -1;
+}
+static void sse_reset(neoncache_t* n)
+{
+    for (int i=0; i<8; ++i)
+        n->ssecache[i].v = -1;
+}
+
+
+void fpu_reset(dynarec_arm_t* dyn)
+{
+    x87_reset(&dyn->n);
+    mmx_reset(&dyn->n);
+    sse_reset(&dyn->n);
+    fpu_reset_reg(dyn);
+}
+
+void fpu_reset_ninst(dynarec_arm_t* dyn, int ninst)
+{
+    x87_reset(&dyn->insts[ninst].n);
+    mmx_reset(&dyn->insts[ninst].n);
+    sse_reset(&dyn->insts[ninst].n);
+    fpu_reset_reg_neoncache(&dyn->insts[ninst].n);
 }
 
 int fpu_is_st_freed(dynarec_arm_t* dyn, int ninst, int st)

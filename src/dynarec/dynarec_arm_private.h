@@ -114,6 +114,7 @@ typedef struct dynarec_arm_s {
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
     uint8_t             always_test;
+    uint8_t             abort; // abort the creation of the block
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

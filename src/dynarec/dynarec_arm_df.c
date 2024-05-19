@@ -53,7 +53,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC7:
             INST_NAME("FFREEP STx");
             // not handling Tag...
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
         case 0xE0:
@@ -91,7 +91,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 VCMP_F64(v1, v2);
             }
             FCOMI(x1, x2);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xF0:
         case 0xF1:
@@ -112,7 +112,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 VCMP_F64(v1, v2);
             }
             FCOMI(x1, x2);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
         case 0xC8:
@@ -161,7 +161,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ew");
-                    v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, 255, 0, 0, NULL);
                     LDRSH_IMM8(x1, wback, fixedaddress);
                     if(ST_IS_F(0)) {
@@ -197,7 +197,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
                     MOVW_COND(cNE, x3, 0x8000); // saturated
                     STRH_IMM8(x3, wback, fixedaddress);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     VMSR(x14);
                     break;
                 case 2:
@@ -242,20 +242,20 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     CMPS_REG_LSL_IMM5_COND(cEQ, ed, x3, 0);
                     MOVW_COND(cNE, x3, 0x8000); // saturated
                     STRH_IMM8(x3, wback, fixedaddress);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 4:
                     INST_NAME("FBLD ST0, tbytes");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    x87_do_push_empty(dyn, ninst, x1);
+                    X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbld, -1, 0);
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
-                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_D);
                     v2 = fpu_get_scratch_double(dyn);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 3);
@@ -315,7 +315,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(fpu_fbst, -1, 0);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 7: // could be inlined for most thing, but is it usefull?
                     INST_NAME("FISTP i64, ST0");
@@ -440,7 +440,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         CALL(arm_fistp64, -1, 0);
                         #endif
                     }
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;

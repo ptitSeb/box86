@@ -73,8 +73,7 @@ void add_next(dynarec_arm_t *dyn, uintptr_t addr) {
         }
     // add slots
     if(dyn->next_sz == dyn->next_cap) {
-        dyn->next_cap += 64;
-        dyn->next = (uintptr_t*)dynaRealloc(dyn->next, dyn->next_cap*sizeof(uintptr_t));
+        printf_log(LOG_NONE, "Warning, overallocating next\n");
     }
     dyn->next[dyn->next_sz++] = addr;
 }
@@ -98,8 +97,7 @@ uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr) {
 void add_jump(dynarec_arm_t *dyn, int ninst) {
     // add slots
     if(dyn->jmp_sz == dyn->jmp_cap) {
-        dyn->jmp_cap += 64;
-        dyn->jmps = (int*)dynaRealloc(dyn->jmps, dyn->jmp_cap*sizeof(int));
+        printf_log(LOG_NONE, "Warning, overallocating jmps\n");
     }
     dyn->jmps[dyn->jmp_sz++] = ninst;
 }
@@ -282,33 +280,47 @@ void addInst(instsize_t* insts, size_t* size, int x86_size, int native_size)
     }
 }
 
+static void recurse_mark_alive(dynarec_arm_t* dyn, int i)
+{
+    if(dyn->insts[i].x86.alive)
+        return;
+    dyn->insts[i].x86.alive = 1;
+    if(dyn->insts[i].x86.jmp && dyn->insts[i].x86.jmp_insts!=-1)
+        recurse_mark_alive(dyn, dyn->insts[i].x86.jmp_insts);
+    if(i<dyn->size-1 && dyn->insts[i].x86.has_next)
+        recurse_mark_alive(dyn, i+1);
+}
 
-static void fillPredecessors(dynarec_arm_t* dyn)
+static int sizePredecessors(dynarec_arm_t* dyn)
 {
     int pred_sz = 1;    // to be safe
-    // compute total size of predecessor to alocate the array
+    // compute total size of predecessor to allocate the array
+    // mark alive...
+    recurse_mark_alive(dyn, 0);
     // first compute the jumps
+    int jmpto;
     for(int i=0; i<dyn->size; ++i) {
-        if(dyn->insts[i].x86.jmp && dyn->insts[i].x86.jmp_insts!=-1) {
-            ++pred_sz;
-            ++dyn->insts[dyn->insts[i].x86.jmp_insts].pred_sz;
+        if(dyn->insts[i].x86.alive && dyn->insts[i].x86.jmp && ((jmpto=dyn->insts[i].x86.jmp_insts)!=-1)) {
+            pred_sz++;
+            dyn->insts[jmpto].pred_sz++;
         }
     }
-    // remove "has_next" from orphean branch
+    // remove "has_next" from orphan branch
     for(int i=0; i<dyn->size-1; ++i) {
-        if(!dyn->insts[i].x86.has_next) {
-            if(dyn->insts[i+1].x86.has_next && !dyn->insts[i+1].pred_sz)
-                dyn->insts[i+1].x86.has_next = 0;
-        }
+        if(dyn->insts[i].x86.has_next && !dyn->insts[i+1].x86.alive)
+            dyn->insts[i].x86.has_next = 0;
     }
     // second the "has_next"
     for(int i=0; i<dyn->size-1; ++i) {
         if(dyn->insts[i].x86.has_next) {
-            ++pred_sz;
-            ++dyn->insts[i+1].pred_sz;
+            pred_sz++;
+            dyn->insts[i+1].pred_sz++;
         }
     }
-    dyn->predecessor = (int*)dynaMalloc(pred_sz*sizeof(int));
+    return pred_sz;
+}
+static void fillPredecessors(dynarec_arm_t* dyn)
+{
     // fill pred pointer
     int* p = dyn->predecessor;
     for(int i=0; i<dyn->size; ++i) {
@@ -317,7 +329,7 @@ static void fillPredecessors(dynarec_arm_t* dyn)
         dyn->insts[i].pred_sz=0;  // reset size, it's reused to actually fill pred[]
     }
     // fill pred
-    for(int i=0; i<dyn->size; ++i) {
+    for(int i=0; i<dyn->size; ++i) if(dyn->insts[i].x86.alive) {
         if((i!=dyn->size-1) && dyn->insts[i].x86.has_next)
             dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
         if(dyn->insts[i].x86.jmp && (dyn->insts[i].x86.jmp_insts!=-1)) {
@@ -371,22 +383,23 @@ static int updateNeed(dynarec_arm_t* dyn, int ninst, uint8_t need) {
 }
 
 void* current_helper = NULL;
+static int static_jmps[MAX_INSTS+2];
+static uintptr_t static_next[MAX_INSTS+2];
+static instruction_arm_t static_insts[MAX_INSTS+2] = {0};
+// TODO: ninst could be a uint16_t instead of an int, that could same some temp. memory
 
 void CancelBlock(int need_lock)
 {
     if(need_lock)
         mutex_lock(&my_context->mutex_dyndump);
     dynarec_arm_t* helper = (dynarec_arm_t*)current_helper;
-    current_helper = NULL;
     if(helper) {
-        dynaFree(helper->next);
-        dynaFree(helper->insts);
-        dynaFree(helper->predecessor);
         if(helper->dynablock && helper->dynablock->actual_block) {
             FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
             helper->dynablock->actual_block = NULL;
         }
     }
+    current_helper = NULL;
     if(need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
 }
@@ -451,10 +464,19 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     helper.dynablock = block;
     helper.start = addr;
     uintptr_t start = addr;
-    helper.cap = 64; // needs epilog handling
-    helper.insts = (instruction_arm_t*)dynaCalloc(helper.cap, sizeof(instruction_arm_t));
+    helper.cap = MAX_INSTS;
+    helper.insts = static_insts;
+    helper.jmps = static_jmps;
+    helper.jmp_cap = MAX_INSTS;
+    helper.next = static_next;
+    helper.next_cap = MAX_INSTS;
     // pass 0, addresses, x86 jump addresses, overall size of the block
     uintptr_t end = arm_pass0(&helper, addr);
+    if(helper.abort) {
+        if(box86_dynarec_dump || box86_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        CancelBlock(0);
+        return NULL;
+    }
     // basic checks
     if(!helper.size) {
         dynarec_log(LOG_DEBUG, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
@@ -519,24 +541,42 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         }
     }
     // no need for next and jmps anymore
-    dynaFree(helper.next);
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
-    dynaFree(helper.jmps);
     helper.jmp_sz = helper.jmp_cap = 0;
     helper.jmps = NULL;
     // fill predecessors with the jump address
+    int alloc_size = sizePredecessors(&helper);
+    helper.predecessor = (int*)alloca(alloc_size*sizeof(int));
     fillPredecessors(&helper);
 
     int pos = helper.size;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
+    // remove fpu stuff on non-executed code
+    for(int i=1; i<helper.size-1; ++i)
+        if(!helper.insts[i].pred_sz) {
+            int ii = i;
+            while(ii<helper.size && !helper.insts[ii].pred_sz)
+                fpu_reset_ninst(&helper, ii++);
+            i = ii;
+        }
 
     // pass 1, float optimisations, first pass for flags
     arm_pass1(&helper, addr);
+    if(helper.abort) {
+        if(box86_dynarec_dump || box86_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        CancelBlock(0);
+        return NULL;
+    }
 
     // pass 2, instruction size
     arm_pass2(&helper, addr);
+    if(helper.abort) {
+        if(box86_dynarec_dump || box86_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        CancelBlock(0);
+        return NULL;
+    }
     // ok, now allocate mapped memory, with executable flag on
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
@@ -570,13 +610,16 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
     helper.arm_size = 0;
     helper.insts_size = 0;  // reset
     arm_pass3(&helper, addr);
+    if(helper.abort) {
+        if(box86_dynarec_dump || box86_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        CancelBlock(0);
+        return NULL;
+    }
     // keep size of instructions for signal handling
     block->instsize = instsize;
     // ok, free the helper now
-    dynaFree(helper.insts);
     helper.insts = NULL;
     helper.instsize = NULL;
-    dynaFree(helper.predecessor);
     helper.predecessor = NULL;
     block->size = sz;
     block->isize = helper.size;
@@ -612,6 +655,8 @@ dynarec_log(LOG_DEBUG, "Asked to Fill block %p with %p\n", block, (void*)addr);
         CancelBlock(0);
         return NULL;
     }
+    // ok, free the helper now
+    helper.insts = NULL;
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
         printf_log(LOG_NONE, "BOX86: Warning, ists_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }

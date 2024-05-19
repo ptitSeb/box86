@@ -22,11 +22,6 @@
 #define SET_HASCALLRET()    dyn->insts[ninst].x86.has_callret = 1
 #define NEW_INST \
         ++dyn->size;                            \
-        if(dyn->size+3>=dyn->cap) {             \
-                dyn->insts = (instruction_arm_t*)dynaRealloc(dyn->insts, sizeof(instruction_arm_t)*dyn->cap*2);\
-                memset(&dyn->insts[dyn->cap], 0, sizeof(instruction_arm_t)*dyn->cap);   \
-                dyn->cap *= 2;                  \
-        }                                       \
         dyn->insts[ninst].x86.addr = ip;        \
         dyn->n.combined1 = dyn->n.combined2 = 0;\
         dyn->n.swapped = 0; dyn->n.barrier = 0; \

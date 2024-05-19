@@ -49,7 +49,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             #if 1
             if((nextop&7)==0 && PK(0)==0xD9 && PK(1)==0xF7) {
                 MESSAGE(LOG_DUMP, "Hack for FFREE ST0 / FINCSTP\n");
-                x87_do_pop(dyn, ninst, x1);
+                X87_POP_OR_FAIL(dyn, ninst, x1);
                 addr+=2;
                 SKIPTEST(x1);
             } else
@@ -80,7 +80,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xD8:
             INST_NAME("FSTP ST0, ST0");
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD9:
         case 0xDA:
@@ -92,7 +92,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("FSTP ST0, STx");
             // copy the cache value for st0 to stx
             x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
         case 0xE0:
@@ -130,7 +130,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 VCMP_F64(v1, v2);
             }
             FCOM(x1, x2);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
         case 0xC8:
@@ -164,7 +164,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD double");
-                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_D);
 		            parity = getedparity(dyn, ninst, addr, nextop, 3);
 		            if (parity) {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0, NULL);
@@ -182,7 +182,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                     if(ed!=x1) {MOV_REG(x1, ed);}
                     CALL(arm_fistt64, -1, 0);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FST double");
@@ -211,7 +211,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STR_IMM9(x2, ed, fixedaddress);
                         STR_IMM9(x3, ed, fixedaddress+4);
                     }
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4: 
                     INST_NAME("FRSTOR m108byte");

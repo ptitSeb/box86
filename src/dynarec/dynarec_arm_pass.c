@@ -49,6 +49,9 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
     dyn->forward_to = 0;
     dyn->forward_size = 0;
     dyn->forward_ninst = 0;
+    #if STEP == 0
+    memset(&dyn->insts[ninst], 0, sizeof(instruction_arm_t));
+    #endif
     fpu_reset(dyn);
     int reset_n = -1;
     int stopblock = 2+(FindElfAddress(my_context, addr)?0:1); // if block is in elf_memory, it can be extended with bligblocks==2, else it needs 3    // ok, go now
@@ -156,8 +159,8 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             ok = 1;
             // we use the 1st predecessor here
             int ii = ninst+1;
-            if(ii<dyn->size && !dyn->insts[ii].pred_sz) {
-                while(ii<dyn->size && (!dyn->insts[ii].pred_sz || (dyn->insts[ii].pred_sz==1 && dyn->insts[ii].pred[0]==ii-1))) {
+            if(ii<dyn->size && !dyn->insts[ii].x86.alive) {
+                while(ii<dyn->size && !dyn->insts[ii].x86.alive) {
                     // may need to skip opcodes to advance
                     ++ninst;
                     NEW_INST;
@@ -189,7 +192,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
                 reset_n = get_first_jump(dyn, addr);
-                if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x86.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to);
+                if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x86.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
                 if(dyn->insts[dyn->forward_ninst].x86.has_callret && !dyn->insts[dyn->forward_ninst].x86.has_next)
                     dyn->insts[dyn->forward_ninst].x86.has_next = 1;  // this block actually continue
                 dyn->forward = 0;
@@ -197,7 +200,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
                 dyn->forward_size = 0;
                 dyn->forward_ninst = 0;
                 ok = 1; // in case it was 0
-            } else if ((dyn->forward_to < addr) || !ok) {
+            } else if ((dyn->forward_to < addr) || ok<=0) {
                 // something when wrong! rollback
                 if(box86_dynarec_dump) dynarec_log(LOG_NONE, "Could not forward extend block for %d bytes %p -> %p\n", dyn->forward_to-dyn->forward, (void*)dyn->forward, (void*)dyn->forward_to);
                 ok = 0;
@@ -272,6 +275,7 @@ uintptr_t arm_pass(dynarec_arm_t* dyn, uintptr_t addr)
             reset_n = -2;
         ++ninst;
         #if STEP == 0
+        memset(&dyn->insts[ninst], 0, sizeof(instruction_arm_t));
         if(ok && (((box86_dynarec_bigblock<stopblock) && !isJumpTableDefault((void*)addr)) 
             || (addr>=box86_nodynarec_start && addr<box86_nodynarec_end)))
         #else

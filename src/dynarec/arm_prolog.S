@@ -13,9 +13,9 @@ arm_prolog:
     vpush     {d8-d15}
     // save Sp and setup stack for optionnal callret
     ldr      r5, [r0, #(8*4+2*4)]   // grab old value of xSPSave
-    str      sp, [r0, #(8*4+2*4)]
     mov      r4, #0
     push     {r4-r5}
+    str      sp, [r0, #(8*4+2*4)]
     //setup emu -> register
     ldm      r0, {r4-r12}    // all 8 register in direct access, plus flags, no EIP (so r14 can be used as scratch)
     //jump to function

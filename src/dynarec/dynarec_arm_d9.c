@@ -67,7 +67,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0xC6:
         case 0xC7:
             INST_NAME("FLD STx");
-            v2 = x87_do_push(dyn, ninst, x3, X87_ST(nextop&7));
+            X87_PUSH_OR_FAIL(v2, dyn, ninst, x3, X87_ST(nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, (nextop&7)+1, X87_COMBINE(0, (nextop&7)+1));
             if(ST_IS_F(0)) {
                 VMOV_32(v2, v1);
@@ -198,7 +198,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xE8:
             INST_NAME("FLD1");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 VMOV_i_32(v1, 0b01110000);
             } else {
@@ -208,7 +208,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xE9:
             INST_NAME("FLDL2T");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_l2t));
                 VLDR_32(v1, x2, 0);
@@ -220,7 +220,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEA:     
             INST_NAME("FLDL2E");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_l2e));
                 VLDR_32(v1, x2, 0);
@@ -232,7 +232,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEB:
             INST_NAME("FLDPI");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_pi));
                 VLDR_32(v1, x2, 0);
@@ -244,7 +244,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEC:
             INST_NAME("FLDLG2");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_lg2));
                 VLDR_32(v1, x2, 0);
@@ -256,7 +256,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xED:
             INST_NAME("FLDLN2");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32(x2, (&f_ln2));
                 VLDR_32(v1, x2, 0);
@@ -268,7 +268,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xEE:
             INST_NAME("FLDZ");
-            v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 VMOV_8(v1/2, 0);  // float is *2...
             } else {
@@ -311,12 +311,12 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(0, v1);    // prepare call to log2
             CALL_1D(log2, 0);
             VMUL_F64(v2, v2, 0);    //ST(1).d = log2(ST0.d)*ST(1).d
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             // should set C1 to 0
             break;
         case 0xF2:
             INST_NAME("FPTAN");
-            v2 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+            X87_PUSH_OR_FAIL(v2, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             // seems that tan of glib doesn't follow the rounding direction mode
             if(!box86_dynarec_fastround)
@@ -358,7 +358,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             VMOV_64(v2, 0);    //ST(1).d = atan2(ST1.d, ST0.d);
             if(!box86_dynarec_fastround)
                 x87_restoreround(dyn, ninst, u8);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             // should set C1 to 0
             break;
         case 0xF4:
@@ -473,7 +473,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             MOV32(x2, (&d_ln2));
             VLDR_64(0, x2, 0);
             VDIV_F64(v2, v2, 0);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             // should set C1 to 0
             break;
         case 0xFA:
@@ -492,7 +492,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xFB:
             INST_NAME("FSINCOS");
-            v2 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
+            X87_PUSH_OR_FAIL(v2, dyn, ninst, x3, NEON_CACHE_ST_D);
             v1 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             // seems that sin and cos function of glibc don't follow the rounding mode
             if(!box86_dynarec_fastround)
@@ -612,7 +612,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FLD ST0, float[ED]");
-                    v1 = x87_do_push(dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box86_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
                     if(ST_IS_F(0))
                         s0 = v1;
                     else
@@ -676,7 +676,7 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VMOVfrV(x2, s0);
                         STR_IMM9(x2, ed, fixedaddress);
                     }
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FLDENV Ed");

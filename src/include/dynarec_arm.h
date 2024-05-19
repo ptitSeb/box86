@@ -5,6 +5,8 @@ typedef struct dynablock_s dynablock_t;
 typedef struct x86emu_s x86emu_t;
 typedef struct instsize_s instsize_t;
 
+#define MAX_INSTS   32760
+
 void addInst(instsize_t* insts, size_t* size, int x86_size, int arm_size);
 
 void CancelBlock();

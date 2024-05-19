@@ -183,7 +183,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("FILD ST0, Ed");
-                    v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_D);
                     s0 = fpu_get_scratch_single(dyn);
                     parity = getedparity(dyn, ninst, addr, nextop, 2);
                     if(parity) {
@@ -218,7 +218,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
                     VMSR(x14);  // put back values
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 2:
                     INST_NAME("FIST Ed, ST0");
@@ -260,7 +260,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     TSTS_IMM8_ROR(x3, 0b00000001, 0);
                     MOV_IMM_COND(cNE, ed, 0b10, 1);   // 0x80000000
                     WBACK;
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 5:
@@ -281,7 +281,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         STRH_IMM8(x14, ed, 8);
                     } else {
                         if(box86_x87_no80bits) {
-                            v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
+                            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_D);
                             parity = getedparity(dyn, ninst, addr, nextop, 3);
                             if (parity) {
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 1023, 3, 0, NULL);
@@ -298,10 +298,10 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             if(ed!=x1) {
                                 MOV_REG(x1, ed);
                             }
-                            x87_do_push_empty(dyn, ninst, x3);
+X87_PUSH_OR_FAIL_empty(                   , dyn, ninst, x3);
                             CALL(arm_fld, -1, 0);
                             #else
-                            v1 = x87_do_push(dyn, ninst, x2, NEON_CACHE_ST_D);
+                            X87_PUSH_OR_FAIL(v1, dyn, ninst, x2, NEON_CACHE_ST_D);
                             // copy 10bytes of *ED to STld(0)
                             LDR_IMM9(x3, xEmu, offsetof(x86emu_t, top));
                             int a = -dyn->n.x87stack;
@@ -407,7 +407,7 @@ uintptr_t dynarecDB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MARK2;
                         #endif
                     }
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;

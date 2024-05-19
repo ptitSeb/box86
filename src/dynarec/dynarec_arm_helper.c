@@ -295,11 +295,10 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst)
         // pop the actual return address for ARM stack
         LDM(xSP, (1<<x2)|(1<<x3));
         CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
-        BLcond(cEQ, x2);
+        BXcond(cEQ, x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         CMPS_IMM8(x2, 0);   // that was already the top of the stack...
-        LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave));
-        SUB_IMM8(xSP, xSP, 16);
+        LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave)); // load pointer only if not already on top
     }
     MOV32(x2, getJumpTable());
     MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
@@ -328,11 +327,10 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, int n)
         // pop the actual return address for ARM stack
         LDM(xSP, (1<<x2)|(1<<x3));
         CMPS_REG_LSL_IMM5(x3, xEIP, 0); // is it the right address?
-        BLcond(cEQ, x2);
+        BXcond(cEQ, x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         CMPS_IMM8(x2, 0);   // that was already the top of the stack...
         LDR_IMM9_COND(cNE, xSP, xEmu, offsetof(x86emu_t, xSPSave));
-        SUB_IMM8(xSP, xSP, 16);
     }
     MOV32(x2, getJumpTable());
     MOV_REG_LSR_IMM5(x3, xEIP, JMPTABL_SHIFT);
@@ -603,26 +601,6 @@ void grab_fsdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg)
 }
 
 // x87 stuffs
-static void x87_reset(dynarec_arm_t* dyn)
-{
-    for (int i=0; i<8; ++i)
-        dyn->n.x87cache[i] = -1;
-    dyn->n.x87stack = 0;
-    dyn->n.stack = 0;
-    dyn->n.stack_next = 0;
-    dyn->n.stack_pop = 0;
-    dyn->n.stack_push = 0;
-    dyn->n.combined1 = dyn->n.combined2 = 0;
-    dyn->n.swapped = 0;
-    dyn->n.barrier = 0;
-    dyn->n.pushed = 0;
-    dyn->n.poped = 0;
-
-    for(int i=0; i<24; ++i)
-        if(dyn->n.neoncache[i].t == NEON_CACHE_ST_F || dyn->n.neoncache[i].t == NEON_CACHE_ST_D)
-            dyn->n.neoncache[i].v = 0;
-}
-
 void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     if(!dyn->n.x87stack)
@@ -1383,12 +1361,6 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 }
 
 // MMX helpers
-static void mmx_reset(dynarec_arm_t* dyn)
-{
-    dyn->n.mmxcount = 0;
-    for (int i=0; i<8; ++i)
-        dyn->n.mmxcache[i] = -1;
-}
 static int isx87Empty(dynarec_arm_t* dyn)
 {
     for (int i=0; i<8; ++i)
@@ -1470,11 +1442,6 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 
 
 // SSE / SSE2 helpers
-static void sse_reset(dynarec_arm_t* dyn)
-{
-    for (int i=0; i<8; ++i)
-        dyn->n.ssecache[i].v = -1;
-}
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite)
 {
@@ -2097,14 +2064,6 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_unreflectcache(dyn, ninst, s1, s2, s3);
-}
-
-void fpu_reset(dynarec_arm_t* dyn)
-{
-    x87_reset(dyn);
-    mmx_reset(dyn);
-    sse_reset(dyn);
-    fpu_reset_reg(dyn);
 }
 
 // get the single reg that from the double "reg" (so Dx[idx])
