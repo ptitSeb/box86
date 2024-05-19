@@ -881,6 +881,26 @@ int isprotectedDB(uintptr_t addr, size_t size)
     return 1;
 }
 
+uintptr_t hotpage = 0;
+int hotpage_cnt = 0;
+#define HOTPAGE_MARK 64
+void SetHotPage(uintptr_t addr)
+{
+    hotpage = addr&~(box86_pagesize-1);
+    hotpage_cnt = HOTPAGE_MARK;
+}
+int isInHotPage(uintptr_t addr)
+{
+    if(!hotpage_cnt)
+        return 0;
+    --hotpage_cnt;
+    return (addr>=hotpage) && (addr<hotpage+box86_pagesize);
+}
+int checkInHotPage(uintptr_t addr)
+{
+    return hotpage_cnt && (addr>=hotpage) && (addr<hotpage+box86_pagesize);
+}
+
 #endif
 
 void updateProtection(uintptr_t addr, uintptr_t size, uint32_t prot)

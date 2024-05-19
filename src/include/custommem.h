@@ -76,6 +76,10 @@ void fini_custommem_helper(box86context_t* ctx);
 // ---- StrongMemoryModel
 void addLockAddress(uintptr_t addr);    // add an address to the list of "LOCK"able
 int isLockAddress(uintptr_t addr);  // return 1 is the address is used as a LOCK, 0 else
+
+void SetHotPage(uintptr_t addr);
+int isInHotPage(uintptr_t addr);
+int checkInHotPage(uintptr_t addr);
 #endif
 
 #endif //__CUSTOM_MEM__H_
