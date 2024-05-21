@@ -1,3 +1,22 @@
+v0.3.6
+======
+* Wrapping: More libs and function wrapping (gtk3, vulkan...)
+* Reworked X11 Callback handling, for better stability
+* Reworked exit and the load/unload of libs
+* Some more profiles in box86rc
+* More SSE3+ opcodes in dynarec
+* Better way to rename executable (including wine ones) so driver like mesa can apply the correct profile
+* Better handling of the Hardware Counter and TSC emulation
+* Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
+* PageSize detection and handling dynamic. Larger than 4K pagesize will be handled automaticaly. Note that box64 does not emulate 4K page size, so some program might still refuse to work on larger page (like Wine for example)
+=> Linux Games can now load even on a 16K pagesize machine like a mac M1, and games (including Unity3D ones) can be played with no issues.
+* Lots of improvments in x87 handling (virtual stack, rounding, ffree, etc.)
+=> should improve games stability
+* Better handling of large block in the dynarec
+=> should speedup dynarec, and allow use of BIGBLOCK 2 or 3 on more software
+* Added suport for BOX86_DYNAREC_CALLRET optimisation.
+=> backported from box64, can give 10% or more speed increase (but can also decrease speed in some cases). Still a bit crashy so use with care.
+
 v0.3.4
 ======
 * X86Libs: Updated libstdc++ & libgcc_s

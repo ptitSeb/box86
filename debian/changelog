@@ -1,3 +1,19 @@
+box86 (0.3.6) unstable; urgency=low
+* Wrapping: More libs and and function wrapping (gtk3, vulkan...)
+* Reworked X11 Callback handling, for better stability
+* Reworked exit and the load/unload of libs
+* Some more profiles in box86rc
+* More SSE3+ opcodes in dynarec
+* Better way to rename executable (including wine ones) so driver like mesa can apply the correct profile
+* Lots of improvments in x87 handling (virtual stack, rounding, ffree, etc.)
+* => should improve games stability
+* Better handling of large block in the dynarec
+* => should speedup dynarec, and allow use of BIGBLOCK 2 or 3 on more software
+* Added suport for BOX86_DYNAREC_CALLRET optimisation.
+* => backported from box64, can give 10% or more speed increase (but can also decrease speed in some cases). Still a bit crashy so use with care.
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 31 May 2024 17:30:33 -0100
+
 box86 (0.3.4) unstable; urgency=low
 
  * X86Libs: Updated libstdc++ & libgcc_s
