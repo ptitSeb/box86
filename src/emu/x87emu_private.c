@@ -332,7 +332,7 @@ void fpu_fxrstor(x86emu_t* emu, void* ed)
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags)?8:0;
+        stack = (emu->fpu_tags)?0:8;
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
