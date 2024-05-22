@@ -294,7 +294,7 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
@@ -324,7 +324,7 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
@@ -354,6 +354,6 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
