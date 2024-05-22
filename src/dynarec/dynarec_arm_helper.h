@@ -894,21 +894,25 @@ uintptr_t dynarecF30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
 #define MAYUSE(A)   
 #endif
 
-#define NOTEST(s1)                                          \
+#define NOTEST(s1, s2)                                      \
     if(box86_dynarec_test) {                                \
         MOVW(s1, 0);                                        \
-        STR_IMM9(s1, xEmu, offsetof(x86emu_t, test.test));  \
-        STR_IMM9(s1, xEmu, offsetof(x86emu_t, test.clean)); \
+        MOVW(s2, offsetof(x86emu_t, test.test));            \
+        STR_REG_LSL_IMM5(s1, xEmu, s2, 0);                  \
+        ADD_IMM8(s2, s2, offsetof(x86emu_t, test.clean)-offsetof(x86emu_t, test.test));\
+        STR_REG_LSL_IMM5(s1, xEmu, s2, 0);                  \
     }
-#define SKIPTEST(s1)                                        \
+#define SKIPTEST(s1, s2)                                    \
     if(box86_dynarec_test) {                                \
         MOVW(s1, 0);                                        \
-        STR_IMM9(s1, xEmu, offsetof(x86emu_t, test.clean)); \
+        MOVW(s2, offsetof(x86emu_t, test.clean));           \
+        STR_REG_LSL_IMM5(s1, xEmu, s2, 0);                  \
     }
 #define GOTEST(s1, s2)                                      \
     if(box86_dynarec_test) {                                \
         MOVW(s2, 1);                                        \
-        STR_IMM9(s2, xEmu, offsetof(x86emu_t, test.test));  \
+        MOVW(s1, offsetof(x86emu_t, test.test));            \
+        STR_REG_LSL_IMM5(s2, xEmu, s1, 0);                  \
     }
 
 #endif //__DYNAREC_ARM_HELPER_H__

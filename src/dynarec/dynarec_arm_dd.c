@@ -51,7 +51,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 MESSAGE(LOG_DUMP, "Hack for FFREE ST0 / FINCSTP\n");
                 X87_POP_OR_FAIL(dyn, ninst, x1);
                 addr+=2;
-                SKIPTEST(x1);
+                SKIPTEST(x1, x14);
             } else
                 x87_free(dyn, ninst, x1, x2, x3, nextop&7);
             #else

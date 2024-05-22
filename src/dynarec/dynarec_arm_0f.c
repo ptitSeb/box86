@@ -95,7 +95,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     addr = fakeed(dyn, addr, ninst, nextop);
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                     //CALL(arm_ud, -1, 0);
-                    SKIPTEST(x14);
+                    SKIPTEST(x1, x14);
                     UDF(0);
                     break;
                 case 0xE0:
@@ -149,7 +149,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             //CALL(arm_ud, -1, 0);
-            SKIPTEST(x14);
+            SKIPTEST(x1, x14);
             UDF(0);
             break;
 
@@ -481,7 +481,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
         case 0x31:
             INST_NAME("RDTSC");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SKIPTEST(x14);
+            SKIPTEST(x1, x14);
             CALL(ReadTSC, xEAX, 0);   // will return the u64 in x1:xEAX
             MOV_REG(xEDX, x1);
             break;
@@ -717,7 +717,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x51:
             INST_NAME("SQRTPS Gx, Ex");
-            SKIPTEST(x1);
+            SKIPTEST(x1, x14);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
@@ -786,7 +786,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x52:
             INST_NAME("RSQRTPS Gx, Ex");
-            SKIPTEST(x1);
+            SKIPTEST(x1, x14);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;
@@ -809,7 +809,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0x53:
             INST_NAME("RCPPS Gx, Ex");
-            SKIPTEST(x1);
+            SKIPTEST(x1, x14);
             nextop = F8;
             GETEX(q0, 0);
             gd = (nextop&0x38)>>3;

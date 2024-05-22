@@ -1044,9 +1044,9 @@ static void x87_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, in
         if(a>0) {
             MOV32(s2, 0xffff);
             ORR_REG_LSL_IMM5(s1, s1, s2, 16);
-            MOV_REG_LSR_IMM5(s1, s1, -a*2);
+            MOV_REG_LSR_IMM5(s1, s1, a*2);
         } else {
-            MOV_REG_LSL_IMM5(s1, s1, a*2);
+            MOV_REG_LSL_IMM5(s1, s1, -a*2);
         }
         STRH_IMM8(s1, xEmu, offsetof(x86emu_t, fpu_tags));
         // Sub x87stack to top, with and 7

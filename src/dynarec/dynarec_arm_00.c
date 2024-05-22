@@ -1667,6 +1667,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
+            NOTEST(x1, x14);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 BARRIER(BARRIER_FLOAT);
@@ -1674,7 +1675,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 if((PK(0)==0) && (PK(1)==0) && (PK(2)==0) && (PK(3)==0))
                 {
                     addr+=4;
-                    SKIPTEST(x14);
                     MESSAGE(LOG_DEBUG, "Exit x86 Emu\n");
                     MOV32(x14, ip+1+2);
                     SMEND();
@@ -1685,7 +1685,6 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
-                    SKIPTEST(x14);
                     SMEND();
                     x87_forget(dyn, ninst, x3, x14, 0);
                     if((box86_log<2) && !cycle_log) {   // call the wrapper directly
@@ -1735,7 +1734,7 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             break;
         case 0xCD:
             SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
-            SKIPTEST(x14);
+            SKIPTEST(x1, x14);
             SMEND();
             u8 = F8;
             if(u8==0x80) {
@@ -2258,26 +2257,26 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 case 1:
                     //SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call 0\n");
-                    SKIPTEST(x14);
+                    SKIPTEST(x1, x14);
                     MOV32(xEIP, addr);
                     PUSH1(xEIP);
                     break;
                 case 2:
                     //SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     MESSAGE(LOG_DUMP, "Hack for Call x86.get_pc_thunk.reg\n");
-                    SKIPTEST(x14);
+                    SKIPTEST(x1, x14);
                     u8 = PK(i32+1);
                     gd = xEAX+((u8&0x38)>>3);
                     MOV32(gd, addr);
                     break;
                 case 3:
                     SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
+                    SKIPTEST(x1, x14);
                     BARRIER(BARRIER_FULL);
                     BARRIER_NEXT(BARRIER_FULL);
                     MOV32(x2, addr);
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
-                    SKIPTEST(x14);
                     // calling a native function
                     if(isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2))) {
                         // return value will be on the stack, so the stack depth needs to be updated
