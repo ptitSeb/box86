@@ -138,6 +138,31 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     MOV32(x14, 0b100000100000000);
                     B_MARK3(c__);
                 } else {                // not in cache, so check Empty status and load it
+                    // load tag
+                    LDRH_IMM8(x3, xEmu, offsetof(x86emu_t, fpu_tags));
+                    if(i2) {
+                        if(i2<0) {
+                            MOV_REG_LSL_IMM5(x3, x3, -i2*2);
+                        } else {
+                            MOV32(x14, 0xffff);
+                            ORR_REG_LSL_IMM5(x3, x3, x14, 16);
+                            MOV_REG_LSR_IMM5(x3, x3, i2*2);
+                        }
+                    }
+                    TSTS_IMM8(x3, 0b11);
+                    MOVW(x14, 0b100000100000000);   // empty
+                    B_MARK3(cNE);
+                    // check stack  TODO: this test should not be needed, something is wrong with tag handling
+                    LDR_IMM9(x3, xEmu, offsetof(x86emu_t, fpu_stack));
+                    if(i2) {
+                        if(i2<0) {
+                            ADD_IMM8(x3, x3, -i2);
+                        } else {
+                            SUB_IMM8(x3, x3, i2);
+                        }
+                    }
+                    CMPS_IMM8(x3, 0);
+                    B_MARK3(cLE);
                     // x14 will be the actual top
                     LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
                     i2 = -dyn->n.x87stack;
@@ -149,11 +174,6 @@ uintptr_t dynarecD9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         }
                         AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
                     }
-                    // load tag
-                    LDRH_IMM8(x3, xEmu, offsetof(x86emu_t, fpu_tags));
-                    TSTS_IMM8(x3, 0b11);
-                    MOVW_COND(cNE, x14, 0b100000100000000);
-                    B_MARK3(cNE);
                     ADD_REG_LSL_IMM5(x1, xEmu, x14, 3);
                     LDRD_IMM8(x2, x1, offsetof(x86emu_t, x87)); // load r2/r3 with ST0 anyway, for sign extraction
                 }
