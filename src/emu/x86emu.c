@@ -49,11 +49,6 @@ static uint32_t x86emu_parity_tab[8] =
 	0x69969669,
 };
 
-uint32_t* GetParityTab()
-{
-    return x86emu_parity_tab;
-}
-
 static void internalX86Setup(x86emu_t* emu, box86context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
     emu->context = context;

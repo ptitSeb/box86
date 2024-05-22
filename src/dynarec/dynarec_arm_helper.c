@@ -2118,14 +2118,13 @@ void fpu_putback_single_reg(dynarec_arm_t* dyn, int ninst, int reg, int idx, int
     }
 }
 
-void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
+void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s4)
 {
-    // PF: (((emu->x86emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
-    AND_IMM8(s3, s1, 0xE0); // lsr 5 masking pre-applied
-    MOV32(s4, GetParityTab());
-    LDR_REG_LSR_IMM5(s4, s4, s3, 5-2);   // x/32 and then *4 because array is integer
-    AND_IMM8(s3, s1, 31);
-    MVN_REG_LSR_REG(s4, s4, s3);
+    // by xor'ing all the bit 2 by two with a shift, pair of bits are removed, and only 1 is left if bit number if odd
+    XOR_REG_LSR_IMM8(s4, s1, s1, 4);
+    XOR_REG_LSR_IMM8(s4, s4, s4, 2);
+    XOR_REG_LSR_IMM8(s4, s4, s4, 1);
+    MVN_REG_LSL_IMM5(s4, s4, 0);
     BFI(xFlags, s4, F_PF, 1);
 }
 

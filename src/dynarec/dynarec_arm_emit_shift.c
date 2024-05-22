@@ -76,7 +76,7 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFC_COND(cNE, xFlags, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -130,7 +130,7 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -181,7 +181,7 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -233,7 +233,7 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -280,7 +280,7 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             BFC(xFlags, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -323,7 +323,7 @@ void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFI_COND(cEQ, xFlags, s4, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -371,7 +371,7 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
             }
         }
         IFX(X_PF) {
-            emit_pf(dyn, ninst, s1, s3, s4);
+            emit_pf(dyn, ninst, s1, s4);
         }
     } else {
         IFX(X_CF) {
@@ -433,7 +433,7 @@ void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -479,7 +479,7 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -517,7 +517,7 @@ void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFC_COND(cEQ, xFlags, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -557,7 +557,7 @@ void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
             BFC(xFlags, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -597,7 +597,7 @@ void emit_shl16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFI_COND(cEQ, xFlags, s4, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -645,7 +645,7 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             }
         }
         IFX(X_PF) {
-            emit_pf(dyn, ninst, s1, s3, s4);
+            emit_pf(dyn, ninst, s1, s4);
         }
     } else {
         IFX(X_CF) {
@@ -707,7 +707,7 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -753,7 +753,7 @@ void emit_shr16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -792,7 +792,7 @@ void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFC_COND(cEQ, xFlags, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -835,7 +835,7 @@ void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s
             BFC(xFlags, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -968,7 +968,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1035,7 +1035,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
         BFI(xFlags, s3, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1096,7 +1096,7 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFI_COND(cEQ, xFlags, s4, F_OF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1160,7 +1160,7 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         BFI(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 

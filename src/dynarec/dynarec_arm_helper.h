@@ -745,7 +745,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, int s1, int s2, int32_t c, int 
 void emit_shrd32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_shld32(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 
-void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
