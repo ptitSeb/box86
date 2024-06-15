@@ -3175,10 +3175,13 @@ wrappedlibc:
 - vFpp:
 - vFpV:
 - iFip:
+  - __fstat64_time64
   - fstat
 - iFpi:
 - iFpL:
 - iFpp:
+  - __lstat64_time64
+  - __stat64_time64
   - execvp
   - lstat
   - lstat64
@@ -3264,6 +3267,7 @@ wrappedlibc:
 - iFipii:
 - iFipuu:
 - iFippi:
+  - __fstatat64_time64
 - iFippL:
   - readlinkat
 - iFpvpp:

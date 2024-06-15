@@ -136,7 +136,10 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(getpwuid, pFu_t) \
 	GO(__secure_getenv, pFp_t) \
 	GO(secure_getenv, pFp_t) \
+	GO(__fstat64_time64, iFip_t) \
 	GO(fstat, iFip_t) \
+	GO(__lstat64_time64, iFpp_t) \
+	GO(__stat64_time64, iFpp_t) \
 	GO(execvp, iFpp_t) \
 	GO(lstat, iFpp_t) \
 	GO(lstat64, iFpp_t) \
@@ -175,6 +178,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__syslog_chk, vFiipV_t) \
 	GO(__libc_init, vFpppp_t) \
 	GO(ptrace, iFiupp_t) \
+	GO(__fstatat64_time64, iFippi_t) \
 	GO(readlinkat, iFippL_t) \
 	GO(__vfwprintf_chk, iFpvpp_t) \
 	GO(_IO_vfprintf, iFpppp_t) \

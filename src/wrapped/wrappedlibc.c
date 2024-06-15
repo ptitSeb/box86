@@ -60,6 +60,7 @@
 #include "bridge.h"
 #include "globalsymbols.h"
 #include "rcfile.h"
+#include "stat64_helper.h"
 
 #ifdef PANDORA
 #ifndef __NR_preadv
@@ -1343,6 +1344,7 @@ EXPORT int my_stat64(x86emu_t* emu, void* path, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
+
 EXPORT int my_lstat64(x86emu_t* emu, void* path, void* buf)
 {
     (void)emu;
@@ -1350,6 +1352,26 @@ EXPORT int my_lstat64(x86emu_t* emu, void* path, void* buf)
     int r = lstat64(path, &st);
     UnalignStat64(&st, buf);
     return r;
+}
+
+EXPORT int my___stat64_time64(x86emu_t* emu, void* path, void* buf)
+{
+    return stat64_time64_helper(path, buf);
+}
+
+EXPORT int my___fstatat64_time64(x86emu_t* emu, int dirfd, void* path, void* buf, int flags)
+{
+    return fstatat64_time64_helper(dirfd, path, buf, flags);
+}
+
+EXPORT int my___fstat64_time64(x86emu_t* emu, int fd, void* buf)
+{
+    return fstat64_time64_helper(fd, buf);
+}
+
+EXPORT int my___lstat64_time64(x86emu_t* emu, void* path, void* buf)
+{
+    return lstat64_time64_helper(path, buf);
 }
 
 EXPORT int my___xstat(x86emu_t* emu, int v, void* path, void* buf)
