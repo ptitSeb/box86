@@ -14,7 +14,7 @@ on:
         - GENERIC_ARM
         - A64
         - GAMESHELL
-        - ODROID
+        - ODROIDXU4
         - PANDORA
         - PHYTIUM
         - PYRA

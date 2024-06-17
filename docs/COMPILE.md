@@ -60,9 +60,9 @@ sudo make install
 sudo systemctl restart systemd-binfmt
 ```
 
-#### for ODROID
+#### for ODROID-XU3/XU4/MC1/HC1/HC2
 
-`mkdir build; cd build; cmake .. -DODROID=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
+`mkdir build; cd build; cmake .. -DODROIDXU4=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
 #### for RK3399
 
@@ -80,11 +80,11 @@ As most RK3588 devices run an AARCH64 OS, you'll need an `armhf` multiarch envir
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
-#### for ODROID N2/N2+
+#### for ODROID-N2/N2+
 
 `mkdir build; cd build; cmake .. -DODROIDN2=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo; make -j3`
 
-As most ODROID N2/N2+ devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
+As most ODROID-N2/N2+ devices run an AARCH64 OS, you'll need an `armhf` multiarch environment, and an armhf gcc: On debian, install it with `sudo apt install gcc-arm-linux-gnueabihf`. 
 
 Also, on armbian, you may need to install `libc6-dev-armhf-cross` or you may have an issue with `crt1.o` and a few other files not included with box86.
 
@@ -172,7 +172,7 @@ Dynarec is only available on the ARM architecture (for the meantime anyways). Ac
 
 You will most likely need `-marm` in compilation flags (Many compilers default to the Thumb instruction set and Dynarec does not support this).
 
-###### *Note: If you get error building that "target CPU does not support ARM mode", then try to pick a hardware profile (like ODROID for armv7 or PI4 for armv8).*
+###### *Note: If you get error building that "target CPU does not support ARM mode", then try to pick a hardware profile (like ODROIDXU4 for armv7 or PI4 for armv8).*
 
 ##### 64bit OS with Dynarec
 

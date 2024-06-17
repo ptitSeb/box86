@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [I386, OTHER_ARM, PANDORA, PYRA, GAMESHELL, RPI4, RPI4ARM64, ODROID, RK3399, RK3288, A64, SD845, SD888, ADLINK, PHYTIUM, ANDROID]
+        platform: [I386, OTHER_ARM, PANDORA, PYRA, GAMESHELL, RPI4, RPI4ARM64, ODROIDXU4, RK3399, RK3288, A64, SD845, SD888, ADLINK, PHYTIUM, ANDROID]
         type: [Release, Trace]
         os: [ubuntu-latest]
         
