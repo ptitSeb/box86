@@ -178,6 +178,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__syslog_chk, vFiipV_t) \
 	GO(__libc_init, vFpppp_t) \
 	GO(ptrace, iFiupp_t) \
+	GO(sendmmsg, iFipuu_t) \
 	GO(__fstatat64_time64, iFippi_t) \
 	GO(readlinkat, iFippL_t) \
 	GO(__vfwprintf_chk, iFpvpp_t) \

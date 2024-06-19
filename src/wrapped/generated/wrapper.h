@@ -1619,6 +1619,7 @@ void iFiiiiip(x86emu_t *emu, uintptr_t fnc);
 void iFiiiuwp(x86emu_t *emu, uintptr_t fnc);
 void iFiuiipi(x86emu_t *emu, uintptr_t fnc);
 void iFiuUuUu(x86emu_t *emu, uintptr_t fnc);
+void iFipiipi(x86emu_t *emu, uintptr_t fnc);
 void iFipipuu(x86emu_t *emu, uintptr_t fnc);
 void iFipuIup(x86emu_t *emu, uintptr_t fnc);
 void iFipupup(x86emu_t *emu, uintptr_t fnc);

@@ -1587,6 +1587,7 @@
 #() iFiiiuwp
 #() iFiuiipi
 #() iFiuUuUu
+#() iFipiipi
 #() iFipipuu
 #() iFipuIup
 #() iFipupup
@@ -3266,6 +3267,7 @@ wrappedlibc:
   - ptrace
 - iFipii:
 - iFipuu:
+  - sendmmsg
 - iFippi:
   - __fstatat64_time64
 - iFippL:

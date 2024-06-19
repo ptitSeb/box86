@@ -1509,6 +1509,7 @@ GOW(send, lFipLi)
 GO(sendfile, lFiipL)
 GO(sendfile64, lFiipL)
 GOW(sendmsg, lFipi)
+GO2(sendmmsg, iFEipuu, my___sendmmsg)
 GOM(__sendmmsg, iFEipuu)    //%% actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
 GOW(sendto, lFipLipu)
 // setaliasent
