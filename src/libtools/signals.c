@@ -1005,10 +1005,9 @@ exit(-1);
             esp = (void*)p->uc_mcontext.arm_r8;
         }
 #endif
-        x86name = getAddrFunctionName(x86pc);
         elfheader_t* elf = FindElfAddress(my_context, x86pc);
         if(elf)
-            elfname = ElfName(elf);
+            x86name = getAddrFunctionName(x86pc);
         if(jit_gdb) {
             pid_t pid = getpid();
             int v = fork(); // is this ok in a signal handler???
@@ -1039,8 +1038,8 @@ exit(-1);
         uint32_t hash = 0;
         if(db && ((addr<db->x86_addr || addr>(db->x86_addr+db->x86_size)) || (prot&PROT_READ)))
             hash = X31_hash_code(db->x86_addr, db->x86_size);
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
-            GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, 
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/\"%s\", esp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x)", 
+            GetTID(), signame, pc, name, (void*)x86pc, x86name?x86name:"???", esp, 
             emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_EBP, 
             addr, info->si_code, prot, db, db?db->block:0, db?(db->block+db->size):0, 
             db?db->x86_addr:0, db?(db->x86_addr+db->x86_size):0, 
@@ -1060,7 +1059,7 @@ exit(-1);
         #warning TODO
 #endif
 #else
-        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/%s:\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, elfname?elfname:"???", x86name?x86name:"???", esp, addr, info->si_code);
+        printf_log(log_minimum, "%04d|%s @%p (%s) (x86pc=%p/\"%s\", esp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x86pc, x86name?x86name:"???", esp, addr, info->si_code);
 #endif
         if(sig==SIGILL) {
             printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7]);
