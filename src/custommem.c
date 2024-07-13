@@ -957,6 +957,7 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
     else {
         mutex_lock(&mutex_prot);
         rb_set(mapallmem, addr, addr+size, 1);
+        rb_unset(memprot, addr, addr+size);
         mutex_unlock(&mutex_prot);
     }
 }
@@ -970,6 +971,7 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
     else {
         mutex_lock(&mutex_prot);
         rb_set(mapallmem, addr, addr+size, 1);
+        rb_unset(memprot, addr, addr+size);
         mutex_unlock(&mutex_prot);
     }
 }
