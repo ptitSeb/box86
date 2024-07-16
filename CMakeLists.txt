@@ -84,9 +84,14 @@ string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "arm"  _arm)
 string(COMPARE EQUAL "${CMAKE_HOST_SYSTEM_PROCESSOR}" "armv8l"  _armv8l)
 
 if(_aarch64 AND (RK3399 OR ODROIDN2 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR RPI3ARM64 OR RPI4ARM64 OR PHYTIUM OR SD845 OR SD888 OR ADLINK OR A64 OR LX2160A OR RK3588 OR ARM64))
-    set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
-    #set(CMAKE_ASM_COMPILER arm-linux-gnueabihf-as) #will use gcc in fact
-    set(CMAKE_C_COMPILER_TARGET arm-linux-gnueabihf)
+    set(COMPILER_TRIPLE arm-linux-gnueabihf-gcc)
+    find_program(COMPILER_FOUND ${COMPILER_TRIPLE})
+    
+    if(COMPILER_FOUND)
+        set(CMAKE_C_COMPILER ${COMPILER_FOUND})
+    else()
+        message(STATUS "Cross compiler ${COMPILER_TRIPLE} not found, using CC or -DCMAKE_C_COMPILER")
+    endif()
 endif()
 
 project(box86 C ASM)
