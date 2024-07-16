@@ -2025,7 +2025,7 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
         CreateCPUPresentFile(tmp);
         lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
+        return tmp;
     }
     if(isCpuTopology((const char*)pathname)!=-1) {
         int n = isCpuTopology((const char*)pathname);
@@ -2797,13 +2797,13 @@ EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
 }
 EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
 
-EXPORT int32_t my_fcntl_time64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
+EXPORT int32_t my___fcntl_time64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     (void)emu; (void)d2; (void)d3; (void)d4; (void)d5; (void)d6;
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
-    iFiiV_t f = dlsym(lib->w.lib, "fcntl_time64");
+    iFiiV_t f = dlsym(lib->w.lib, "__fcntl_time64");
     if(b==F_SETFL)
         d1 = of_convert(d1);
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
