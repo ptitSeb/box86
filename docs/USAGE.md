@@ -206,6 +206,11 @@ Handling of x87 80bits long double
 * 0 : Try to handle 80bits long double as precise as possible (Default)
 * 1 : Handle them as double
 
+#### BOX64_MAXCPU
+Maximum CPU Core exposed
+* 0 : Don't cap the number of cpu core exposed (Default)
+* XXX : Cap the maximum CPU Core exposed to XXX (usefull with wine64 or GridAutosport for example)
+
 #### BOX86_LIBCEF *
 Detect libcef and apply malloc_hack settings
 * 0 : Don't detect libcef

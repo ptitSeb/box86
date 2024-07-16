@@ -3944,18 +3944,6 @@ const char* arm_print(uint32_t opcode) {
 		uint8_t shift = ((opcode >> 4) & 0xFF);
 		
 		sprintf(ret, "TEQ%s %s, %s%s", cond, regname[rn], regname[rm], print_shift(shift, 1));
-	} else if ((opcode&0b00001111111111110000000000000000) == 0b00000010100011110000000000000000) {
-		const char* cond = conds[(opcode >> 28) & 0xF];
-		int rd = (opcode >> 16) & 0xF;
-		uint32_t imm12 = opcode&0b111111111111;
-
-		sprintf(ret, "ADR %s, #0x%x", regname[rd], imm12);
-	} else if ((opcode&0b00001111111111110000000000000000) == 0b00000010010011110000000000000000) {
-		const char* cond = conds[(opcode >> 28) & 0xF];
-		int rd = (opcode >> 16) & 0xF;
-		uint32_t imm12 = opcode&0b111111111111;
-
-		sprintf(ret, "ADR %s, #-0x%x", regname[rd], imm12);
 	} else if ((opcode & 0x0FF000F0) == 0x01400090) {
 		const char* cond = conds[(opcode >> 28) & 0xF];
 		int rt = (opcode >> 12) & 0xF;
@@ -4209,6 +4197,12 @@ const char* arm_print(uint32_t opcode) {
 		uint16_t imm12 = ((opcode >> 0) & 0xFFF);
 		
 		sprintf(ret, "EOR%s%s %s, %s, #0x%x", (s ? "S" : ""), cond, regname[rd], regname[rn], print_modified_imm_ARM(imm12));
+	} else if ((opcode & 0x0FFF0000) == 0x024F0000) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rd = (opcode >> 12) & 0xF;
+		uint16_t imm12 = ((opcode >> 0) & 0xFFF);
+		
+		sprintf(ret, "ADR%s %s, #-0x%x", cond, regname[rd], print_modified_imm_ARM(imm12));
 	} else if ((opcode & 0x0FE00000) == 0x02400000) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
@@ -4225,6 +4219,12 @@ const char* arm_print(uint32_t opcode) {
 		uint16_t imm12 = ((opcode >> 0) & 0xFFF);
 		
 		sprintf(ret, "RSB%s%s %s, %s, #0x%x", (s ? "S" : ""), cond, regname[rd], regname[rn], print_modified_imm_ARM(imm12));
+	} else if ((opcode & 0x0FFF0000) == 0x028F0000) {
+		const char* cond = conds[(opcode >> 28) & 0xF];
+		int rd = (opcode >> 12) & 0xF;
+		uint16_t imm12 = ((opcode >> 0) & 0xFFF);
+		
+		sprintf(ret, "ADR%s %s, #0x%x", cond, regname[rd], print_modified_imm_ARM(imm12));
 	} else if ((opcode & 0x0FE00000) == 0x02800000) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];

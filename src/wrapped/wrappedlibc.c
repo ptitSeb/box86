@@ -1892,6 +1892,15 @@ EXPORT int32_t my_open(x86emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
+    if(box86_maxcpu && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (getNCpu()>=box86_maxcpu)) {
+        // special case for cpu present (to limit to box86_maxcpu cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
     if(isCpuTopology((const char*)pathname)!=-1) {
         int n = isCpuTopology((const char*)pathname);
         char buf[512];
@@ -2009,6 +2018,15 @@ EXPORT int32_t my_open64(x86emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
+    if(box86_maxcpu && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (getNCpu()>=box86_maxcpu)) {
+        // special case for cpu present (to limit to box86_maxcpu cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open64(pathname, flags, mode); // error fallback
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
     if(isCpuTopology((const char*)pathname)!=-1) {
         int n = isCpuTopology((const char*)pathname);
         char buf[512];
@@ -2084,8 +2102,8 @@ EXPORT FILE* my_fopen(x86emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);;
     }
-    if(box86_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=32)) {
-        // special case for cpu present (to limit to 64 cores)
+    if(box86_maxcpu && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=box86_maxcpu)) {
+        // special case for cpu present (to limit to box86_maxcpu cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen(path, mode); // error fallback
         shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
@@ -2160,8 +2178,8 @@ EXPORT FILE* my_fopen64(x86emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);;
     }
-    if(box86_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=32)) {
-        // special case for cpu present (to limit to 64 cores)
+    if(box86_maxcpu && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=box86_maxcpu)) {
+        // special case for cpu present (to limit to box86_maxcpu cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen64(path, mode); // error fallback
         shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use

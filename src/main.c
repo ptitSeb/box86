@@ -51,6 +51,8 @@ int box86_dynarec_log = LOG_NONE;
 uintptr_t box86_pagesize;
 uintptr_t box86_load_addr = 0;
 int box86_showbt = 0;
+int box86_maxcpu = 0;
+int box86_maxcpu_immutable = 0;
 int box86_isglibc234 = 0;
 int box86_nosandbox = 0;
 int box86_malloc_hack = 0;
@@ -758,6 +760,19 @@ void LoadLogEnv()
         }
         if(box86_showbt)
             printf_log(LOG_INFO, "Show Backtrace for signals\n");
+    }
+    p = getenv("BOX64_MAXCPU");
+    if(p) {
+        int maxcpu = 0;
+        if(sscanf(p, "%d", &maxcpu)==1)
+            box86_maxcpu = maxcpu;
+        if(box86_maxcpu<0)
+            box86_maxcpu = 0;
+        if(box86_maxcpu) {
+            printf_log(LOG_INFO, "Will not expose more than %d cpu cores\n", box86_maxcpu);
+        } else {
+            printf_log(LOG_INFO, "Will not limit the number of cpu cores exposed\n");
+        }
     }
     box86_pagesize = sysconf(_SC_PAGESIZE);
     if(!box86_pagesize)
@@ -1568,6 +1583,9 @@ int main(int argc, const char **argv, char **env)
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
         printf_log(LOG_INFO, "argv[%i]=\"%s\"\n", i, my_context->argv[i]);
+    }
+    if(box86_wine) {
+        box86_maxcpu_immutable = 1; // cannot change once wine is loaded
     }
     if(box86_nosandbox)
     {
