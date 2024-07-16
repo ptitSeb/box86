@@ -2245,7 +2245,7 @@ GOM(__fcntl_time64, iFEiiN) //%%
 GO(gmtime64_r, pFpp)
 GO(localtime64, pFpp)
 GO(localtime64_r, pFpp)
-GO(ppoll64, iFpupp)
+GO(__ppoll64, iFpupp)
 GO(__clock_gettime64, iFpp)
 GO(__stat_time64, iFpp)  //needs alignement?
 GO(__fstat_time64, iFip)
