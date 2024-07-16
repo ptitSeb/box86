@@ -4202,7 +4202,7 @@ const char* arm_print(uint32_t opcode) {
 		int rd = (opcode >> 12) & 0xF;
 		uint16_t imm12 = ((opcode >> 0) & 0xFFF);
 		
-		sprintf(ret, "ADR%s %s, #-0x%x", cond, regname[rd], imm12);
+		sprintf(ret, "ADR%s %s, #-0x%x", cond, regname[rd], print_modified_imm_ARM(imm12));
 	} else if ((opcode & 0x0FE00000) == 0x02400000) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
@@ -4224,7 +4224,7 @@ const char* arm_print(uint32_t opcode) {
 		int rd = (opcode >> 12) & 0xF;
 		uint16_t imm12 = ((opcode >> 0) & 0xFFF);
 		
-		sprintf(ret, "ADR%s %s, #0x%x", cond, regname[rd], imm12);
+		sprintf(ret, "ADR%s %s, #0x%x", cond, regname[rd], print_modified_imm_ARM(imm12));
 	} else if ((opcode & 0x0FE00000) == 0x02800000) {
 		int s = (opcode >> 20) & 1;
 		const char* cond = conds[(opcode >> 28) & 0xF];
