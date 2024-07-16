@@ -2779,6 +2779,34 @@ EXPORT int32_t my_fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32
 }
 EXPORT int32_t my___fcntl(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my_fcntl")));
 
+EXPORT int32_t my_fcntl_time64(x86emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
+{
+    (void)emu; (void)d2; (void)d3; (void)d4; (void)d5; (void)d6;
+    // Implemented starting glibc 2.14+
+    library_t* lib = my_lib;
+    if(!lib) return 0;
+    iFiiV_t f = dlsym(lib->w.lib, "fcntl_time64");
+    if(b==F_SETFL)
+        d1 = of_convert(d1);
+    if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
+    {
+        my_flock64_t fl;
+        AlignFlock64(&fl, (void*)d1);
+        int ret = f?f(a, b, &fl):fcntl(a, b, &fl);
+        UnalignFlock64((void*)d1, &fl);
+        return ret;
+    }
+    //TODO: check if better to use the syscall or regular fcntl?
+    //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
+    int ret = f?f(a, b, d1):fcntl(a, b, d1);
+
+    if(b==F_GETFL && ret!=-1)
+        ret = of_unconvert(ret);
+
+    return ret;
+}
+
+
 EXPORT int32_t my_preadv64(x86emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
     (void)emu;
