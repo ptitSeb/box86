@@ -471,8 +471,10 @@ ARM_ cond 0 0 0 1 1 1 1 0 Rn Rd (1) (1) (1) (1) 1 0 0 1 Rt STREXH<c> <Rd>, <Rt>,
 ARM_ cond 0 0 0 1 1 1 1 1 Rn Rt (1) (1) (1) (1) 1 0 0 1 (1) (1) (1) (1) LDREXH<c> <Rt>, [<Rn>]
 ARM_ cond 0 0 1 0 0 0 0 S Rn Rd imm12 AND{S}<c> <Rd>, <Rn>, #<const>
 ARM_ cond 0 0 1 0 0 0 1 S Rn Rd imm12 EOR{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 0 1 0 0 1 1 1 1 Rd imm12 ADR<c> <Rd>, #-<imm>
 ARM_ cond 0 0 1 0 0 1 0 S Rn Rd imm12 SUB{S}<c> <Rd>, <Rn>, #<const>
 ARM_ cond 0 0 1 0 0 1 1 S Rn Rd imm12 RSB{S}<c> <Rd>, <Rn>, #<const>
+ARM_ cond 0 0 1 0 1 0 0 0 1 1 1 1 Rd imm12 ADR<c> <Rd>, #<imm>
 ARM_ cond 0 0 1 0 1 0 0 S Rn Rd imm12 ADD{S}<c> <Rd>, <Rn>, #<const>
 ARM_ cond 0 0 1 0 1 0 1 S Rn Rd imm12 ADC{S}<c> <Rd>, <Rn>, #<const>
 ARM_ cond 0 0 1 0 1 1 0 S Rn Rd imm12 SBC{S}<c> <Rd>, <Rn>, #<const>

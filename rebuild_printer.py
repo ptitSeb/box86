@@ -72,7 +72,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 		
 		# Get all actual instructions
 		# Ignore white lines and lines beginning with either !, ; or #
-		insts = list(filter(lambda l: not re.match("^\s*$", l) and not re.match("^([!;#])", l), insts.split('\n')))
+		insts = list(filter(lambda l: not re.match("^\\s*$", l) and not re.match("^([!;#])", l), insts.split('\n')))
 		
 		try:
 			# Do not open with `with` to be able to open it in writing mode
