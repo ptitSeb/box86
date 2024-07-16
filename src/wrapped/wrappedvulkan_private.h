@@ -433,7 +433,7 @@ GO(vkReleaseFullScreenExclusiveModeEXT, iFpU)
 GO(vkGetDeviceGroupSurfacePresentModes2EXT, iFpPp)
 
 // VK_EXT_calibrated_timestamps
-GO(vkGetCalibratedTimestampsEXT, iFpuppp)
+GO(vkGetCalibratedTimestampsEXT, iFpuPpp)
 GO(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, iFppp)
 
 // VK_EXT_sample_locations
@@ -661,3 +661,7 @@ GO(vkCmdBindIndexBuffer2KHR, vFpUUUu)
 GO(vkGetDeviceImageSubresourceLayoutKHR, vFpPP)
 GO(vkGetImageSubresourceLayout2KHR, vFpUPP)
 GO(vkGetRenderingAreaGranularityKHR, vFpPp)
+
+// VK_KHR_calibrated_timestamps
+GO(vkGetCalibratedTimestampsKHR, iFpuPpp)
+GO(vkGetPhysicalDeviceCalibrateableTimeDomainsKHR, iFppp)
