@@ -13,6 +13,7 @@ provides=("${pkgname%-git}" "${pkgname%-rk3xxx-git}-git" "${pkgname%-rk3xxx-git}
 conflicts=("${pkgname%-git}" "${pkgname%-rk3xxx-git}-git" "${pkgname%-rk3xxx-git}")
 source=('git+https://github.com/ptitSeb/box86')
 md5sums=('SKIP')
+_rkmodel=`tr -d '\0' < /proc/device-tree/compatible`
 
 pkgver() {
 	cd "$srcdir/${pkgname%-rk3xxx-git}"
