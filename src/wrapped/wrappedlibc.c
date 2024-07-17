@@ -1283,6 +1283,7 @@ EXPORT int my_stat(char* path, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
+#endif
 
 EXPORT int my_fstat(int fd, void* buf)
 {
@@ -1299,7 +1300,6 @@ EXPORT int my_lstat(char* path, void* buf)
     UnalignStat64(&st, buf);
     return r;
 }
-#endif
 
 EXPORT int my___fxstat(x86emu_t *emu, int vers, int fd, void* buf)
 {

@@ -2292,17 +2292,14 @@ GO(dummy_safer_scalable_aligned_realloc, pFpLLp)    // for mallochook.c
 
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
-GOM(stat, iFpp)             //%noE
-GOM(lstat, iFpp)            //%noE
-GOM(fstat, iFip)            //%noE
 GO(__errno, pFv)
 #include "wrappedlibpthread_private.h"
 #include "wrappedlibrt_private.h"
 #else
 // Those symbols don't exist in non-Android builds
 //GOM(__libc_init,
-//GOM(stat,
-//GOM(lstat,
-//GOM(fstat,
 //GO(__errno,
 #endif
+GOM(stat, iFpp)             //%noE
+GOM(lstat, iFpp)            //%noE
+GOM(fstat, iFip)            //%noE
