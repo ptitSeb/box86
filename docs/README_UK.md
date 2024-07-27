@@ -2,7 +2,7 @@
 
 Емулятор простіра користувача x86_64 із родзинкою
 
-[Дивитись журнал змін](https://github.com/ptitSeb/box86/blob/master/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box86/blob/master/docs/README_CN.md) | [Українська](https://github.com/ptitSeb/box86/blob/master/docs/README_UK.md) | [Повідомити про помилку](https://github.com/ptitSeb/box86/issues/new)
+[Дивитись журнал змін](https://github.com/ptitSeb/box86/blob/master/docs/CHANGELOG.md) | [中文](https://github.com/ptitSeb/box86/blob/master/docs/README_CN.md) | [English](https://github.com/ptitSeb/box86/blob/master/docs/README.md) | [Повідомити про помилку](https://github.com/ptitSeb/box86/issues/new)
 
 ![build](https://app.travis-ci.com/ptitSeb/box86.svg?branch=main) ![stars](https://img.shields.io/github/stars/ptitSeb/box86) ![forks](https://img.shields.io/github/forks/ptitSeb/box86) ![contributors](https://img.shields.io/github/contributors/ptitSeb/box86) ![prs](https://img.shields.io/github/issues-pr/ptitSeb/box86) ![issues](https://img.shields.io/github/issues/ptitSeb/box86)
 
@@ -104,12 +104,7 @@ Linux версія Steam тепер може працювати з Box86, але
 - Якщо у вас виникли проблеми зі встановленням Steam, ви можете знайти `install_steam.sh` у кореневій папці сховища box86. Цей простий скрипт завантажить і встановить Steam у вашу домашню папку, а потім створить ярлик steam у `/usr/local/bin` (для цього він запитає дозвіл sudo). Просто використовуйте `steam` для запуску після встановлення. Зауважте, що інсталяція, яка знаходиться в папці Home, працюватиме лише для одного користувача. Не використовуйте цей скрипт, якщо вам потрібна багатокористувацька інсталяція.
 - Щоб уникнути повідомлення «libc.so.6 відсутній», ви можете використовувати `STEAMOS=1` і `STEAM_RUNTIME=1` як змінні середовища (воно автоматично з’являється, якщо ви використовували сценарій `install_steam.sh`)
 
-Щоб вимкнути `steamwebhelper`, коли Box64 встановлений і працює, створіть (або відредагуйте) `~/.box64rc` і додайте у ньому:
-```
-[steamwebhelper]
-BOX64_EXIT=1
-```
-І тоді `steamwebhelper` буде вимкнено. Прокоментуйте `#` ці 2 рядки, щоб увімкнути його знову.
+Якщо у вас виникла проблема із запуском Steam (не запускається `steamwebhelper`), вам потрібно запустити Steam за допомогою `-cef-disable-gpu` або `-cef-disable-gpu-compositor`.
 
 ----
 
