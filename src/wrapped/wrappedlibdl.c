@@ -100,7 +100,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             if(sys)
                 return sys;
         }
-        if(!strcmp(rfilename, "/usr/lib/x86_64-linux-gnu/d3d")) {
+        if(!strcmp(rfilename, "/usr/lib/i386-linux-gnu/d3d")) {
             void* sys = my_dlopen(emu, "d3dadapter9.so.1", flag);
             if(sys)
                 return sys;
@@ -121,7 +121,7 @@ void* my_dlopen(x86emu_t* emu, void *filename, int flag)
             box_free(origin);
         }
         while(strstr(rfilename, "${PLATFORM}")) {
-            char* platform = box_strdup("x86_64");
+            char* platform = box_strdup("i386");
             char* p = strrchr(platform, '/');
             if(p) *p = '\0';    // remove file name to have only full path, without last '/'
             char* tmp = (char*)box_calloc(1, strlen(rfilename)-strlen("${PLATFORM}")+strlen(platform)+1);
