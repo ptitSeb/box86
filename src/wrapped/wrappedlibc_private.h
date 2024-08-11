@@ -1574,6 +1574,7 @@ GO(setxattr, iFpppui)
 // sgetspent_r  // Weak
 GOW(shmat, pFipi)
 GOW(shmctl, iFiip)
+GO(__shmctl64, iFiip)
 GOW(shmdt, iFp)
 GOW(shmget, iFuui)
 GOW(shutdown, iFii)
