@@ -938,7 +938,7 @@ void UnalignStat(const void* source, void* dest)
     i386st->st_size     = st->st_size;
     i386st->st_blksize  = st->st_blksize;
     i386st->st_blocks   = st->st_blocks;
-    # ifdef __USE_XOPEN2K8
+    #if defined(__USE_XOPEN2K8) || defined(ANDROID)
     i386st->st_atime_sec    = st->st_atim.tv_sec;
     i386st->st_atime_nsec   = st->st_atim.tv_nsec;
     i386st->st_mtime_sec    = st->st_mtim.tv_sec;
