@@ -397,7 +397,7 @@ GOS(xcb_open_font_checked, xFEpuWp)
 //GO(xcb_open_font_name_end, 
 //GO(xcb_open_font_name_length, 
 //GO(xcb_open_font_sizeof, 
-//GO(xcb_parse_display, 
+GO(xcb_parse_display, iFpppp)
 //GO(xcb_pixmap_end, 
 //GO(xcb_pixmap_next, 
 //GO(xcb_point_end, 
