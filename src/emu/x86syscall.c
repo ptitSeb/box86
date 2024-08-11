@@ -685,7 +685,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_stat64, R_EBX, &st);
-                UnalignStat64(&st, (void*)R_ECX);
+                UnalignSysStat64(&st, (void*)R_ECX);
                 
                 R_EAX = r;
             }
@@ -696,7 +696,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_lstat64, R_EBX, &st);
-                UnalignStat64(&st, (void*)R_ECX);
+                UnalignSysStat64(&st, (void*)R_ECX);
                 
                 R_EAX = r;
             }
@@ -707,7 +707,7 @@ void EXPORT x86Syscall(x86emu_t *emu)
             {   
                 struct stat64 st;
                 unsigned int r = syscall(__NR_fstat64, R_EBX, &st);
-                UnalignStat64(&st, (void*)R_ECX);
+                UnalignSysStat64(&st, (void*)R_ECX);
                 
                 R_EAX = r;
             }

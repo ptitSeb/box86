@@ -25,8 +25,11 @@ void myStackAlignW(const char* fmt, uint32_t* st, uint32_t* mystack);
 
 void AlignStat64(const void* source, void* dest);
 void UnalignStat64(const void* source, void* dest);
+void UnalignSysStat64(const void* source, void* dest);
+void UnalignStat(const void* source, void* dest);
 
 void UnalignStatFS64(const void* source, void* dest);
+void UnalignStatFS(const void* source, void* dest);
 
 void UnalignOggVorbis(void* dest, void* source); // Arm -> x86
 void AlignOggVorbis(void* dest, void* source);   // x86 -> Arm
@@ -43,6 +46,9 @@ void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
 void UnalignSmpegInfo(void* dest, void* source); // Arm -> x86
 void AlignSmpegInfo(void* dest, void* source);   // x86 -> Arm
 
+void Timespec2Timespec64(void* dest, const void* source);
+void Timespec642Timespec(void* dest, const void* source);
+
 // stat64 is packed on i386, not on arm (and possibly other structures)
 #undef st_atime
 #undef st_atime_nsec
@@ -50,19 +56,43 @@ void AlignSmpegInfo(void* dest, void* source);   // x86 -> Arm
 #undef st_mtime_nsec
 #undef st_ctime
 #undef st_ctime_nsec
+
+struct i386_stat {
+	uint64_t  st_dev;
+	uint32_t  __pad1;
+	uint32_t  st_ino;
+	uint32_t  st_mode;
+	uint32_t  st_nlink;
+	uint32_t  st_uid;
+	uint32_t  st_gid;
+	uint64_t  st_rdev;
+	uint32_t  __pad2;
+	int32_t   st_size;
+	int32_t   st_blksize;
+	int32_t   st_blocks;
+	int32_t   st_atime_sec;
+	uint32_t  st_atime_nsec;
+	int32_t   st_mtime_sec;
+	uint32_t  st_mtime_nsec;
+	int32_t   st_ctime_sec;
+	uint32_t  st_ctime_nsec;
+	uint32_t  __unused4;
+	uint32_t  __unused5;
+} __attribute__((packed));
+
 struct i386_stat64 {
 	uint64_t	st_dev;
-	uint8_t		__pad0[4];
-	uint32_t		__st_ino;
-	uint32_t		st_mode;
-	uint32_t		st_nlink;
-	uint32_t		st_uid;
-	uint32_t		st_gid;
+	uint32_t	__pad0;
+	uint32_t	__st_ino;
+	uint32_t	st_mode;
+	uint32_t	st_nlink;
+	uint32_t	st_uid;
+	uint32_t	st_gid;
 	uint64_t	st_rdev;
-	uint8_t		__pad3[4];
+	uint32_t	__pad3;
 	int64_t		st_size;
-	uint32_t		st_blksize;
-	uint64_t		st_blocks;
+	uint32_t	st_blksize;
+	uint64_t	st_blocks;
 	uint32_t	st_atime;
 	uint32_t	st_atime_nsec;
 	uint32_t	st_mtime;

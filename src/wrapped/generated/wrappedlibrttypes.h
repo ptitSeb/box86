@@ -14,6 +14,7 @@
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
+typedef int32_t (*iFiipp_t)(int32_t, int32_t, void*, void*);
 typedef int32_t (*iFipip_t)(int32_t, void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \

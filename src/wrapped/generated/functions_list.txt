@@ -3694,6 +3694,7 @@ wrappedlibrt:
   - aio_cancel
 - iFupp:
   - timer_create
+- iFiipp:
 - iFipip:
   - lio_listio
 wrappedlibsm:

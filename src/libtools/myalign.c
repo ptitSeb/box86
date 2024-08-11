@@ -8,6 +8,8 @@
 #include <wchar.h>
 #include <sys/epoll.h>
 #include <fts.h>
+#include <sys/stat.h>
+#include <sys/statfs.h>
 
 #include "x86emu.h"
 #include "emu/x86emu_private.h"
@@ -917,4 +919,86 @@ void unalignNGValue(void* value, my_GValue_t* v, int n)
         value+=4+2*sizeof(double);
         --n;
     }
+}
+
+void UnalignStat(const void* source, void* dest)
+{
+    struct i386_stat *i386st = (struct i386_stat*)dest;
+    struct stat *st = (struct stat*) source;
+    
+    i386st->__pad1 = 0;
+	i386st->__pad2 = 0;
+    i386st->st_dev      = st->st_dev;
+    i386st->st_ino      = st->st_ino;
+    i386st->st_mode     = st->st_mode;
+    i386st->st_nlink    = st->st_nlink;
+    i386st->st_uid      = st->st_uid;
+    i386st->st_gid      = st->st_gid;
+    i386st->st_rdev     = st->st_rdev;
+    i386st->st_size     = st->st_size;
+    i386st->st_blksize  = st->st_blksize;
+    i386st->st_blocks   = st->st_blocks;
+    # ifdef __USE_XOPEN2K8
+    i386st->st_atime_sec    = st->st_atim.tv_sec;
+    i386st->st_atime_nsec   = st->st_atim.tv_nsec;
+    i386st->st_mtime_sec    = st->st_mtim.tv_sec;
+    i386st->st_mtime_nsec   = st->st_mtim.tv_nsec;
+    i386st->st_ctime_sec    = st->st_ctim.tv_sec;
+    i386st->st_ctime_nsec   = st->st_ctim.tv_nsec;
+    #else
+    i386st->st_atime_sec    = st->st_atime;
+    i386st->st_atime_nsec   = st->st_atimensec;
+    i386st->st_mtime_sec    = st->st_mtime;
+    i386st->st_mtime_nsec   = st->st_mtimensec;
+    i386st->st_ctime_sec    = st->st_ctime;
+    i386st->st_ctime_nsec   = st->st_ctimensec;
+    #endif
+}
+
+void UnalignStatFS(const void* source, void* dest)
+{
+    struct i386_statfs *i386st = (struct i386_statfs*)dest;
+    struct statfs *st = (struct statfs*) source;
+
+    i386st->f_type      = st->f_type;
+    i386st->f_bsize     = st->f_bsize;
+    i386st->f_blocks    = st->f_blocks;
+    i386st->f_bfree     = st->f_bfree;
+    i386st->f_bavail    = st->f_bavail;
+    i386st->f_files     = st->f_files;
+    i386st->f_ffree     = st->f_ffree;
+    memcpy(&i386st->f_fsid, &st->f_fsid, sizeof(i386st->f_fsid));
+    i386st->f_namelen   = st->f_namelen;
+    i386st->f_frsize    = st->f_frsize;
+    i386st->f_flags     = st->f_flags;
+    i386st->f_spare[0]  = st->f_spare[0];
+    i386st->f_spare[1]  = st->f_spare[1];
+    i386st->f_spare[2]  = st->f_spare[2];
+    i386st->f_spare[3]  = st->f_spare[3];
+}
+
+typedef struct my_timespec_s {
+    int     tv_sec;
+    int     tv_nsec;
+} my_timespec_t;
+
+typedef struct my_timespec64_s {
+    int64_t tv_sec;
+    int     tv_nsec;
+    int     :32;
+} my_timespec64_t;
+
+void Timespec2Timespec64(void* dest, const void* source)
+{
+    my_timespec64_t* dst = (my_timespec64_t*)dest;
+    my_timespec_t* src = (my_timespec_t*)source;
+    dst->tv_sec = src->tv_sec;
+    dst->tv_nsec = src->tv_nsec;
+}
+void Timespec642Timespec(void* dest, const void* source)
+{
+    my_timespec_t* dst = (my_timespec_t*)dest;
+    my_timespec64_t* src = (my_timespec64_t*)source;
+    dst->tv_sec = src->tv_sec;
+    dst->tv_nsec = src->tv_nsec;
 }

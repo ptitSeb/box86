@@ -1197,29 +1197,6 @@ EXPORT void my__ITM_registerTMCloneTable(x86emu_t* emu, void* p, uint32_t s) { (
 EXPORT void my__ITM_deregisterTMCloneTable(x86emu_t* emu, void* p) { (void)emu; (void)p; }
 
 
-struct i386_stat {
-	uint64_t  st_dev;
-	uint32_t  __pad1;
-	uint32_t  st_ino;
-	uint32_t  st_mode;
-	uint32_t  st_nlink;
-	uint32_t  st_uid;
-	uint32_t  st_gid;
-	uint64_t  st_rdev;
-	uint32_t  __pad2;
-	int32_t   st_size;
-	int32_t   st_blksize;
-	int32_t   st_blocks;
-	int32_t   st_atime_sec;
-	uint32_t  st_atime_nsec;
-	int32_t   st_mtime_sec;
-	uint32_t  st_mtime_nsec;
-	int32_t   st_ctime_sec;
-	uint32_t  st_ctime_nsec;
-	uint32_t  __unused4;
-	uint32_t  __unused5;
-} __attribute__((packed));
-
 static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
 {
     struct i386_stat *i386st = (struct i386_stat *)st32;
@@ -1264,14 +1241,13 @@ static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
         errno = EOVERFLOW;
         return -1;
     }
-    i386st->st_atime_sec = st64->st_atim.tv_sec;
+    i386st->st_atime_sec  = st64->st_atim.tv_sec;
     i386st->st_atime_nsec = st64->st_atim.tv_nsec;
-    i386st->st_mtime_sec = st64->st_mtim.tv_sec;
+    i386st->st_mtime_sec  = st64->st_mtim.tv_sec;
     i386st->st_mtime_nsec = st64->st_mtim.tv_nsec;
-    i386st->st_ctime_sec = st64->st_ctim.tv_sec;
+    i386st->st_ctime_sec  = st64->st_ctim.tv_sec;
     i386st->st_ctime_nsec = st64->st_ctim.tv_nsec;
-    i386st->__unused4 = 0;
-    i386st->__unused5 = 0;
+    i386st->st_ino = 0;
     return 0;
 }
 
@@ -1486,6 +1462,21 @@ EXPORT int my_statfs64(const char* path, void* buf)
     return r;
 }
 
+EXPORT int my_fstatfs(int fd, void* buf)
+{
+    struct statfs st;
+    int r = fstatfs(fd, &st);
+    UnalignStatFS(&st, buf);
+    return r;
+}
+
+EXPORT int my_statfs(const char* path, void* buf)
+{
+    struct statfs st;
+    int r = statfs(path, &st);
+    UnalignStatFS(&st, buf);
+    return r;
+}
 
 #ifdef ANDROID
 typedef int (*__compar_d_fn_t)(const void*, const void*, void*);
@@ -3385,7 +3376,16 @@ EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
 {
     if(!req)
         return 0;   // workaround for some strange calls
+    #ifdef __USE_TIME64_REDIRECTS
+    struct timespec t1, t2;
+    Timespec2Timespec64(&t1, req);
+    int ret = nanosleep(&t1, rem?(&t2):NULL);
+    if(rem)
+        Timespec642Timespec(rem, &t2);
+    return ret;
+    #else
     return nanosleep(req, rem);
+    #endif
 }
 
 #ifndef NOALIGN

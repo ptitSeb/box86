@@ -22,14 +22,13 @@
 #include "librarian.h"
 #include "box86context.h"
 #include "emu/x86emu_private.h"
+#include "myalign.h"
 
 #undef aio_suspend
 #undef aio_return
 #undef aio_write
 #undef aio_read
 #undef aio_error
-
-#undef clock_gettime
 
 const char* librtName = "librt.so.1";
 #define LIBNAME librt
@@ -154,6 +153,43 @@ EXPORT int mylio_listio(x86emu_t* emu, int mode, void* list[], int nent, struct 
     return -1;
 }
 #endif
+
+EXPORT int my_clock_gettime(int clock, void* buf)
+{
+    #ifdef __USE_TIME64_REDIRECTS
+    struct timespec spec;
+    int ret = clock_gettime(clock, &spec);
+    Timespec642Timespec(buf, &spec);
+    return ret;
+    #else
+    return clock_gettime(clock, buf);
+    #endif
+}
+EXPORT int my_clock_settime(int clock, void* buf)
+{
+    #ifdef __USE_TIME64_REDIRECTS
+    struct timespec spec;
+    Timespec2Timespec64(&spec, buf);
+    return clock_settime(clock, &spec);
+    #else
+    return clock_settime(clock, buf);
+    #endif
+}
+
+EXPORT int my_clock_nanosleep(int clock, int flags, void* _t1, void* _t2)
+{
+    #ifdef __USE_TIME64_REDIRECTS
+    struct timespec t1, t2;
+    if(_t1)
+        Timespec2Timespec64(&t1, _t1);
+    int ret = clock_nanosleep(clock, flags, _t1?(&t1):NULL, _t2?(&t2):NULL);
+    if(_t2)
+        Timespec642Timespec(_t2, &t2);
+    return ret;
+    #else
+    return clock_nanosleep(clock, flags, _t1, _t2);
+    #endif
+}
 
 #define CUSTOM_INIT \
     getMy(lib);

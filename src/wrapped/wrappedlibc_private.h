@@ -417,7 +417,7 @@ GO(__fsetlocking, iFpi)
 GO(fsetpos, iFpp)
 GO(fsetpos64, iFpp)
 GO(fsetxattr, iFippui)
-GOW(fstatfs, iFip)
+GOWM(fstatfs, iFip)      //%%,noE
 GOWM(fstatfs64, iFip)    //%%,noE
 GO(fstatvfs, iFip)
 GOW(fstatvfs64, iFip)   // alignment?
@@ -1645,7 +1645,7 @@ GO2(sscanf, iFppV, vsscanf)     // sscanf va_list is only pointer, no realign to
 GOM(__stack_chk_fail, vFEv) //%%
 GOM(lstat64, iFEpp)
 GOM(stat64, iFEpp)
-GOW(statfs, iFpp)
+GOWM(statfs, iFpp)       //%%,noE
 // __statfs
 GOWM(statfs64, iFpp)     //%%,noE
 GO(statvfs, iFpp)

@@ -569,7 +569,15 @@ EXPORT int my_pthread_cond_timedwait_old(x86emu_t* emu, void* cond, void* mutex,
 {
     (void)emu;
 	pthread_cond_t * c = get_cond(cond);
-	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
+	#ifdef __USE_TIME64_REDIRECTS
+    struct timespec t1;
+    Timespec2Timespec64(&t1, abstime);
+	#define T abstime?(&t1):NULL
+	#else
+	#define T (const struct timespec*)abstime
+	#endif
+	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), T);
+	#undef T
 }
 EXPORT int my_pthread_cond_wait_old(x86emu_t* emu, void* cond, void* mutex)
 {
@@ -581,7 +589,15 @@ EXPORT int my_pthread_cond_wait_old(x86emu_t* emu, void* cond, void* mutex)
 EXPORT int my_pthread_cond_timedwait(x86emu_t* emu, void* cond, void* mutex, void* abstime)
 {
     (void)emu;
-	return pthread_cond_timedwait((pthread_cond_t*)cond, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
+	#ifdef __USE_TIME64_REDIRECTS
+    struct timespec t1;
+    Timespec2Timespec64(&t1, abstime);
+	#define T abstime?(&t1):NULL
+	#else
+	#define T (const struct timespec*)abstime
+	#endif
+	return pthread_cond_timedwait((pthread_cond_t*)cond, getAlignedMutex((pthread_mutex_t*)mutex), T);
+	#undef T
 }
 EXPORT int my_pthread_cond_wait(x86emu_t* emu, void* cond, void* mutex)
 {
@@ -914,9 +930,17 @@ EXPORT int my_pthread_mutex_lock(pthread_mutex_t *m)
 }
 EXPORT int my___pthread_mutex_lock(pthread_mutex_t *m) __attribute__((alias("my_pthread_mutex_lock")));
 
-EXPORT int my_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespec * t)
+EXPORT int my_pthread_mutex_timedlock(pthread_mutex_t *m, void* abstime)
 {
-	return pthread_mutex_timedlock(getAlignedMutex(m), t);
+	#ifdef __USE_TIME64_REDIRECTS
+    struct timespec t1;
+    Timespec2Timespec64(&t1, abstime);
+	#define T abstime?(&t1):NULL
+	#else
+	#define T (const struct timespec*)abstime
+	#endif
+	return pthread_mutex_timedlock(getAlignedMutex(m), T);
+	#undef T
 }
 
 EXPORT int my_pthread_mutex_trylock(pthread_mutex_t *m)

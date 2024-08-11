@@ -5,27 +5,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <asm/stat.h>
+#include <sys/stat.h>
 #include <sys/vfs.h>
 #include <signal.h>
+#include <stddef.h>
 
 #include "x86emu.h"
 #include "emu/x86emu_private.h"
 #include "myalign.h"
+#include "debug.h"
 
 void UnalignStat64(const void* source, void* dest)
 {
     struct i386_stat64 *i386st = (struct i386_stat64*)dest;
     struct stat64 *st = (struct stat64*) source;
     
-    memset(i386st->__pad0, 0, sizeof(i386st->__pad0));
-	memset(i386st->__pad3, 0, sizeof(i386st->__pad3));
+    i386st->__pad0 = 0;
+	i386st->__pad3 = 0;
     i386st->st_dev      = st->st_dev;
-#ifndef POWERPCLE
-    i386st->__st_ino    = st->__st_ino;
-#else
+#ifdef __USE_TIME64_REDIRECTS
+    i386st->__st_ino    = st->st_ino;
+#elif defined(POWERPCLE)
     i386st->__st_ino    = st->st_ino; // Separate __st_ino doesn't 
                                       // exist on powerpc
+#else
+    i386st->__st_ino    = st->__st_ino;
 #endif
     i386st->st_mode     = st->st_mode;
     i386st->st_nlink    = st->st_nlink;
@@ -35,12 +39,21 @@ void UnalignStat64(const void* source, void* dest)
     i386st->st_size     = st->st_size;
     i386st->st_blksize  = st->st_blksize;
     i386st->st_blocks   = st->st_blocks;
+# ifdef __USE_XOPEN2K8
+    i386st->st_atime    = st->st_atim.tv_sec;
+    i386st->st_atime_nsec   = st->st_atim.tv_nsec;
+    i386st->st_mtime    = st->st_mtim.tv_sec;
+    i386st->st_mtime_nsec   = st->st_mtim.tv_nsec;
+    i386st->st_ctime    = st->st_ctim.tv_sec;
+    i386st->st_ctime_nsec   = st->st_ctim.tv_nsec;
+#else
     i386st->st_atime    = st->st_atime;
     i386st->st_atime_nsec   = st->st_atime_nsec;
     i386st->st_mtime    = st->st_mtime;
     i386st->st_mtime_nsec   = st->st_mtime_nsec;
     i386st->st_ctime    = st->st_ctime;
     i386st->st_ctime_nsec   = st->st_ctime_nsec;
+#endif
     i386st->st_ino      = st->st_ino;
 }
 
@@ -50,11 +63,10 @@ void AlignStat64(const void* source, void* dest)
     struct i386_stat64 *i386st = (struct i386_stat64*)source;
     
     st->st_dev          = i386st->st_dev;
-#ifndef POWERPCLE
-    st->__st_ino        = i386st->__st_ino;
+#if defined(__USE_TIME64_REDIRECTS) || defined(POWERPCLE)
+    // Separate __st_ino doesn't exist
 #else
-    st->st_ino          = i386st->__st_ino; // Separate __st_ino doesn't 
-                                            // exist on powerpc
+    st->__st_ino        = i386st->__st_ino;
 #endif
     st->st_mode         = i386st->st_mode;
     st->st_nlink        = i386st->st_nlink;
@@ -64,12 +76,21 @@ void AlignStat64(const void* source, void* dest)
     st->st_size         = i386st->st_size;
     st->st_blksize      = i386st->st_blksize;
     st->st_blocks       = i386st->st_blocks;
+#ifdef __USE_XOPEN2K8
+    st->st_atim.tv_sec  = i386st->st_atime;
+    st->st_atim.tv_nsec = i386st->st_atime_nsec;
+    st->st_mtim.tv_sec  = i386st->st_mtime;
+    st->st_mtim.tv_nsec = i386st->st_mtime_nsec;
+    st->st_ctim.tv_sec  = i386st->st_ctime;
+    st->st_ctim.tv_nsec = i386st->st_ctime_nsec;
+#else
     st->st_atime        = i386st->st_atime;
     st->st_atime_nsec   = i386st->st_atime_nsec;
     st->st_mtime        = i386st->st_mtime;
     st->st_mtime_nsec   = i386st->st_mtime_nsec;
     st->st_ctime        = i386st->st_ctime;
     st->st_ctime_nsec   = i386st->st_ctime_nsec;
+#endif
     st->st_ino          = i386st->st_ino;
 }
 

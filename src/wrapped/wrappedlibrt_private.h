@@ -23,9 +23,9 @@ GOM(aio_write, iFEp)
 GOM(aio_write64, iFEp)
 GO(clock_getcpuclockid, iFup)
 GO(clock_getres, iFup)
-GO(clock_gettime, iFup)
-GO(clock_nanosleep, iFuipp)
-GO(clock_settime, iFup)
+GOM(clock_gettime, iFip)    //%%,noE
+GOM(clock_nanosleep, iFiipp)    //%%,noE
+GOM(clock_settime, iFip)    //%%,noE
 GOM(lio_listio, iFEipip)
 // lio_listio64
 // mq_close
