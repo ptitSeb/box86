@@ -23,7 +23,7 @@ pkgver() {
 prepare() {
 	cd "${srcdir}/${pkgname%-rk3xxx-git}"
 	# Check for RockChip version number
-	if [[ ${_rkmodel} =~ "rk3288"]]; then
+	if [[ ${_rkmodel} =~ "rk3288" ]]; then
 		_rksuffix=3288
 	elif [[ ${_rkmodel} =~ "rk3399" ]]; then
 		_rksuffix=3399	
