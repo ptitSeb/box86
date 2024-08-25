@@ -241,8 +241,8 @@ void* resizeTLSData(box86context_t *context, void* oldptr)
                 for (int i=oldata->n_elfs; i<context->elfsize; ++i) {
                     // set pointer
                     dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
-                    *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*8) = dtp;
-                    *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*8+4) = i; // index
+                    *(uint32_t*)((uintptr_t)ptr+POS_TLS+i*8) = dtp;
+                    *(uint32_t*)((uintptr_t)ptr+POS_TLS+i*8+4) = i; // index
                 }
                 oldata->n_elfs = context->elfsize;
             }
