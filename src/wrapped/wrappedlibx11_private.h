@@ -290,7 +290,7 @@ GO(XDisplayWidthMM, iFpi)
 GO(XDrawArc, iFpppiiuuii)
 //GO(XDrawArcs
 GO(XDrawImageString, iFpppiipi)
-//GO(XDrawImageString16
+GO(XDrawImageString16, iFpppiipi)
 GO(XDrawLine, iFpppiiii)
 GO(XDrawLines, iFppppii)
 GO(XDrawPoint, iFpppii)
