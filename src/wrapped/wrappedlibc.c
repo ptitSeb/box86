@@ -1251,29 +1251,27 @@ static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
     return 0;
 }
 
-#ifdef ANDROID
 EXPORT int my_stat(char* path, void* buf)
 {
-    struct stat64 st;
-    int r = stat64(path, &st);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = stat(path, &st);
+    UnalignStat(&st, buf);
     return r;
 }
-#endif
 
 EXPORT int my_fstat(int fd, void* buf)
 {
-    struct stat64 st;
-    int r = fstat64(fd, &st);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = fstat(fd, &st);
+    UnalignStat(&st, buf);
     return r;
 }
 
 EXPORT int my_lstat(char* path, void* buf)
 {
-    struct stat64 st;
-    int r = lstat64(path, &st);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = lstat(path, &st);
+    UnalignStat(&st, buf);
     return r;
 }
 
