@@ -1744,13 +1744,13 @@ GO2(__isoc23_strtol, lFppi, strtol)
 #ifdef HAVE_LD80BITS
 GO(strtold, DFpp)
 GO(__strtold_internal, DFppi)
-GO(__strtold_l, DFppip)
-GOW(strtold_l, DFppu)
+GO(__strtold_l, DFppp)
+GOW(strtold_l, DFppp)
 #else
 GO(strtold, KFpp)
 GO2(__strtold_internal, KFppi, __strtod_internal)
-GO2(__strtold_l, KFppip, __strtod_l)
-GOW2(strtold_l, KFppu, strtod_l)
+GO2(__strtold_l, KFppp, __strtod_l)
+GOW2(strtold_l, KFppp, strtod_l)
 #endif
 GO(__strtol_internal, lFppi)
 GO(strtoll, IFppi)

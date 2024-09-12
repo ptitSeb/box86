@@ -2506,8 +2506,7 @@ typedef long double (*DFED_t)(x86emu_t*, long double);
 typedef long double (*DFDD_t)(long double, long double);
 typedef long double (*DFDp_t)(long double, void*);
 typedef long double (*DFppi_t)(void*, void*, int32_t);
-typedef long double (*DFppu_t)(void*, void*, uint32_t);
-typedef long double (*DFppip_t)(void*, void*, int32_t, void*);
+typedef long double (*DFppp_t)(void*, void*, void*);
 typedef int32_t (*iFDipppL_t)(long double, int32_t, void*, void*, void*, uintptr_t);
 typedef void (*vFppippDDC_t)(void*, void*, int32_t, void*, void*, long double, long double, uint8_t);
 #endif
@@ -2520,8 +2519,7 @@ typedef double (*KFKK_t)(double, double);
 typedef double (*KFKp_t)(double, void*);
 typedef double (*KFpp_t)(void*, void*);
 typedef double (*KFppi_t)(void*, void*, int32_t);
-typedef double (*KFppu_t)(void*, void*, uint32_t);
-typedef double (*KFppip_t)(void*, void*, int32_t, void*);
+typedef double (*KFppp_t)(void*, void*, void*);
 typedef int32_t (*iFKipppL_t)(double, int32_t, void*, void*, void*, uintptr_t);
 typedef void (*vFppippKKC_t)(void*, void*, int32_t, void*, void*, double, double, uint8_t);
 #endif
@@ -4962,8 +4960,7 @@ void DFED(x86emu_t *emu, uintptr_t fcn) { DFED_t fn = (DFED_t)fcn; long double l
 void DFDD(x86emu_t *emu, uintptr_t fcn) { DFDD_t fn = (DFDD_t)fcn; long double ld=fn(LD2localLD((void*)(R_ESP + 4)), LD2localLD((void*)(R_ESP + 16))); fpu_do_push(emu); ST0val = ld; }
 void DFDp(x86emu_t *emu, uintptr_t fcn) { DFDp_t fn = (DFDp_t)fcn; long double ld=fn(LD2localLD((void*)(R_ESP + 4)), *(void**)(R_ESP + 16)); fpu_do_push(emu); ST0val = ld; }
 void DFppi(x86emu_t *emu, uintptr_t fcn) { DFppi_t fn = (DFppi_t)fcn; long double ld=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12)); fpu_do_push(emu); ST0val = ld; }
-void DFppu(x86emu_t *emu, uintptr_t fcn) { DFppu_t fn = (DFppu_t)fcn; long double ld=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(uint32_t*)(R_ESP + 12)); fpu_do_push(emu); ST0val = ld; }
-void DFppip(x86emu_t *emu, uintptr_t fcn) { DFppip_t fn = (DFppip_t)fcn; long double ld=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16)); fpu_do_push(emu); ST0val = ld; }
+void DFppp(x86emu_t *emu, uintptr_t fcn) { DFppp_t fn = (DFppp_t)fcn; long double ld=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12)); fpu_do_push(emu); ST0val = ld; }
 void iFDipppL(x86emu_t *emu, uintptr_t fcn) { iFDipppL_t fn = (iFDipppL_t)fcn; R_EAX=fn(LD2localLD((void*)(R_ESP + 4)), *(int32_t*)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28), *(uintptr_t*)(R_ESP + 32)); }
 void vFppippDDC(x86emu_t *emu, uintptr_t fcn) { vFppippDDC_t fn = (vFppippDDC_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), LD2localLD((void*)(R_ESP + 24)), LD2localLD((void*)(R_ESP + 36)), *(uint8_t*)(R_ESP + 48)); }
 #endif
@@ -4976,8 +4973,7 @@ void KFKK(x86emu_t *emu, uintptr_t fcn) { KFKK_t fn = (KFKK_t)fcn; double db=fn(
 void KFKp(x86emu_t *emu, uintptr_t fcn) { KFKp_t fn = (KFKp_t)fcn; double db=fn(FromLD((void*)(R_ESP + 4)), *(void**)(R_ESP + 16)); fpu_do_push(emu); ST0val = db; }
 void KFpp(x86emu_t *emu, uintptr_t fcn) { KFpp_t fn = (KFpp_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8)); fpu_do_push(emu); ST0val = db; }
 void KFppi(x86emu_t *emu, uintptr_t fcn) { KFppi_t fn = (KFppi_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12)); fpu_do_push(emu); ST0val = db; }
-void KFppu(x86emu_t *emu, uintptr_t fcn) { KFppu_t fn = (KFppu_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(uint32_t*)(R_ESP + 12)); fpu_do_push(emu); ST0val = db; }
-void KFppip(x86emu_t *emu, uintptr_t fcn) { KFppip_t fn = (KFppip_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16)); fpu_do_push(emu); ST0val = db; }
+void KFppp(x86emu_t *emu, uintptr_t fcn) { KFppp_t fn = (KFppp_t)fcn; double db=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12)); fpu_do_push(emu); ST0val = db; }
 void iFKipppL(x86emu_t *emu, uintptr_t fcn) { iFKipppL_t fn = (iFKipppL_t)fcn; R_EAX=fn(FromLD((void*)(R_ESP + 4)), *(int32_t*)(R_ESP + 16), *(void**)(R_ESP + 20), *(void**)(R_ESP + 24), *(void**)(R_ESP + 28), *(uintptr_t*)(R_ESP + 32)); }
 void vFppippKKC(x86emu_t *emu, uintptr_t fcn) { vFppippKKC_t fn = (vFppippKKC_t)fcn; fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20), FromLD((void*)(R_ESP + 24)), FromLD((void*)(R_ESP + 36)), *(uint8_t*)(R_ESP + 48)); }
 #endif
@@ -5049,8 +5045,7 @@ int isRetX87Wrapper(wrapper_t fun) {
 	if (fun == &DFDD) return 1;
 	if (fun == &DFDp) return 1;
 	if (fun == &DFppi) return 1;
-	if (fun == &DFppu) return 1;
-	if (fun == &DFppip) return 1;
+	if (fun == &DFppp) return 1;
 #endif
 #if !defined(HAVE_LD80BITS)
 	if (fun == &KFK) return 1;
@@ -5058,8 +5053,7 @@ int isRetX87Wrapper(wrapper_t fun) {
 	if (fun == &KFKp) return 1;
 	if (fun == &KFpp) return 1;
 	if (fun == &KFppi) return 1;
-	if (fun == &KFppu) return 1;
-	if (fun == &KFppip) return 1;
+	if (fun == &KFppp) return 1;
 #endif
 	return 0;
 }
