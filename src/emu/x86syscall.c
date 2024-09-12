@@ -924,7 +924,7 @@ long EXPORT my_syscall(x86emu_t *emu)
 #endif
 #ifndef __NR_memfd_create
         case 356:  // memfd_create
-            return my_memfd_create(emu, (void*)R_EBX, R_ECX);
+            return my_memfd_create(emu, p(4), u32(8));
 #endif
         case 449:
             #ifdef __NR_futex_waitv
