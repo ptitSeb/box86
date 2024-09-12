@@ -478,94 +478,57 @@ EXPORT int my_pthread_key_delete(x86emu_t* emu, pthread_key_t key)
 	int ret = pthread_key_delete(key);
 	return ret;
 }
-// phtread_cond_init with null attr seems to only write 1 (NULL) dword on x86, while it's 48 bytes on ARM. 
-// Not sure why as sizeof(pthread_cond_init) is 48 on both platform... But Neverwinter Night init seems to rely on that
-// What about cond that are statically initialized? 
-// Note, this is is a versionned function (the pthread_cond_*), and this seems to correspond to an old behaviour
+typedef struct pthread_cond_old_s {
+	pthread_cond_t* cond;
+} pthread_cond_old_t;
 
-KHASH_MAP_INIT_INT(mapcond, pthread_cond_t*);
-
-// should all access to that map be behind a mutex?
-kh_mapcond_t *mapcond = NULL;
-
-static pthread_cond_t* add_cond(void* cond)
-{
-	mutex_lock(&my_context->mutex_thread);
-	khint_t k;
-	int ret;
-	pthread_cond_t *c;
-	k = kh_put(mapcond, mapcond, (uintptr_t)cond, &ret);
-	if(!ret)
-		c = kh_value(mapcond, k);	// already there... reinit an existing one?
-	else 
-		c = kh_value(mapcond, k) = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
-	*(void**)cond = cond;
-	mutex_unlock(&my_context->mutex_thread);
-	return c;
-}
-static pthread_cond_t* get_cond(void* cond)
-{
-	pthread_cond_t* ret;
-	int r;
-	mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
-	if(k==kh_end(mapcond)) {
-		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
-		if(k==kh_end(mapcond)) {
-			printf_log(LOG_DEBUG, "BOX86: Note: phtread_cond not found, create a new empty one\n");
-			ret = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
-			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
-			kh_value(mapcond, k) = ret;
-		} else
-			ret = kh_value(mapcond, k);
-		*(void**)cond = cond;
-		pthread_cond_init(ret, NULL);
-	} else
-		ret = kh_value(mapcond, k);
-	mutex_unlock(&my_context->mutex_thread);
-	return ret;
-}
-static void del_cond(void* cond)
-{
-	if(!mapcond)
-		return;
-	mutex_lock(&my_context->mutex_thread);
-	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
-	if(k!=kh_end(mapcond)) {
-		box_free(kh_value(mapcond, k));
-		kh_del(mapcond, mapcond, k);
+static pthread_cond_t* get_cond(pthread_cond_old_t* cond) {
+	if(!cond->cond) {
+		pthread_cond_t* newcond = box_calloc(1, sizeof(pthread_cond_t));
+		#ifdef DYNAREC
+		if(arm_lock_storeifnull(&cond->cond, newcond))
+			box_free(newcond);
+		#else
+		static pthread_mutex_t mutex_cond = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_lock(&mutex_cond);
+		if(!cond->cond)
+			cond->cond = newcond;
+		else
+			box_free(newcond);
+		#endif
 	}
-	mutex_unlock(&my_context->mutex_thread);
+	return cond->cond;
 }
+
 static pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
-EXPORT int my_pthread_cond_broadcast_old(x86emu_t* emu, void* cond)
+EXPORT int my_pthread_cond_broadcast_old(x86emu_t* emu, pthread_cond_old_t* cond)
 {
     (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_broadcast(c);
 }
-EXPORT int my_pthread_cond_destroy_old(x86emu_t* emu, void* cond)
+EXPORT int my_pthread_cond_destroy_old(x86emu_t* emu, pthread_cond_old_t* cond)
 {
     (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
-	if(c!=cond) del_cond(cond);
+	box_free(cond->cond);
 	return ret;
 }
-EXPORT int my_pthread_cond_init_old(x86emu_t* emu, void* cond, void* attr)
+EXPORT int my_pthread_cond_init_old(x86emu_t* emu, pthread_cond_old_t* cond, void* attr)
 {
     (void)emu;
-	pthread_cond_t *c = add_cond(cond);
+	pthread_cond_t *c = get_cond(cond);
 	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
-EXPORT int my_pthread_cond_signal_old(x86emu_t* emu, void* cond)
+EXPORT int my_pthread_cond_signal_old(x86emu_t* emu, pthread_cond_old_t* cond)
 {
     (void)emu;
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_signal(c);
 }
-EXPORT int my_pthread_cond_timedwait_old(x86emu_t* emu, void* cond, void* mutex, void* abstime)
+EXPORT int my_pthread_cond_timedwait_old(x86emu_t* emu, pthread_cond_old_t* cond, void* mutex, void* abstime)
 {
     (void)emu;
 	pthread_cond_t * c = get_cond(cond);
@@ -579,7 +542,7 @@ EXPORT int my_pthread_cond_timedwait_old(x86emu_t* emu, void* cond, void* mutex,
 	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), T);
 	#undef T
 }
-EXPORT int my_pthread_cond_wait_old(x86emu_t* emu, void* cond, void* mutex)
+EXPORT int my_pthread_cond_wait_old(x86emu_t* emu, pthread_cond_old_t* cond, void* mutex)
 {
     (void)emu;
 	pthread_cond_t * c = get_cond(cond);
@@ -975,7 +938,6 @@ void init_pthread_helper()
 		real_phtread_kill_old = (iFli_t)pthread_kill;
 	}
 
-	mapcond = kh_init(mapcond);
 	pthread_key_create(&thread_key, emuthread_destroy);
 	pthread_setspecific(thread_key, NULL);
 #if !defined(NOALIGN) && defined(ANDROID)
@@ -995,13 +957,6 @@ void clean_current_emuthread()
 void fini_pthread_helper(box86context_t* context)
 {
 	CleanStackSize(context);
-	pthread_cond_t *cond;
-	kh_foreach_value(mapcond, cond, 
-		pthread_cond_destroy(cond);
-		box_free(cond);
-	);
-	kh_destroy(mapcond, mapcond);
-	mapcond = NULL;
 #ifndef NOALIGN
 #ifdef ANDROID
 	pthread_mutex_t *m;
