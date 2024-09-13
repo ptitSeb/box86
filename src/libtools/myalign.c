@@ -938,7 +938,7 @@ void UnalignStat(const void* source, void* dest)
     i386st->st_size     = st->st_size;
     i386st->st_blksize  = st->st_blksize;
     i386st->st_blocks   = st->st_blocks;
-    #if defined(__USE_XOPEN2K8) || defined(ANDROID)
+    #if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA)
     i386st->st_atime_sec    = st->st_atim.tv_sec;
     i386st->st_atime_nsec   = st->st_atim.tv_nsec;
     i386st->st_mtime_sec    = st->st_mtim.tv_sec;
@@ -970,7 +970,9 @@ void UnalignStatFS(const void* source, void* dest)
     memcpy(&i386st->f_fsid, &st->f_fsid, sizeof(i386st->f_fsid));
     i386st->f_namelen   = st->f_namelen;
     i386st->f_frsize    = st->f_frsize;
+    #ifndef PANDORA
     i386st->f_flags     = st->f_flags;
+    #endif
     i386st->f_spare[0]  = st->f_spare[0];
     i386st->f_spare[1]  = st->f_spare[1];
     i386st->f_spare[2]  = st->f_spare[2];

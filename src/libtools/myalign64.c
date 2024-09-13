@@ -39,7 +39,7 @@ void UnalignStat64(const void* source, void* dest)
     i386st->st_size     = st->st_size;
     i386st->st_blksize  = st->st_blksize;
     i386st->st_blocks   = st->st_blocks;
-#if defined(__USE_XOPEN2K8) || defined(ANDROID)
+#if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA)
     i386st->st_atime    = st->st_atim.tv_sec;
     i386st->st_atime_nsec   = st->st_atim.tv_nsec;
     i386st->st_mtime    = st->st_mtim.tv_sec;
@@ -76,7 +76,7 @@ void AlignStat64(const void* source, void* dest)
     st->st_size         = i386st->st_size;
     st->st_blksize      = i386st->st_blksize;
     st->st_blocks       = i386st->st_blocks;
-#if defined(__USE_XOPEN2K8) || defined(ANDROID)
+#if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA)
     st->st_atim.tv_sec  = i386st->st_atime;
     st->st_atim.tv_nsec = i386st->st_atime_nsec;
     st->st_mtim.tv_sec  = i386st->st_mtime;
