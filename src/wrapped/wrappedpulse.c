@@ -911,7 +911,7 @@ static void* find_io_new_Fct(void* fct)
 // io_enable
 #define GO(A)                                                   \
 static uintptr_t my_io_enable_fct_##A = 0;                      \
-static void* my_io_enable_##A(void* api, int events)            \
+static void my_io_enable_##A(void* api, int events)             \
 {                                                               \
     RunFunctionFmt(my_io_enable_fct_##A, "pi", api, events);    \
 }
@@ -933,7 +933,7 @@ static void* find_io_enable_Fct(void* fct)
 // io_free
 #define GO(A)                                   \
 static uintptr_t my_io_free_fct_##A = 0;        \
-static void* my_io_free_##A(void* e)            \
+static void my_io_free_##A(void* e)             \
 {                                               \
     RunFunctionFmt(my_io_free_fct_##A, "p", e); \
 }
@@ -999,7 +999,7 @@ static void* find_time_new_Fct(void* fct)
 // time_restart
 #define GO(A)                                               \
 static uintptr_t my_time_restart_fct_##A = 0;               \
-static void* my_time_restart_##A(void* e, void* t)          \
+static void my_time_restart_##A(void* e, void* t)           \
 {                                                           \
     RunFunctionFmt(my_time_restart_fct_##A, "pp", e, t);    \
 }
@@ -1021,7 +1021,7 @@ static void* find_time_restart_Fct(void* fct)
 // time_free
 #define GO(A)                                       \
 static uintptr_t my_time_free_fct_##A = 0;          \
-static void* my_time_free_##A(void* e)              \
+static void my_time_free_##A(void* e)               \
 {                                                   \
     RunFunctionFmt(my_time_free_fct_##A, "p", e);   \
 }
@@ -1087,7 +1087,7 @@ static void* find_defer_new_Fct(void* fct)
 // defer_enable
 #define GO(A)                                               \
 static uintptr_t my_defer_enable_fct_##A = 0;               \
-static void* my_defer_enable_##A(void* e, int b)            \
+static void my_defer_enable_##A(void* e, int b)             \
 {                                                           \
     RunFunctionFmt(my_defer_enable_fct_##A, "pi", e, b);    \
 }
@@ -1109,7 +1109,7 @@ static void* find_defer_enable_Fct(void* fct)
 // defer_free
 #define GO(A)                                       \
 static uintptr_t my_defer_free_fct_##A = 0;         \
-static void* my_defer_free_##A(void* e)             \
+static void my_defer_free_##A(void* e)              \
 {                                                   \
     RunFunctionFmt(my_defer_free_fct_##A, "p", e);  \
 }
@@ -1153,7 +1153,7 @@ static void* find_defer_set_destroy_Fct(void* fct)
 // quit
 #define GO(A)                                           \
 static uintptr_t my_quit_fct_##A = 0;                   \
-static void* my_quit_##A(void* e, int retval)           \
+static void my_quit_##A(void* e, int retval)            \
 {                                                       \
     RunFunctionFmt(my_quit_fct_##A, "pi", e, retval);   \
 }
