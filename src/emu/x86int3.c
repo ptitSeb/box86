@@ -198,6 +198,8 @@ void x86Int3(x86emu_t* emu)
                     perr = 3;
                 } else  if(strstr(s, "strcasecmp")==s || strstr(s, "__strcasecmp")==s) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8));
+                } else  if(strstr(s, "wcsncasecmp")==s) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(\"%S\", \"%S\", %d)", tid, *(void**)(R_ESP), s, *(char**)(R_ESP+4), *(char**)(R_ESP+8), *(int*)(R_ESP+12));
                 } else  if(strstr(s, "gtk_signal_connect_full")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\", %p, %p, %p, %p, %d, %d)", tid, *(void**)(R_ESP), "gtk_signal_connect_full", *(void**)(R_ESP+4), *(char**)(R_ESP+8), *(void**)(R_ESP+12), *(void**)(R_ESP+16), *(void**)(R_ESP+20), *(void**)(R_ESP+24), *(int32_t*)(R_ESP+28), *(int32_t*)(R_ESP+32));
                 } else  if(strstr(s, "strcmp")==s || strstr(s, "__strcmp")==s) {

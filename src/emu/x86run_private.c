@@ -923,7 +923,11 @@ void PrintTrace(x86emu_t* emu, uintptr_t ip, int dynarec)
             if(peek==0xC3 || peek==0xC2) {
                 printf_log(LOG_NONE, " => %p", *(void**)(R_ESP));
                 printFunctionAddr(*(uintptr_t*)(R_ESP), "=> ");
-            } else if(peek==0x55) {
+            } else if(peek==0x55 || peek==0x57 || peek==0x53) {
+                printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
+                printFunctionAddr(*(uintptr_t*)(R_ESP), "top:");
+                printFunctionAddr(ip, "here: ");
+            } else if(peek==0x83 && PK(1)==0xEC) {
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_ESP));
                 printFunctionAddr(*(uintptr_t*)(R_ESP), "top:");
                 printFunctionAddr(ip, "here: ");
