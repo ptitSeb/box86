@@ -23,11 +23,8 @@ void UnalignStat64(const void* source, void* dest)
     i386st->__pad0 = 0;
 	i386st->__pad3 = 0;
     i386st->st_dev      = st->st_dev;
-#ifdef __USE_TIME64_REDIRECTS
-    i386st->__st_ino    = st->st_ino;
-#elif defined(POWERPCLE)
-    i386st->__st_ino    = st->st_ino; // Separate __st_ino doesn't 
-                                      // exist on powerpc
+#if defined(__USE_TIME64_REDIRECTS) || defined(POWERPCLE) || !defined(HAVE_ST_INO)
+    i386st->__st_ino    = st->st_ino; 
 #else
     i386st->__st_ino    = st->__st_ino;
 #endif
@@ -39,7 +36,7 @@ void UnalignStat64(const void* source, void* dest)
     i386st->st_size     = st->st_size;
     i386st->st_blksize  = st->st_blksize;
     i386st->st_blocks   = st->st_blocks;
-#if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA) || defined(BAD_SIGNAL)
+#if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA)
     i386st->st_atime    = st->st_atim.tv_sec;
     i386st->st_atime_nsec   = st->st_atim.tv_nsec;
     i386st->st_mtime    = st->st_mtim.tv_sec;
@@ -63,7 +60,7 @@ void AlignStat64(const void* source, void* dest)
     struct i386_stat64 *i386st = (struct i386_stat64*)source;
     
     st->st_dev          = i386st->st_dev;
-#if defined(__USE_TIME64_REDIRECTS) || defined(POWERPCLE)
+#if defined(__USE_TIME64_REDIRECTS) || defined(POWERPCLE)|| !defined(HAVE_ST_INO)
     // Separate __st_ino doesn't exist
 #else
     st->__st_ino        = i386st->__st_ino;
@@ -76,7 +73,7 @@ void AlignStat64(const void* source, void* dest)
     st->st_size         = i386st->st_size;
     st->st_blksize      = i386st->st_blksize;
     st->st_blocks       = i386st->st_blocks;
-#if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA) || defined(BAD_SIGNAL)
+#if defined(__USE_XOPEN2K8) || defined(ANDROID) || defined(PANDORA)
     st->st_atim.tv_sec  = i386st->st_atime;
     st->st_atim.tv_nsec = i386st->st_atime_nsec;
     st->st_mtim.tv_sec  = i386st->st_mtime;

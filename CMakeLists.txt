@@ -243,6 +243,12 @@ else()
     set(BOX86 box86)
 endif()
 
+try_compile(HAVE_ST_INO ${CMAKE_BINARY_DIR}/compile_tests ${CMAKE_SOURCE_DIR}/tests/test_st_ino.c)
+
+if(HAVE_ST_INO)
+  message("stat64 has __st_info field")
+  add_definitions(-DHAVE_ST_INO)
+endif()
 
 set(BOX86_ELF_ADDRESS "0x62800000")
 
