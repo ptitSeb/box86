@@ -69,6 +69,8 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroySurfaceKHR, vFpUp_t) \
 	GO(vkDestroySwapchainKHR, vFpUp_t) \
 	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
+	GO(vkDestroyVideoSessionKHR, vFpUp_t) \
+	GO(vkDestroyVideoSessionParametersKHR, vFpUp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
 	GO(vkGetImageMemoryRequirements2, vFpPp_t) \
 	GO(vkGetImageMemoryRequirements2KHR, vFpPp_t) \
@@ -86,10 +88,13 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkGetDeviceImageSparseMemoryRequirementsKHR, vFpPpp_t) \
 	GO(vkQueueSubmit2, iFpupU_t) \
 	GO(vkQueueSubmit2KHR, iFpupU_t) \
+	GO(vkBindVideoSessionMemoryKHR, iFpUup_t) \
 	GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t) \
 	GO(vkGetPastPresentationTimingGOOGLE, iFpUpP_t) \
 	GO(vkCreateDebugReportCallbackEXT, iFpppp_t) \
 	GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t) \
+	GO(vkCreateVideoSessionKHR, iFpppp_t) \
+	GO(vkCreateVideoSessionParametersKHR, iFpppp_t) \
 	GO(vkCreateWaylandSurfaceKHR, iFpppp_t) \
 	GO(vkAllocateMemory, iFpPpp_t) \
 	GO(vkCreateBuffer, iFpPpp_t) \

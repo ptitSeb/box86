@@ -4825,6 +4825,8 @@ wrappedvulkan:
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
   - vkDestroyValidationCacheEXT
+  - vkDestroyVideoSessionKHR
+  - vkDestroyVideoSessionParametersKHR
 - vFppp:
   - vkDestroyDebugUtilsMessengerEXT
 - vFpPp:
@@ -4851,12 +4853,15 @@ wrappedvulkan:
   - vkQueueSubmit2
   - vkQueueSubmit2KHR
 - iFpUup:
+  - vkBindVideoSessionMemoryKHR
   - vkGetDisplayPlaneCapabilitiesKHR
 - iFpUpP:
   - vkGetPastPresentationTimingGOOGLE
 - iFpppp:
   - vkCreateDebugReportCallbackEXT
   - vkCreateDebugUtilsMessengerEXT
+  - vkCreateVideoSessionKHR
+  - vkCreateVideoSessionParametersKHR
   - vkCreateWaylandSurfaceKHR
 - iFpPpp:
   - vkAllocateMemory

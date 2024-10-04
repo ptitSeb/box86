@@ -1253,6 +1253,9 @@ typedef struct my_vkhead_s {
     case VK_STRUCTURE_TYPE_RENDERING_AREA_INFO_KHR:                     \
     case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO_KHR:     \
     case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO_KHR:        \
+    case VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR:               \
+    case VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR:                   \
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR:               \
 
 #define CH(C, B, A) \
     case C:         \
@@ -1325,6 +1328,9 @@ typedef struct my_vkhead_s {
     CH(VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT, "uPUup", A)             \
     CH(VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES, "uPSuuu", A)             \
     CH(VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO_KHR, "uPPP", A)              \
+    CH(VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR, "uPuUUU", A)           \
+    CH(VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR, "uPuUUup", A)                 \
+    CH(VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR, "uPuUU", A)      \
 
 
 //--------------------------------------------------------------

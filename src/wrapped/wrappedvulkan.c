@@ -681,6 +681,12 @@ DESTROY64(vkDestroyPrivateDataSlotEXT)
 CREATE(vkCreateOpticalFlowSessionNV)
 DESTROY64(vkDestroyOpticalFlowSessionNV)
 
+CREATE(vkCreateVideoSessionKHR)
+CREATE(vkCreateVideoSessionParametersKHR)
+DESTROY64(vkDestroyVideoSessionKHR)
+DESTROY64(vkDestroyVideoSessionParametersKHR)
+
+
 EXPORT void my_vkGetPhysicalDeviceProperties(x86emu_t* emu, void* device, void* pProps)
 {
     (void)emu;
@@ -904,5 +910,15 @@ EXPORT int my_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(x86emu_t* emu, void* 
     void* m = vkalignStruct(pImageFormatProperties, desc, *count);
     int ret = my->vkGetPhysicalDeviceOpticalFlowImageFormatsNV(device, pInfo, count, m);
     vkunalignStruct(m, desc, *count);   // bad things will happens if *count is changed while pSparseMemoryRequirements is not NULL
+    return ret;
+}
+
+EXPORT int my_vkBindVideoSessionMemoryKHR(x86emu_t* emu, void* device, uint64_t session, uint32_t count, void* pInfos)
+{
+    (void)emu;
+    static const char* desc = "uPuUUU";
+    void* m = vkalignStruct(pInfos, desc, count);
+    int ret = my->vkBindVideoSessionMemoryKHR(device, session, count, m);
+    vkunalignStruct(m, desc, count);
     return ret;
 }
