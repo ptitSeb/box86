@@ -67,6 +67,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_mutex_timedlock, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
 	GO(pthread_setname_np, iFpp_t) \
+	GO(sem_timedwait, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
 	GO(pthread_setaffinity_np, iFLup_t) \

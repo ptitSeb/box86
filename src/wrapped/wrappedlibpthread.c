@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 #include "wrappedlibs.h"
 
@@ -130,6 +131,27 @@ EXPORT int32_t my___pthread_atfork(x86emu_t *emu, void* prepare, void* parent, v
 EXPORT void my___pthread_initialize()
 {
     // nothing, the lib initialize itself now
+}
+
+void Timespec2Timespec64(void* dest, const void* source);
+EXPORT int my_sem_timedwait(sem_t* sem, struct timespec * t)
+{
+    // some x86 game are not computing timeout correctly (ex: Anomaly Warzone Earth linux version)
+    #ifdef __USE_TIME64_REDIRECTS
+    struct timespec t1;
+    Timespec2Timespec64(&t1, t);
+    while(t1.tv_nsec>=1000000000) {
+        t1.tv_nsec-=1000000000;
+        t1.tv_sec+=1;
+    }
+    return sem_timedwait(sem, &t1);
+    #else
+    while(t->tv_nsec>=1000000000) {
+        t->tv_nsec-=1000000000;
+        t->tv_sec+=1;
+    }
+    return sem_timedwait(sem, t);
+    #endif
 }
 
 #define PRE_INIT\

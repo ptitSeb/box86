@@ -3660,6 +3660,7 @@ wrappedlibpthread:
   - pthread_mutex_timedlock
   - pthread_once
   - pthread_setname_np
+  - sem_timedwait
 - vFppp:
   - _pthread_cleanup_push
   - _pthread_cleanup_push_defer

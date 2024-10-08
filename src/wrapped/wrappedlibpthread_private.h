@@ -202,7 +202,7 @@ GO(sem_getvalue, iFpp)
 GO(sem_init, iFpiu)
 GO(sem_open, pFpOM)
 GO(sem_post, iFp)
-GO(sem_timedwait, iFpp)
+GOM(sem_timedwait, iFpp) //%noE
 GO(sem_trywait, iFp)
 GO(sem_unlink, iFp)
 GO(sem_wait, iFp)
