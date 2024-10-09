@@ -146,9 +146,15 @@ EXPORT int my_sem_timedwait(sem_t* sem, struct timespec * t)
     }
     return sem_timedwait(sem, &t1);
     #else
-    while(t->tv_nsec>=1000000000) {
-        t->tv_nsec-=1000000000;
-        t->tv_sec+=1;
+    if(t->tv_nsec>=1000000000) {
+        struct timespec t1;
+        t1.tv_sec=t->tv_sec+1;
+        t1.tv_nsec=t->tv_nsec-1000000000;
+        while(t1.tv_nsec>=1000000000) {
+            t1.tv_nsec-=1000000000;
+            t1.tv_sec+=1;
+        }        
+        return sem_timedwait(sem, &t1);
     }
     return sem_timedwait(sem, t);
     #endif
