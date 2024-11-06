@@ -2573,6 +2573,50 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
     return execvp(path, argv);
 }
 
+// execvpe should use PATH to search for the program first
+EXPORT int32_t my_execvpe(x86emu_t* emu, const char* path, char* const argv[], char* const envv[])
+{
+    // need to use BOX86_PATH / PATH here...
+    char* fullpath = ResolveFile(path, &my_context->box86_path);
+    // use fullpath...
+    int self = isProcSelf(fullpath, "exe");
+    int x86 = FileIsX86ELF(fullpath);
+    int x64 = my_context->box86path?FileIsX64ELF(path):0;
+    int script = (my_context->bashpath && FileIsShell(path))?1:0;
+    if(script && FileIsX64ELF(my_context->bashpath)) x64 = 1;
+    printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
+    if (x86 || x64 || script || self) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        int toadd = script?2:1;
+        char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
+        memset(newargv, 0, (i+toadd+1)*sizeof(char*));
+        newargv[0] = x64?emu->context->box64path:emu->context->box86path;
+        if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        for (int j=0; j<i; ++j)
+            newargv[j+1] = argv[j];
+        if(self) newargv[1] = emu->context->fullpath;
+        if(script) newargv[2] = emu->context->bashpath;
+        printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
+        int ret = execvpe(newargv[0], newargv, envv);
+        box_free(fullpath);
+        return ret;
+    }
+    box_free(fullpath);
+    if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
+     && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
+     && !argv[2]) {
+        // uname -m is redirected to box86 -m
+        path = my_context->box86path;
+        char *argv2[3] = { my_context->box86path, argv[1], NULL };
+        return execvpe(path, argv2, envv);
+    }
+
+    // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
+    return execvpe(path, argv, envv);
+}
+
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_posix_spawnp(x86emu_t* emu, pid_t* pid, const char* path, 
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])

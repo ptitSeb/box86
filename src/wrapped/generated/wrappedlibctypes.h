@@ -158,6 +158,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(getopt, iFipp_t) \
 	GO(dprintf, iFipV_t) \
 	GO(_IO_vfscanf, iFppp_t) \
+	GO(execvpe, iFppp_t) \
 	GO(__isoc23_fscanf, iFppV_t) \
 	GO(__isoc23_sscanf, iFppV_t) \
 	GO(__isoc23_sscanf, iFppV_t) \

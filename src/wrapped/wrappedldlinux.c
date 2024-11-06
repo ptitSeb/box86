@@ -36,7 +36,7 @@ EXPORT void* my____tls_get_addr(x86emu_t* emu)
 EXPORT void* my___libc_stack_end;
 void stSetup(box86context_t* context)
 {
-    my___libc_stack_end = context->stack;   // is this the end, or should I add stasz?
+    my___libc_stack_end = context->stack + context->stacksz;
 }
 
 const char* ldlinuxName = "ld-linux.so.3";

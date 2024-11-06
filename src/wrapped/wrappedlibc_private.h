@@ -293,6 +293,7 @@ GO2(execlp, iFpV, execvp)
 GOWM(execv, iFEpp)     //%%
 GOM(execve, iFEppp)   //%% and this one too...
 GOWM(execvp, iFEpp)
+GOWM(execvpe, iFEppp)
 GOM(exit, vFEi)
 GOM(_exit, vFEi)
 GOWM(_Exit, vFEi)
@@ -1281,20 +1282,20 @@ GO(posix_fallocate64, iFiII)
 GOW(posix_memalign, iFpLL)
 // posix_openpt // Weak
 GO(posix_spawn, iFpppppp)
-// posix_spawnattr_destroy
-// posix_spawnattr_getflags
-// posix_spawnattr_getpgroup
-// posix_spawnattr_getschedparam
-// posix_spawnattr_getschedpolicy
-// posix_spawnattr_getsigdefault
-// posix_spawnattr_getsigmask
-// posix_spawnattr_init
-// posix_spawnattr_setflags
-// posix_spawnattr_setpgroup
-// posix_spawnattr_setschedparam
-// posix_spawnattr_setschedpolicy
-// posix_spawnattr_setsigdefault
-// posix_spawnattr_setsigmask
+GOW(posix_spawnattr_destroy, iFp)
+GO(posix_spawnattr_getflags, iFpp)
+GO(posix_spawnattr_getpgroup, iFpp)
+GO(posix_spawnattr_getschedparam, iFpp)
+GO(posix_spawnattr_getschedpolicy, iFpp)
+GO(posix_spawnattr_getsigdefault, iFpp)
+GO(posix_spawnattr_getsigmask, iFpp)
+GOW(posix_spawnattr_init, iFp)
+GOW(posix_spawnattr_setflags, iFpw)
+GO(posix_spawnattr_setpgroup, iFpi)
+GO(posix_spawnattr_setschedparam, iFpp)
+GO(posix_spawnattr_setschedpolicy, iFpi)
+GOW(posix_spawnattr_setsigdefault, iFpp)
+GOW(posix_spawnattr_setsigmask, iFpp)
 GO(posix_spawn_file_actions_addclose, iFpi)
 GO(posix_spawn_file_actions_adddup2, iFpii)
 GO(posix_spawn_file_actions_addopen, iFpipii)

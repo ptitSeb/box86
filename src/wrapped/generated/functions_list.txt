@@ -3226,6 +3226,7 @@ wrappedlibc:
 - iFppL:
 - iFppp:
   - _IO_vfscanf
+  - execvpe
 - iFppV:
   - __isoc23_fscanf
   - __isoc23_sscanf
