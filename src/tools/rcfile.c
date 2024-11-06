@@ -110,7 +110,7 @@ IGNORE(BOX86_DYNAREC_X87DOUBLE)                                     \
 IGNORE(BOX86_DYNAREC_FASTNAN)                                       \
 IGNORE(BOX86_DYNAREC_FASTROUND)                                     \
 IGNORE(BOX86_DYNAREC_SAFEFLAGS)                                     \
-IGNORE(BOX64_DYNAREC_CALLRET)                                       \
+IGNORE(BOX86_DYNAREC_CALLRET)                                       \
 IGNORE(BOX86_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX86_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX86_DYNAREC_WAIT)                                          \
