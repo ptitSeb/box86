@@ -761,7 +761,7 @@ void LoadLogEnv()
         if(box86_showbt)
             printf_log(LOG_INFO, "Show Backtrace for signals\n");
     }
-    p = getenv("BOX64_MAXCPU");
+    p = getenv("BOX86_MAXCPU");
     if(p) {
         int maxcpu = 0;
         if(sscanf(p, "%d", &maxcpu)==1)
@@ -903,8 +903,8 @@ void PrintFlags() {
     printf(" BOX86_LIBGL=libXXXX set the name (and optionnaly full path) for libGL.so.1\n");
     printf(" BOX86_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
     printf(" BOX86_ALLOWMISSINGLIBS with 1 to allow to continue even if a lib is missing (unadvised, will probably crash later)\n");
-    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11)\n");
-    printf(" BOX64_PREFER_WRAPPED if box86 will use wrapped libs even if the lib is specified with absolute path\n");
+    printf(" BOX86_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11)\n");
+    printf(" BOX86_PREFER_WRAPPED if box86 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX86_NOPULSE=1 to disable the loading of pulseaudio libs\n");
     printf(" BOX86_NOGTK=1 to disable the loading of wrapped gtk libs\n");
     printf(" BOX86_NOVULKAN=1 to disable the loading of wrapped vulkan libs\n");
@@ -1321,7 +1321,7 @@ int main(int argc, const char **argv, char **env)
 
     // check BOX86_LOG debug level
     LoadLogEnv();
-    if(!getenv("BOX64_NORCFILES")) {
+    if(!getenv("BOX86_NORCFILES")) {
         load_rcfiles();
     }
     char* bashpath = NULL;
