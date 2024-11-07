@@ -679,3 +679,8 @@ GO(vkGetPhysicalDeviceVideoCapabilitiesKHR, iFpPp)
 GO(vkGetPhysicalDeviceVideoFormatPropertiesKHR, iFpPpp)
 GO(vkGetVideoSessionMemoryRequirementsKHR, iFpUpp)
 GO(vkUpdateVideoSessionParametersKHR, iFpUp)
+
+//VK_KHR_video_encode_queue
+GO(vkCmdEncodeVideoKHR, vFpP)
+GO(vkGetEncodedVideoSessionParametersKHR, iFpPPpp)
+GO(vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR, iFpPP)

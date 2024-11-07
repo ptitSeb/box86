@@ -491,6 +491,7 @@
 #() iFpOu
 #() iFpPU
 #() iFpPp
+#() iFpPP
 #() iFpGG
 #() iFSpi
 #() iFSpL
@@ -1333,6 +1334,7 @@
 #() iFppppL
 #() iFppppp
 #() iFpppGp
+#() iFpPPpp
 #() IFppIII
 #() uFEippp
 #() uFEpipp

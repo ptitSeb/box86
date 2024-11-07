@@ -563,6 +563,7 @@ typedef int32_t (*iFppG_t)(void*, void*, void*);
 typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
 typedef int32_t (*iFpPU_t)(void*, void*, uint64_t);
 typedef int32_t (*iFpPp_t)(void*, void*, void*);
+typedef int32_t (*iFpPP_t)(void*, void*, void*);
 typedef int32_t (*iFpGG_t)(void*, void*, void*);
 typedef int32_t (*iFSpi_t)(void*, void*, int32_t);
 typedef int32_t (*iFSpL_t)(void*, void*, uintptr_t);
@@ -1405,6 +1406,7 @@ typedef int32_t (*iFppppu_t)(void*, void*, void*, void*, uint32_t);
 typedef int32_t (*iFppppL_t)(void*, void*, void*, void*, uintptr_t);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppGp_t)(void*, void*, void*, void*, void*);
+typedef int32_t (*iFpPPpp_t)(void*, void*, void*, void*, void*);
 typedef int64_t (*IFppIII_t)(void*, void*, int64_t, int64_t, int64_t);
 typedef uint32_t (*uFEippp_t)(x86emu_t*, int32_t, void*, void*, void*);
 typedef uint32_t (*uFEpipp_t)(x86emu_t*, void*, int32_t, void*, void*);
@@ -3017,6 +3019,7 @@ void iFppG(x86emu_t *emu, uintptr_t fcn) { iFppG_t fn = (iFppG_t)fcn; my_GValue_
 void iFpOu(x86emu_t *emu, uintptr_t fcn) { iFpOu_t fn = (iFpOu_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), of_convert(*(int32_t*)(R_ESP + 8)), *(uint32_t*)(R_ESP + 12)); }
 void iFpPU(x86emu_t *emu, uintptr_t fcn) { iFpPU_t fn = (iFpPU_t)fcn; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8)); R_EAX=fn(*(void**)(R_ESP + 4), arg8, *(uint64_t*)(R_ESP + 12)); VulkanTox86(arg8); }
 void iFpPp(x86emu_t *emu, uintptr_t fcn) { iFpPp_t fn = (iFpPp_t)fcn; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8)); R_EAX=fn(*(void**)(R_ESP + 4), arg8, *(void**)(R_ESP + 12)); VulkanTox86(arg8); }
+void iFpPP(x86emu_t *emu, uintptr_t fcn) { iFpPP_t fn = (iFpPP_t)fcn; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8)); void *arg12 = VulkanFromx86(*(void**)(R_ESP + 12)); R_EAX=fn(*(void**)(R_ESP + 4), arg8, arg12); VulkanTox86(arg8); VulkanTox86(arg12); }
 void iFpGG(x86emu_t *emu, uintptr_t fcn) { iFpGG_t fn = (iFpGG_t)fcn; my_GValue_t arg8; alignGValue(&arg8, *(void**)(R_ESP + 8)); my_GValue_t arg12; alignGValue(&arg12, *(void**)(R_ESP + 12)); R_EAX=fn(*(void**)(R_ESP + 4), &arg8, &arg12); unalignGValue(*(void**)(R_ESP + 8), &arg8); unalignGValue(*(void**)(R_ESP + 12), &arg12); }
 void iFSpi(x86emu_t *emu, uintptr_t fcn) { iFSpi_t fn = (iFSpi_t)fcn; R_EAX=fn(io_convert(*(void**)(R_ESP + 4)), *(void**)(R_ESP + 8), *(int32_t*)(R_ESP + 12)); }
 void iFSpL(x86emu_t *emu, uintptr_t fcn) { iFSpL_t fn = (iFSpL_t)fcn; R_EAX=fn(io_convert(*(void**)(R_ESP + 4)), *(void**)(R_ESP + 8), *(uintptr_t*)(R_ESP + 12)); }
@@ -3859,6 +3862,7 @@ void iFppppu(x86emu_t *emu, uintptr_t fcn) { iFppppu_t fn = (iFppppu_t)fcn; R_EA
 void iFppppL(x86emu_t *emu, uintptr_t fcn) { iFppppL_t fn = (iFppppL_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(uintptr_t*)(R_ESP + 20)); }
 void iFppppp(x86emu_t *emu, uintptr_t fcn) { iFppppp_t fn = (iFppppp_t)fcn; R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); }
 void iFpppGp(x86emu_t *emu, uintptr_t fcn) { iFpppGp_t fn = (iFpppGp_t)fcn; my_GValue_t arg16; alignGValue(&arg16, *(void**)(R_ESP + 16)); R_EAX=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), &arg16, *(void**)(R_ESP + 20)); unalignGValue(*(void**)(R_ESP + 16), &arg16); }
+void iFpPPpp(x86emu_t *emu, uintptr_t fcn) { iFpPPpp_t fn = (iFpPPpp_t)fcn; void *arg8 = VulkanFromx86(*(void**)(R_ESP + 8)); void *arg12 = VulkanFromx86(*(void**)(R_ESP + 12)); R_EAX=fn(*(void**)(R_ESP + 4), arg8, arg12, *(void**)(R_ESP + 16), *(void**)(R_ESP + 20)); VulkanTox86(arg8); VulkanTox86(arg12); }
 void IFppIII(x86emu_t *emu, uintptr_t fcn) { IFppIII_t fn = (IFppIII_t)fcn; ui64_t r; r.i=fn(*(void**)(R_ESP + 4), *(void**)(R_ESP + 8), *(int64_t*)(R_ESP + 12), *(int64_t*)(R_ESP + 20), *(int64_t*)(R_ESP + 28)); R_EAX=r.d[0]; R_EDX=r.d[1]; }
 void uFEippp(x86emu_t *emu, uintptr_t fcn) { uFEippp_t fn = (uFEippp_t)fcn; R_EAX=(uint32_t)fn(emu, *(int32_t*)(R_ESP + 4), *(void**)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); }
 void uFEpipp(x86emu_t *emu, uintptr_t fcn) { uFEpipp_t fn = (uFEpipp_t)fcn; R_EAX=(uint32_t)fn(emu, *(void**)(R_ESP + 4), *(int32_t*)(R_ESP + 8), *(void**)(R_ESP + 12), *(void**)(R_ESP + 16)); }
