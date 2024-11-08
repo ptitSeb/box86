@@ -227,10 +227,6 @@ void CloneEmu(x86emu_t *newemu, const x86emu_t* emu)
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
-    // adapt R_ESP to new stack frame
-    uintptr_t oldst = (uintptr_t)((emu->init_stack)?emu->init_stack:emu->context->stack);
-    uintptr_t newst = (uintptr_t)((newemu->init_stack)?newemu->init_stack:newemu->context->stack);
-    newemu->regs[_SP].dword[0] = emu->regs[_SP].dword[0] + (intptr_t)(newst - oldst);
 }
 
 void CopyEmu(x86emu_t *newemu, const x86emu_t* emu)
