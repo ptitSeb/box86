@@ -1381,7 +1381,7 @@ EXPORT int my_getcontext(x86emu_t* emu, void* ucp)
     u->uc_mcontext.gregs[REG_SS] = R_SS;
     // get FloatPoint status
     u->uc_mcontext.fpregs = ucp + 236;    // magic offset of fpregs in an actual i386 u_context
-    fpu_savenv(emu, (void*)u->uc_mcontext.fpregs, 0);   // it seems getcontext only save fpu env, not fpu regs
+    fpu_savenv(emu, (void*)u->uc_mcontext.fpregs, 1);   // it seems getcontext only save fpu env, not fpu regs
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
     // ensure uc_link is properly initialized
@@ -1416,7 +1416,7 @@ EXPORT int my_setcontext(x86emu_t* emu, void* ucp)
     R_SS = u->uc_mcontext.gregs[REG_SS];
     // set FloatPoint status
     if(u->uc_mcontext.fpregs)
-        fpu_loadenv(emu, (void*)u->uc_mcontext.fpregs, 0);
+        fpu_loadenv(emu, (void*)u->uc_mcontext.fpregs, 1);
     // set signal mask
     sigprocmask(SIG_SETMASK, (sigset_t*)&u->uc_sigmask, NULL);
     // set uc_link
