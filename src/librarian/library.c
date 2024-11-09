@@ -452,6 +452,15 @@ library_t *NewLibrary(const char* path, box86context_t* context, elfheader_t* ve
             return NULL;
         }
     }
+    if(box86_nocrashhandler) {
+        if(strstr(lib->name, "crashhandler.so")==lib->name) {
+            box_free(lib->name);
+            box_free(lib->path);
+            initDummyLib(lib);
+            //box_free(lib);
+            return NULL;
+        }
+    }
     int notwrapped = FindInCollection(lib->name, &context->box86_emulated_libs);
     int essential = isEssentialLib(lib->name);
     if(!notwrapped && box86_prefer_emulated && !essential)

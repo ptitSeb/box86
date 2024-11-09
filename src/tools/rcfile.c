@@ -52,6 +52,7 @@ ENTRYSTRING_(BOX86_BOX64, box64)                        \
 ENTRYSTRING_(BOX86_LD_PRELOAD, ld_preload)              \
 ENTRYBOOL(BOX86_NOSANDBOX, box86_nosandbox)             \
 ENTRYBOOL(BOX86_LIBCEF, box86_libcef)                   \
+ENTRYBOOL(BOX86_NOCRASHHANDLER, box86_nocrashhandler)   \
 ENTRYBOOL(BOX86_SDL2_JGUID, box86_sdl2_jguid)           \
 ENTRYBOOL(BOX86_MUTEX_ALIGNED, box86_mutex_aligned)     \
 ENTRYINT(BOX86_MALLOC_HACK, box86_malloc_hack, 0, 2, 2) \

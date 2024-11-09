@@ -61,6 +61,7 @@ extern int box86_musl;
 extern int box86_nopulse;   // disabling the use of wrapped pulseaudio
 extern int box86_nogtk; // disabling the use of wrapped gtk
 extern int box86_novulkan;  // disabling the use of wrapped vulkan
+extern int box86_nocrashhandler;
 extern int box86_futex_waitv;
 extern int box86_mapclean;
 extern int box86_showsegv;

@@ -131,6 +131,7 @@ int box86_musl = 0;
 int box86_nopulse = 0;
 int box86_nogtk = 0;
 int box86_novulkan = 0;
+int box86_nocrashhandler = 0;
 #ifdef BAD_SIGNAL
 int box86_futex_waitv = 0;
 #else
@@ -572,6 +573,15 @@ void LoadLogEnv()
         }
         if(!box86_libcef)
             printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
+    }
+    p = getenv("BOX86_NOCRASHHANDLER");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box86_nocrashhandler = p[0]-'0';
+        }
+        if(box86_nocrashhandler)
+            printf_log(LOG_INFO, "Box86 will consider crashhnadler.so to not be present\n");
     }
     p = getenv("BOX86_SDL2_JGUID");
     if(p) {
