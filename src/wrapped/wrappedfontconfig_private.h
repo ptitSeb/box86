@@ -58,7 +58,7 @@ GO(FcConfigGetFonts, pFpi)
 //GO(FcConfigHome, 
 //GO(FcConfigParseAndLoad, 
 //GO(FcConfigReference, 
-//GO(FcConfigSetCurrent, 
+GO(FcConfigSetCurrent, iFp)
 //GO(FcConfigSetRescanInterval, 
 //GO(FcConfigSetRescanInverval, 
 GO(FcConfigSubstitute, iFppi)
