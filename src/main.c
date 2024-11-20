@@ -974,6 +974,10 @@ void LoadEnvVars(box86context_t *context)
         AddPath("/mnt/utmp/codeblocks/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
     if(FileExist("/mnt/utmp/box86/lib/i386-linux-gnu", 0))
         AddPath("/mnt/utmp/box86/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/mnt/utmp/codeblocks/usr/lib/box86-i386-linux-gnu", 0))
+        AddPath("/mnt/utmp/codeblocks/usr/lib/box86-i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/mnt/utmp/box86/lib/box86-i386-linux-gnu", 0))
+        AddPath("/mnt/utmp/box86/lib/box86-i386-linux-gnu", &context->box86_ld_lib, 1);
     //TODO: add relative path to box86 location
 #endif
 #ifndef TERMUX
@@ -991,11 +995,17 @@ void LoadEnvVars(box86context_t *context)
         AddPath("/usr/lib/i686-pc-linux-gnu", &context->box86_ld_lib, 1);
     if(FileExist("/usr/lib32", 0))
         AddPath("/usr/lib32", &context->box86_ld_lib, 1);
+    if(FileExist("/lib/box86-i386-linux-gnu", 0))
+        AddPath("/lib/box86-i386-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/usr/lib/box86-i386-linux-gnu", 0))
+        AddPath("/usr/lib/box86-i386-linux-gnu", &context->box86_ld_lib, 1);
 #else
     if(FileExist("/data/data/com.termux/files/usr/lib/i386-linux-gnu", 0))
         AddPath("/data/data/com.termux/files/usr/lib/i386-linux-gnu", &context->box86_ld_lib, 1);
     if(FileExist("/data/data/com.termux/files/usr/lib/i686-linux-gnu", 0))
         AddPath("/data/data/com.termux/files/usr/lib/i686-linux-gnu", &context->box86_ld_lib, 1);
+    if(FileExist("/data/data/com.termux/files/usr/lib/box86-i386-linux-gnu", 0))
+        AddPath("/data/data/com.termux/files/usr/lib/box86-i386-linux-gnu", &context->box86_ld_lib, 1);
 #endif
     if(getenv("LD_LIBRARY_PATH"))
         PrependList(&context->box86_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world

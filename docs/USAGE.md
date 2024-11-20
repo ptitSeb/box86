@@ -30,7 +30,7 @@ Disables Box86 printing its version and build
 
 #### BOX86_LD_LIBRARY_PATH *
 Path to look for x86 libraries. Default is current folder and `lib` in current folder.
-Also, `/usr/lib/i386-linux-gnu` and `/lib/i386-linux-gnu` are added if they exist.
+Also, `/usr/lib/i386-linux-gnu`, `/lib/i386-linux-gnu`, and `/usr/lib/box86-i386-linux-gnu` are added if they exist.
 
 #### BOX86_PATH *
 Path to look for x86 executable. Default is current folder and `bin` in current folder.
