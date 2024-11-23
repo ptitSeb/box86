@@ -229,6 +229,15 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
             nextop = F8;
             GET_ED_;
             break;
+        case 0x20:                      /* MOV REG, crX */
+        case 0x21:                      /* MOV REG, drX */
+        case 0x22:                      /* MOV cxR, REG */
+        case 0x23:                      /* MOV drX, REG */
+            // this is a privilege opcode...
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_EIP, 0);
+            #endif
+            break;
 
         case 0x28:                      /* MOVAPS Gx,Ex */
             nextop = F8;
