@@ -77,53 +77,45 @@ void LD2D(void* ld, void* d)
         *(uint64_t*)d = *(uint64_t*)ld;
         return;
     }
-	FPU_t result;
+    FPU_t result;
     #pragma pack(push, 1)
-	struct {
-		FPU_t f;
-		int16_t b;
-	} val;
+    struct {
+        FPU_t f;
+        int16_t b;
+    } val;
     #pragma pack(pop)
     #if 1
     memcpy(&val, ld, 10);
     #else
-	val.f.ud[0] = *(uint32_t*)ld;
+    val.f.ud[0] = *(uint32_t*)ld;
     val.f.ud[1] = *(uint32_t*)(char*)(ld+4);
-	val.b  = *(int16_t*)((char*)ld+8);
+    val.b  = *(int16_t*)((char*)ld+8);
     #endif
-	int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
-	int32_t exp64final = exp64&0x7ff;
     // do specific value first (0, infinite...)
     // bit 63 is "integer part"
-    // bit 62 is sign
     if((uint32_t)(val.b&0x7fff)==0x7fff) {
         // infinity and nans
-        int t = 0; //nan
-        switch((val.f.ud[1]>>30)) {
-            case 0: if((val.f.ud[1]&(1<<29))==0) t = 1;
-                    break;
-            case 2: if((val.f.ud[1]&(1<<29))==0) t = 1;
-                    break;
-        }
+        int t = (val.f.q&0x7fffffffffffffffLL)?0:1;
         if(t) {    // infinite
-            result.d = HUGE_VAL;
-        } else {      // NaN
-            result.ud[1] = 0x7ff << 20;
+            result.ud[1] = (val.b>>4) << 20;
             result.ud[0] = 0;
+        } else {      // NaN
+            result.ud[1] = (val.b>>4) << 20 | ((val.f.q>>(63-20))&0x000fffff);
+            result.ud[0] = (val.f.q>>(63-56))&0xffffffff;
+            if(!(result.q&0x000fffffffffffffLL))
+                result.q |= 1;
         }
-        if(val.b&0x8000)
-            result.ud[1] |= 0x80000000;
         *(uint64_t*)d = result.q;
         return;
     }
+    int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
+    int32_t exp64final = exp64&0x7ff;
     if(((uint32_t)(val.b&0x7fff)==0) || (exp64<-1074)) {
-        //if(val.f.ll==0)
+        //if(val.f.q==0)
         // zero
-        //if(val.f.ll!=0)
+        //if(val.f.q!=0)
         // denormal, but that's to small value for double 
-        uint64_t r = 0;
-        if(val.b&0x8000)
-            r |= 0x8000000000000000LL;
+        uint64_t r = (val.b&0x8000)?0x8000000000000000LL:0LL;
         *(uint64_t*)d = r;
         return;
     }
@@ -149,12 +141,12 @@ void LD2D(void* ld, void* d)
         return;
     }
 
-	uint64_t mant64 = (val.f.q >> 11) & 0xfffffffffffffLL;
-	uint32_t sign = (val.b&0x8000)?1:0;
+    uint64_t mant64 = (val.f.q >> 11) & 0xfffffffffffffL;
+    uint32_t sign = (val.b&0x8000)?1:0;
     result.q = mant64;
-	result.ud[1] |= (sign <<31)|((exp64final&0x7ff) << 20);
+    result.ud[1] |= (sign <<31)|((exp64final&0x7ff) << 20);
 
-	*(uint64_t*)d = result.q;
+    *(uint64_t*)d = result.q;
 }
 
 // double (64bits) -> long double (80bits)
@@ -165,40 +157,37 @@ void D2LD(void* d, void* ld)
         return;
     }
     #pragma pack(push, 1)
-	struct {
-		FPU_t f;
-		int16_t b;
-	} val;
+    struct {
+        FPU_t f;
+        int16_t b;
+    } val;
     #pragma pack(pop)
     FPU_t s;
     s.q = *(uint64_t*)d;   // use memcpy to avoid risk of Bus Error?
     // do special value first
-    if((s.q&0x7fffffffffffffffLL)==0) {
+    if((s.q&0x7fffffffffffffffL)==0) {
         // zero...
         val.f.q = 0;
-        if(s.ud[1]&0x8000)
-            val.b = 0x8000;
-        else
-            val.b = 0;
+        val.b = (s.ud[1]&0x80000000)?0x8000:0;
         memcpy(ld, &val, 10);
         return;
     }
 
-	int32_t sign80 = (s.ud[1]&0x80000000)?1:0;
-	int32_t exp80 =  s.ud[1]&0x7ff00000;
-	int32_t exp80final = (exp80>>20);
-	int64_t mant80 = s.sq&0x000fffffffffffffLL;
-	int64_t mant80final = (mant80 << 11);
+    int32_t sign80 = (s.ud[1]&0x80000000)?1:0;
+    int32_t exp80 =  s.ud[1]&0x7ff00000;
+    int32_t exp80final = (exp80>>20);
+    uint64_t mant80 = s.q&0x000fffffffffffffL;
+    uint64_t mant80final = (mant80 << 11);
     if(exp80final==0x7ff) {
         // NaN and Infinite
         exp80final = 0x7fff;
         if(mant80==0x0)
-            mant80final = 0x8000000000000000LL; //infinity
+            mant80final = 0x8000000000000000L; //infinity
         else
-            mant80final = 0xc000000000000000LL; //(quiet)NaN
+            mant80final |= 0x8000000000000000L; //(quiet)NaN
     } else {
         if(exp80!=0){ 
-            mant80final |= 0x8000000000000000LL;
+            mant80final |= 0x8000000000000000L;
             exp80final += (BIAS80 - BIAS64);
         } else if(mant80final!=0) {
             // denormals -> normal
@@ -208,8 +197,8 @@ void D2LD(void* d, void* ld)
             mant80final<<=one;
         }
     }
-	val.b = ((int16_t)(sign80)<<15)| (int16_t)(exp80final);
-	val.f.sq = mant80final;
+    val.b = ((int16_t)(sign80)<<15)| (int16_t)(exp80final);
+    val.f.q = mant80final;
     memcpy(ld, &val, 10);
     /*memcpy(ld, &f.ll, 8);
     memcpy((char*)ld + 8, &val.b, 2);*/
