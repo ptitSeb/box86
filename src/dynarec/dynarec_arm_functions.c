@@ -62,10 +62,20 @@ void arm_fpatan(x86emu_t* emu)
 }
 void arm_fxtract(x86emu_t* emu)
 {
-    int32_t tmp32s = (ST1.q&0x7ff0000000000000LL)>>52;
-    tmp32s -= 1023;
-    ST1.d /= exp2(tmp32s);
-    ST0.d = tmp32s;
+    int tmp32s;
+    if(isnan(ST1.d)) {
+        ST0.d = ST1.d;
+    } else if(isinf(ST1.d)) {
+        ST0.d = ST1.d;
+        ST1.d = INFINITY;
+    } else if(ST1.d==0.0) {
+        ST0.d = ST1.d;
+        ST1.d = -INFINITY;
+    } else {
+        // LD80bits doesn't have implicit "1" bit, so need to adjust for that
+        ST0.d = frexp(ST1.d, &tmp32s)*2;
+        ST1.d = tmp32s-1;
+    }
 }
 void arm_fprem(x86emu_t* emu)
 {
