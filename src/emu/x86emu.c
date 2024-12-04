@@ -329,6 +329,7 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
 {
     static char buff[800];
     static const char* regname[] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
+    static const char* segname[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
     char tmp[80];
     buff[0] = '\0';
     if(trace_emm) {
@@ -349,21 +350,27 @@ const char* DumpCPURegs(x86emu_t* emu, uintptr_t ip)
     }
     // start with FPU regs...
     if(emu->fpu_stack) {
-        if(emu->fpu_stack<9)
-            for (int i=0; i<emu->fpu_stack; i++) {
-                //if(i==4) strcat(buff, "\n");
-                sprintf(tmp, "ST%d=%f", i, emu->x87[(emu->top+i)&7].d);
-                strcat(buff, tmp);
-                int c = 10-strlen(tmp);
-                if(c<1) c=1;
-                while(c--) strcat(buff, " ");
-            }
-        else {
-            sprintf(tmp, "Warning, incoherent fpu_stack=%d", emu->fpu_stack);
+        int stack = emu->fpu_stack;
+        if(stack>8) stack = 8;
+        for (int i=0; i<stack; i++) {
+            sprintf(tmp, "ST%d=%f", i, ST(i).d);
             strcat(buff, tmp);
+            int c = 10-strlen(tmp);
+            if(c<1) c=1;
+            while(c--) strcat(buff, " ");
+            if(i==3) strcat(buff, "\n");
         }
+        sprintf(tmp, " C3210 = %d%d%d%d", emu->sw.f.F87_C3, emu->sw.f.F87_C2, emu->sw.f.F87_C1, emu->sw.f.F87_C0);
+        strcat(buff, tmp);
         strcat(buff, "\n");
     }
+    for (int i=0; i<6; ++i) {
+            sprintf(tmp, "%s=0x%04x", segname[i], emu->segs[i]);
+            strcat(buff, tmp);
+            if(i!=_GS)
+                strcat(buff, " ");
+    }
+    strcat(buff, "\n");
     for (int i=_AX; i<=_DI; ++i) {
         sprintf(tmp, "%s=%08x ", regname[i], emu->regs[i].dword[0]);
         strcat(buff, tmp);
