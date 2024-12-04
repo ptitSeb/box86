@@ -316,7 +316,7 @@
 #define IFXN(A, B)  if((dyn->insts[ninst].x86.gen_flags&(A) && !(dyn->insts[ninst].x86.gen_flags&(B))))
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
-#define FCOM(s1, s2)    \
+#define FCOM(s1, s2, s3, s4, v1, v2, is_f)                                      \
     VMRS_APSR();    /* 0b0100011100000000 */                                    \
     LDRH_IMM8(s1, xEmu, offsetof(x86emu_t, sw));   /*offset is 8bits right?*/   \
     BIC_IMM8(s1, s1, 0b01000111, 12);                                           \
@@ -324,10 +324,36 @@
     ORR_IMM8_COND(cEQ, s1, s1, 0b01000000, 12); /* equal */                     \
     ORR_IMM8_COND(cMI, s1, s1, 0b00000001, 12); /* less than */                 \
     /* greater than leave 0 */                                                  \
+    if(s4) {                                                                    \
+        Bcond(cVS, (is_f?11:13)*4-8);                                           \
+        if(is_f) {                                                              \
+            MOVW(s4, 0);                                                        \
+            MOVT(s4, 0x7ff0); /* +inf */                                        \
+            VMOVfrV(s2, v1);                                                    \
+            CMPS_REG_LSL_IMM5(s2, s4, 0);                                       \
+            Bcond(cEQ, 5*4-8); /* same */                                       \
+            VMOVfrV(s2, v2);                                                    \
+            ORR_IMM8(s4, s4, 0b10, 1); /* -inf */                               \
+            CMPS_REG_LSL_IMM5(s2, s4, 0);                                       \
+        } else {                                                                \
+            MOVW(s4, 0);                                                        \
+            MOVT(s4, 0x7ff0); /* +inf */                                        \
+            VMOVfrV_D(s2, s3, v1);                                              \
+            ORR_REG_LSL_IMM5(s2, s2, s3, 0);                                    \
+            CMPS_REG_LSL_IMM5(s2, s4, 0);                                       \
+            Bcond(cEQ, 6*4-8); /* same */                                       \
+            VMOVfrV_D(s2, s3, v2);                                              \
+            ORR_REG_LSL_IMM5(s2, s2, s3, 0);                                    \
+            ORR_IMM8(s4, s4, 0b10, 1); /* -inf */                               \
+            CMPS_REG_LSL_IMM5(s2, s4, 0);                                       \
+        }                                                                       \
+        Bcond(cNE, 4+4-8); /* same */                                           \
+        MOVW(s1, 0);                                                            \
+    }                                                                           \
     STRH_IMM8(s1, xEmu, offsetof(x86emu_t, sw))
 
 // Generate FCOMI with s1 and s2 scratch regs (the VCMP is already done)
-#define FCOMI(s1, s2)    \
+#define FCOMI(s1, s2, s3, s4, v1, v2, is_f)                                 \
     IFX(X_CF|X_PF|X_ZF|X_PEND) {                                            \
         VMRS_APSR();    /* 0b111 */                                         \
         BIC_IMM8(xFlags, xFlags, 0b1000101, 0);                             \
@@ -335,6 +361,32 @@
         ORR_IMM8_COND(cEQ, xFlags, xFlags, 0b01000000, 0); /* zero */       \
         ORR_IMM8_COND(cMI, xFlags, xFlags, 0b00000001, 0); /* less than */  \
         /* greater than leave 0 */                                          \
+        if(s4) {                                                            \
+            Bcond(cVS, (is_f?11:13)*4-8);                                   \
+            if(is_f) {                                                      \
+                MOVW(s4, 0);                                                \
+                MOVT(s4, 0x7ff0); /* +inf */                                \
+                VMOVfrV(s2, v1);                                            \
+                CMPS_REG_LSL_IMM5(s2, s4, 0);                               \
+                Bcond(cEQ, 5*4-8); /* same */                               \
+                VMOVfrV(s2, v2);                                            \
+                ORR_IMM8(s4, s4, 0b10, 1); /* -inf */                       \
+                CMPS_REG_LSL_IMM5(s2, s4, 0);                               \
+            } else {                                                        \
+                MOVW(s4, 0);                                                \
+                MOVT(s4, 0x7ff0); /* +inf */                                \
+                VMOVfrV_D(s2, s3, v1);                                      \
+                ORR_REG_LSL_IMM5(s2, s2, s3, 0);                            \
+                CMPS_REG_LSL_IMM5(s2, s4, 0);                               \
+                Bcond(cEQ, 6*4-8); /* same */                               \
+                VMOVfrV_D(s2, s3, v2);                                      \
+                ORR_REG_LSL_IMM5(s2, s2, s3, 0);                            \
+                ORR_IMM8(s4, s4, 0b10, 1); /* -inf */                       \
+                CMPS_REG_LSL_IMM5(s2, s4, 0);                               \
+            }                                                               \
+            Bcond(cNE, 4+4-8); /* same */                                   \
+            BIC_IMM8(xFlags, xFlags, 0b1000101, 0);                         \
+        }                                                                   \
     }                                                                       \
     SET_DFNONE(s1);                                                         \
     IFX(X_OF|X_AF|X_SF|X_PEND) {                                            \

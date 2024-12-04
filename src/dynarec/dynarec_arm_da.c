@@ -128,7 +128,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOM(x1, x2);
+            FCOM(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
             X87_POP_OR_FAIL(dyn, ninst, x3);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
@@ -185,7 +185,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
                     VCMP_F64(v1, d0);
-                    FCOM(x1, x2);
+                    FCOM(x1, x2, x3, x14, v1, d0, 0);
                     break;
                 case 3:
                     INST_NAME("FICOMP ST0, Ed");
@@ -196,7 +196,7 @@ uintptr_t dynarecDA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     VMOVtoV(s0, ed);
                     VCVT_F64_S32(d0, s0);
                     VCMP_F64(v1, d0);
-                    FCOM(x1, x2);
+                    FCOM(x1, x2, x3, x14, v1, d0, 0);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4:

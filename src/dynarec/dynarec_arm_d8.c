@@ -100,7 +100,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOM(x1, x2);
+            FCOM(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
             break;
         case 0xD8:
         case 0xD9:
@@ -118,7 +118,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOM(x1, x2);
+            FCOM(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE0:
@@ -275,7 +275,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VCVT_F64_F32(d1, s0);
                         VCMP_F64(v1, d1);
                     }
-                    FCOM(x1, x2);
+                    FCOM(x1, x2, x3, x14, v1, ST_IS_F(0)?s0:d1, ST_IS_F(0));
                     break;
                 case 3:
                     INST_NAME("FCOMP ST0, float[ED]");
@@ -296,7 +296,7 @@ uintptr_t dynarecD8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         VCVT_F64_F32(d1, s0);
                         VCMP_F64(v1, d1);
                     }
-                    FCOM(x1, x2);
+                    FCOM(x1, x2, x3, x14, v1, ST_IS_F(0)?s0:d1, ST_IS_F(0));
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4:

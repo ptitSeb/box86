@@ -475,7 +475,7 @@ uintptr_t dynarec0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                 VMOVD(d1, v0);
             }
             VCMP_F32(d1*2, s0);
-            FCOMI(x1, x2);
+            FCOMI(x1, x2, 0, 0, d1*2, s0, 1);
             break;
 
         case 0x31:
