@@ -1,3 +1,17 @@
+v0.3.8
+======
+* Some optimisation of x86 P flags handling
+* Some x87 fixes and improvments
+* Added some of the tim64 wrapped functions to libc and friends
+* Changed the installation folder of x86 libs to avoid conflict with linux distro
+* Some fixes to internal memory tracking
+* Some more Vulkan extensions wrapped
+* Better handling of BOX86_MAXCPU
+* Some changes and improvments on Signal handling
+* More wrapped functions, and fix to some existing ones
+* A few more syscall, and fix to some existing ones
+* New build profile for SD865
+
 v0.3.6
 ======
 * Wrapping: More libs and function wrapping (gtk3, vulkan...)
