@@ -293,6 +293,11 @@ Use of the new fuext_waitc syscall
  * XXX=yyyy
  will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
 
+#### BOX86_ARG0
+Define argv[0] of the executable.
+ * yyyy
+Will rewrite argv[0] instead of using program path.
+
 #### BOX86_FIX_64BIT_INODES *
 Fix/Don't fix 64bit inodes
  * 0 : Don't fix 64bit inodes. (Default.)
