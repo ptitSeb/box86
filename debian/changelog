@@ -1,3 +1,18 @@
+box86 (0.3.8) unstable; urgency=low
+* Some optimisation of x86 P flags handling
+* Some x87 fixes and improvments
+* Added some of the tim64 wrapped functions to libc and friends
+* Changed the installation folder of x86 libs to avoid conflict with linux distro
+* Some fixes to internal memory tracking
+* Some more Vulkan extensions wrapped
+* Better handling of BOX86_MAXCPU
+* Some changes and improvments on Signal handling
+* More wrapped functions, and fix to some existing ones
+* A few more syscall, and fix to some existing ones
+* New build profile for SD865
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Fri, 06 Dec 2024 14:06:00 -0100
+
 box86 (0.3.6) unstable; urgency=low
 * Wrapping: More libs and and function wrapping (gtk3, vulkan...)
 * Reworked X11 Callback handling, for better stability
