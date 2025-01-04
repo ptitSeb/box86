@@ -1459,8 +1459,10 @@ int main(int argc, const char **argv, char **env)
         my_context->box64path = getenv("BOX86_BOX64");
         if(!my_context->box64path) {
             my_context->box64path = box_strdup(my_context->box86path);
-            char* p = strrchr(my_context->box64path, '8');  // get the 8 of box86
-            p[0] = '6'; p[1] = '4'; // change 86 to 64
+            if (strstr(my_context->box64path, "box86")) {
+                char* p = strrchr(my_context->box64path, '8');  // get the 8 of box86
+                p[0] = '6'; p[1] = '4'; // change 86 to 64
+            }
         }
         if(!FileExist(my_context->box64path, IS_FILE)) {
             box_free(my_context->box64path);
