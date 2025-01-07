@@ -999,6 +999,9 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     // don't need to add precise tracking probably
 }
 
+uintptr_t pbrk = 0;
+uintptr_t old_brk = 0;
+uintptr_t* cur_brk = NULL;
 void loadProtectionFromMap()
 {
     if(box86_mapclean)
@@ -1015,7 +1018,13 @@ void loadProtectionFromMap()
         if(sscanf(buf, "%x-%x %c%c%c", &s, &e, &r, &w, &x)==5) {
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
             allocProtection(s, e-s, prot);
+            if(!pbrk && strstr(buf, "[heap]"))
+                pbrk = s;
         }
+    }
+    if(!pbrk) {
+        printf_log(LOG_INFO, "BOX86: Warning, program break not found\n");
+        if(cur_brk) pbrk = *cur_brk;    // approximate is better than nothing
     }
     fclose(f);
     box86_mapclean = 1;
@@ -1051,6 +1060,11 @@ int getMmapped(uintptr_t addr)
 #define MEDIAN (void*)0x40000000
 static void* findBlockHinted(void* hint, size_t size, uintptr_t mask)
 {
+    // first, check if program break as changed
+    if(pbrk && cur_brk && *cur_brk!=old_brk) {
+        old_brk = *cur_brk;
+        setProtection(pbrk, old_brk-pbrk, PROT_READ|PROT_WRITE);
+    }
     int prot;
     if(hint<LOWEST) hint = LOWEST;
     uintptr_t bend = 0;
@@ -1165,6 +1179,7 @@ void init_custommem_helper(box86context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
+    cur_brk = dlsym(RTLD_NEXT, "__curbrk");
     memprot = init_rbtree();
     init_mutexes();
 #ifdef DYNAREC
