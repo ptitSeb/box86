@@ -126,21 +126,6 @@ void arm_fbstp(x86emu_t* emu, uint8_t* ed)
     fpu_fbst(emu, ed);
 }
 
-void arm_fistp64(x86emu_t* emu, int64_t* ed)
-{
-    // used of memcpy to avoid aligments issues
-    if(STll(0).sref==ST(0).sq) {
-        memcpy(ed, &STll(0).sq, sizeof(int64_t));
-    } else {
-        int64_t tmp;
-        if(isgreater(ST0.d, (double)(int64_t)0x7fffffffffffffffLL) || isless(ST0.d, -(double)(uint64_t)0x8000000000000000LL) || !isfinite(ST0.d))
-            tmp = 0x8000000000000000LL;
-        else
-            tmp = fpu_round(emu, ST0.d);
-        memcpy(ed, &tmp, sizeof(tmp));
-    }
-}
-
 int64_t arm_fist64_0(double d)
 {
     int64_t tmp;
@@ -176,13 +161,6 @@ int64_t arm_fist64_3(double d)
     else
         tmp = trunc(d);
     return tmp;
-}
-
-void arm_fistt64(x86emu_t* emu, int64_t* ed)
-{
-    // used of memcpy to avoid aligments issues
-    int64_t tmp = ST0.d;
-    memcpy(ed, &tmp, sizeof(tmp));
 }
 
 void arm_fld(x86emu_t* emu, uint8_t* ed)

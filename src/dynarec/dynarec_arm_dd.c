@@ -32,6 +32,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
     uint8_t ed;
     int v1, v2;
     int i1, i2, i3;
+    int j32;
 
     MAYUSE(v2);
     MAYUSE(v1);
@@ -111,7 +112,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOM(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
+            FCOM(x1, x2);
             break;
         case 0xE8:
         case 0xE9:
@@ -129,7 +130,7 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOM(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
+            FCOM(x1, x2);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
@@ -178,10 +179,53 @@ uintptr_t dynarecDD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     break;
                 case 1:
                     INST_NAME("FISTTP i64, ST0");
-                    x87_forget(dyn, ninst, x1, x2, 0);
+                    parity = getedparity(dyn, ninst, addr, nextop, 3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
-                    if(ed!=x1) {MOV_REG(x1, ed);}
-                    CALL(arm_fistt64, -1, 0);
+                    if(ninst
+                      && dyn->insts[ninst-1].x86.addr
+                      && *(uint8_t*)dyn->insts[ninst-1].x86.addr==0xDF
+                      && (((*(uint8_t*)(dyn->insts[ninst-1].x86.addr+1))>>3)&7)==5)
+                    {
+                        if(parity) {
+                            STRD_IMM8(x2, ed, 0);    // x2/x3 is 64bits
+                        } else {
+                            STR_IMM9(x2, ed, 0);
+                            STR_IMM9(x3, ed, 4);
+                        }
+                    } else {
+                        v1 = x87_get_st(dyn, ninst, x2, x3, 0, NEON_CACHE_ST_D);
+                        //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
+                        fpu_get_scratch_double(dyn); // to alocate v0
+                        v2 = fpu_get_scratch_double(dyn);
+                        //  get TOP
+                        LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
+                        int a = 0 - dyn->n.x87stack;
+                        if(a<0) {
+                            SUB_IMM8(x14, x14, -a);
+                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
+                        } else if(a>0) {
+                            ADD_IMM8(x14, x14, a);
+                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
+                        }
+                        ADD_REG_LSL_IMM5(x14, xEmu, x14, 4);  // each fpu_ll is 2 int64: ref than ll
+                        MOVW(x2, offsetof(x86emu_t, fpu_ll));   //can be optimized?
+                        ADD_REG_LSL_IMM5(x14, x14, x2, offsetof(fpu_ll_t, sref));
+                        VLDR_64(v2, x14, 0);
+                        VCEQ_32(v2, v2, v1);    // compare
+                        VMOVfrV_D(x2, x3, v2);
+                        ANDS_REG_LSL_IMM5(x2, x2, x3, 0);   // if NE then values are the same!
+                        B_MARK(cEQ);    // do the i64 conversion
+                        // memcpy(ed, &STll(0).ll, sizeof(int64_t));
+                        LDRD_IMM8(x2, x14, offsetof(fpu_ll_t, sq));  // load ll
+                        B_MARK3(c__);
+                        MARK;
+                        MOV32(x2, arm_fist64_3);
+                        VMOV_64(0, v1);    // prepare call to log2
+                        CALL_1DR_U64(x2, x2, x3, x14, (1<<x1));
+                        MARK3;
+                        STR_IMM9(x2, ed, 0);
+                        STR_IMM9(x3, ed, 4);
+                    }
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 2:

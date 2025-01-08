@@ -90,7 +90,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOMI(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
+            FCOMI(x1, x2);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xF0:
@@ -111,7 +111,7 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
             } else {
                 VCMP_F64(v1, v2);
             }
-            FCOMI(x1, x2, x3, x14, v1, v2, ST_IS_F(0));
+            FCOMI(x1, x2);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
@@ -186,9 +186,9 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                     BIC_IMM8(x3, x3, 0b10011111, 0);
                     VMSR(x3);
                     if(ST_IS_F(0)) {
-                        VCVTR_S32_F32(s0, v1);
+                        VCVT_S32_F32(s0, v1);
                     } else {
-                        VCVTR_S32_F64(s0, v1);
+                        VCVT_S32_F64(s0, v1);
                     }
                     VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
                     VMOVfrV(ed, s0);
@@ -337,12 +337,10 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                             STR_IMM9(x3, ed, 4);
                         }
                     } else {
-                        #if 1
                         v1 = x87_get_st(dyn, ninst, x2, x3, 0, NEON_CACHE_ST_D);
                         //addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, 0, 0, 0, NULL);
                         fpu_get_scratch_double(dyn); // to alocate v0
                         v2 = fpu_get_scratch_double(dyn);
-                        #if 1
                         //  get TOP
                         LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
                         int a = 0 - dyn->n.x87stack;
@@ -375,74 +373,6 @@ uintptr_t dynarecDF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         MARK3;
                         STR_IMM9(x2, ed, 0);
                         STR_IMM9(x3, ed, 4);
-                        #else
-                        v0 = fpu_get_scratch_double(dyn);
-                        s0 = fpu_get_scratch_single(dyn);
-                        // check STll(0).ref==ST(0).q so emu->fpu_ll[emu->top].ref == emu->mmx87[emu->top]
-                        //  get TOP
-                        LDR_IMM9(x14, xEmu, offsetof(x86emu_t, top));
-                        int a = 0 - dyn->n.x87stack;
-                        if(a<0) {
-                            SUB_IMM8(x14, x14, -a);
-                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
-                        } else if(a>0) {
-                            ADD_IMM8(x14, x14, a);
-                            AND_IMM8(x14, x14, 7);    // (emu->top + i)&7
-                        }
-                        ADD_REG_LSL_IMM5(x14, xEmu, x14, 4);  // each fpu_ll is 2 int64: ref than ll
-                        MOVW(x2, offsetof(x86emu_t, fpu_ll));   //can be optimized?
-                        ADD_REG_LSL_IMM5(x14, x14, x2, 0);
-                        VLDR_64(v2, x14, 0);
-                        VCEQ_32(v2, v2, v1);    // compare
-                        VMOVfrV_D(x2, x3, v2);
-                        ANDS_REG_LSL_IMM5(x2, x2, x3, 0);   // if NE then values are the same!
-                        B_MARK(cEQ);    // do the i64 conversion
-                        // memcpy(ed, &STll(0).ll, sizeof(int64_t));
-                        LDRD_IMM8(x2, x14, 8);  // load ll
-                        B_MARK3(c__);
-                        MARK;
-                        VEOR(v0, v0, v0);
-                        MOVW(x2, 0x41F0);
-                        VMOVtoDx_16(v0, 3, x2); // V0 = (1<<32) as double
-                        VMOVfrDx_32(x14, v1, 1);    // get high part to extract sign
-                        VABS_F64(v1 ,v1);    //ST0 will be poped, so lost...
-                        VDIV_F64(v2, v1, v0);   // v2 = abs(ST0)/(1<<32) : so 32 bits high part
-                        MSR_nzcvq_0();
-                        VMRS(x2);               // get fpscr
-                        ORR_IMM8(x3, x2, 0b010, 9); // enable exceptions
-                        BIC_IMM8(x3, x3, 0b10011111, 0);
-                        VMSR(x3);
-                        VCVT_U32_F64(s0, v2);   // convert high part to U32
-                        VMRS(x3);   // get the FPCSR reg and test FPU execption (invalid operation only)
-                        VMSR(x2);               // put back fpscr
-                        TSTS_IMM8_ROR(x3, 0b00000001, 0);
-                        B_MARK2(cEQ);   // not overflow...
-                        MARKLOCK;
-                        MOV_IMM(x3, 0b10, 1);   // 0x80000000
-                        MOVW(x2, 0);
-                        B_MARK3(c__);
-                        MARK2;  // continue conversion, it fits an int64!
-                        VCVT_F64_U32(v2, s0);   // int part now
-                        VMLS_F64(v1, v2, v0);   // compute low part
-                        VMOVfrV(x3, s0);        // transfert high path
-                        TSTS_IMM8_ROR(x14, 0b10, 1);    // test high part with 0x800000000
-                        B_MARKLOCK(cNE);        // int overflow...
-                        VCVT_U32_F64(s0, v1);   // convert low part
-                        VMOVfrV(x2, s0);        // transfert low part
-                        TSTS_IMM8_ROR(x14, 0b10, 1);    // 0x800000000
-                        B_MARK3(cEQ);
-                        RSBS_IMM8(x2, x2, 0);   // NEG(i64)
-                        RSC_IMM8(x3, x3, 0);
-                        MARK3;
-                        STR_IMM9(x2, x1, 0);
-                        STR_IMM9(x3, x1, 4);
-                        #endif
-                        #else
-                        MESSAGE(LOG_DUMP, "Need Optimization\n");
-                        x87_forget(dyn, ninst, x2, x3, 0);
-                        if(ed!=x1) {MOV_REG(x1, ed);}
-                        CALL(arm_fistp64, -1, 0);
-                        #endif
                     }
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;

@@ -282,7 +282,7 @@ uintptr_t dynarec660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nins
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             GETEX(q0, 0);
             VCMP_F64(v0, q0);
-            FCOMI(x1, x2, 0, 0, v0, q0, 0);
+            FCOMI(x1, x2);
             break;
 
         case 0x38:  // SSSE3 opcodes
