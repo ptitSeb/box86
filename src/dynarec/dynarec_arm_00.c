@@ -2520,13 +2520,22 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         INST_NAME("REP MOVSB");
                         TSTS_REG_LSL_IMM5(xECX, xECX, 0);
                         B_NEXT(cEQ);    // end of loop
-                        GETDIR(x3,1);
                         SMREAD();
+                        GETDIR(x3, 1);
+                        MARK2;
+                        SUBS_IMM8(x2, xECX, 4);
+                        B_MARK(cCC);
+                        LDRAI_REG_LSL_IMM5(x1, xESI, x3, 2);
+                        STRAI_REG_LSL_IMM5(x1, xEDI, x3, 2);
+                        MOV_REG(xECX, x2);
+                        B_MARK2(cNE);
+                        B_MARK3(c__);
                         MARK;
                         LDRBAI_REG_LSL_IMM5(x1, xESI, x3, 0);
                         STRBAI_REG_LSL_IMM5(x1, xEDI, x3, 0);
                         SUBS_IMM8(xECX, xECX, 1);
                         B_MARK(cNE);
+                        MARK3;
                         SMWRITE();
                         // done
                         break;
