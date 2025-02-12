@@ -2522,6 +2522,9 @@ uintptr_t dynarec00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst,
                         B_NEXT(cEQ);    // end of loop
                         SMREAD();
                         GETDIR(x3, 1);
+                        SUBS_REG_LSL_IMM5(x2, xEDI, xESI, 0);
+                        SUBS_IMM8(x2, x2, 4);
+                        B_MARK(cCC);
                         MARK2;
                         SUBS_IMM8(x2, xECX, 4);
                         B_MARK(cCC);
