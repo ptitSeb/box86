@@ -1070,7 +1070,8 @@ static void* findBlockHinted(void* hint, size_t size, uintptr_t mask)
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
-    while(bend!=0xffffffffLL) {
+    uintptr_t end_mem = 0xffffffffLL - mask;
+    while(bend<end_mem) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
             if(bend-cur>=size)
                 return (void*)cur;
