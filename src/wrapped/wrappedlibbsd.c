@@ -19,11 +19,9 @@
 #include "callback.h"
 
 
-#ifdef ANDROID
-const char* libbsdName = "libbsd.so";
-#else
 const char* libbsdName = "libbsd.so.0";
-#endif
+#define ALTNAME "libbsd.so"
+
 #define LIBNAME libbsd
 
 #define PRE_INIT\
