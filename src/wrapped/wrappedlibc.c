@@ -3683,10 +3683,11 @@ EXPORT char my___libc_single_threaded = 0;
     "libm.so",              \
     "libbsd.so"
 #else
-#define NEEDED_LIBS   4,\
+#define NEEDED_LIBS   5,\
     "ld-linux.so.2",    \
     "libpthread.so.0",  \
     "librt.so.1",       \
+    "libm.so.6",        \
     "libbsd.so.0"
 #define NEEDED_LIBS_234 6,  \
     "ld-linux.so.2",        \
