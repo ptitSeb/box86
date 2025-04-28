@@ -413,6 +413,7 @@ set(WRAPPEDS
     "${BOX86_ROOT}/src/wrapped/wrappedlibbsd.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibgl.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibglu.c"
+    "${BOX86_ROOT}/src/wrapped/wrappedlibglx.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibx11.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibasound.c"
     "${BOX86_ROOT}/src/wrapped/wrappedlibdl.c"
