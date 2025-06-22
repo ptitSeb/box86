@@ -34,16 +34,16 @@ jobs:
         include:
           - platform: TEGRAX1
             type: Release
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - platform: TEGRAX1
             type: Trace
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - platform: TEGRAX1ARM32
             type: Release
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - platform: TEGRAX1ARM32
             type: Trace
-            os: ubuntu-20.04
+            os: ubuntu-22.04
 
     runs-on: ${{ matrix.os }}
     steps:
