@@ -266,7 +266,7 @@ GO(g_thread_get_type, iFv)
 GO(g_time_zone_get_type, iFv)
 //GOM(g_type_add_class_cache_func, vFEpB)
 GO(g_type_add_class_private, vFpiu)
-//GO(g_type_add_instance_private, 
+GO(g_type_add_instance_private, iFLL)
 //GOM(g_type_add_interface_check, vFEpB)
 //GOM(g_type_add_interface_dynamic, vFEiip)
 GOM(g_type_add_interface_static, vFEiip)

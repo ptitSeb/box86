@@ -219,6 +219,7 @@ void iFui(x86emu_t *emu, uintptr_t fnc);
 void iFuu(x86emu_t *emu, uintptr_t fnc);
 void iFup(x86emu_t *emu, uintptr_t fnc);
 void iFli(x86emu_t *emu, uintptr_t fnc);
+void iFLL(x86emu_t *emu, uintptr_t fnc);
 void iFLp(x86emu_t *emu, uintptr_t fnc);
 void iFpw(x86emu_t *emu, uintptr_t fnc);
 void iFpi(x86emu_t *emu, uintptr_t fnc);
