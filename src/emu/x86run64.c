@@ -12,6 +12,7 @@
 #include "x86trace.h"
 #include "box86context.h"
 #include "bridge.h"
+#include "signals.h"
 #ifdef DYNAREC
 #include "../dynarec/arm_lock_helper.h"
 #endif
@@ -414,6 +415,40 @@ uintptr_t Run64(x86emu_t *emu, int seg, uintptr_t addr)
         case 0xE9:
         case 0xEB:
             return addr-1;       // ignore FS: to execute regular opcode
+            break;
+
+        case 0xF7:                      /* GRP3 Ed(,Id) */
+            nextop = F8;
+            GET_ED_OFFS(tlsdata);
+            switch((nextop>>3)&7) {
+                case 0: 
+                case 1:                 /* TEST Ed,Id */
+                    tmp32u = F32;
+                    test32(emu, ED->dword[0], tmp32u);
+                    break;
+                case 2:                 /* NOT Ed */
+                    ED->dword[0] = not32(emu, ED->dword[0]);
+                    break;
+                case 3:                 /* NEG Ed */
+                    ED->dword[0] = neg32(emu, ED->dword[0]);
+                    break;
+                case 4:                 /* MUL EAX,Ed */
+                    mul32_eax(emu, ED->dword[0]);
+                    break;
+                case 5:                 /* IMUL EAX,Ed */
+                    imul32_eax(emu, ED->dword[0]);
+                    break;
+                case 6:                 /* DIV Ed */
+                    if(!ED->dword[0])
+                        emit_div0(emu, (void*)R_EIP, 0);
+                    div32(emu, ED->dword[0]);
+                    break;
+                case 7:                 /* IDIV Ed */
+                    if(!ED->dword[0])
+                        emit_div0(emu, (void*)R_EIP, 0);
+                    idiv32(emu, ED->dword[0]);
+                    break;
+            }
             break;
 
         case 0xFF:              /* GRP 5 Ed */
