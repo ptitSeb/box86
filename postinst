@@ -1,4 +1,6 @@
 #!/bin/sh
+# Restart the systemd-binfmt service to load new binary format rules.
+# This ensures the system is immediately ready to run programs with Box86.
 if [ -d '/run/systemd/system' ]; then
     systemctl restart systemd-binfmt || :
 fi
