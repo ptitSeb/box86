@@ -2076,6 +2076,11 @@ EXPORT void PltResolver(x86emu_t* emu)
             printf_dump(LOG_DEBUG, "symbol %s from %s but elf not initialized yet, run Init now (from %s)\n", symname, ElfName(sym_elf), ElfName(h));
             RunElfInitPltResolver(sym_elf, emu);
         }
+        if(sym && (sym->st_info&0xf)==STT_GNU_IFUNC) {
+            // this is an IFUNC, needs to evaluate the function first!
+            printf_dump(LOG_DEBUG, "            Indirect function, will call the resolver now at %p\n", (void*)offs);
+            offs = RunFunction(offs, 0);
+        }
         offs = (uintptr_t)getAlternate((void*)offs);
 
         if(p) {
