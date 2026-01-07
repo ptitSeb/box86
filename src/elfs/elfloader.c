@@ -2033,6 +2033,9 @@ kh_defaultversion_t* GetWeakDefaultVersion(elfheader_t* h)
     return h?h->weakdefver:NULL;
 }
 
+#ifndef STT_GNU_IFUNC
+#define STT_GNU_IFUNC 10
+#endif
 
 uintptr_t pltResolver = ~(uintptr_t)0;
 EXPORT void PltResolver(x86emu_t* emu)

@@ -1,6 +1,8 @@
 #define _TIME_BITS 64
 #define _FILE_OFFSET_BITS 64
-
+#ifdef PANDORA
+#define _ATFILE_SOURCE
+#endif
 #include <string.h>
 #include <sys/stat.h>
 

@@ -2572,7 +2572,6 @@ EXPORT int32_t my_execvp(x86emu_t* emu, const char* path, char* const argv[])
     // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
     return execvp(path, argv);
 }
-
 // execvpe should use PATH to search for the program first
 EXPORT int32_t my_execvpe(x86emu_t* emu, const char* path, char* const argv[], char* const envv[])
 {
@@ -2599,22 +2598,35 @@ EXPORT int32_t my_execvpe(x86emu_t* emu, const char* path, char* const argv[], c
         if(self) newargv[1] = emu->context->fullpath;
         if(script) newargv[2] = emu->context->bashpath;
         printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
+        #ifdef PANDORA
+        int ret = execve(newargv[0], newargv, envv);
+        #else
         int ret = execvpe(newargv[0], newargv, envv);
+        #endif
         box_free(fullpath);
         return ret;
     }
+    #ifndef PANDORA
     box_free(fullpath);
+    #endif
     if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
      && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
      && !argv[2]) {
         // uname -m is redirected to box86 -m
         path = my_context->box86path;
         char *argv2[3] = { my_context->box86path, argv[1], NULL };
+        #ifdef PANDORA
+        return execve(fullpath, argv2, envv);
+        #else
         return execvpe(path, argv2, envv);
+        #endif
     }
-
+    #ifdef PANDORA
+    return execve(fullpath, argv, envv);
+    #else
     // fullpath is gone, so the search will only be on PATH, not on BOX86_PATH (is that an issue?)
     return execvpe(path, argv, envv);
+    #endif
 }
 
 // execvp should use PATH to search for the program first
