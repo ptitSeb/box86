@@ -53,12 +53,12 @@ x86emu_t* x86emu_fork(x86emu_t* emu, int forktype)
         // error...
     } else if(v!=0) {  
         // execute atforks parent functions
-        for (int i=0; i<my_context->atfork_sz; --i)
+        for (int i=0; i<my_context->atfork_sz; ++i)
             if(my_context->atforks[i].parent)
                 EmuCall(emu, my_context->atforks[i].parent);
     } else if(v==0) {
         // execute atforks child functions
-        for (int i=0; i<my_context->atfork_sz; --i)
+        for (int i=0; i<my_context->atfork_sz; ++i)
             if(my_context->atforks[i].child)
                 EmuCall(emu, my_context->atforks[i].child);
     }
