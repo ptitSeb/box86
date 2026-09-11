@@ -270,7 +270,7 @@ uintptr_t Run0F(x86emu_t *emu, uintptr_t addr, int *step)
                 GM.sd[1] = 0x80000000;
             else
                 GM.sd[1] = EX->f[1];
-            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x80000000U || EX->f[1]<-(float)0x80000000U)
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x80000000U || EX->f[0]<-(float)0x80000000U)
                 GM.sd[0] = 0x80000000;
             else
                 GM.sd[0] = EX->f[0];
