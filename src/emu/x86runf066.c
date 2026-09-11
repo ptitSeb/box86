@@ -147,7 +147,7 @@ uintptr_t RunF066(x86emu_t *emu, uintptr_t addr)
                         } while(arm_lock_write_h(ED, inc16(emu, tmp16u)));
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
-                    ED->dword[0] = inc32(emu, ED->dword[0]);
+                    ED->word[0] = inc16(emu, ED->word[0]);
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
                     break;
@@ -168,7 +168,7 @@ uintptr_t RunF066(x86emu_t *emu, uintptr_t addr)
                         } while(arm_lock_write_h(ED, dec16(emu, tmp16u)));
 #else
                     pthread_mutex_lock(&emu->context->mutex_lock);
-                    ED->dword[0] = dec32(emu, ED->dword[0]);
+                    ED->word[0] = dec16(emu, ED->word[0]);
                     pthread_mutex_unlock(&emu->context->mutex_lock);
 #endif
                     break;
