@@ -203,7 +203,7 @@ GO(xmlCheckFilename, iFp)
 GO(xmlCheckHTTPInput, pFpp)
 GO(xmlCheckLanguageID, iFp)
 GO(xmlCheckUTF8, iFp)
-//GO(xmlCheckVersion, 
+GO(xmlCheckVersion,  vFi)
 GO(xmlChildElementCount, LFp)
 GO(xmlCleanupCharEncodingHandlers, vFv)
 GO(xmlCleanupEncodingAliases, vFv)
