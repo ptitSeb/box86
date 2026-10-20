@@ -321,7 +321,7 @@ Will use yyyy as x86 bash to launch script. yyyy needs to be a full path to a va
 #### BOX86_BOX64
 Define where to find box64 binary
  * yyyy
-Will use yyyy as x86_64 interpretor, to launch x64_64 binaries
+Will use yyyy as x86_64 interpreter, to launch x64_64 binaries
 
 #### BOX86_JITGDB *
 

@@ -74,7 +74,7 @@ For each of them:
   NOTE: Those structure letters are "fake types" that are accepted in the macros.
 
 `gbl` contains the first list, `redirects` the second and
- `filespec` constains file specific informations (eg, structures, typedefs required...).
+ `filespec` contains file specific information (eg, structures, typedefs required...).
 
 After sorting the data, it generates:
 
@@ -631,7 +631,7 @@ class Clauses:
 						combinable[len(last_combined) - 1] = True
 						add = (i | attempt[0], m | (i ^ attempt[0]))
 						if add in combined:
-							continue # Aleady added
+							continue # Already added
 						combined.append(add)
 				last_combined.pop()
 			last_combined = combined
@@ -1151,7 +1151,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 	for fhdr in files_header:
 		files_guard[fhdr] = trim(files_guard[fhdr])
 	
-	# TODO: put the informations below in a structure (like in box64, where
+	# TODO: put the information below in a structure (like in box64, where
 	# typedefs & co. are stored in an ABI-specific structure)
 	
 	return_x87: str = "DKdf"

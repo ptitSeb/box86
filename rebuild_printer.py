@@ -729,7 +729,7 @@ def main(root, ver, __debug_forceAllDebugging=False):
 				
 				variables["u"] = -1 # Unsigned shift
 				
-				variables["w"] = -1 # wback (used in adressing)
+				variables["w"] = -1 # wback (used in addressing)
 				
 				variables["shift"] = False # Shift already detected?
 				
