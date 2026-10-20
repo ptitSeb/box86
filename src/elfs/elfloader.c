@@ -1808,7 +1808,7 @@ static int my_dl_iterate_phdr_##A(struct dl_phdr_info* a, size_t b, void* c)    
 {                                                                                   \
     if(!a->dlpi_name)                                                               \
         return 0;                                                                   \
-    if(!a->dlpi_name[0]) /*don't send informations about box86 itself*/             \
+    if(!a->dlpi_name[0]) /*don't send information about box86 itself*/             \
         return 0;                                                                   \
     return RunFunctionFmt(my_dl_iterate_phdr_fct_##A, "pLp", a, b, c);  \
 }
